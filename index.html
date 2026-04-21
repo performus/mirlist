@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MirHub MVP - Full Architecture & Sitemap</title>
+    <title>MirHub MVP - Sitemap</title>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -181,7 +181,7 @@
                 <!-- Level 0 -->
                 <div class="level">
                     <div class="group theme-system root-node" id="node-root">
-                        <div class="group-title">MirHub Ecosystem</div>
+                        <div class="group-title">MirHub MVP</div>
                     </div>
                 </div>
 
@@ -207,7 +207,7 @@
                         <div class="group-title">Авторизация</div>
                         <div class="item-list">
                             <div class="item">Вход по SMS / Apple / Google</div>
-                            <div class="item">Профиль (данные)</div>
+                            <div class="item">Профиль (личные данные)</div>
                         </div>
                     </div>
                 </div>
@@ -217,14 +217,17 @@
                     <div class="group theme-screen" id="group-catalog">
                         <div class="group-title">Каталог & Поиск</div>
                         <div class="item-list">
-                            <div class="item">Листинг объектов</div>
-                            <div class="item">Расширенные фильтры</div>
+                            <div class="item">Листинг объектов (плитка/список)</div>
+                            <div class="item">Расширенные фильтры ТТХ</div>
+                            <div class="item">Сортировка (цена/площадь)</div>
                         </div>
                     </div>
                     <div class="group theme-screen" id="group-map">
-                        <div class="group-title">Карта Мира</div>
+                        <div class="group-title">Карта объектов</div>
                         <div class="item-list">
-                            <div class="item">Гео-кластеры</div>
+                            <div class="item">Интерактивные пины и кластеры</div>
+                            <div class="item">Быстрые фильтры над картой</div>
+                            <div class="item">Выезжающая панель листинга</div>
                             <div class="item theme-locked" id="trigger-user-pdf">Paywall: Скачать презентацию</div>
                         </div>
                     </div>
@@ -254,7 +257,7 @@
                         </div>
                     </div>
                     <div class="group theme-owner-pw" id="paywall-owners">
-                        <div class="group-title">Тарифы: Рантье</div>
+                        <div class="group-title">Тарифы: Владелец</div>
                         <div class="item-list">
                             <div class="item">Размещение > 1 объекта</div>
                             <div class="item">Доступ к CRM (Лиды)</div>
@@ -268,17 +271,17 @@
                     <div class="group theme-screen" id="group-lk-user">
                         <div class="group-title">ЛК Пользователя</div>
                         <div class="item-list">
-                            <div class="item">Избранное</div>
+                            <div class="item">Избранные объекты</div>
                             <div class="item">Мои заявки и чаты</div>
-                            <div class="item">Загрузки (PDF)</div>
+                            <div class="item">Загруженные документы (PDF)</div>
                         </div>
                     </div>
                     <div class="group theme-screen" id="group-lk-owner">
                         <div class="group-title">ЛК Владельца</div>
                         <div class="item-list">
-                            <div class="item">Редактор объектов</div>
-                            <div class="item">Заявки от клиентов</div>
-                            <div class="item">Чат с арендаторами</div>
+                            <div class="item">Редактор объектов площадки</div>
+                            <div class="item">Заявки от арендаторов</div>
+                            <div class="item">Чат с клиентами</div>
                             <div class="item theme-owner-locked" id="trigger-owner-crm">Paywall: Секция лидов</div>
                         </div>
                     </div>
@@ -290,6 +293,7 @@
                         <div class="group-title">Биллинг</div>
                         <div class="item-list">
                             <div class="item">Оплата подписки</div>
+                            <div class="item">История транзакций</div>
                         </div>
                     </div>
                 </div>
