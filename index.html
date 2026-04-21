@@ -147,30 +147,12 @@
         .item.theme-locked { background: var(--c-state-bg); border-color: var(--c-state-border); color: var(--c-state-text); border-style: dashed; font-weight: 600; }
         .item.theme-owner-locked { background: var(--c-owner-bg); border-color: var(--c-owner-border); color: var(--c-owner-text); border-style: dashed; font-weight: 600; }
         .root-node { width: 300px; border-width: 2px; }
-
-        .legend {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--c-system-border);
-            z-index: 100;
-        }
-        .legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; margin-bottom: 6px; font-weight: 500; }
-        .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid; }
     </style>
 </head>
 <body>
 
     <div class="controls">
         <button id="toggle-arrows" class="btn-toggle active">Стрелки: ВКЛ</button>
-    </div>
-
-    <div class="legend">
-        <div class="legend-item"><div class="legend-color" style="background:var(--c-premium-bg); border-color:var(--c-premium-border)"></div> Paywall: Пользователи</div>
-        <div class="legend-item"><div class="legend-color" style="background:var(--c-owner-bg); border-color:var(--c-owner-border)"></div> Paywall: Владельцы</div>
     </div>
 
     <div class="diagram-wrapper">
@@ -229,7 +211,7 @@
                         <div class="item-list">
                             <div class="item">Интерактивные пины и кластеры</div>
                             <div class="item">Быстрые фильтры над картой</div>
-                            <div class="item">Выезжающая панель листинга</div>
+                            <div class="item">Панель с фильтрами и листингами</div>
                             <div class="item theme-locked" id="trigger-user-pdf">Paywall: Скачать презентацию</div>
                         </div>
                     </div>
