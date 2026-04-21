@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Личный кабинет — Площадки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.14);
+  --aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;
+  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
+  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
+  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.2);
+  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--sp);border-radius:3px;}
+
+/* SIDEBAR */
+.sb{width:256px;height:100vh;background:var(--w);border-right:1px solid rgba(197,227,225,.3);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-top{padding:22px 22px 16px;}
+.sb-logo{font-family:'DM Serif Display',serif;font-size:21px;color:var(--sd);margin-bottom:18px;}
+.sb-logo i{font-style:normal;color:var(--c);}
+.sb-role{display:flex;background:var(--bg);border-radius:var(--r);padding:3px;margin-bottom:6px;}
+.sb-role button{flex:1;padding:8px 0;border-radius:8px;border:none;font-size:12px;font-weight:600;color:var(--sx);background:none;transition:all .25s;}
+.sb-role button.active{background:var(--w);color:var(--c);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 12px;}
+.sb-section{margin-bottom:8px;}
+.sb-section-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sp);padding:12px 12px 6px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:var(--sx);cursor:pointer;transition:all .2s;margin-bottom:2px;}
+.sb-item:hover{background:var(--aq-p);color:var(--sm);}
+.sb-item.active{background:var(--cs);color:var(--c);font-weight:600;}
+.sb-item svg{flex-shrink:0;opacity:.55;}
+.sb-item.active svg{opacity:1;color:var(--c);}
+.sb-badge{margin-left:auto;padding:2px 8px;border-radius:var(--rf);font-size:11px;font-weight:700;background:var(--c);color:#fff;}
+.sb-bottom{padding:16px;border-top:1px solid rgba(197,227,225,.25);}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--r);cursor:pointer;transition:background .2s;}
+.sb-user:hover{background:var(--aq-p);}
+.sb-avatar{width:36px;height:36px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);flex-shrink:0;}
+.sb-uname{font-size:13px;font-weight:600;color:var(--sd);}
+.sb-urole{font-size:11.5px;color:var(--sx);}
+.sb-premium{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--rf);background:linear-gradient(135deg,var(--c),var(--c6));color:#fff;font-size:10px;font-weight:700;margin-top:2px;}
+
+/* MAIN */
+.main{flex:1;height:100vh;overflow-y:auto;padding:28px 36px 60px;}
+.page{display:none;animation:fadeIn .35s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Common */
+.page-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:6px;}
+.page-sub{font-size:15px;color:var(--sx);margin-bottom:28px;}
+.card{background:var(--w);border:1px solid rgba(197,227,225,.18);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);transition:transform .3s,box-shadow .3s;}
+.card:hover{box-shadow:var(--shl);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.btn{padding:10px 22px;border-radius:var(--rf);font-size:13.5px;font-weight:600;border:none;transition:all .25s;display:inline-flex;align-items:center;gap:7px;}
+.btn-c{background:var(--c);color:#fff;box-shadow:var(--shc);}.btn-c:hover{background:var(--c6);}
+.btn-cs{background:var(--cs);color:var(--c);}.btn-cs:hover{background:var(--c);color:#fff;}
+.btn-o{background:none;color:var(--s);border:1.5px solid var(--sp);}.btn-o:hover{border-color:var(--c);color:var(--c);}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:var(--rf);font-size:12px;font-weight:500;background:var(--pc);color:var(--sm);}
+.chip.coral{background:var(--cs);color:var(--c);font-weight:600;}
+.divider{height:1px;background:rgba(197,227,225,.25);margin:20px 0;}
+.empty-state{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.5;}
+.empty-text{font-size:15px;color:var(--sx);margin-bottom:20px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-label{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);}
+
+/* STAT CARDS */
+.stat-card{background:var(--w);border:1px solid rgba(197,227,225,.15);border-radius:var(--rl);padding:22px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.08;}
+.stat-card.coral::before{background:var(--c);}
+.stat-card.aqua::before{background:var(--aq);}
+.stat-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sx);margin-bottom:8px;}
+.stat-val{font-size:30px;font-weight:700;color:var(--sd);}
+.stat-val.coral{color:var(--c);}
+.stat-change{font-size:12px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px;}
+.stat-change.up{color:#4CAF78;}
+.stat-change.down{color:var(--c8);}
+
+/* VENUE CARDS (favorites / listing) */
+.v-card{border-radius:var(--rl);overflow:hidden;background:var(--w);border:1px solid rgba(197,227,225,.12);transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;cursor:pointer;}
+.v-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
+.v-thumb{height:140px;overflow:hidden;position:relative;}
+.v-thumb svg{width:100%;height:100%;transition:transform .5s;}
+.v-card:hover .v-thumb svg{transform:scale(1.05);}
+.v-tag{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:var(--rf);font-size:10.5px;font-weight:600;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);color:var(--s);}
+.v-status{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:var(--rf);font-size:10.5px;font-weight:600;}
+.v-status.active{background:rgba(76,175,120,.15);color:#3a8a5c;}
+.v-status.pending{background:var(--cs);color:var(--c);}
+.v-body{padding:14px 16px 16px;}
+.v-name{font-size:14.5px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.v-loc{font-size:12.5px;color:var(--sx);margin-bottom:10px;}
+.v-foot{display:flex;align-items:center;justify-content:space-between;}
+.v-price{font-size:12px;color:var(--sx);}.v-price strong{font-size:15px;font-weight:700;color:var(--sd);}
+.v-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--sd);}
+.v-rating svg{color:#F0B95A;}
+.v-actions-row{display:flex;gap:6px;margin-top:10px;}
+.v-act-btn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid rgba(197,227,225,.3);background:var(--w);color:var(--sx);text-align:center;transition:all .2s;}
+.v-act-btn:hover{border-color:var(--c);color:var(--c);}
+
+/* CHAT */
+.chat-list{display:flex;flex-direction:column;gap:4px;}
+
+/* REQUEST CARDS */
+.req-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.req-card{background:var(--w);border:1px solid rgba(197,227,225,.18);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .3s;position:relative;}
+.req-card:hover{border-color:rgba(235,116,84,.2);box-shadow:var(--sh);}
+.req-card.active{border-color:var(--c);box-shadow:0 0 0 2px var(--cg);}
+.req-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.req-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.req-name{font-size:14.5px;font-weight:600;color:var(--sd);}
+.req-role{font-size:12px;color:var(--sx);}
+.req-status{position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;}
+.req-status.new{background:var(--cs);color:var(--c);}
+.req-status.progress{background:var(--aq-p);color:var(--aq);}
+.req-status.closed{background:var(--bg);color:var(--sp);}
+.req-details{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.req-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sx);}
+.req-row svg{flex-shrink:0;color:var(--sp);opacity:.6;}
+.req-row b{color:var(--sd);font-weight:600;}
+.req-preview{font-size:12.5px;color:var(--sx);line-height:1.5;padding:10px 14px;background:var(--bg);border-radius:var(--r);margin-bottom:12px;border-left:3px solid var(--cs);}
+.req-foot{display:flex;align-items:center;justify-content:space-between;}
+.req-time{font-size:11.5px;color:var(--sp);}
+.req-unread{width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* INLINE CHAT PANEL */
+.chat-panel{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:var(--w);border-left:1px solid rgba(197,227,225,.3);box-shadow:-8px 0 40px rgba(53,78,99,.08);z-index:200;display:flex;flex-direction:column;transition:right .4s cubic-bezier(.22,1,.36,1);}
+.chat-panel.open{right:0;}
+.chat-header{padding:18px 22px;border-bottom:1px solid rgba(197,227,225,.25);display:flex;align-items:center;gap:14px;}
+.chat-header-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--sp);background:var(--w);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sx);transition:all .2s;flex-shrink:0;}
+.chat-header-close:hover{border-color:var(--c);color:var(--c);}
+.chat-header-info{flex:1;}
+.chat-header-name{font-size:15px;font-weight:600;color:var(--sd);}
+.chat-header-sub{font-size:12px;color:var(--sx);}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:var(--rm);font-size:13.5px;line-height:1.55;color:var(--sm);}
+.chat-msg.in{background:var(--bg);align-self:flex-start;border-bottom-left-radius:4px;}
+.chat-msg.out{background:var(--cs);color:var(--c6);align-self:flex-end;border-bottom-right-radius:4px;}
+.chat-msg-time{font-size:10.5px;color:var(--sp);margin-top:4px;}
+.chat-input-wrap{padding:14px 22px;border-top:1px solid rgba(197,227,225,.25);display:flex;gap:10px;}
+.chat-input{flex:1;padding:12px 16px;border-radius:var(--rf);border:1.5px solid rgba(197,227,225,.4);background:var(--w);font-family:inherit;font-size:14px;color:var(--sd);outline:none;transition:border-color .2s;}
+.chat-input:focus{border-color:var(--c);}
+.chat-send{width:44px;height:44px;border-radius:50%;background:var(--c);border:none;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;box-shadow:var(--shc);flex-shrink:0;}
+.chat-send:hover{background:var(--c6);}
+.chat-overlay{position:fixed;inset:0;background:rgba(53,78,99,.15);z-index:199;display:none;}
+.chat-overlay.open{display:block;}
+
+@media(max-width:600px){
+  .req-grid{grid-template-columns:1fr;}
+  .chat-panel{width:100%;right:-100%;}
+}
+.chat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--rm);cursor:pointer;transition:background .2s;border:1px solid transparent;}
+.chat-item:hover{background:var(--aq-p);border-color:rgba(197,227,225,.3);}
+.chat-item.active{background:var(--cs);border-color:rgba(235,116,84,.12);}
+.chat-avatar{width:42px;height:42px;border-radius:50%;background:var(--aq-s);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--sm);flex-shrink:0;position:relative;}
+.chat-online{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:#4CAF78;border:2px solid var(--w);}
+.chat-info{flex:1;min-width:0;}
+.chat-name{font-size:14px;font-weight:600;color:var(--sd);}
+.chat-preview{font-size:12.5px;color:var(--sx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-meta{text-align:right;flex-shrink:0;}
+.chat-time{font-size:11px;color:var(--sp);}
+.chat-unread{width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto;}
+
+/* CHECKLIST */
+.check-list{display:flex;flex-direction:column;gap:8px;}
+.check-item{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:var(--rm);background:var(--w);border:1px solid rgba(197,227,225,.18);cursor:pointer;transition:all .2s;}
+.check-item:hover{border-color:var(--cs);}
+.check-item.done{background:var(--cs);border-color:rgba(235,116,84,.15);}
+.check-box{width:22px;height:22px;border-radius:7px;border:2px solid var(--sp);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.check-item.done .check-box{background:var(--c);border-color:var(--c);}
+.check-box svg{opacity:0;transition:opacity .15s;}
+.check-item.done .check-box svg{opacity:1;}
+.check-text{font-size:14px;color:var(--sm);font-weight:500;}
+.check-item.done .check-text{color:var(--c6);}
+
+/* HISTORY */
+.hist-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:var(--rm);background:var(--w);border:1px solid rgba(197,227,225,.15);margin-bottom:8px;transition:all .2s;}
+.hist-item:hover{border-color:var(--cs);box-shadow:var(--sh);}
+.hist-icon{width:38px;height:38px;border-radius:10px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.hist-text{flex:1;}.hist-query{font-size:14px;font-weight:600;color:var(--sd);}
+.hist-detail{font-size:12px;color:var(--sx);}
+.hist-action{padding:7px 14px;border-radius:var(--rf);font-size:12px;font-weight:600;background:var(--cs);color:var(--c);border:none;transition:all .2s;cursor:pointer;}
+.hist-action:hover{background:var(--c);color:#fff;}
+
+/* PROFILE FORM */
+.form-group{margin-bottom:20px;}
+.form-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sx);margin-bottom:8px;display:block;}
+.form-input{width:100%;padding:12px 16px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.4);background:var(--w);font-family:inherit;font-size:14px;color:var(--sd);transition:border-color .2s;outline:none;}
+.form-input:focus{border-color:var(--c);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-toggle{display:flex;gap:4px;padding:3px;background:var(--bg);border-radius:var(--r);}
+.form-toggle button{flex:1;padding:9px 16px;border-radius:8px;border:none;font-size:13px;font-weight:500;color:var(--sx);background:none;transition:all .25s;}
+.form-toggle button.active{background:var(--w);color:var(--c);font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+
+/* ONBOARDING STEPPER */
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:32px;padding:0 10px;}
+.step{display:flex;align-items:center;gap:8px;flex:1;}
+.step-num{width:32px;height:32px;border-radius:50%;border:2px solid var(--sp);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sp);flex-shrink:0;transition:all .25s;}
+.step.active .step-num{background:var(--c);border-color:var(--c);color:#fff;}
+.step.done .step-num{background:var(--cs);border-color:var(--c);color:var(--c);}
+.step-label{font-size:12.5px;font-weight:500;color:var(--sx);}
+.step.active .step-label{color:var(--c);font-weight:600;}
+.step-line{flex:1;height:2px;background:var(--sp);opacity:.3;margin:0 8px;}
+.step.done .step-line,.step.active .step-line{background:var(--c);opacity:.5;}
+
+/* OWNER STATS */
+.owner-chart{height:140px;background:linear-gradient(to top,var(--cs),var(--w));border-radius:var(--rl);display:flex;align-items:flex-end;padding:16px 20px;gap:8px;}
+.chart-bar{flex:1;background:var(--c);border-radius:6px 6px 0 0;transition:height .4s;opacity:.7;}
+.chart-bar:hover{opacity:1;}
+
+/* GUEST */
+.guest-hero{text-align:center;padding:60px 40px;background:linear-gradient(135deg,var(--cs),var(--pc));border-radius:var(--rl);margin-bottom:24px;}
+.guest-hero h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:10px;}
+.guest-hero p{font-size:15px;color:var(--sx);max-width:400px;margin:0 auto 24px;}
+.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.benefit{text-align:center;padding:24px 16px;background:var(--w);border-radius:var(--rl);border:1px solid rgba(197,227,225,.18);}
+.benefit-icon{font-size:32px;margin-bottom:10px;}
+.benefit-title{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.benefit-desc{font-size:12.5px;color:var(--sx);line-height:1.5;}
+
+/* ═══ RESPONSIVE ═══ */
+
+/* Tablet */
+@media(max-width:1100px){
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .benefit-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* Sidebar collapse + layout shifts */
+@media(max-width:900px){
+  .sb{width:64px;overflow:visible;}
+  .sb-top{padding:16px 10px 10px;}
+  .sb-logo{font-size:18px;text-align:center;margin-bottom:10px;}
+  .sb-logo i{display:inline;}
+  .sb-role,.sb-section-label,.sb-uname,.sb-urole,.sb-premium{display:none;}
+  .sb-nav{padding:4px 8px;}
+  .sb-item{justify-content:center;padding:12px 8px;border-radius:8px;}
+  .sb-item span{display:none;}
+  .sb-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;padding:0;font-size:9px;display:flex;align-items:center;justify-content:center;}
+  .sb-item{position:relative;}
+  .sb-bottom{padding:10px 8px;}
+  .sb-user{justify-content:center;}
+  .sb-user>div:last-child{display:none;}
+
+  .main{padding:20px 16px 40px;}
+  .page-title{font-size:22px;}
+  .page-sub{font-size:13.5px;margin-bottom:20px;}
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  .section-head{flex-wrap:wrap;gap:8px;}
+  .section-label{font-size:18px;}
+  .stat-val{font-size:24px;}
+  .stat-card{padding:16px;}
+  .card{padding:18px;}
+}
+
+/* Mobile */
+@media(max-width:600px){
+  .sb{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%!important;height:auto;flex-direction:row;border-right:none;border-top:1px solid rgba(197,227,225,.35);z-index:100;padding:0;background:var(--w);}
+  .sb-top,.sb-bottom,.sb-section-label{display:none!important;}
+  .sb-nav{display:flex;flex-direction:row;padding:6px 4px;overflow-x:auto;gap:2px;scrollbar-width:none;flex:1;}
+  .sb-nav::-webkit-scrollbar{display:none;}
+  .sb-item{flex:0 0 auto;padding:10px 14px;flex-direction:column;gap:4px;font-size:0;min-width:56px;align-items:center;justify-content:center;}
+  .sb-item svg{width:20px;height:20px;}
+  .sb-item span{display:block!important;font-size:10px;white-space:nowrap;}
+  .sb-badge{position:absolute;top:2px;right:2px;width:14px;height:14px;font-size:8px;}
+
+  body{flex-direction:column;}
+  .main{height:calc(100vh - 64px);padding:16px 14px 80px;}
+
+  .page-title{font-size:20px;line-height:1.2;}
+  .page-sub{font-size:13px;margin-bottom:16px;}
+  .grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}
+  .benefit-grid{grid-template-columns:1fr;}
+  .section-head{margin-bottom:12px;}
+  .section-label{font-size:17px;}
+
+  .stat-card{padding:14px;}
+  .stat-val{font-size:22px;}
+  .stat-label{font-size:11px;}
+  .stat-change{font-size:11px;}
+
+  .card{padding:14px;border-radius:var(--rm);}
+  .v-card{border-radius:var(--rm);}
+  .v-thumb{height:120px;}
+  .v-name{font-size:13.5px;}
+  .v-body{padding:12px 14px 14px;}
+  .v-actions-row{flex-wrap:wrap;}
+  .v-act-btn{font-size:11px;padding:6px;}
+
+  .btn{padding:9px 18px;font-size:12.5px;}
+  .chip{padding:5px 12px;font-size:11.5px;}
+
+  .check-item{padding:12px 14px;}
+  .check-text{font-size:13px;}
+
+  .chat-item{padding:12px 14px;}
+  .chat-name{font-size:13px;}
+  .chat-preview{font-size:11.5px;}
+
+  .hist-item{padding:12px 14px;}
+  .hist-query{font-size:13px;}
+
+  .form-row{grid-template-columns:1fr;}
+  .form-input{padding:10px 14px;font-size:13px;}
+  .form-toggle button{padding:8px 12px;font-size:12px;}
+
+  .stepper{flex-wrap:wrap;gap:6px;padding:0;}
+  .step{flex:0 0 auto;}
+  .step-line{display:none;}
+  .step-num{width:28px;height:28px;font-size:12px;}
+  .step-label{font-size:11px;}
+
+  .owner-chart{height:100px;padding:12px 14px;}
+
+  .guest-hero{padding:36px 20px;border-radius:var(--rm);}
+  .guest-hero h2{font-size:22px;}
+  .guest-hero p{font-size:14px;}
+
+  /* Horizontal card layouts in dashboard */
+  .card[style*="display:flex"][style*="overflow:hidden"] {
+    flex-direction:column!important;
+  }
+  .card[style*="display:flex"][style*="overflow:hidden"] > div:first-child {
+    width:100%!important;height:100px!important;
+  }
+}
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-top">
+    <div class="sb-logo">Площадки<i>.</i></div>
+    <div class="sb-role" id="roleSwitch">
+      <button class="active" data-role="user">Пользователь</button>
+      <button data-role="owner">Площадка</button>
+      <button data-role="guest">Гость</button>
+    </div>
+  </div>
+  <nav class="sb-nav" id="sideNav"></nav>
+  <div class="sb-bottom" id="sbBottom"></div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="mainContent"></div>
+
+<!-- CHAT PANEL -->
+<div class="chat-overlay" id="chatOverlay" onclick="closeChat()"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <button class="chat-header-close" onclick="closeChat()"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="req-avatar" id="chatPanelAvatar" style="background:var(--cs);color:var(--c);width:38px;height:38px;font-size:13px">АК</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chatPanelName">Название</div>
+      <div class="chat-header-sub" id="chatPanelSub">Площадка</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMsgs"></div>
+  <div class="chat-input-wrap">
+    <input class="chat-input" placeholder="Введите сообщение...">
+    <button class="chat-send"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M2 9l14-6-6 14-2-6z" fill="#fff"/></svg></button>
+  </div>
+</div>
+
+<script>
+/* ═══ SVG helper ═══ */
+function vIll(h,s){return `<svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="400" height="180" fill="hsl(${h},20%,89%)"/><defs><linearGradient id="g${s}" x1="0" y1="0" x2="400" y2="180"><stop stop-color="hsl(${h},28%,85%)" offset="0"/><stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/></linearGradient></defs><rect width="400" height="180" fill="url(#g${s})"/><rect x="20" y="50" width="360" height="100" rx="6" fill="hsl(${h},16%,93%)" opacity=".5"/><rect x="40" y="20" width="90" height="130" rx="4" fill="hsl(${h},22%,80%)" opacity=".5"/><rect x="150" y="35" width="70" height="115" rx="4" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/><rect x="240" y="45" width="60" height="105" rx="4" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/></svg>`;}
+
+const IC={
+  dash:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="2" width="6" height="6" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="10" y="2" width="6" height="6" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="10" width="6" height="6" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="10" y="10" width="6" height="6" rx="2" stroke="currentColor" stroke-width="1.4"/></svg>`,
+  fav:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 15.5l-6.2-5.8A3.5 3.5 0 019 4a3.5 3.5 0 016.2 5.7L9 15.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
+  chat:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 4h12a2 2 0 012 2v6a2 2 0 01-2 2H6l-3 2.5V6a2 2 0 012-2z" stroke="currentColor" stroke-width="1.4"/></svg>`,
+  hist:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+  check:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M4 9l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  user:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 16.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4"/></svg>`,
+  venue:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 5V3.5a2 2 0 012-2h4a2 2 0 012 2V5" stroke="currentColor" stroke-width="1.4"/></svg>`,
+  add:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  req:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 7h6M6 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+  stat:`<svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 14V8M7 14V5M11 14V9M15 14V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  star:`<svg width="11" height="11" fill="currentColor" viewBox="0 0 11 11"><path d="M5.5 0l1.7 3.45 3.8.55-2.75 2.68.65 3.79L5.5 8.75l-3.4 1.72.65-3.79L0 3.99l3.8-.54z"/></svg>`,
+  chk:`<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+/* ═══ NAV CONFIG ═══ */
+const NAVS={
+  user:[
+    {id:'dash',icon:IC.dash,label:'Дашборд'},
+    {id:'favs',icon:IC.fav,label:'Избранные',badge:'5'},
+    {id:'reqs',icon:IC.req,label:'Заявки',badge:'3'},
+    {id:'history',icon:IC.hist,label:'История поиска'},
+    {id:'checklist',icon:IC.check,label:'Чеклист'},
+    {id:'profile',icon:IC.user,label:'Профиль'},
+  ],
+  owner:[
+    {id:'odash',icon:IC.stat,label:'Статистика'},
+    {id:'ovenues',icon:IC.venue,label:'Мои площадки'},
+    {id:'ocreate',icon:IC.add,label:'Добавить площадку'},
+    {id:'oreqs',icon:IC.req,label:'Заявки',badge:'7'},
+    {id:'oprofile',icon:IC.user,label:'Профиль объекта'},
+  ],
+  guest:[
+    {id:'guest',icon:IC.user,label:'Вход'},
+  ],
+};
+
+/* ═══ RENDER SIDEBAR NAV ═══ */
+let currentRole='user', currentPage='dash';
+
+function renderNav(){
+  const nav=document.getElementById('sideNav');
+  const items=NAVS[currentRole];
+  nav.innerHTML='<div class="sb-section-label">Меню</div>'+items.map(it=>`
+    <div class="sb-item${it.id===currentPage?' active':''}" data-page="${it.id}">
+      ${it.icon}<span>${it.label}</span>
+      ${it.badge?`<span class="sb-badge">${it.badge}</span>`:''}
+    </div>`).join('');
+  nav.querySelectorAll('.sb-item').forEach(el=>{
+    el.addEventListener('click',()=>{currentPage=el.dataset.page;renderNav();renderPage();});
+  });
+  // Bottom user
+  const bot=document.getElementById('sbBottom');
+  if(currentRole==='guest'){bot.innerHTML='';}
+  else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">АК</div><div><div class="sb-uname">Анна Козлова</div><div class="sb-urole">Пользователь</div><div class="sb-premium">⭐ Premium</div></div></div>`;}
+  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">МС</div><div><div class="sb-uname">Москва-Сити Холл</div><div class="sb-urole">Владелец площадки</div></div></div>`;}
+}
+
+/* ═══ ROLE SWITCH ═══ */
+document.getElementById('roleSwitch').addEventListener('click',e=>{
+  if(!e.target.dataset.role) return;
+  currentRole=e.target.dataset.role;
+  currentPage=NAVS[currentRole][0].id;
+  document.querySelectorAll('.sb-role button').forEach(b=>b.classList.toggle('active',b.dataset.role===currentRole));
+  renderNav();renderPage();
+});
+
+/* ═══ PAGE RENDERERS ═══ */
+function renderPage(){
+  const m=document.getElementById('mainContent');
+  const fn=PAGES[currentPage];
+  m.innerHTML=fn?fn():'<div class="empty-state"><div class="empty-icon">🚧</div><div class="empty-text">Раздел в разработке</div></div>';
+}
+
+const PAGES={
+
+/* ── USER DASHBOARD ── */
+dash:()=>{
+  /* mini data */
+  const favVenues=[
+    {n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',r:4.9,h:195,s:1},
+    {n:'Лофт «Кирпич»',l:'Москва, Курская',p:'28 000 ₽',r:4.6,h:20,s:2},
+    {n:'Усадьба «Белые ночи»',l:'Москва, Рублёвка',p:'95 000 ₽',r:4.9,h:25,s:3},
+  ];
+  const chatsPrev=[
+    {n:'Панорама',ini:'КП',msg:'Зал свободен на указанные даты.',t:'12:34',u:2,on:true},
+    {n:'Лофт «Кирпич»',ini:'ЛК',msg:'Подготовим предложение к вечеру.',t:'Вчера',u:0,on:true},
+    {n:'Белые ночи',ini:'БН',msg:'Можем предложить пакет «Под ключ»...',t:'3 дн.',u:1,on:false},
+  ];
+  const checkItems=[
+    {t:'Вместимость подходит',done:true},{t:'Нужное оборудование',done:true},
+    {t:'Кейтеринг доступен',done:false},{t:'Удобная локация',done:true},
+    {t:'Вписывается в бюджет',done:false},{t:'Хорошие отзывы',done:true},
+    {t:'Даты свободны',done:false},{t:'Wi-Fi и кондиционирование',done:true},
+  ];
+  const checkDone=checkItems.filter(c=>c.done).length;
+  const checkPct=Math.round(checkDone/checkItems.length*100);
+  const histPrev=[
+    {q:'Конференц-залы, Москва',d:'до 100 чел · до 50 000 ₽',t:'Сегодня'},
+    {q:'Лофты с кейтерингом',d:'до 80 чел · В центре',t:'Вчера'},
+  ];
+  const activity=[
+    {t:'Просмотр',v:'Конференц-зал «Панорама»',d:'2 часа назад'},
+    {t:'Запрос отправлен',v:'Лофт «Кирпич»',d:'Вчера'},
+    {t:'Добавлено в избранное',v:'Усадьба «Белые ночи»',d:'3 дня назад'},
+    {t:'Ответ получен',v:'Ресторан «Терракота»',d:'4 дня назад'},
+    {t:'Просмотр',v:'Коворкинг Space One',d:'5 дней назад'},
+  ];
+
+  return `
+  <h1 class="page-title">Добро пожаловать, Анна 👋</h1>
+  <p class="page-sub">Ваш Premium-аккаунт активен. Вот что происходит.</p>
+
+  <!-- ── STAT CARDS ── -->
+  <div class="grid-4" style="margin-bottom:28px">
+    <div class="stat-card coral"><div class="stat-label">Избранные</div><div class="stat-val">5</div><div class="stat-change up">↑ 2 за неделю</div></div>
+    <div class="stat-card coral"><div class="stat-label">Непрочитанные</div><div class="stat-val coral">3</div><div class="stat-change up">↑ новые ответы</div></div>
+    <div class="stat-card aqua"><div class="stat-label">Запросы</div><div class="stat-val">8</div><div class="stat-change">отправлено</div></div>
+    <div class="stat-card"><div class="stat-label">Чеклист</div><div class="stat-val">${checkPct}%</div><div class="stat-change">${checkDone} из ${checkItems.length} пунктов</div></div>
+  </div>
+
+  <!-- ── QUICK ACTIONS ── -->
+  <div class="section-head"><div class="section-label">Быстрые действия</div></div>
+  <div class="grid-4" style="margin-bottom:32px">
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">🔍</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Найти площадку</div><div style="font-size:12px;color:var(--sx);margin-top:4px">Поиск на карте</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">❤️</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Избранное</div><div style="font-size:12px;color:var(--sx);margin-top:4px">5 площадок</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='reqs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">💬</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:12px;color:var(--sx);margin-top:4px">3 активных</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='checklist';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">✅</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Чеклист</div><div style="font-size:12px;color:var(--sx);margin-top:4px">${checkPct}% готово</div></div>
+  </div>
+
+  <!-- ── TWO COLUMNS: Favorites + Chats ── -->
+  <div class="grid-2" style="margin-bottom:32px;align-items:start">
+
+    <!-- Favorites preview -->
+    <div>
+      <div class="section-head"><div class="section-label">Избранные площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='favs';renderNav();renderPage()">Все →</button></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${favVenues.map(v=>`<div class="card" style="padding:0;display:flex;overflow:hidden;cursor:pointer">
+          <div style="width:120px;height:90px;overflow:hidden;flex-shrink:0">${vIll(v.h,v.s)}</div>
+          <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:14px;font-weight:600;color:var(--sd)">${v.n}</div>
+            <div style="font-size:12px;color:var(--sx);margin-top:2px">${v.l}</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+              <span style="font-size:13px;font-weight:700;color:var(--sd)">от ${v.p}</span>
+              <span style="font-size:12px;color:var(--sx);display:flex;align-items:center;gap:3px">${IC.star} ${v.r}</span>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Chats preview -->
+    <div>
+      <div class="section-head"><div class="section-label">Последние заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='reqs';renderNav();renderPage()">Все →</button></div>
+      <div class="card" style="padding:0">
+        ${chatsPrev.map((c,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(197,227,225,.12);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--aq-p)'" onmouseout="this.style.background=''">
+          <div style="width:38px;height:38px;border-radius:50%;background:${i===0?'var(--cs)':'var(--aq-s)'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${i===0?'var(--c)':'var(--sm)'};position:relative;flex-shrink:0">${c.ini}${c.on?'<div style="position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;background:#4CAF78;border:2px solid var(--w)"></div>':''}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${c.n}</div><div style="font-size:12px;color:var(--sx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.msg}</div></div>
+          <div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--sp)">${c.t}</div>${c.u?'<div style="width:18px;height:18px;border-radius:50%;background:var(--c);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto">'+c.u+'</div>':''}</div>
+        </div>`).join('')}
+      </div>
+
+      <!-- Checklist progress mini -->
+      <div style="margin-top:16px">
+        <div class="section-head"><div class="section-label">Прогресс чеклиста</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='checklist';renderNav();renderPage()">Открыть →</button></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+            <div style="font-size:32px;font-weight:700;color:var(--c)">${checkPct}%</div>
+            <div style="flex:1"><div style="font-size:13px;color:var(--sx);margin-bottom:6px">${checkDone} из ${checkItems.length} критериев выполнено</div><div style="height:8px;border-radius:4px;background:var(--bg);overflow:hidden"><div style="height:100%;width:${checkPct}%;border-radius:4px;background:linear-gradient(90deg,var(--c),var(--c6));transition:width .4s"></div></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">${checkItems.map(c=>`<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:${c.done?'var(--c)':'var(--sx)'};cursor:pointer"><input type="checkbox" ${c.done?'checked':''} style="display:none"><div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ${c.done?'var(--c)':'var(--sp)'};background:${c.done?'var(--c)':'none'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${c.done?'<svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>${c.t}</label>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HISTORY PREVIEW ── -->
+  <div class="section-head"><div class="section-label">Недавние поиски</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='history';renderNav();renderPage()">Все →</button></div>
+  <div class="grid-2" style="margin-bottom:32px">
+    ${histPrev.map(h=>`<div class="card" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px" onmouseover="this.style.borderColor='rgba(235,116,84,.2)'" onmouseout="this.style.borderColor=''">
+      <div style="width:40px;height:40px;border-radius:12px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔍</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${h.q}</div><div style="font-size:12px;color:var(--sx)">${h.d} · ${h.t}</div></div>
+      <button class="btn btn-cs" style="padding:6px 14px;font-size:12px">Повторить</button>
+    </div>`).join('')}
+  </div>
+
+  <!-- ── PREMIUM BLOCK ── -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 50%,var(--aq-p) 100%);border:1.5px solid rgba(235,116,84,.12);margin-bottom:32px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="font-size:42px">⭐</div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:700;color:var(--c);margin-bottom:4px">Premium активен</div>
+        <div style="font-size:14px;color:var(--sm);line-height:1.6">Приоритетные ответы от площадок · Расширенные фильтры · Доступ к скрытым предложениям · Чеклист площадок</div>
+      </div>
+      <div class="chip coral" style="font-size:12px;padding:7px 18px">Активно</div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY FEED ── -->
+  <div class="section-head"><div class="section-label">Лента активности</div></div>
+  <div class="card" style="padding:0">
+    ${activity.map(a=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(197,227,225,.12)">
+      <div style="width:36px;height:36px;border-radius:10px;background:${a.t.includes('Ответ')?'var(--aq-s)':'var(--cs)'};display:flex;align-items:center;justify-content:center;font-size:14px">${a.t.includes('Просмотр')?'👁':a.t.includes('Запрос')?'📩':a.t.includes('Ответ')?'📬':'❤️'}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${a.v}</div><div style="font-size:12px;color:var(--sx)">${a.t}</div></div>
+      <div style="font-size:12px;color:var(--sp)">${a.d}</div>
+    </div>`).join('')}
+  </div>
+  `;
+},
+
+/* ── FAVORITES ── */
+favs:()=>{
+  const venues=[
+    {n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',r:4.9,h:195,s:1},
+    {n:'Лофт «Кирпич»',l:'Москва, Курская',p:'28 000 ₽',r:4.6,h:20,s:2},
+    {n:'Усадьба «Белые ночи»',l:'Москва, Рублёвка',p:'95 000 ₽',r:4.9,h:25,s:3},
+    {n:'Коворкинг Space One',l:'Москва, Сити',p:'8 000 ₽',r:4.8,h:180,s:4},
+    {n:'Ресторан «Терракота»',l:'Москва, Патриаршие',p:'35 000 ₽',r:4.8,h:15,s:5},
+  ];
+  return `<h1 class="page-title">Избранные площадки</h1><p class="page-sub">${venues.length} сохранённых площадок</p>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="chip coral">Все</div><div class="chip">Москва</div><div class="chip">Конференции</div><div class="chip">до 50 000 ₽</div>
+  </div>
+  <div class="grid-3">${venues.map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-tag">Конференц-зал</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div><div class="v-rating">${IC.star} ${v.r}</div></div><div class="v-actions-row"><button class="v-act-btn">Открыть</button><button class="v-act-btn">Написать</button><button class="v-act-btn" style="color:var(--c8)">✕</button></div></div></div>`).join('')}</div>`;
+},
+
+/* ── USER REQUESTS ── */
+reqs:()=>{
+  const r=[
+    {id:1,n:'Конференц-зал «Панорама»',ini:'КП',type:'Конференция',guests:80,date:'15 марта 2026',budget:'до 50 000 ₽',st:'new',msg:'Добрый день! Зал свободен на указанные даты. Стоимость аренды на полный день — 45 000 ₽.',t:'Сегодня, 12:34',u:2},
+    {id:2,n:'Лофт «Кирпич»',ini:'ЛК',type:'Корпоратив',guests:60,date:'22 марта 2026',budget:'до 35 000 ₽',st:'progress',msg:'Спасибо за запрос, подготовим коммерческое предложение к вечеру.',t:'Вчера',u:0},
+    {id:3,n:'Усадьба «Белые ночи»',ini:'БН',type:'Свадьба',guests:150,date:'15 июня 2026',budget:'до 100 000 ₽',st:'new',msg:'Здравствуйте, можем предложить пакет «Под ключ» за 95 000 ₽.',t:'3 дня назад',u:1},
+    {id:4,n:'Коворкинг Space One',ini:'SO',type:'Бизнес-встреча',guests:20,date:'10 марта 2026',budget:'до 15 000 ₽',st:'closed',msg:'Бронирование подтверждено. Ждём вас!',t:'5 дней назад',u:0},
+  ];
+  return `
+  <h1 class="page-title">Заявки</h1>
+  <p class="page-sub">Ваши запросы в площадки · ${r.length} заявки</p>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="chip coral">Все (${r.length})</div>
+    <div class="chip">Новые (${r.filter(x=>x.st==='new').length})</div>
+    <div class="chip">В работе (${r.filter(x=>x.st==='progress').length})</div>
+    <div class="chip">Закрытые (${r.filter(x=>x.st==='closed').length})</div>
+  </div>
+  <div class="req-grid">
+    ${r.map(q=>`<div class="req-card" onclick="openChat(${q.id},'${q.n}','${q.ini}','user')">
+      <div class="req-status ${q.st}">${q.st==='new'?'Новая':q.st==='progress'?'В работе':'Закрыта'}</div>
+      <div class="req-top">
+        <div class="req-avatar" style="background:${q.st==='new'?'var(--cs)':'var(--aq-p)'};color:${q.st==='new'?'var(--c)':'var(--sm)'}">${q.ini}</div>
+        <div><div class="req-name">${q.n}</div><div class="req-role">Площадка</div></div>
+      </div>
+      <div class="req-details">
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="3" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6h11" stroke="currentColor" stroke-width="1.2"/></svg><b>${q.date}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>${q.guests} гостей · <b>${q.type}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v10M4 5h6M3 8h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${q.budget}</div>
+      </div>
+      <div class="req-preview">${q.msg}</div>
+      <div class="req-foot">
+        <div class="req-time">${q.t}</div>
+        ${q.u?`<div class="req-unread">${q.u}</div>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+},
+
+/* ── HISTORY ── */
+history:()=>`
+  <h1 class="page-title">История поиска</h1><p class="page-sub">Ваши последние запросы</p>
+  ${[
+    {q:'Конференц-залы, Москва',d:'до 100 чел · до 50 000 ₽',t:'Сегодня'},
+    {q:'Лофты с кейтерингом, Москва',d:'до 80 чел · В центре',t:'Вчера'},
+    {q:'Банкетные залы, Санкт-Петербург',d:'до 200 чел · Свадьба',t:'3 дня назад'},
+    {q:'Коворкинги, Казань',d:'до 30 чел',t:'Неделю назад'},
+  ].map(h=>`<div class="hist-item"><div class="hist-icon">🔍</div><div class="hist-text"><div class="hist-query">${h.q}</div><div class="hist-detail">${h.d} · ${h.t}</div></div><button class="hist-action">Повторить</button></div>`).join('')}`,
+
+/* ── CHECKLIST ── */
+checklist:()=>`
+  <h1 class="page-title">Чеклист выбора площадки</h1><p class="page-sub">Отмечайте критерии для выбора идеальной площадки</p>
+  <div class="card">
+    <div class="check-list">
+      ${[
+        {t:'Вместимость подходит',done:true},
+        {t:'Есть нужное оборудование (проектор, звук)',done:true},
+        {t:'Доступен кейтеринг или свой повар',done:false},
+        {t:'Удобная локация и парковка',done:true},
+        {t:'Вписывается в бюджет',done:false},
+        {t:'Хорошие отзывы (4.5+)',done:true},
+        {t:'Даты свободны',done:false},
+        {t:'Есть Wi-Fi и кондиционирование',done:true},
+      ].map(c=>`<div class="check-item${c.done?' done':''}" onclick="this.classList.toggle('done')"><div class="check-box">${IC.chk}</div><div class="check-text">${c.t}</div></div>`).join('')}
+    </div>
+  </div>`,
+
+/* ── PROFILE ── */
+profile:()=>`
+  <h1 class="page-title">Профиль</h1><p class="page-sub">Управление аккаунтом</p>
+  <div class="card" style="max-width:640px">
+    <div class="form-group"><label class="form-label">Тип аккаунта</label>
+      <div class="form-toggle"><button class="active">Физлицо</button><button>ИП</button><button>Компания</button></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Имя</label><input class="form-input" value="Анна Козлова"></div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" value="+7 (999) 123-45-67"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="anna@example.com"></div>
+    <div class="divider"></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:18px;border-radius:var(--rm);background:linear-gradient(135deg,var(--cs),var(--pc))">
+      <div style="font-size:28px">⭐</div>
+      <div><div style="font-size:15px;font-weight:700;color:var(--c)">Premium подписка</div><div style="font-size:13px;color:var(--sx)">Приоритетные ответы · Расширенные фильтры · Скрытые предложения</div></div>
+      <div class="chip coral" style="margin-left:auto">Активна</div>
+    </div>
+    <button class="btn btn-c">Сохранить изменения</button>
+  </div>`,
+
+/* ══════ OWNER PAGES ══════ */
+
+/* ── OWNER DASHBOARD ── */
+odash:()=>{
+  const ov=[
+    {n:'Конференц-зал «Панорама»',st:'active',views:1240,reqs:18,h:195,s:10},
+    {n:'Зал «Горизонт»',st:'active',views:680,reqs:11,h:205,s:11},
+    {n:'Переговорная «Бриз»',st:'pending',views:45,reqs:5,h:180,s:12},
+  ];
+  const reqs=[
+    {n:'Анна К.',t:'Конференция, 80 чел.',d:'Сегодня',st:'new'},
+    {n:'Дмитрий М.',t:'Корпоратив, 150 чел.',d:'Сегодня',st:'new'},
+    {n:'Ольга С.',t:'Семинар, 40 чел.',d:'Вчера',st:'new'},
+  ];
+  const oReqPrev=[
+    {ini:'АК',n:'Анна К.',msg:'Подскажите, зал доступен 15 марта?',t:'14:30',u:1,on:true},
+    {ini:'ДМ',n:'Дмитрий М.',msg:'Спасибо, нас всё устраивает.',t:'Вчера',u:0,on:false},
+  ];
+  return `
+  <h1 class="page-title">Дашборд площадки</h1>
+  <p class="page-sub">Обзор за 30 дней · Москва-Сити Холл</p>
+
+  <!-- Stats -->
+  <div class="grid-4" style="margin-bottom:28px">
+    <div class="stat-card coral"><div class="stat-label">Просмотры</div><div class="stat-val">2 480</div><div class="stat-change up">↑ 12%</div></div>
+    <div class="stat-card coral"><div class="stat-label">Новые заявки</div><div class="stat-val coral">8</div><div class="stat-change up">↑ 3 сегодня</div></div>
+    <div class="stat-card aqua"><div class="stat-label">Конверсия</div><div class="stat-val">1.4%</div><div class="stat-change up">↑ 0.2%</div></div>
+    <div class="stat-card"><div class="stat-label">Средняя оценка</div><div class="stat-val">4.8 ★</div><div class="stat-change">127 отзывов</div></div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="section-head"><div class="section-label">Быстрые действия</div></div>
+  <div class="grid-4" style="margin-bottom:28px">
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ocreate';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">➕</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Добавить площадку</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">📩</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--c);font-weight:600;margin-top:2px">8 новых</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">💬</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">2 активных</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ovenues';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">🏢</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Мои площадки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">${ov.length} объекта</div></div>
+  </div>
+
+  <!-- Chart -->
+  <div class="section-head"><div class="section-label">Просмотры за месяц</div></div>
+  <div class="card" style="padding:20px;margin-bottom:28px"><div class="owner-chart">${Array.from({length:30},(_,i)=>`<div class="chart-bar" style="height:${20+Math.random()*80}%"></div>`).join('')}</div></div>
+
+  <!-- Two cols: Venues + Requests -->
+  <div class="grid-2" style="margin-bottom:28px;align-items:start">
+    <div>
+      <div class="section-head"><div class="section-label">Мои площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='ovenues';renderNav();renderPage()">Все →</button></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${ov.map(v=>`<div class="card" style="padding:0;display:flex;overflow:hidden;cursor:pointer">
+          <div style="width:110px;height:80px;overflow:hidden;flex-shrink:0">${vIll(v.h,v.s)}</div>
+          <div style="padding:10px 14px;flex:1;display:flex;align-items:center;gap:12px">
+            <div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${v.n}</div><div style="font-size:12px;color:var(--sx);margin-top:2px">👁 ${v.views} · 📩 ${v.reqs}</div></div>
+            <div class="chip${v.st==='active'?'':' coral'}" style="font-size:10.5px">${v.st==='active'?'✓ Активна':'На модерации'}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="section-head"><div class="section-label">Последние заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='oreqs';renderNav();renderPage()">Все →</button></div>
+      <div class="card" style="padding:0">
+        ${reqs.map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(197,227,225,.12)">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--c);flex-shrink:0">${r.n[0]}${r.n.split(' ')[1][0]}</div>
+          <div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${r.n}</div><div style="font-size:12px;color:var(--sx)">${r.t}</div></div>
+          <div class="chip coral" style="font-size:10px">Новая</div>
+        </div>`).join('')}
+      </div>
+
+      <!-- Chats preview -->
+      <div style="margin-top:16px">
+        <div class="section-head"><div class="section-label">Заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='oreqs';renderNav();renderPage()">Все →</button></div>
+        <div class="card" style="padding:0">
+          ${oReqPrev.map(c=>`<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(197,227,225,.12)">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--aq-s);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sm);flex-shrink:0;position:relative">${c.ini}${c.on?'<div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#4CAF78;border:2px solid var(--w)"></div>':''}</div>
+            <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${c.n}</div><div style="font-size:12px;color:var(--sx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.msg}</div></div>
+            ${c.u?'<div style="width:18px;height:18px;border-radius:50%;background:var(--c);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+c.u+'</div>':'<div style="font-size:11px;color:var(--sp)">'+c.t+'</div>'}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+},
+
+/* ── OWNER VENUES ── */
+ovenues:()=>{
+  const ov=[
+    {n:'Конференц-зал «Панорама»',st:'active',views:1240,h:195,s:10},
+    {n:'Зал «Горизонт»',st:'active',views:680,h:205,s:11},
+    {n:'Переговорная «Бриз»',st:'pending',views:45,h:180,s:12},
+  ];
+  return `<h1 class="page-title">Мои площадки</h1><p class="page-sub">${ov.length} площадки</p>
+  <div style="margin-bottom:20px"><button class="btn btn-c" onclick="currentPage='ocreate';renderNav();renderPage()">+ Добавить площадку</button></div>
+  <div class="grid-3">${ov.map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-status ${v.st==='active'?'active':'pending'}">${v.st==='active'?'Активна':'На модерации'}</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc" style="display:flex;gap:12px"><span>👁 ${v.views} просмотров</span></div><div class="v-actions-row"><button class="v-act-btn">Редактировать</button><button class="v-act-btn">Архивировать</button></div></div></div>`).join('')}</div>`;
+},
+
+/* ── OWNER CREATE (stepper) ── */
+ocreate:()=>{
+  const steps=['Основное','Локация','Параметры','Цены','Услуги','Фото','Правила','Публикация'];
+  const stepContent=[
+    /* 0: Основное */
+    `<div class="form-group"><label class="form-label">Название площадки</label><input class="form-input" placeholder="Например: Конференц-зал «Панорама»"></div>
+    <div class="form-group"><label class="form-label">Тип площадки</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['Конференц-зал','Лофт','Ресторан','Банкетный зал','Коворкинг','Галерея','Загородная','Другое'].map((t,i)=>`<div class="chip${i===0?' coral':''}" style="cursor:pointer" data-select="single">${t}</div>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Краткое описание</label><input class="form-input" placeholder="Одно предложение о площадке"></div>
+    <div class="form-group"><label class="form-label">Полное описание</label><textarea class="form-input" rows="5" placeholder="Расскажите подробно о пространстве, атмосфере, архитектуре и возможностях для мероприятий..."></textarea></div>`,
+
+    /* 1: Локация */
+    `<div class="form-group"><label class="form-label">Город</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['Москва','Санкт-Петербург','Казань','Сочи','Екатеринбург','Новосибирск','Другой'].map((c,i)=>`<div class="chip${i===0?' coral':''}" style="cursor:pointer" data-select="single">${c}</div>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Адрес</label><input class="form-input" placeholder="Улица, дом, строение"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Район</label><input class="form-input" placeholder="Пресненский"></div>
+      <div class="form-group"><label class="form-label">Метро / ориентир</label><input class="form-input" placeholder="Выставочная"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Карта</label>
+      <div style="height:200px;border-radius:var(--rm);overflow:hidden;background:var(--aq-p);display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--sp)">
+        <div style="text-align:center;color:var(--sx)"><div style="font-size:28px;margin-bottom:8px">📍</div><div style="font-size:13px">Укажите точку на карте или введите адрес выше</div></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Информация о парковке</label><input class="form-input" placeholder="Подземная, 200 мест, 300 ₽/час"></div>`,
+
+    /* 2: Параметры */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Максимальная вместимость</label><input class="form-input" type="number" placeholder="250"></div>
+      <div class="form-group"><label class="form-label">Площадь (м²)</label><input class="form-input" type="number" placeholder="380"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Количество залов / пространств</label><input class="form-input" type="number" placeholder="3"></div>
+    <div class="form-group"><label class="form-label">Номерной фонд (если есть)</label><input class="form-input" type="number" placeholder="0"></div>
+    <div class="form-group"><label class="form-label">Форматы рассадки</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[{f:'Театр',e:'🎭'},{f:'Банкет',e:'🍽'},{f:'Фуршет',e:'🥂'},{f:'Класс',e:'📚'},{f:'Кабаре',e:'🎤'},{f:'Переговорная',e:'💼'}].map(x=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.35);background:var(--w)">
+          <span style="font-size:20px">${x.e}</span>
+          <span style="font-size:13px;color:var(--sd);font-weight:500;flex:1">${x.f}</span>
+          <input class="form-input" style="width:80px;padding:8px 10px;text-align:center;font-size:13px" type="number" placeholder="0">
+          <span style="font-size:11px;color:var(--sx)">чел.</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Трансформируемое пространство</label>
+      <div class="form-toggle"><button class="active">Да</button><button>Нет</button></div>
+    </div>`,
+
+    /* 3: Цены */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Цена за час (₽)</label><input class="form-input" type="number" placeholder="12 000"></div>
+      <div class="form-group"><label class="form-label">Цена за день (₽)</label><input class="form-input" type="number" placeholder="45 000"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Минимальный депозит (₽)</label><input class="form-input" type="number" placeholder="20 000"></div>
+      <div class="form-group"><label class="form-label">Минимальное время аренды</label>
+        <div class="form-toggle"><button class="active">3 часа</button><button>Полдня</button><button>Полный день</button></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Пакет «Под ключ» (₽)</label><input class="form-input" type="number" placeholder="85 000"></div>
+    <div class="form-group"><label class="form-label">Что включено в стоимость</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['Аренда зала','Wi-Fi','Проектор','Звук','Мебель','Гардероб','Координатор','Уборка'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Примечание к ценам</label><textarea class="form-input" rows="3" placeholder="Скидки при бронировании на несколько дней, специальные условия для постоянных клиентов..."></textarea></div>`,
+
+    /* 4: Услуги */
+    `<div class="form-group"><label class="form-label">Оборудование и техника</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['📽 Проектор','🔊 Звук','💡 Свет','🎤 Микрофоны','📺 Экран','📹 Видеозапись','💻 Видеоконференция','🖨 Принтер'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Комфорт</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['📶 Wi-Fi','❄️ Кондиционер','☀️ Естественный свет','🧥 Гардероб','🪑 Мебель','🅿️ Парковка','♿ Доступность','🔧 Техподдержка'].map((x,i)=>`<div class="chip${i<3?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Кейтеринг</label>
+      <div class="form-toggle" style="margin-bottom:12px"><button class="active">Свой кейтеринг</button><button>Внешний допускается</button><button>Нет кейтеринга</button></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['☕ Кофе-брейк','🍽 Банкет','🥂 Фуршет','🍸 Бар','🥗 Диетическое меню','🍷 Пробковый сбор'].map(x=>`<div class="chip" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Сцена</label>
+      <div class="form-toggle"><button class="active">Есть</button><button>Нет</button><button>Можно установить</button></div>
+    </div>`,
+
+    /* 5: Фото */
+    `<div class="form-group"><label class="form-label">Главное фото</label>
+      <div style="height:200px;border-radius:var(--rm);border:2px dashed var(--sp);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;background:var(--bg)" onmouseover="this.style.borderColor='var(--c)'" onmouseout="this.style.borderColor='var(--sp)'">
+        <div style="text-align:center;color:var(--sx)"><div style="font-size:36px;margin-bottom:8px">📷</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Загрузите главное фото</div><div style="font-size:12px;margin-top:4px">JPG, PNG · до 10 МБ · рекомендуется 1600×900</div></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Галерея (до 20 фото)</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        ${Array.from({length:8},(_,i)=>`<div style="aspect-ratio:1;border-radius:var(--r);border:1.5px dashed ${i<3?'var(--c)':'var(--sp)'};display:flex;align-items:center;justify-content:center;cursor:pointer;background:${i<3?'var(--cs)':'var(--bg)'};transition:border-color .2s" onmouseover="this.style.borderColor='var(--c)'" onmouseout="this.style.borderColor='${i<3?'var(--c)':'var(--sp)'}'">${i<3?`<div style="text-align:center"><div style="font-size:16px;color:var(--c)">✓</div><div style="font-size:10px;color:var(--c);font-weight:600">Фото ${i+1}</div></div>`:`<div style="font-size:20px;color:var(--sp)">+</div>`}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Видео (необязательно)</label><input class="form-input" placeholder="Ссылка на YouTube или Vimeo"></div>`,
+
+    /* 6: Правила */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Время работы</label>
+        <div style="display:flex;gap:10px"><input class="form-input" style="width:100px" placeholder="8:00"><span style="display:flex;align-items:center;color:var(--sx)">—</span><input class="form-input" style="width:100px" placeholder="23:00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Музыка / шум до</label><input class="form-input" placeholder="23:00"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Монтаж / демонтаж</label>
+      <div class="form-row">
+        <input class="form-input" placeholder="Монтаж за 2 часа до">
+        <input class="form-input" placeholder="Демонтаж в течение 3 часов">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Внешние подрядчики</label>
+      <div class="form-toggle"><button class="active">По согласованию</button><button>Допускаются</button><button>Запрещены</button></div>
+    </div>
+    <div class="form-group"><label class="form-label">Политика отмены</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена за 7+ дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="100%" placeholder="%"></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена за 3–7 дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="50%" placeholder="%"></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена менее 3 дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="0%" placeholder="%"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Дополнительные правила</label><textarea class="form-input" rows="3" placeholder="Любые дополнительные ограничения или условия..."></textarea></div>`,
+
+    /* 7: Публикация */
+    `<div style="text-align:center;padding:20px 0 10px">
+      <div style="font-size:48px;margin-bottom:16px">🎉</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);margin-bottom:8px">Всё готово к публикации!</div>
+      <div style="font-size:14px;color:var(--sx);max-width:400px;margin:0 auto 28px;line-height:1.6">Проверьте информацию перед отправкой. После модерации (обычно 1–2 рабочих дня) ваша площадка появится на платформе.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      ${[{l:'Название',v:'Конференц-зал «Панорама»'},{l:'Город',v:'Москва, Пресня'},{l:'Вместимость',v:'до 250 чел.'},{l:'Цена',v:'от 45 000 ₽/день'},{l:'Тип',v:'Конференц-зал'},{l:'Залов',v:'3'},{l:'Фото',v:'3 загружено'},{l:'Кейтеринг',v:'Свой + внешний'}].map(x=>`<div style="padding:14px 16px;border-radius:var(--r);background:var(--bg);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:var(--sx);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${x.l}</span><span style="font-size:14px;font-weight:600;color:var(--sd)">${x.v}</span></div>`).join('')}
+    </div>
+    <div style="padding:16px;border-radius:var(--rm);background:var(--cs);display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <span style="font-size:20px">📋</span>
+      <span style="font-size:13px;color:var(--c6);line-height:1.5">После публикации площадка будет отправлена на модерацию. Вы получите уведомление о результате.</span>
+    </div>`,
+  ];
+
+  const html = `
+  <h1 class="page-title">Добавить площадку</h1>
+  <p class="page-sub">Шаг <span id="stepCurrent">1</span> из ${steps.length} · <span id="stepName">${steps[0]}</span></p>
+  <div class="stepper" id="stepper">
+    ${steps.map((s,i)=>`<div class="step${i===0?' active':''}" data-step="${i}">
+      <div class="step-num">${i+1}</div>
+      <div class="step-label">${s}</div>
+    </div>${i<steps.length-1?'<div class="step-line"></div>':''}`).join('')}
+  </div>
+  <div class="card" style="max-width:720px" id="stepContent">${stepContent[0]}</div>
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;max-width:720px" id="stepNav">
+    <button class="btn btn-o" id="stepPrev" style="display:none" onclick="changeStep(-1)">← Назад</button>
+    <button class="btn btn-o">Сохранить черновик</button>
+    <button class="btn btn-c" id="stepNext" onclick="changeStep(1)">Далее →</button>
+  </div>`;
+  // Store data globally after render
+  setTimeout(()=>{
+    window._stepData=stepContent;
+    window._stepNames=steps;
+    window._currentStep=0;
+    initStepInteractions();
+  },0);
+  return html;
+},
+
+/* ── OWNER REQUESTS ── */
+oreqs:()=>{
+  const r=[
+    {id:10,n:'Анна Козлова',ini:'АК',type:'Конференция',guests:80,date:'15 марта 2026',venue:'Конференц-зал «Панорама»',budget:'до 50 000 ₽',st:'new',msg:'Здравствуйте, хотели бы забронировать зал на полный день для конференции.',t:'Сегодня, 14:30',u:1},
+    {id:11,n:'Дмитрий Морозов',ini:'ДМ',type:'Корпоратив',guests:150,date:'20 декабря 2026',venue:'Зал «Горизонт»',budget:'до 80 000 ₽',st:'new',msg:'Планируем новогодний корпоратив. Нужен банкет на 150 чел. с кейтерингом.',t:'Сегодня, 11:15',u:1},
+    {id:12,n:'Ольга Смирнова',ini:'ОС',type:'Семинар',guests:40,date:'5 января 2026',venue:'Переговорная «Бриз»',budget:'до 15 000 ₽',st:'progress',msg:'Подскажите, есть ли проектор и флипчарт?',t:'Вчера',u:0},
+    {id:13,n:'ООО «Техсофт»',ini:'ТС',type:'Конференция',guests:200,date:'1 февраля 2026',venue:'Конференц-зал «Панорама»',budget:'до 70 000 ₽',st:'progress',msg:'Нужна видеоконференцсвязь и трансляция на YouTube.',t:'2 дня назад',u:0},
+    {id:14,n:'Мария Иванова',ini:'МИ',type:'День рождения',guests:30,date:'28 февраля 2026',venue:'Зал «Горизонт»',budget:'до 40 000 ₽',st:'new',msg:'Можно ли принести свой торт? И есть ли музыкальное оборудование?',t:'2 дня назад',u:1},
+    {id:15,n:'Павел Сидоров',ini:'ПС',type:'Бизнес-встреча',guests:12,date:'10 марта 2026',venue:'Переговорная «Бриз»',budget:'до 10 000 ₽',st:'closed',msg:'Спасибо, бронирование подтверждено!',t:'5 дней назад',u:0},
+  ];
+  return `
+  <h1 class="page-title">Заявки</h1>
+  <p class="page-sub">Входящие запросы от клиентов · ${r.length} заявок</p>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="chip coral">Все (${r.length})</div>
+    <div class="chip">Новые (${r.filter(x=>x.st==='new').length})</div>
+    <div class="chip">В работе (${r.filter(x=>x.st==='progress').length})</div>
+    <div class="chip">Закрытые (${r.filter(x=>x.st==='closed').length})</div>
+  </div>
+  <div class="req-grid">
+    ${r.map(q=>`<div class="req-card" onclick="openChat(${q.id},'${q.n}','${q.ini}','owner')">
+      <div class="req-status ${q.st}">${q.st==='new'?'Новая':q.st==='progress'?'В работе':'Закрыта'}</div>
+      <div class="req-top">
+        <div class="req-avatar" style="background:${q.st==='new'?'var(--cs)':'var(--aq-p)'};color:${q.st==='new'?'var(--c)':'var(--sm)'}">${q.ini}</div>
+        <div><div class="req-name">${q.n}</div><div class="req-role">${q.type} · ${q.venue}</div></div>
+      </div>
+      <div class="req-details">
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="3" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6h11" stroke="currentColor" stroke-width="1.2"/></svg><b>${q.date}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>${q.guests} гостей · <b>${q.type}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v10M4 5h6M3 8h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${q.budget}</div>
+      </div>
+      <div class="req-preview">${q.msg}</div>
+      <div class="req-foot">
+        <div class="req-time">${q.t}</div>
+        ${q.u?`<div class="req-unread">${q.u}</div>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+},
+
+/* ── OWNER PROFILE ── */
+oprofile:()=>`
+  <h1 class="page-title">Профиль объекта</h1><p class="page-sub">Данные организации</p>
+  <div class="card" style="max-width:640px">
+    <div class="form-group"><label class="form-label">Тип</label>
+      <div class="form-toggle"><button>Физлицо</button><button>ИП</button><button class="active">Компания</button></div>
+    </div>
+    <div class="form-group"><label class="form-label">Название организации</label><input class="form-input" value='ООО «Москва-Сити Холл»'></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">ИНН *</label><input class="form-input" value="7710123456"></div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" value="+7 (495) 123-45-67"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="info@msc-hall.ru"></div>
+    <div class="form-group"><label class="form-label">Юридический адрес</label><input class="form-input" value="Москва, Пресненская наб., 12"></div>
+    <div style="margin-top:8px"><button class="btn btn-c">Сохранить</button></div>
+  </div>`,
+
+/* ══════ GUEST ══════ */
+guest:()=>`
+  <div class="guest-hero">
+    <h2>Войдите или зарегистрируйтесь</h2>
+    <p>Получите доступ ко всем возможностям маркетплейса площадок</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-c" style="padding:14px 32px;font-size:15px">Войти</button>
+      <button class="btn btn-cs" style="padding:14px 32px;font-size:15px">Зарегистрироваться</button>
+    </div>
+  </div>
+
+  <div class="section-head"><div class="section-label">Преимущества регистрации</div></div>
+  <div class="grid-3" style="margin-bottom:32px">
+    <div class="benefit"><div class="benefit-icon">❤️</div><div class="benefit-title">Сохраняйте площадки</div><div class="benefit-desc">Добавляйте понравившиеся площадки в избранное и сравнивайте</div></div>
+    <div class="benefit"><div class="benefit-icon">🕐</div><div class="benefit-title">История поиска</div><div class="benefit-desc">Возвращайтесь к прошлым запросам и повторяйте поиск в один клик</div></div>
+    <div class="benefit"><div class="benefit-icon">⚡</div><div class="benefit-title">Быстрые отклики</div><div class="benefit-desc">Получайте ответы от площадок напрямую в личном кабинете</div></div>
+  </div>
+
+  <div class="section-head"><div class="section-label">Как это работает</div></div>
+  <div class="grid-4" style="margin-bottom:32px">
+    ${[
+      {e:'🔍',t:'Найдите',d:'Используйте фильтры и карту'},
+      {e:'📋',t:'Сравните',d:'Чеклист поможет выбрать'},
+      {e:'📩',t:'Свяжитесь',d:'Запросите предложение'},
+      {e:'🎉',t:'Забронируйте',d:'Проведите мероприятие'},
+    ].map((s,i)=>`<div class="card" style="text-align:center;padding:24px;position:relative">
+      <div style="position:absolute;top:12px;left:16px;font-size:11px;font-weight:700;color:var(--sp)">${i+1}</div>
+      <div style="font-size:32px;margin-bottom:10px">${s.e}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px">${s.t}</div>
+      <div style="font-size:12.5px;color:var(--sx);line-height:1.5">${s.d}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="section-head"><div class="section-label">Популярные площадки</div></div>
+  <div class="grid-3" style="margin-bottom:32px">
+    ${[
+      {n:'Конференц-зал «Панорама»',l:'Москва',p:'45 000 ₽',r:4.9,h:195,s:90},
+      {n:'Лофт «Кирпич»',l:'Москва',p:'28 000 ₽',r:4.6,h:20,s:91},
+      {n:'Усадьба «Белые ночи»',l:'Москва',p:'95 000 ₽',r:4.9,h:25,s:92},
+    ].map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-tag">Конференц-зал</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div><div class="v-rating">${IC.star} ${v.r}</div></div></div></div>`).join('')}
+  </div>
+
+  <div class="card" style="text-align:center;padding:36px;background:linear-gradient(135deg,var(--aq-p),var(--pc))">
+    <div style="font-size:32px;margin-bottom:12px">🏢</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);margin-bottom:8px">Вы владелец площадки?</div>
+    <div style="font-size:14px;color:var(--sx);margin-bottom:18px;max-width:400px;margin-left:auto;margin-right:auto">Разместите вашу площадку на маркетплейсе и получайте заявки от организаторов мероприятий</div>
+    <button class="btn btn-c">Разместить площадку</button>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:40px;padding:32px 0;opacity:.4">
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px">⭐ 4.8 рейтинг</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">12 000+ площадок</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">120 городов</div>
+  </div>
+`,
+};
+
+/* ═══ STEPPER NAVIGATION ═══ */
+function changeStep(dir){
+  if(!window._stepData) return;
+  const total=window._stepData.length;
+  let next=window._currentStep+dir;
+  if(next<0||next>=total) return;
+  window._currentStep=next;
+  document.getElementById('stepContent').innerHTML=window._stepData[next];
+  document.getElementById('stepCurrent').textContent=next+1;
+  document.getElementById('stepName').textContent=window._stepNames[next];
+  document.querySelectorAll('#stepper .step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<next) s.classList.add('done');
+    if(i===next) s.classList.add('active');
+  });
+  document.querySelectorAll('#stepper .step-line').forEach((l,i)=>{
+    l.style.background=i<next?'var(--c)':'';
+    l.style.opacity=i<next?'.5':'';
+  });
+  document.getElementById('stepPrev').style.display=next===0?'none':'';
+  const nextBtn=document.getElementById('stepNext');
+  if(next===total-1){nextBtn.textContent='Опубликовать';nextBtn.onclick=()=>alert('Площадка отправлена на модерацию!');}
+  else{nextBtn.textContent='Далее →';nextBtn.onclick=()=>changeStep(1);}
+  initStepInteractions();
+  document.querySelector('.main').scrollTo({top:0,behavior:'smooth'});
+}
+
+function initStepInteractions(){
+  // Form toggles
+  document.querySelectorAll('#stepContent .form-toggle button').forEach(b=>{
+    b.addEventListener('click',e=>{e.preventDefault();b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');});
+  });
+  // Chip toggles (single-select groups)
+  document.querySelectorAll('#stepContent .chip[data-select="single"]').forEach(c=>{
+    c.addEventListener('click',()=>{c.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('coral'));c.classList.add('coral');});
+  });
+  // Chip toggles (multi-select)
+  document.querySelectorAll('#stepContent .chip[data-select="multi"]').forEach(c=>{
+    c.addEventListener('click',()=>{c.classList.toggle('coral');});
+  });
+}
+
+/* ═══ INIT ═══ */
+renderNav();
+renderPage();
+
+/* ═══ CHAT PANEL ═══ */
+function openChat(id,name,ini,role){
+  const panel=document.getElementById('chatPanel');
+  const overlay=document.getElementById('chatOverlay');
+  document.getElementById('chatPanelName').textContent=name;
+  document.getElementById('chatPanelSub').textContent=role==='user'?'Площадка':'Клиент';
+  document.getElementById('chatPanelAvatar').textContent=ini;
+  // sample messages
+  const msgs=document.getElementById('chatMsgs');
+  const isOwner=role==='owner';
+  msgs.innerHTML=`
+    <div class="chat-msg ${isOwner?'in':'out'}"><div>${isOwner?'Здравствуйте, хотели бы забронировать зал.':'Здравствуйте! Хочу узнать о доступности зала.'}</div><div class="chat-msg-time">${isOwner?'14:30':'14:25'}</div></div>
+    <div class="chat-msg ${isOwner?'out':'in'}"><div>${isOwner?'Добрый день! Зал свободен на указанные даты. Стоимость — 45 000 ₽/день.':'Добрый день! Зал свободен. Стоимость аренды на полный день — 45 000 ₽.'}</div><div class="chat-msg-time">${isOwner?'14:35':'14:30'}</div></div>
+    <div class="chat-msg ${isOwner?'in':'out'}"><div>${isOwner?'Подскажите, кейтеринг входит в стоимость?':'Отлично! А есть ли кейтеринг?'}</div><div class="chat-msg-time">${isOwner?'14:40':'14:35'}</div></div>
+    <div class="chat-msg ${isOwner?'out':'in'}"><div>Кейтеринг оплачивается отдельно, от 2 500 ₽/чел. Могу прислать меню.</div><div class="chat-msg-time">${isOwner?'14:42':'14:40'}</div></div>
+  `;
+  msgs.scrollTop=msgs.scrollHeight;
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+function closeChat(){
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('chatOverlay').classList.remove('open');
+}
+
+// Toggle form buttons
+document.addEventListener('click',e=>{
+  if(e.target.closest('.form-toggle button')){
+    const tg=e.target.closest('.form-toggle');
+    tg.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+  if(e.target.closest('.chip')){
+    const ch=e.target.closest('.chip');
+    if(ch.closest('.chip-scroll')||ch.closest('[style]'))ch.classList.toggle('coral');
+  }
+});
+</script>
+</body>
+</html>

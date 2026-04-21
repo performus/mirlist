@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MirHub MVP - Architecture & Sitemap</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            --line-color: #94a3b8;
+            --c-role-bg: #eff6ff; --c-role-border: #bfdbfe; --c-role-text: #1e3a8a; --c-role-title: #2563eb;
+            --c-screen-bg: #ffffff; --c-screen-border: #e2e8f0; --c-screen-text: #334155; --c-screen-title: #0f172a;
+            --c-premium-bg: #faf5ff; --c-premium-border: #e9d5ff; --c-premium-text: #6b21a8; --c-premium-title: #9333ea;
+            --c-state-bg: #fff1f2; --c-state-border: #fecdd3; --c-state-text: #9f1239; --c-state-title: #e11d48;
+            --c-system-bg: #f1f5f9; --c-system-border: #cbd5e1; --c-system-text: #334155; --c-system-title: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--c-screen-text);
+            overflow: hidden;
+        }
+
+        /* Обертка для скролла */
+        .diagram-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Контейнер для центрирования контента */
+        .diagram-content {
+            position: relative;
+            padding: 100px;
+            min-width: min-content;
+            display: inline-block;
+        }
+
+        /* SVG на заднем плане, но внутри контента */
+        #svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; /* Линии над фоном, но под карточками */
+        }
+
+        .diagram-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 120px;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 80px;
+            width: 100%;
+        }
+
+        .group {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 20;
+        }
+
+        .group-title {
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid;
+            border-radius: 11px 11px 0 0;
+        }
+
+        .item-list {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Themes */
+        .theme-role { border-color: var(--c-role-border); }
+        .theme-role .group-title { background: var(--c-role-bg); color: var(--c-role-title); border-color: var(--c-role-border); }
+        .theme-screen { border-color: var(--c-screen-border); }
+        .theme-screen .group-title { background: var(--c-screen-bg); color: var(--c-screen-title); border-color: var(--c-screen-border); }
+        .theme-premium { border-color: var(--c-premium-border); }
+        .theme-premium .group-title { background: var(--c-premium-bg); color: var(--c-premium-title); border-color: var(--c-premium-border); }
+        .item.theme-premium { background: var(--c-premium-bg); border-color: var(--c-premium-border); color: var(--c-premium-text); font-weight: 600; }
+        .item.theme-locked { background: var(--c-premium-bg); border-color: var(--c-premium-border); color: var(--c-premium-text); border-style: dashed; }
+        .theme-system { border-color: var(--c-system-border); }
+        .theme-system .group-title { background: var(--c-system-bg); color: var(--c-system-title); border-color: var(--c-system-border); }
+
+        .root-node { width: 220px; border-width: 2px; }
+
+        .legend {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid var(--c-system-border);
+            z-index: 100;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; margin-bottom: 4px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; border: 1px solid; }
+    </style>
+</head>
+<body>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:var(--c-role-bg); border-color:var(--c-role-border)"></div> Роли</div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--c-screen-bg); border-color:var(--c-screen-border)"></div> Экраны</div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--c-premium-bg); border-color:var(--c-premium-border)"></div> Premium</div>
+    </div>
+
+    <div class="diagram-wrapper" id="scroll-wrapper">
+        <div class="diagram-content" id="diagram-content">
+            <svg id="svg-canvas"></svg>
+
+            <div class="diagram-container">
+                <!-- Level 0 -->
+                <div class="level">
+                    <div class="group theme-system root-node" id="node-root">
+                        <div class="group-title">MirHub MVP</div>
+                    </div>
+                </div>
+
+                <!-- Level 1 -->
+                <div class="level">
+                    <div class="group theme-role" id="group-roles">
+                        <div class="group-title">Роли</div>
+                        <div class="item-list">
+                            <div class="item">Гость</div>
+                            <div class="item">Пользователь</div>
+                            <div class="item">Владелец площадки</div>
+                        </div>
+                    </div>
+                    <div class="group theme-screen" id="group-home">
+                        <div class="group-title">Главная страница</div>
+                        <div class="item-list">
+                            <div class="item" id="node-home-filter"><strong>Фильтр:</strong> Город, Тип, Кол-во</div>
+                            <div class="item">Подборки объектов</div>
+                        </div>
+                    </div>
+                    <div class="group theme-system" id="group-logic">
+                        <div class="group-title">Логика доступа</div>
+                        <div class="item-list">
+                            <div class="item">Ограниченный просмотр</div>
+                            <div class="item theme-locked">Locked функции</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level 2 -->
+                <div class="level">
+                    <div class="group theme-screen" id="group-catalog">
+                        <div class="group-title">Каталог объектов</div>
+                        <div class="item-list"><div class="item">Карточки + Сортировка</div></div>
+                    </div>
+                    <div class="group theme-screen" id="group-map">
+                        <div class="group-title">Экран карты</div>
+                        <div class="item-list"><div class="item">Интерактивный поиск</div></div>
+                    </div>
+                </div>
+
+                <!-- Level 3 -->
+                <div class="level">
+                    <div class="group theme-screen" id="group-passport">
+                        <div class="group-title">Паспорт объекта</div>
+                        <div class="item-list">
+                            <div class="item">Галерея</div>
+                            <div class="item theme-premium">Premium: Планы</div>
+                            <div class="item">Бронирование</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level 4 -->
+                <div class="level">
+                    <div class="group theme-screen" id="group-auth">
+                        <div class="group-title">Вход / Регистрация</div>
+                        <div class="item-list"><div class="item">Форма и Валидация</div></div>
+                    </div>
+                    <div class="group theme-screen" id="group-payment">
+                        <div class="group-title">Оплата и Тарифы</div>
+                        <div class="item-list"><div class="item theme-premium">Выбор Premium</div></div>
+                    </div>
+                </div>
+
+                <!-- Level 5 -->
+                <div class="level">
+                    <div class="group theme-screen" id="group-lk-user">
+                        <div class="group-title">ЛК Пользователя</div>
+                        <div class="item-list">
+                            <div class="item">Избранное</div>
+                            <div class="item theme-premium" id="node-compare">Сравнение объектов</div>
+                        </div>
+                    </div>
+                    <div class="group theme-screen" id="group-lk-owner">
+                        <div class="group-title">ЛК Владельца</div>
+                        <div class="item-list">
+                            <div class="item">Мои объекты</div>
+                            <div class="item">Заявки</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const svg = document.getElementById('svg-canvas');
+        const content = document.getElementById('diagram-content');
+
+        function draw() {
+            // Устанавливаем размер SVG равным размеру всего контента
+            const rect = content.getBoundingClientRect();
+            svg.setAttribute('width', rect.width);
+            svg.setAttribute('height', rect.height);
+            
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8" />
+                    </marker>
+                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 Z" fill="#3b82f6" />
+                    </marker>
+                </defs>
+            `;
+
+            const connections = [
+                ['node-root', 'group-home', { dashed: true }],
+                ['node-home-filter', 'group-map', { color: '#3b82f6', marker: 'blue' }],
+                ['group-home', 'group-catalog'],
+                ['group-catalog', 'group-map'],
+                ['group-catalog', 'group-passport'],
+                ['group-map', 'group-passport'],
+                ['group-passport', 'group-auth'],
+                ['group-auth', 'group-payment'],
+                ['group-payment', 'group-lk-user'],
+                ['group-payment', 'group-lk-owner']
+            ];
+
+            connections.forEach(([id1, id2, opt]) => {
+                const el1 = document.getElementById(id1);
+                const el2 = document.getElementById(id2);
+                if (!el1 || !el2) return;
+
+                const r1 = el1.getBoundingClientRect();
+                const r2 = el2.getBoundingClientRect();
+                const cRect = content.getBoundingClientRect();
+
+                // Координаты относительно контейнера content
+                const x1 = (r1.left - cRect.left) + r1.width / 2;
+                const y1 = (r1.top - cRect.top) + r1.height;
+                const x2 = (r2.left - cRect.left) + r2.width / 2;
+                const y2 = (r2.top - cRect.top);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                
+                // Рисуем ступенчатую линию
+                const midY = y1 + (y2 - y1) / 2;
+                const d = `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`;
+
+                path.setAttribute('d', d);
+                path.setAttribute('stroke', (opt && opt.color) || '#cbd5e1');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('fill', 'none');
+                path.setAttribute('marker-end', `url(#${(opt && opt.marker) || 'arrow'})`);
+                if (opt && opt.dashed) path.setAttribute('stroke-dasharray', '6,4');
+                
+                svg.appendChild(path);
+            });
+        }
+
+        // Запуск после рендеринга
+        window.addEventListener('load', () => setTimeout(draw, 200));
+        window.addEventListener('resize', draw);
+    </script>
+</body>
+</html>
