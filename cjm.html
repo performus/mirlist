@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MirHub — CJM</title>
+<style>
+:root{
+  --bg:#f7f4f1; --paper:#fff; --ink:#23384a; --muted:#6f8497; --line:#e9e1da;
+  --accent:#ec7b57; --accent-soft:#fdebe4; --shadow:0 14px 38px rgba(31,45,61,.08);
+  --green:#dff3e5; --yellow:#fff2cf; --red:#fde3df; --blue:#e8f1fb;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#fbf8f6 0%,#f4efeb 100%);color:var(--ink);font:16px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+img{max-width:100%;display:block}
+.wrap{max-width:1480px;margin:0 auto;padding:28px 22px 72px}
+.hero,.journey,.gallery,.legend{background:rgba(255,255,255,.9);border:1px solid rgba(233,225,218,.95);box-shadow:var(--shadow);border-radius:32px}
+.hero{padding:28px 30px;margin-bottom:18px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hero-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.eyebrow{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+h1,h2,h3,h4,p{margin:0}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:40px;line-height:1.05;color:#304b64}
+.subtitle{font-size:14px;color:var(--muted);font-weight:600}
+.section{margin-top:18px}
+.legend{padding:18px}
+.legend-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.legend-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;min-width:0}
+.dot{width:12px;height:12px;border-radius:999px;flex:0 0 12px}
+.journey{padding:18px}
+.journey-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700}
+.journey h2{font-family:Georgia,"Times New Roman",serif;font-size:30px;color:#314f6c}
+.table-scroll{overflow:auto;border-radius:24px;border:1px solid var(--line);background:#fff}
+.cjm-table{display:grid;grid-template-columns:220px repeat(7,minmax(220px,1fr));min-width:1780px}
+.cjm-table.owner{grid-template-columns:220px repeat(7,minmax(220px,1fr));min-width:1780px}
+.row-head,.stage-head,.cell{padding:16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.row-head{background:#faf7f4;font-weight:800;color:#314f6c;position:sticky;left:0;z-index:2}
+.stage-head{background:#fff8f4}
+.stage-title{font-size:18px;font-weight:800;color:#314f6c;line-height:1.15;margin-bottom:4px}
+.stage-sub{font-size:12px;font-weight:700;color:#7b91a3}
+.cell{font-size:14px;color:#496175;overflow-wrap:anywhere}
+.cell.mood-good{background:var(--green)}
+.cell.mood-mid{background:var(--yellow)}
+.cell.mood-bad{background:var(--red)}
+.cell.mood-info{background:var(--blue)}
+.gallery{padding:18px}
+.gallery h2{font-family:Georgia,"Times New Roman",serif;font-size:30px;color:#314f6c;margin-bottom:14px}
+.gallery-group{margin-top:18px}
+.gallery-group:first-of-type{margin-top:0}
+.gallery-group-title{font-family:Georgia,"Times New Roman",serif;font-size:24px;color:#314f6c;margin-bottom:12px}
+.gallery-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.shot{grid-column:span 3;background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow);overflow:hidden}
+.shot img{border-radius:14px;border:1px solid #efe8e2;background:#fff;width:100%;height:auto}
+.shot h4{margin-top:10px;font-size:15px;color:#2f4960;overflow-wrap:anywhere}
+.small{font-size:13px;color:var(--muted)}
+@media (max-width:1180px){.legend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shot{grid-column:span 4}}
+@media (max-width:760px){.wrap{padding:18px 14px 52px}h1{font-size:30px}.journey h2,.gallery h2{font-size:25px}.shot{grid-column:span 6}.legend-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-left">
+      <span class="eyebrow">MirHub</span>
+      <h1>CJM <span style="font-size:.72em;color:#6f8497;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-weight:700;">/ Customer Journey Map</span></h1>
+    </div>
+    <div class="subtitle">MVP · Пользователь и владелец площадки</div>
+  </div>
+
+  <section class="section legend">
+    <div class="legend-grid">
+      <div class="legend-item"><span class="dot" style="background:#dff3e5"></span><div><strong>Позитивно</strong><div class="small">Good</div></div></div>
+      <div class="legend-item"><span class="dot" style="background:#fff2cf"></span><div><strong>Нейтрально</strong><div class="small">Neutral</div></div></div>
+      <div class="legend-item"><span class="dot" style="background:#fde3df"></span><div><strong>Риск / боль</strong><div class="small">Pain point</div></div></div>
+      <div class="legend-item"><span class="dot" style="background:#e8f1fb"></span><div><strong>Точка роста</strong><div class="small">Opportunity</div></div></div>
+    </div>
+  </section>
+
+  <section class="section journey">
+    <div class="journey-head"><span class="badge">Персона 01</span><h2>Организатор / пользователь</h2></div>
+    <div class="table-scroll">
+      <div class="cjm-table">
+        <div class="row-head"></div>
+        <div class="stage-head"><div class="stage-title">Узнаёт о сервисе</div><div class="stage-sub">Awareness</div></div>
+        <div class="stage-head"><div class="stage-title">Ищет площадку</div><div class="stage-sub">Discovery</div></div>
+        <div class="stage-head"><div class="stage-title">Оценивает объект</div><div class="stage-sub">Evaluation</div></div>
+        <div class="stage-head"><div class="stage-title">Регистрируется</div><div class="stage-sub">Signup / Login</div></div>
+        <div class="stage-head"><div class="stage-title">Сохраняет и сравнивает</div><div class="stage-sub">Shortlist</div></div>
+        <div class="stage-head"><div class="stage-title">Оставляет заявку</div><div class="stage-sub">Lead / Contact</div></div>
+        <div class="stage-head"><div class="stage-title">Возвращается в кабинет</div><div class="stage-sub">Retention</div></div>
+
+        <div class="row-head">Цель<br><span class="small">Goal</span></div>
+        <div class="cell">Понять, что MirHub помогает быстро подобрать площадку</div>
+        <div class="cell">Найти релевантные варианты по типу, локации и параметрам</div>
+        <div class="cell">Проверить, подходит ли площадка под задачу</div>
+        <div class="cell">Открыть доступ к избранному, истории и расширенным возможностям</div>
+        <div class="cell">Сузить выбор до нескольких подходящих вариантов</div>
+        <div class="cell">Связаться с площадкой и зафиксировать интерес</div>
+        <div class="cell">Вернуться к сохранённым объектам, заявкам и документам</div>
+
+        <div class="row-head">Действия<br><span class="small">Actions</span></div>
+        <div class="cell">Заходит на главную, читает оффер, использует первичный поиск</div>
+        <div class="cell">Открывает каталог и карту, применяет фильтры, просматривает карточки</div>
+        <div class="cell">Открывает страницу объекта, изучает фото, описание, параметры, контакты</div>
+        <div class="cell">Выбирает роль, логинится или создаёт аккаунт</div>
+        <div class="cell">Добавляет в избранное, открывает сравнение, использует чеклист</div>
+        <div class="cell">Оставляет обращение, отслеживает историю в заявках / чатах</div>
+        <div class="cell">Открывает дашборд, профиль, биллинг, скачанные PDF</div>
+
+        <div class="row-head">Точки контакта<br><span class="small">Touchpoints</span></div>
+        <div class="cell">Главная, блоки преимуществ, подборки, CTA</div>
+        <div class="cell">Каталог, карта, фильтры, карточки объектов</div>
+        <div class="cell">Паспорт объекта, фото, техданные, отзывы, premium-инфо</div>
+        <div class="cell">Экран выбора роли, вход, регистрация, восстановление</div>
+        <div class="cell">Избранное, сравнение, чеклист, история просмотров</div>
+        <div class="cell">Форма / чат / заявки, карточка обращения</div>
+        <div class="cell">ЛК пользователя: дашборд, профиль, биллинг, документы</div>
+
+        <div class="row-head">Эмоция<br><span class="small">Emotion</span></div>
+        <div class="cell mood-good">Интерес и надежда</div>
+        <div class="cell mood-mid">Фокус на фильтрации и выборе</div>
+        <div class="cell mood-mid">Вовлечённость, но нужна ясность по деталям</div>
+        <div class="cell mood-bad">Трение, если регистрация кажется обязательной слишком рано</div>
+        <div class="cell mood-good">Чувство контроля над выбором</div>
+        <div class="cell mood-mid">Ожидание быстрого ответа от площадки</div>
+        <div class="cell mood-good">Удобство, если всё сохранено в одном месте</div>
+
+        <div class="row-head">Боли<br><span class="small">Pain points</span></div>
+        <div class="cell">Неочевидно, чем MirHub лучше ручного поиска</div>
+        <div class="cell">Слишком много фильтров или мало данных в выдаче</div>
+        <div class="cell">Не хватает точных техпараметров, цен, доступности, PDF</div>
+        <div class="cell">Длинный онбординг, путаница ролей</div>
+        <div class="cell">Сравнение и premium-функции скрыты недостаточно явно</div>
+        <div class="cell">Нет уверенности, что заявка дошла и будет обработана быстро</div>
+        <div class="cell">Сложно вернуться к нужному объекту или понять статус взаимодействия</div>
+
+        <div class="row-head">Возможности<br><span class="small">Opportunities</span></div>
+        <div class="cell mood-info">Сильнее показать ценность: подбор, сравнение, техданные, PDF</div>
+        <div class="cell mood-info">Сделать фильтры проще, показать быстрые пресеты и хорошие превью</div>
+        <div class="cell mood-info">Выделить ключевые параметры, availability, CTA, premium-данные</div>
+        <div class="cell mood-info">Сделать регистрацию короче и понятнее, показать выгоду сразу</div>
+        <div class="cell mood-info">Подсветить избранное, сравнение и чеклист как core feature</div>
+        <div class="cell mood-info">Добавить статусы заявки, SLA и подтверждение отправки</div>
+        <div class="cell mood-info">Улучшить историю, документы, follow-up и повторный контакт</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section journey">
+    <div class="journey-head"><span class="badge">Персона 02</span><h2>Владелец площадки</h2></div>
+    <div class="table-scroll">
+      <div class="cjm-table owner">
+        <div class="row-head"></div>
+        <div class="stage-head"><div class="stage-title">Узнаёт о продукте</div><div class="stage-sub">Awareness</div></div>
+        <div class="stage-head"><div class="stage-title">Изучает выгоду</div><div class="stage-sub">Consideration</div></div>
+        <div class="stage-head"><div class="stage-title">Регистрируется</div><div class="stage-sub">Signup / Login</div></div>
+        <div class="stage-head"><div class="stage-title">Добавляет площадку</div><div class="stage-sub">Onboarding</div></div>
+        <div class="stage-head"><div class="stage-title">Публикует и настраивает</div><div class="stage-sub">Setup</div></div>
+        <div class="stage-head"><div class="stage-title">Получает лиды</div><div class="stage-sub">Leads</div></div>
+        <div class="stage-head"><div class="stage-title">Управляет подпиской</div><div class="stage-sub">Billing / Growth</div></div>
+
+        <div class="row-head">Цель<br><span class="small">Goal</span></div>
+        <div class="cell">Понять, зачем размещаться на MirHub</div>
+        <div class="cell">Оценить лиды, пакет размещения и условия</div>
+        <div class="cell">Создать аккаунт владельца</div>
+        <div class="cell">Быстро заполнить карточку площадки без лишней боли</div>
+        <div class="cell">Опубликовать качественный профиль объекта</div>
+        <div class="cell">Получать и обрабатывать обращения</div>
+        <div class="cell">Контролировать тариф, оплату и эффективность</div>
+
+        <div class="row-head">Действия<br><span class="small">Actions</span></div>
+        <div class="cell">Открывает страницу для владельцев</div>
+        <div class="cell">Смотрит тарифы площадки и преимущества</div>
+        <div class="cell">Проходит вход / регистрацию по роли площадки</div>
+        <div class="cell">Проходит 8 шагов добавления площадки</div>
+        <div class="cell">Редактирует объект, проверяет профиль и контакты</div>
+        <div class="cell">Следит за заявками, чатами, лидами</div>
+        <div class="cell">Открывает биллинг, аналитику, управляет планом</div>
+
+        <div class="row-head">Точки контакта<br><span class="small">Touchpoints</span></div>
+        <div class="cell">Страница для владельцев, CTA, преимущества</div>
+        <div class="cell">Тарифы площадки, оффер, FAQ</div>
+        <div class="cell">Логин / signup / выбор роли</div>
+        <div class="cell">Шаги 1–8: данные, параметры, локация, вместимость, удобства, медиа, контакты, публикация</div>
+        <div class="cell">ЛК владельца, мои объекты, профиль объекта</div>
+        <div class="cell">Заявки, чаты, лиды</div>
+        <div class="cell">Биллинг, тариф, аналитика</div>
+
+        <div class="row-head">Эмоция<br><span class="small">Emotion</span></div>
+        <div class="cell mood-good">Интерес к новому каналу продаж</div>
+        <div class="cell mood-mid">Рациональная оценка ценности</div>
+        <div class="cell mood-mid">Ожидание простого старта</div>
+        <div class="cell mood-bad">Риск усталости, если онбординг длинный</div>
+        <div class="cell mood-mid">Удовлетворение, если карточка выглядит качественно</div>
+        <div class="cell mood-good">Вовлечённость при получении лидов</div>
+        <div class="cell mood-mid">Требуется ясность по ROI и стоимости</div>
+
+        <div class="row-head">Боли<br><span class="small">Pain points</span></div>
+        <div class="cell">Не сразу видно, сколько реальной пользы и лидов</div>
+        <div class="cell">Тарифы и преимущества могут быть недостаточно конкретными</div>
+        <div class="cell">Риск путаницы между ролями пользователя и площадки</div>
+        <div class="cell">Много шагов, много полей, непонятно что обязательно</div>
+        <div class="cell">Слабая предпросмотрность карточки до публикации</div>
+        <div class="cell">Нет прозрачности по статусам лидов и качеству запросов</div>
+        <div class="cell">Недостаточно понятно, что даёт платный план</div>
+
+        <div class="row-head">Возможности<br><span class="small">Opportunities</span></div>
+        <div class="cell mood-info">Сильнее показать value proposition и примеры результата</div>
+        <div class="cell mood-info">Упростить тарифную таблицу и донести выгоды через use cases</div>
+        <div class="cell mood-info">Сделать разницу ролей очевидной на старте</div>
+        <div class="cell mood-info">Разбить онбординг на понятные этапы с прогрессом и автосохранением</div>
+        <div class="cell mood-info">Показать качественный preview и подсказки по заполнению</div>
+        <div class="cell mood-info">Ввести статусы лидов, фильтрацию и понятную обработку заявок</div>
+        <div class="cell mood-info">Добавить понятную аналитику и причины апгрейда</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section gallery">
+    <h2>Опорные экраны / Reference screens</h2>
+
+    <div class="gallery-group">
+      <div class="gallery-group-title">Пользователь</div>
+      <div class="gallery-grid">
+        <figure class="shot"><img src="assets/shots/Main2.png" alt="Главная"><h4>Главная</h4></figure>
+        <figure class="shot"><img src="assets/shots/Catalog.png" alt="Каталог"><h4>Каталог</h4></figure>
+        <figure class="shot"><img src="assets/shots/Map.png" alt="Карта"><h4>Карта</h4></figure>
+        <figure class="shot"><img src="assets/shots/Catalog_Venue.png" alt="Паспорт объекта"><h4>Паспорт объекта</h4></figure>
+        <figure class="shot"><img src="assets/shots/Login_User.png" alt="Вход пользователя"><h4>Вход пользователя</h4></figure>
+        <figure class="shot"><img src="assets/shots/SignUp_User.png" alt="Регистрация пользователя"><h4>Регистрация пользователя</h4></figure>
+        <figure class="shot"><img src="assets/shots/Profile_Dashboard.png" alt="Дашборд"><h4>Дашборд</h4></figure>
+        <figure class="shot"><img src="assets/shots/Fav.png" alt="Избранное"><h4>Избранное</h4></figure>
+        <figure class="shot"><img src="assets/shots/Orders.png" alt="Мои заявки"><h4>Мои заявки</h4></figure>
+        <figure class="shot"><img src="assets/shots/Profile.png" alt="Профиль"><h4>Профиль</h4></figure>
+        <figure class="shot"><img src="assets/shots/Plans.png" alt="Тарифы пользователя"><h4>Тарифы пользователя</h4></figure>
+      </div>
+    </div>
+
+    <div class="gallery-group">
+      <div class="gallery-group-title">Владелец площадки</div>
+      <div class="gallery-grid">
+        <figure class="shot"><img src="assets/shots/For_venues.png" alt="Для владельцев"><h4>Для владельцев площадок</h4></figure>
+        <figure class="shot"><img src="assets/shots/Login_Venue.png" alt="Вход владельца"><h4>Вход владельца</h4></figure>
+        <figure class="shot"><img src="assets/shots/SignUp_Venue.png" alt="Регистрация владельца"><h4>Регистрация владельца</h4></figure>
+        <figure class="shot"><img src="assets/shots/Venue.png" alt="Дашборд владельца"><h4>Дашборд владельца</h4></figure>
+        <figure class="shot"><img src="assets/shots/Venue_My.png" alt="Мои объекты"><h4>Мои объекты</h4></figure>
+        <figure class="shot"><img src="assets/shots/VenueOrders.png" alt="Заявки"><h4>Заявки</h4></figure>
+        <figure class="shot"><img src="assets/shots/VenueProfile.png" alt="Профиль владельца"><h4>Профиль владельца</h4></figure>
+        <figure class="shot"><img src="assets/shots/PlansVenue.png" alt="Тарифы площадки"><h4>Тарифы площадки</h4></figure>
+        <figure class="shot"><img src="assets/shots/AddVenue1.png" alt="Шаг 1"><h4>Добавление площадки · Шаг 1</h4></figure>
+        <figure class="shot"><img src="assets/shots/AddVenue4.png" alt="Шаг 4"><h4>Добавление площадки · Шаг 4</h4></figure>
+        <figure class="shot"><img src="assets/shots/AddVenue8.png" alt="Шаг 8"><h4>Добавление площадки · Шаг 8</h4></figure>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
