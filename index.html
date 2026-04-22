@@ -1,359 +1,176 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MirHub MVP - Sitemap</title>
+<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MirHub — карта сайта | Sitemap</title><style>
+:root{--bg:#f7f4f1;--paper:#fff;--ink:#23384a;--muted:#6f8497;--line:#e9e1da;--accent:#ec7b57;--accent-soft:#fdebe4;--shadow:0 14px 38px rgba(31,45,61,.08)}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#fbf8f6 0%,#f4efeb 100%);color:var(--ink);font:16px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+img,svg{max-width:100%}
+.wrap{max-width:1500px;margin:0 auto;padding:28px 22px 70px}
+.hero,.section-card,.route-card,.gallery-card,.diagram-card{background:rgba(255,255,255,.88);border:1px solid rgba(233,225,218,.95);box-shadow:var(--shadow)}
+.hero{border-radius:34px;padding:28px 30px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.hero-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.eyebrow{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+h1,h2,h3,h4,p,figure{margin:0}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:40px;line-height:1.05;color:#304b64}
+.hero-note{font-size:14px;color:var(--muted);font-weight:600}
+.section{margin-top:18px}
+.section-card{border-radius:32px;padding:18px;transition:background .22s ease}
+.section-card:hover{background:rgba(253,248,245,.96)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;min-width:0}
+.section-index{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:14px;background:var(--accent-soft);color:var(--accent);font-weight:800}
+.section-title{font-family:Georgia,"Times New Roman",serif;font-size:30px;color:#314f6c;min-width:0;overflow-wrap:anywhere}
+.routes{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;align-items:stretch}
+.route-card{grid-column:span 4;border-radius:22px;padding:18px;min-width:0;overflow:hidden;height:100%;display:flex;flex-direction:column}
+.route-card.wide{grid-column:span 6}
+.path{display:inline-block;max-width:100%;padding:6px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:10px;overflow-wrap:anywhere;word-break:break-word}
+.route-card h3{margin:0 0 10px;font-size:21px;color:#314f6c;font-family:Georgia,"Times New Roman",serif;line-height:1.15;overflow-wrap:anywhere}
+.tags{display:flex;gap:8px;flex-wrap:wrap;min-width:0}
+.tag{font-size:13px;padding:8px 10px;border-radius:12px;background:#faf8f6;border:1px solid #eee7e1;color:#4f677c;max-width:100%;overflow-wrap:anywhere}
+.diagram-card{border-radius:32px;padding:18px}
+.diagram-title,.gallery-title{font-family:Georgia,"Times New Roman",serif;font-size:30px;color:#314f6c;margin-bottom:14px}
+.diagram-wrap{border-radius:24px;border:1px solid var(--line);background:#fff;padding:12px}
+.diagram-wrap svg{display:block;width:100%;height:auto}
+.gallery-card{border-radius:32px;padding:18px}
+.gallery-group{margin-top:20px}.gallery-group:first-of-type{margin-top:0}
+.gallery-group-title{font-family:Georgia,"Times New Roman",serif;font-size:24px;color:#314f6c;margin:0 0 12px}
+.gallery-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.shot{grid-column:span 4;background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--shadow);min-width:0;overflow:hidden}
+.shot img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid #efe8e2;background:#fff}
+.shot h4{margin-top:10px;font-size:16px;color:#2f4960;overflow-wrap:anywhere}
+@media (max-width:1180px){.route-card,.route-card.wide,.shot{grid-column:span 6}}
+@media (max-width:760px){.wrap{padding:18px 14px 52px}h1{font-size:30px}.section-title,.diagram-title,.gallery-title{font-size:25px}.route-card,.route-card.wide,.shot{grid-column:1/-1}.hero{padding:22px 18px}}
+</style></head><body><div class="wrap"><div class="hero"><div class="hero-left"><span class="eyebrow">MirHub</span><h1>Карта сайта MirHub <span style="font-size:.72em;color:#6f8497;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-weight:700;">/ Sitemap</span></h1></div><div class="hero-note">MVP с детализацией</div></div><section class="section"><div class="diagram-card"><h2 class="diagram-title">Блок-схема / Block diagram</h2><div class="diagram-wrap">
+<svg viewBox="0 0 1380 1360" xmlns="http://www.w3.org/2000/svg" aria-label="Блок-схема MirHub">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="rgba(31,45,61,.12)"/>
+    </filter>
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            --c-role-bg: #eff6ff; --c-role-border: #bfdbfe; --c-role-title: #2563eb;
-            --c-screen-bg: #ffffff; --c-screen-border: #e2e8f0; --c-screen-title: #0f172a;
-            --c-premium-bg: #faf5ff; --c-premium-border: #e9d5ff; --c-premium-text: #6b21a8; --c-premium-title: #9333ea;
-            --c-state-bg: #fff1f2; --c-state-border: #fecdd3; --c-state-text: #9f1239;
-            --c-owner-bg: #fffbeb; --c-owner-border: #fef3c7; --c-owner-text: #92400e; --c-owner-title: #d97706;
-            --c-system-bg: #f1f5f9; --c-system-border: #cbd5e1; --c-system-title: #475569;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: #334155;
-            overflow-x: hidden;
-        }
-
-        .controls {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-        }
-
-        .btn-toggle {
-            padding: 10px 16px;
-            background: white;
-            border: 1px solid var(--c-system-border);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-
-        .btn-toggle.active {
-            background: #334155;
-            color: white;
-            border-color: #334155;
-        }
-
-        .diagram-wrapper {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: auto;
-        }
-
-        .diagram-content {
-            position: relative;
-            padding: 80px 20px;
-            width: 100%;
-            min-width: 1400px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #svg-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            transition: opacity 0.3s;
-        }
-
-        #svg-canvas.hidden { opacity: 0; }
-
-        .diagram-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 120px;
-            width: 100%;
-        }
-
-        .level {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        .group {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border: 1px solid;
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .group-title {
-            font-weight: 700;
-            font-size: 1rem;
-            padding: 16px;
-            text-align: center;
-            border-bottom: 1px solid;
-            border-radius: 11px 11px 0 0;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-        }
-
-        .item-list {
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .item {
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-        }
-
-        .theme-role { border-color: var(--c-role-border); }
-        .theme-role .group-title { background: var(--c-role-bg); color: var(--c-role-title); border-color: var(--c-role-border); }
-        .theme-screen { border-color: var(--c-screen-border); }
-        .theme-screen .group-title { background: var(--c-screen-bg); color: var(--c-screen-title); border-color: var(--c-screen-border); }
-        .theme-premium { border-color: var(--c-premium-border); }
-        .theme-premium .group-title { background: var(--c-premium-bg); color: var(--c-premium-title); border-color: var(--c-premium-border); }
-        .theme-owner-pw { border-color: var(--c-owner-border); }
-        .theme-owner-pw .group-title { background: var(--c-owner-bg); color: var(--c-owner-text); border-color: var(--c-owner-border); }
-        .theme-system { border-color: var(--c-system-border); }
-        .theme-system .group-title { background: var(--c-system-bg); color: var(--c-system-title); border-color: var(--c-system-border); }
-
-        .item.theme-locked { background: var(--c-state-bg); border-color: var(--c-state-border); color: var(--c-state-text); border-style: dashed; font-weight: 600; }
-        .item.theme-owner-locked { background: var(--c-owner-bg); border-color: var(--c-owner-border); color: var(--c-owner-text); border-style: dashed; font-weight: 600; }
-        .root-node { width: 300px; border-width: 2px; }
+      .box{fill:#fff;stroke:#e9e1da;stroke-width:1.5}
+      .line{stroke:#d9cbc1;stroke-width:3;fill:none;stroke-linecap:round}
+      .title{font-family:Inter,Arial,sans-serif;font-size:18px;font-weight:800;fill:#314f6c}
+      .sub{font-family:Inter,Arial,sans-serif;font-size:12px;font-weight:700;fill:#7b91a3}
+      .route{font-family:Inter,Arial,sans-serif;font-size:12px;font-weight:600;fill:#587084}
     </style>
-</head>
-<body>
+  </defs>
+  <rect width="1380" height="1360" fill="#fbf8f6"/>
 
-    <div class="controls">
-        <button id="toggle-arrows" class="btn-toggle active">Стрелки: ВКЛ</button>
-    </div>
+  <!-- connectors -->
+  <path class="line" d="M690 104 V 160" />
+  <path class="line" d="M160 160 H1220" />
+  <path class="line" d="M160 160 V 230" />
+  <path class="line" d="M425 160 V 230" />
+  <path class="line" d="M690 160 V 230" />
+  <path class="line" d="M955 160 V 230" />
+  <path class="line" d="M1220 160 V 230" />
+  <path class="line" d="M955 590 V 660 H690 V 730" />
+  <path class="line" d="M1220 590 V 660" />
+  <path class="line" d="M690 660 H1220" />
+  <path class="line" d="M1220 660 V 730" />
 
-    <div class="diagram-wrapper">
-        <div class="diagram-content" id="diagram-content">
-            <svg id="svg-canvas"></svg>
+  <!-- root -->
+  <rect class="box" x="545" y="28" width="290" height="76" rx="22" ry="22"/>
+  <text x="690" y="60" text-anchor="middle" class="title">MirHub MVP</text>
+  <text x="690" y="80" text-anchor="middle" class="sub">Core sitemap</text>
 
-            <div class="diagram-container">
-                <!-- Level 0 -->
-                <div class="level">
-                    <div class="group theme-system root-node" id="node-root">
-                        <div class="group-title">MirHub MVP</div>
-                    </div>
-                </div>
+  <!-- row 1 -->
+  <rect class="box" x="30" y="230" width="260" height="360" rx="22" ry="22"/>
+  <text x="160" y="260" text-anchor="middle" class="title">Публичная часть</text>
+  <text x="160" y="280" text-anchor="middle" class="sub">Public</text>
+  <text x="50" y="318" class="route">
+    <tspan x="50" dy="0">Главная</tspan>
+    <tspan x="50" dy="20">Каталог объектов</tspan>
+    <tspan x="50" dy="20">Карта объектов</tspan>
+    <tspan x="50" dy="20">Паспорт объекта</tspan>
+    <tspan x="50" dy="20">Для незарегистрированных</tspan>
+    <tspan x="50" dy="20">Для владельцев</tspan>
+    <tspan x="50" dy="20">площадок</tspan>
+    <tspan x="50" dy="20">Тарифы пользователя</tspan>
+    <tspan x="50" dy="20">Тарифы площадки</tspan>
+  </text>
 
-                <!-- Level 1 -->
-                <div class="level">
-                    <div class="group theme-role" id="group-roles">
-                        <div class="group-title">Роли & Доступ</div>
-                        <div class="item-list">
-                            <div class="item"><strong>Гость:</strong> Только просмотр превью</div>
-                            <div class="item"><strong>Пользователь:</strong> Поиск и аренда</div>
-                            <div class="item"><strong>Владелец:</strong> Управление объектами</div>
-                        </div>
-                    </div>
-                    <div class="group theme-screen" id="group-home">
-                        <div class="group-title">Главный экран</div>
-                        <div class="item-list">
-                            <div class="item">Поиск по ТТХ</div>
-                            <div class="item">Сборки городов</div>
-                            <div class="item">Рекламные слоты</div>
-                        </div>
-                    </div>
-                    <div class="group theme-screen" id="group-auth">
-                        <div class="group-title">Авторизация</div>
-                        <div class="item-list">
-                            <div class="item">Ввод Email / SMS</div>
-                            <div class="item">Вход через Яндекс / VK ID</div>
-                            <div class="item">Ввод OTP-кода (верификация)</div>
-                            <div class="item">Профиль (личные данные)</div>
-                        </div>
-                    </div>
-                </div>
+  <rect class="box" x="295" y="230" width="260" height="360" rx="22" ry="22"/>
+  <text x="425" y="260" text-anchor="middle" class="title">Авторизация</text>
+  <text x="425" y="280" text-anchor="middle" class="title">и регистрация</text>
+  <text x="425" y="300" text-anchor="middle" class="sub">Auth</text>
+  <text x="315" y="338" class="route">
+    <tspan x="315" dy="0">Выбор роли</tspan>
+    <tspan x="315" dy="20">Вход пользователя</tspan>
+    <tspan x="315" dy="20">Вход владельца</tspan>
+    <tspan x="315" dy="20">Регистрация пользователя</tspan>
+    <tspan x="315" dy="20">Регистрация владельца</tspan>
+    <tspan x="315" dy="20">Восстановление доступа</tspan>
+  </text>
 
-                <!-- Level 2 -->
-                <div class="level">
-                    <div class="group theme-screen" id="group-catalog">
-                        <div class="group-title">Каталог & Поиск</div>
-                        <div class="item-list">
-                            <div class="item">Листинг объектов (плитка/список)</div>
-                            <div class="item">Расширенные фильтры ТТХ</div>
-                            <div class="item">Сортировка (цена/площадь)</div>
-                        </div>
-                    </div>
-                    <div class="group theme-screen" id="group-map">
-                        <div class="group-title">Карта объектов</div>
-                        <div class="item-list">
-                            <div class="item">Интерактивные пины и кластеры</div>
-                            <div class="item">Быстрые фильтры над картой</div>
-                            <div class="item">Панель с фильтрами и листингами</div>
-                            <div class="item theme-locked" id="trigger-user-pdf">Paywall: Скачать презентацию</div>
-                        </div>
-                    </div>
-                </div>
+  <rect class="box" x="560" y="230" width="260" height="360" rx="22" ry="22"/>
+  <text x="690" y="260" text-anchor="middle" class="title">Тарифы, оплата</text>
+  <text x="690" y="280" text-anchor="middle" class="title">и служебные страницы</text>
+  <text x="690" y="300" text-anchor="middle" class="sub">Payments / Info</text>
+  <text x="580" y="338" class="route">
+    <tspan x="580" dy="0">Экран оплаты</tspan>
+    <tspan x="580" dy="20">Оплата — успех</tspan>
+    <tspan x="580" dy="20">Оплата — ошибка</tspan>
+    <tspan x="580" dy="20">Оплата — ожидание</tspan>
+    <tspan x="580" dy="20">О проекте</tspan>
+    <tspan x="580" dy="20">Сотрудничество</tspan>
+    <tspan x="580" dy="20">Политика конфиденциальности</tspan>
+  </text>
 
-                <!-- Level 3 -->
-                <div class="level">
-                    <div class="group theme-screen" id="group-passport">
-                        <div class="group-title">Паспорт Объекта</div>
-                        <div class="item-list">
-                            <div class="item">Медиа-галерея (Фото/Видео)</div>
-                            <div class="item theme-locked" id="trigger-user-details">Paywall: Все характеристики</div>
-                            <div class="item">Инженерные планы</div>
-                            <div class="item">Связь с владельцем / Оставить заявку</div>
-                        </div>
-                    </div>
-                </div>
+  <rect class="box" x="825" y="230" width="260" height="360" rx="22" ry="22"/>
+  <text x="955" y="260" text-anchor="middle" class="title">Личный кабинет</text>
+  <text x="955" y="280" text-anchor="middle" class="title">пользователя</text>
+  <text x="955" y="300" text-anchor="middle" class="sub">User account</text>
+  <text x="845" y="338" class="route">
+    <tspan x="845" dy="0">Дашборд</tspan>
+    <tspan x="845" dy="20">Избранное</tspan>
+    <tspan x="845" dy="20">Мои заявки</tspan>
+    <tspan x="845" dy="20">Профиль</tspan>
+    <tspan x="845" dy="20">Сравнение объектов</tspan>
+    <tspan x="845" dy="20">Чеклист</tspan>
+    <tspan x="845" dy="20">История просмотров</tspan>
+    <tspan x="845" dy="20">Биллинг</tspan>
+    <tspan x="845" dy="20">PDF и материалы</tspan>
+  </text>
 
-                <!-- Level 4 -->
-                <div class="level">
-                    <div class="group theme-premium" id="paywall-users">
-                        <div class="group-title">Тарифы: Арендатор</div>
-                        <div class="item-list">
-                            <div class="item">PDF-Презентации объектов</div>
-                            <div class="item">Сравнение площадок</div>
-                            <div class="item">Глубокие тех. данные</div>
-                        </div>
-                    </div>
-                    <div class="group theme-owner-pw" id="paywall-owners">
-                        <div class="group-title">Тарифы: Владелец</div>
-                        <div class="item-list">
-                            <div class="item">Размещение > 1 объекта</div>
-                            <div class="item">Доступ к CRM (Лиды)</div>
-                            <div class="item">Аналитика просмотров</div>
-                        </div>
-                    </div>
-                </div>
+  <rect class="box" x="1090" y="230" width="260" height="360" rx="22" ry="22"/>
+  <text x="1220" y="260" text-anchor="middle" class="title">Личный кабинет</text>
+  <text x="1220" y="280" text-anchor="middle" class="title">владельца</text>
+  <text x="1220" y="300" text-anchor="middle" class="sub">Venue account</text>
+  <text x="1110" y="338" class="route">
+    <tspan x="1110" dy="0">Дашборд владельца</tspan>
+    <tspan x="1110" dy="20">Мои объекты</tspan>
+    <tspan x="1110" dy="20">Паспорт объекта</tspan>
+    <tspan x="1110" dy="20">Заявки</tspan>
+    <tspan x="1110" dy="20">Профиль</tspan>
+    <tspan x="1110" dy="20">Лиды</tspan>
+    <tspan x="1110" dy="20">Аналитика</tspan>
+    <tspan x="1110" dy="20">Биллинг</tspan>
+  </text>
 
-                <!-- Level 5 -->
-                <div class="level">
-                    <div class="group theme-screen" id="group-lk-user">
-                        <div class="group-title">ЛК Пользователя</div>
-                        <div class="item-list">
-                            <div class="item">Избранные объекты</div>
-                            <div class="item">Мои заявки и чаты</div>
-                            <div class="item">Загруженные документы (PDF)</div>
-                        </div>
-                    </div>
-                    <div class="group theme-screen" id="group-lk-owner">
-                        <div class="group-title">ЛК Владельца</div>
-                        <div class="item-list">
-                            <div class="item">Редактор объектов площадки</div>
-                            <div class="item">Заявки от арендаторов</div>
-                            <div class="item">Чат с клиентами</div>
-                            <div class="item theme-owner-locked" id="trigger-owner-crm">Paywall: Секция лидов</div>
-                        </div>
-                    </div>
-                </div>
+  <!-- row 2 -->
+  <rect class="box" x="560" y="730" width="260" height="260" rx="22" ry="22"/>
+  <text x="690" y="770" text-anchor="middle" class="title">Управление</text>
+  <text x="690" y="792" text-anchor="middle" class="title">кабинетом владельца</text>
+  <text x="690" y="814" text-anchor="middle" class="sub">Venue management</text>
+  <text x="580" y="862" class="route">
+    <tspan x="580" dy="0">Объекты</tspan>
+    <tspan x="580" dy="20">Заявки</tspan>
+    <tspan x="580" dy="20">Лиды</tspan>
+    <tspan x="580" dy="20">Аналитика</tspan>
+    <tspan x="580" dy="20">Биллинг</tspan>
+  </text>
 
-                <!-- Level 6 -->
-                <div class="level">
-                    <div class="group theme-system root-node" id="group-billing">
-                        <div class="group-title">Биллинг</div>
-                        <div class="item-list">
-                            <div class="item">Оплата подписки</div>
-                            <div class="item">История транзакций</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const svg = document.getElementById('svg-canvas');
-        const content = document.getElementById('diagram-content');
-        const toggleBtn = document.getElementById('toggle-arrows');
-
-        function draw() {
-            const rect = content.getBoundingClientRect();
-            svg.setAttribute('width', rect.width);
-            svg.setAttribute('height', rect.height);
-            
-            svg.innerHTML = `
-                <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                        <path d="M0,0 L10,5 L0,10 Z" fill="#cbd5e1" />
-                    </marker>
-                    <marker id="arrow-u" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                        <path d="M0,0 L10,5 L0,10 Z" fill="#fca5a5" />
-                    </marker>
-                    <marker id="arrow-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                        <path d="M0,0 L10,5 L0,10 Z" fill="#fcd34d" />
-                    </marker>
-                </defs>
-            `;
-
-            const conn = [
-                ['node-root', 'group-home'],
-                ['group-home', 'group-catalog'],
-                ['group-catalog', 'group-map'],
-                ['group-catalog', 'group-passport'],
-                ['group-map', 'group-passport'],
-                ['group-auth', 'group-lk-user'],
-                ['group-auth', 'group-lk-owner'],
-                ['trigger-user-pdf', 'paywall-users', '#fca5a5', 'u'],
-                ['trigger-user-details', 'paywall-users', '#fca5a5', 'u'],
-                ['trigger-owner-crm', 'paywall-owners', '#fcd34d', 'o'],
-                ['paywall-users', 'group-billing'],
-                ['paywall-owners', 'group-billing']
-            ];
-
-            conn.forEach(([id1, id2, color, m]) => {
-                const el1 = document.getElementById(id1);
-                const el2 = document.getElementById(id2);
-                if (!el1 || !el2) return;
-                const r1 = el1.getBoundingClientRect();
-                const r2 = el2.getBoundingClientRect();
-                const cRect = content.getBoundingClientRect();
-                const x1 = (r1.left - cRect.left) + r1.width / 2;
-                const y1 = (r1.top - cRect.top) + r1.height;
-                const x2 = (r2.left - cRect.left) + r2.width / 2;
-                const y2 = (r2.top - cRect.top);
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const midY = y1 + (y2 - y1) * 0.5;
-                path.setAttribute('d', `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`);
-                path.setAttribute('stroke', color || '#cbd5e1');
-                path.setAttribute('stroke-width', '2');
-                path.setAttribute('fill', 'none');
-                path.setAttribute('marker-end', `url(#arrow${m ? '-' + m : ''})`);
-                svg.appendChild(path);
-            });
-        }
-
-        toggleBtn.onclick = () => {
-            const h = svg.classList.toggle('hidden');
-            toggleBtn.classList.toggle('active', !h);
-            toggleBtn.textContent = `Стрелки: ${h ? 'ВЫКЛ' : 'ВКЛ'}`;
-        };
-
-        window.onload = () => setTimeout(draw, 100);
-        window.onresize = draw;
-    </script>
-</body>
-</html>
+  <rect class="box" x="1090" y="730" width="260" height="300" rx="22" ry="22"/>
+  <text x="1220" y="770" text-anchor="middle" class="title">Добавление</text>
+  <text x="1220" y="792" text-anchor="middle" class="title">площадки</text>
+  <text x="1220" y="814" text-anchor="middle" class="sub">Add venue flow</text>
+  <text x="1110" y="862" class="route">
+    <tspan x="1110" dy="0">Шаг 1. Основные данные</tspan>
+    <tspan x="1110" dy="20">Шаг 2. Тип и параметры</tspan>
+    <tspan x="1110" dy="20">Шаг 3. Локация</tspan>
+    <tspan x="1110" dy="20">Шаг 4. Вместимость</tspan>
+    <tspan x="1110" dy="20">Шаг 5. Удобства</tspan>
+    <tspan x="1110" dy="20">Шаг 6. Фото / медиа</tspan>
+    <tspan x="1110" dy="20">Шаг 7. Контакты и правила</tspan>
+    <tspan x="1110" dy="20">Шаг 8. Публикация</tspan>
+  </text>
+</svg>
+</div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">01</div><h2 class="section-title">Публичная часть</h2></div><div class="routes"><article class="route-card wide"><h3>Главная</h3><div class="tags"><span class="tag">Hero</span><span class="tag">Поиск</span><span class="tag">Города</span><span class="tag">Как это работает</span><span class="tag">Подборки</span><span class="tag">FAQ</span></div></article><article class="route-card wide"><h3>Каталог объектов</h3><div class="tags"><span class="tag">Листинг</span><span class="tag">Фильтры</span><span class="tag">Сортировка</span><span class="tag">Карточки</span></div></article><article class="route-card"><h3>Карта объектов</h3><div class="tags"><span class="tag">Карта</span><span class="tag">Пины</span><span class="tag">Фильтры</span><span class="tag">Листинг</span></div></article><article class="route-card"><h3>Паспорт объекта</h3><div class="tags"><span class="tag">Галерея</span><span class="tag">Описание</span><span class="tag">Залы</span><span class="tag">Контакты</span><span class="tag">Отзывы</span><span class="tag">Premium</span></div></article><article class="route-card"><h3>Для незарегистрированных</h3><div class="tags"><span class="tag">Ограничения доступа</span><span class="tag">CTA к регистрации</span></div></article><article class="route-card"><h3>Для владельцев площадок</h3><div class="tags"><span class="tag">Преимущества</span><span class="tag">CTA к размещению</span></div></article><article class="route-card"><h3>Тарифы пользователя</h3><div class="tags"><span class="tag">Free / Premium</span><span class="tag">Месяц / год</span></div></article><article class="route-card"><h3>Тарифы площадки</h3><div class="tags"><span class="tag">Leads</span><span class="tag">Размещение</span><span class="tag">Месяц / год</span></div></article></div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">02</div><h2 class="section-title">Авторизация и регистрация</h2></div><div class="routes"><article class="route-card wide"><h3>Выбор роли</h3><div class="tags"><span class="tag">Пользователь</span><span class="tag">Площадка</span></div></article><article class="route-card wide"><h3>Вход пользователя</h3><div class="tags"><span class="tag">Email / телефон</span><span class="tag">Пароль</span></div></article><article class="route-card"><h3>Вход владельца</h3><div class="tags"><span class="tag">Email / телефон</span><span class="tag">Пароль</span></div></article><article class="route-card"><h3>Регистрация пользователя</h3><div class="tags"><span class="tag">ФИО</span><span class="tag">Email</span><span class="tag">Телефон</span><span class="tag">Согласия</span></div></article><article class="route-card"><h3>Регистрация владельца</h3><div class="tags"><span class="tag">ИНН</span><span class="tag">Адрес</span><span class="tag">Контакты</span><span class="tag">Параметры</span></div></article><article class="route-card"><h3>Восстановление доступа</h3><div class="tags"><span class="tag">Email / телефон</span><span class="tag">Подтверждение</span></div></article></div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">03</div><h2 class="section-title">Личный кабинет пользователя</h2></div><div class="routes"><article class="route-card wide"><h3>Дашборд</h3><div class="tags"><span class="tag">Последние действия</span><span class="tag">Быстрый доступ</span></div></article><article class="route-card wide"><h3>Избранное</h3><div class="tags"><span class="tag">Сохранённые объекты</span><span class="tag">Подборки</span></div></article><article class="route-card"><h3>Мои заявки</h3><div class="tags"><span class="tag">Чаты</span><span class="tag">История обращений</span></div></article><article class="route-card"><h3>Профиль / KYC</h3><div class="tags"><span class="tag">Личные данные</span><span class="tag">Настройки</span></div></article><article class="route-card"><h3>Сравнение объектов</h3><div class="tags"><span class="tag">Premium</span><span class="tag">Экспорт PDF</span></div></article><article class="route-card"><h3>Чеклист</h3><div class="tags"><span class="tag">Проверка площадок</span><span class="tag">Статусы</span></div></article><article class="route-card"><h3>История просмотров</h3><div class="tags"><span class="tag">Недавние объекты</span></div></article><article class="route-card"><h3>Биллинг</h3><div class="tags"><span class="tag">Подписка</span><span class="tag">История оплат</span></div></article><article class="route-card"><h3>PDF и материалы</h3><div class="tags"><span class="tag">Скачанные презентации</span></div></article></div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">04</div><h2 class="section-title">Личный кабинет владельца</h2></div><div class="routes"><article class="route-card wide"><h3>Дашборд владельца</h3><div class="tags"><span class="tag">Сводка</span><span class="tag">Быстрый доступ</span></div></article><article class="route-card wide"><h3>Мои объекты</h3><div class="tags"><span class="tag">Список площадок</span></div></article><article class="route-card"><h3>Паспорт объекта</h3><div class="tags"><span class="tag">Просмотр</span><span class="tag">Редактирование</span></div></article><article class="route-card"><h3>Заявки</h3><div class="tags"><span class="tag">Чаты</span><span class="tag">История</span></div></article><article class="route-card"><h3>Профиль / KYC</h3><div class="tags"><span class="tag">Данные компании</span><span class="tag">Настройки</span></div></article><article class="route-card"><h3>Лиды</h3><div class="tags"><span class="tag">Входящие обращения</span></div></article><article class="route-card"><h3>Аналитика</h3><div class="tags"><span class="tag">Просмотры</span><span class="tag">Интерес</span></div></article><article class="route-card"><h3>Биллинг</h3><div class="tags"><span class="tag">Тариф</span><span class="tag">История оплат</span></div></article></div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">05</div><h2 class="section-title">Флоу добавления площадки</h2></div><div class="routes"><article class="route-card wide"><h3>Шаг 1. Основные данные</h3><div class="tags"><span class="tag">Название</span><span class="tag">Тип объекта</span></div></article><article class="route-card wide"><h3>Шаг 2. Тип и параметры</h3><div class="tags"><span class="tag">Категория</span><span class="tag">Характеристики</span></div></article><article class="route-card"><h3>Шаг 3. Локация</h3><div class="tags"><span class="tag">Адрес</span><span class="tag">Геопозиция</span></div></article><article class="route-card"><h3>Шаг 4. Вместимость</h3><div class="tags"><span class="tag">Залы</span><span class="tag">Конфигурации</span></div></article><article class="route-card"><h3>Шаг 5. Удобства</h3><div class="tags"><span class="tag">Сервисы</span><span class="tag">Оснащение</span></div></article><article class="route-card"><h3>Шаг 6. Фото / медиа</h3><div class="tags"><span class="tag">Галерея</span><span class="tag">Материалы</span></div></article><article class="route-card"><h3>Шаг 7. Контакты и правила</h3><div class="tags"><span class="tag">Контактное лицо</span><span class="tag">Условия</span></div></article><article class="route-card"><h3>Шаг 8. Проверка и публикация</h3><div class="tags"><span class="tag">Предпросмотр</span><span class="tag">Публикация</span></div></article></div></div></section><section class="section"><div class="section-card"><div class="section-head"><div class="section-index">06</div><h2 class="section-title">Тарифы, оплата и служебные страницы</h2></div><div class="routes"><article class="route-card wide"><h3>Экран оплаты</h3><div class="tags"><span class="tag">Тариф</span><span class="tag">Месяц / год</span></div></article><article class="route-card wide"><h3>Оплата — успех</h3><div class="tags"><span class="tag">Статус оплаты</span></div></article><article class="route-card"><h3>Оплата — ошибка</h3><div class="tags"><span class="tag">Статус оплаты</span></div></article><article class="route-card"><h3>Оплата — ожидание</h3><div class="tags"><span class="tag">Статус оплаты</span></div></article><article class="route-card"><h3>О проекте</h3></article><article class="route-card"><h3>Сотрудничество</h3></article><article class="route-card"><h3>Политика конфиденциальности</h3></article></div></div></section><section class="section"><div class="gallery-card"><h2 class="gallery-title">Скрины из архива / Archive screens</h2><div class="gallery-group"><h3 class="gallery-group-title">Публичная часть</h3><div class="gallery-grid"><figure class="shot"><img src="assets/shots/Main2.png" alt="Главная"><h4>Главная</h4></figure><figure class="shot"><img src="assets/shots/Catalog.png" alt="Каталог"><h4>Каталог</h4></figure><figure class="shot"><img src="assets/shots/Map.png" alt="Карта"><h4>Карта</h4></figure><figure class="shot"><img src="assets/shots/Map_Filters.png" alt="Карта — фильтры"><h4>Карта — фильтры</h4></figure><figure class="shot"><img src="assets/shots/Catalog_Venue.png" alt="Паспорт объекта"><h4>Паспорт объекта</h4></figure><figure class="shot"><img src="assets/shots/For_unregistered.png" alt="Для незарегистрированных"><h4>Для незарегистрированных</h4></figure><figure class="shot"><img src="assets/shots/For_venues.png" alt="Для владельцев площадок"><h4>Для владельцев площадок</h4></figure><figure class="shot"><img src="assets/shots/Plans.png" alt="Тарифы пользователя"><h4>Тарифы пользователя</h4></figure><figure class="shot"><img src="assets/shots/PlansVenue.png" alt="Тарифы площадки"><h4>Тарифы площадки</h4></figure></div></div><div class="gallery-group"><h3 class="gallery-group-title">Авторизация и регистрация</h3><div class="gallery-grid"><figure class="shot"><img src="assets/shots/Login.png" alt="Выбор роли"><h4>Выбор роли</h4></figure><figure class="shot"><img src="assets/shots/Login_User.png" alt="Вход пользователя"><h4>Вход пользователя</h4></figure><figure class="shot"><img src="assets/shots/Login_Venue.png" alt="Вход владельца"><h4>Вход владельца</h4></figure><figure class="shot"><img src="assets/shots/SignUp_User.png" alt="Регистрация пользователя"><h4>Регистрация пользователя</h4></figure><figure class="shot"><img src="assets/shots/SignUp_Venue.png" alt="Регистрация владельца"><h4>Регистрация владельца</h4></figure></div></div><div class="gallery-group"><h3 class="gallery-group-title">Личный кабинет пользователя</h3><div class="gallery-grid"><figure class="shot"><img src="assets/shots/Profile_Dashboard.png" alt="Дашборд"><h4>Дашборд</h4></figure><figure class="shot"><img src="assets/shots/Fav.png" alt="Избранное"><h4>Избранное</h4></figure><figure class="shot"><img src="assets/shots/Orders.png" alt="Мои заявки"><h4>Мои заявки</h4></figure><figure class="shot"><img src="assets/shots/Profile.png" alt="Профиль"><h4>Профиль</h4></figure></div></div><div class="gallery-group"><h3 class="gallery-group-title">Личный кабинет владельца</h3><div class="gallery-grid"><figure class="shot"><img src="assets/shots/Venue.png" alt="Дашборд владельца"><h4>Дашборд владельца</h4></figure><figure class="shot"><img src="assets/shots/Venue_My.png" alt="Мои объекты"><h4>Мои объекты</h4></figure><figure class="shot"><img src="assets/shots/VenueOrders.png" alt="Заявки"><h4>Заявки</h4></figure><figure class="shot"><img src="assets/shots/VenueProfile.png" alt="Профиль владельца"><h4>Профиль владельца</h4></figure></div></div><div class="gallery-group"><h3 class="gallery-group-title">Флоу добавления площадки</h3><div class="gallery-grid"><figure class="shot"><img src="assets/shots/AddVenue1.png" alt="Шаг 1"><h4>Шаг 1</h4></figure><figure class="shot"><img src="assets/shots/AddVenue2.png" alt="Шаг 2"><h4>Шаг 2</h4></figure><figure class="shot"><img src="assets/shots/AddVenue3.png" alt="Шаг 3"><h4>Шаг 3</h4></figure><figure class="shot"><img src="assets/shots/AddVenue4.png" alt="Шаг 4"><h4>Шаг 4</h4></figure><figure class="shot"><img src="assets/shots/AddVenue5.png" alt="Шаг 5"><h4>Шаг 5</h4></figure><figure class="shot"><img src="assets/shots/AddVenue6.png" alt="Шаг 6"><h4>Шаг 6</h4></figure><figure class="shot"><img src="assets/shots/AddVenue7.png" alt="Шаг 7"><h4>Шаг 7</h4></figure><figure class="shot"><img src="assets/shots/AddVenue8.png" alt="Шаг 8"><h4>Шаг 8</h4></figure></div></div></div></section></div></body></html>
