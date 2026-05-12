@@ -58,17 +58,15 @@ img{display:block;max-width:100%;}
 .back-link:hover{background:var(--coral);color:#fff;}
 
 /* ═══ GALLERY ═══ */
-.gallery{padding:0 40px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:440px;overflow:hidden;border-radius:var(--r-lg);}
-.gallery-hero{grid-row:span 2;border-radius:var(--r-lg) 0 0 var(--r-lg);overflow:hidden;position:relative;cursor:pointer;}
+.gallery{padding:0 40px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:440px;overflow:hidden;}
+.gallery-hero{grid-row:span 2;border-radius:var(--r-lg);overflow:hidden;position:relative;cursor:pointer;}
 .gallery-hero img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);will-change:transform;}
 .gallery-hero:hover img{transform:scale(1.02);}
 .gallery-side{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.gallery-thumb{overflow:hidden;cursor:pointer;position:relative;border-radius:4px;}
+.gallery-thumb{overflow:hidden;cursor:pointer;position:relative;border-radius:var(--r-lg);}
 .gallery-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s;will-change:transform;}
 .gallery-thumb:hover img{transform:scale(1.06);}
-.gallery-side:last-of-type .gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:4px;}
-.gallery-side:first-of-type .gallery-thumb:first-child{border-radius:0 var(--r-lg) 0 0;}
-.gallery-side:last-of-type .gallery-thumb:last-child{border-radius:0 0 var(--r-lg) 0;}
+.gallery-side:last-of-type .gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:var(--r-lg);}
 
 /* ═══ CONTENT LAYOUT ═══ */
 .content-wrap{display:flex;gap:32px;padding:32px 40px 48px;max-width:1400px;margin:0 auto;}
