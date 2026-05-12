@@ -321,21 +321,14 @@ button { font-family:inherit; cursor:pointer; }
 .v-tag.prem { background:rgba(233,134,103,.9); color:#fff; }
 
 .v-actions { position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:1; }
-.v-act-cmp {
+.v-act-cmp,.v-act-fav {
   width:34px; height:34px; border-radius:50%;
   background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
   border:none; display:flex; align-items:center; justify-content:center;
-  color:var(--coral); transition:all .2s;
+  color:var(--slate-pale); transition:all .2s; cursor:pointer;
 }
-.v-act-cmp:hover { background:#fff; transform:scale(1.08); }
+.v-act-cmp:hover,.v-act-fav:hover { background:#fff; color:var(--coral); transform:scale(1.08); }
 .v-act-cmp.cmp-on { background:var(--coral-soft,#FCEAE4)!important; color:var(--coral)!important; }
-.v-act-fav {
-  width:34px; height:34px; border-radius:50%;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
-  border:none; display:flex; align-items:center; justify-content:center;
-  color:var(--slate-pale); transition:all .2s;
-}
-.v-act-fav:hover { background:#fff; color:var(--coral); transform:scale(1.08); }
 .v-act-fav.fav-on { color:var(--coral); }
 
 .v-body { padding:14px 16px 16px; }

@@ -148,21 +148,14 @@ button{font-family:inherit;cursor:pointer;}
 .v-badge.premium{background:var(--c);color:#fff;}
 /* icon buttons top-right */
 .v-tr{position:absolute;top:10px;right:10px;display:flex;gap:6px;}
-.v-tr-cmp{
-  width:34px;height:34px;border-radius:50%;border:none;
-  background:rgba(255,255,255,.92);color:var(--c);
-  display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(6px);transition:all .2s;
-}
-.v-tr-cmp:hover{background:#fff;transform:scale(1.08);}
-.v-tr-cmp.on{background:var(--cs);color:var(--c);}
-.v-tr-fav{
+.v-tr-cmp,.v-tr-fav{
   width:34px;height:34px;border-radius:50%;border:none;
   background:rgba(255,255,255,.92);color:var(--sp);
   display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(6px);transition:all .2s;
+  backdrop-filter:blur(8px);transition:all .2s;cursor:pointer;
 }
-.v-tr-fav:hover{background:#fff;color:var(--c);}
+.v-tr-cmp:hover,.v-tr-fav:hover{background:#fff;color:var(--c);transform:scale(1.08);}
+.v-tr-cmp.on{background:var(--cs);color:var(--c);}
 .v-tr-fav.on{color:var(--c);}
 .v-body{padding:14px 14px 16px;}
 .v-name{font-size:15px;font-weight:700;color:var(--sd);margin-bottom:4px;
