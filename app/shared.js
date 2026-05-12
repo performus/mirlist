@@ -259,8 +259,8 @@ const MH = (() => {
       }
       .mh-ft-main {
         display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-        gap: 40px; max-width: 1200px; margin: 0 auto;
-        padding: 52px 48px 40px;
+        gap: 40px;
+        padding: 52px 36px 40px;
       }
       .mh-ft-logo {
         font-size: 17px; font-weight: 800; letter-spacing: .06em;
@@ -289,8 +289,7 @@ const MH = (() => {
       .mh-ft-col a:hover { color: #354E63; }
       .mh-ft-col a.bold { font-weight: 600; color: #354E63; }
       .mh-ft-social-row {
-        max-width: 1200px; margin: 0 auto;
-        padding: 20px 48px 24px;
+        padding: 20px 36px 24px;
         border-top: 1px solid #E5DDD6;
         display: flex; gap: 14px;
       }
@@ -302,8 +301,7 @@ const MH = (() => {
       .mh-ft-social:hover { color: #354E63; }
       .mh-ft-bottom {
         border-top: 1px solid #E5DDD6;
-        max-width: 1200px; margin: 0 auto;
-        padding: 20px 48px;
+        padding: 20px 36px;
         display: flex; align-items: center; justify-content: space-between;
         font-size: 12.5px; color: #A8B8C2;
       }
@@ -313,9 +311,9 @@ const MH = (() => {
       }
       .mh-ft-bottom a:hover { color: #354E63; }
       @media (max-width: 900px) {
-        .mh-ft-main { grid-template-columns: 1fr 1fr; padding: 36px 24px 28px; gap: 28px; }
-        .mh-ft-social-row { padding: 16px 24px 20px; }
-        .mh-ft-bottom { padding: 16px 24px; flex-direction: column; gap: 10px; text-align: center; }
+        .mh-ft-main { grid-template-columns: 1fr 1fr; padding: 36px 20px 28px; gap: 28px; }
+        .mh-ft-social-row { padding: 16px 20px 20px; }
+        .mh-ft-bottom { padding: 16px 20px; flex-direction: column; gap: 10px; text-align: center; }
       }
       @media (max-width: 560px) {
         .mh-ft-main { grid-template-columns: 1fr; }
