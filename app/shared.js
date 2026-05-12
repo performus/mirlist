@@ -349,11 +349,12 @@ const MH = (() => {
             <h4>Для площадок</h4>
             <a href="list-venue.html">Разместить площадку</a>
             <a href="pricing.html">Тарифы</a>
-            <a href="#">Поддержка</a>
+            <a href="#" onclick="event.preventDefault();MH.feedback()">Поддержка</a>
           </div>
           <div class="mh-ft-col">
             <h4>Компания</h4>
             <a href="#">О нас</a>
+            <a href="#" onclick="event.preventDefault();MH.feedback()">Связаться с нами</a>
             <a href="request-form.html" class="bold">Подбор площадки</a>
           </div>
           <div class="mh-ft-col">
@@ -428,5 +429,155 @@ const MH = (() => {
     }, 3000);
   }
 
-  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav };
+  function feedback() {
+    if (document.getElementById('mh-feedback-overlay')) {
+      document.getElementById('mh-feedback-overlay').style.display = 'flex';
+      return;
+    }
+    const style = document.createElement('style');
+    style.textContent = `
+      #mh-feedback-overlay {
+        position: fixed; inset: 0; z-index: 9000;
+        background: rgba(53,78,99,.35); backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center; padding: 20px;
+        animation: mhFbIn .2s ease;
+      }
+      @keyframes mhFbIn { from { opacity:0 } to { opacity:1 } }
+      #mh-feedback-modal {
+        background: #fff; border-radius: 20px; width: 100%; max-width: 480px;
+        box-shadow: 0 24px 64px rgba(53,78,99,.18); overflow: hidden;
+        animation: mhFbSlide .25s ease;
+      }
+      @keyframes mhFbSlide { from { transform: translateY(16px); opacity:0 } to { transform: translateY(0); opacity:1 } }
+      .mhfb-head {
+        padding: 24px 28px 0; display: flex; align-items: flex-start; justify-content: space-between;
+      }
+      .mhfb-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #354E63; }
+      .mhfb-sub { font-size: 13.5px; color: #7A919F; margin-top: 4px; }
+      .mhfb-close {
+        width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #B4C3CC;
+        background: #fff; color: #7A919F; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all .2s; flex-shrink: 0; font-size: 14px;
+      }
+      .mhfb-close:hover { border-color: #E8846A; color: #E8846A; }
+      .mhfb-body { padding: 20px 28px 28px; }
+      .mhfb-field { margin-bottom: 16px; }
+      .mhfb-label {
+        display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .07em; color: #7A919F; margin-bottom: 7px;
+      }
+      .mhfb-input {
+        width: 100%; padding: 11px 15px; border-radius: 10px;
+        border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
+        font-family: 'Outfit', sans-serif; font-size: 14px; color: #354E63;
+        outline: none; transition: border-color .2s;
+      }
+      .mhfb-input:focus { border-color: #E8846A; background: #fff; }
+      .mhfb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+      .mhfb-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+      .mhfb-chip {
+        padding: 6px 14px; border-radius: 50px; font-size: 12.5px; font-weight: 500;
+        background: #F6E6DE; color: #46627A; border: 1.5px solid transparent;
+        cursor: pointer; transition: all .18s; font-family: 'Outfit', sans-serif;
+      }
+      .mhfb-chip.sel { background: #FCEAE4; color: #E8846A; border-color: rgba(232,132,106,.3); font-weight: 600; }
+      .mhfb-textarea {
+        width: 100%; padding: 11px 15px; border-radius: 10px;
+        border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
+        font-family: 'Outfit', sans-serif; font-size: 14px; color: #354E63;
+        outline: none; resize: vertical; min-height: 110px; transition: border-color .2s;
+      }
+      .mhfb-textarea:focus { border-color: #E8846A; background: #fff; }
+      .mhfb-btn {
+        width: 100%; padding: 13px; border-radius: 10px; border: none;
+        background: #E8846A; color: #fff; font-family: 'Outfit', sans-serif;
+        font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s;
+        box-shadow: 0 4px 16px rgba(232,132,106,.28);
+      }
+      .mhfb-btn:hover { background: #d4704f; transform: translateY(-1px); }
+      .mhfb-success { text-align: center; padding: 40px 28px; }
+      .mhfb-success-icon { font-size: 48px; margin-bottom: 14px; }
+      .mhfb-success-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #354E63; margin-bottom: 8px; }
+      .mhfb-success-text { font-size: 14px; color: #7A919F; line-height: 1.6; }
+    `;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mh-feedback-overlay';
+    overlay.innerHTML = `
+      <div id="mh-feedback-modal" role="dialog" aria-modal="true" aria-label="Обратная связь">
+        <div class="mhfb-head">
+          <div>
+            <div class="mhfb-title">Написать нам</div>
+            <div class="mhfb-sub">Ответим в течение 1 рабочего дня</div>
+          </div>
+          <button class="mhfb-close" id="mhfb-close-btn" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="mhfb-body" id="mhfb-body">
+          <div class="mhfb-row">
+            <div class="mhfb-field">
+              <label class="mhfb-label">Имя</label>
+              <input class="mhfb-input" id="mhfb-name" type="text" placeholder="Анна Козлова">
+            </div>
+            <div class="mhfb-field">
+              <label class="mhfb-label">Email</label>
+              <input class="mhfb-input" id="mhfb-email" type="email" placeholder="anna@company.ru">
+            </div>
+          </div>
+          <div class="mhfb-field">
+            <label class="mhfb-label">Тема</label>
+            <div class="mhfb-chips" id="mhfb-chips">
+              <button class="mhfb-chip sel" data-topic="Вопрос">Вопрос</button>
+              <button class="mhfb-chip" data-topic="Техническая проблема">Техническая проблема</button>
+              <button class="mhfb-chip" data-topic="Предложение">Предложение</button>
+              <button class="mhfb-chip" data-topic="Другое">Другое</button>
+            </div>
+          </div>
+          <div class="mhfb-field">
+            <label class="mhfb-label">Сообщение</label>
+            <textarea class="mhfb-textarea" id="mhfb-msg" placeholder="Опишите ваш вопрос или предложение..."></textarea>
+          </div>
+          <button class="mhfb-btn" id="mhfb-send">Отправить</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    function closeFeedback() { overlay.style.display = 'none'; }
+    document.getElementById('mhfb-close-btn').addEventListener('click', closeFeedback);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeFeedback(); });
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { closeFeedback(); document.removeEventListener('keydown', esc); }
+    });
+
+    document.getElementById('mhfb-chips').addEventListener('click', e => {
+      const chip = e.target.closest('.mhfb-chip');
+      if (!chip) return;
+      document.querySelectorAll('#mhfb-chips .mhfb-chip').forEach(c => c.classList.remove('sel'));
+      chip.classList.add('sel');
+    });
+
+    const sess = getSession();
+    if (sess) {
+      document.getElementById('mhfb-name').value = sess.name || '';
+      document.getElementById('mhfb-email').value = sess.email || '';
+    }
+
+    document.getElementById('mhfb-send').addEventListener('click', () => {
+      const name = document.getElementById('mhfb-name').value.trim();
+      const email = document.getElementById('mhfb-email').value.trim();
+      const msg = document.getElementById('mhfb-msg').value.trim();
+      if (!name || !email || !msg) {
+        toast('Заполните все обязательные поля', 'error'); return;
+      }
+      document.getElementById('mhfb-body').innerHTML = `
+        <div class="mhfb-success">
+          <div class="mhfb-success-icon">✉️</div>
+          <div class="mhfb-success-title">Сообщение отправлено!</div>
+          <div class="mhfb-success-text">Спасибо, ${name}. Мы свяжемся с вами по адресу ${email} в течение 1 рабочего дня.</div>
+        </div>`;
+      setTimeout(closeFeedback, 3500);
+    });
+  }
+
+  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback };
 })();
