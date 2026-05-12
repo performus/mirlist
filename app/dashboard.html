@@ -26,8 +26,7 @@ button{font-family:inherit;cursor:pointer;}
 /* SIDEBAR */
 .sb{width:256px;height:100vh;background:var(--w);border-right:1px solid rgba(197,227,225,.3);display:flex;flex-direction:column;flex-shrink:0;}
 .sb-top{padding:22px 22px 16px;}
-.sb-logo{font-family:'DM Serif Display',serif;font-size:21px;color:var(--sd);margin-bottom:18px;}
-.sb-logo i{font-style:normal;color:var(--c);}
+.sb-logo{margin-bottom:18px;}
 .sb-role{display:flex;background:var(--bg);border-radius:var(--r);padding:3px;margin-bottom:6px;}
 .sb-role button{flex:1;padding:8px 0;border-radius:8px;border:none;font-size:12px;font-weight:600;color:var(--sx);background:none;transition:all .25s;}
 .sb-role button.active{background:var(--w);color:var(--c);box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -260,8 +259,7 @@ button{font-family:inherit;cursor:pointer;}
 @media(max-width:900px){
   .sb{width:64px;overflow:visible;}
   .sb-top{padding:16px 10px 10px;}
-  .sb-logo{font-size:18px;text-align:center;margin-bottom:10px;}
-  .sb-logo i{display:inline;}
+  .sb-logo{text-align:center;margin-bottom:10px;}
   .sb-role,.sb-section-label,.sb-uname,.sb-urole,.sb-premium{display:none;}
   .sb-nav{padding:4px 8px;}
   .sb-item{justify-content:center;padding:12px 8px;border-radius:8px;}
@@ -362,7 +360,7 @@ button{font-family:inherit;cursor:pointer;}
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-top">
-    <a class="sb-logo" href="homepage.html" style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.2px;text-decoration:none;display:block;margin-bottom:18px;"><span style="color:#E8846A;">МИР</span><span style="color:#354E63;">ХАБ</span></a>
+    <a class="sb-logo" href="homepage.html" style="text-decoration:none;display:block;margin-bottom:18px;"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></a>
     <div class="sb-role" id="roleSwitch">
       <button class="active" data-role="user">Пользователь</button>
       <button data-role="owner">Площадка</button>

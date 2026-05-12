@@ -27,8 +27,7 @@ body{font-family:'Outfit',sans-serif;background:#1a1a1a;color:var(--sd);overflow
 
 /* Slide components */
 .s-accent{position:absolute;top:0;left:0;right:0;height:4px;}
-.s-logo{font-family:'DM Serif Display',serif;font-size:16px;color:var(--sd);position:absolute;top:16px;left:24px;}
-.s-logo i{color:var(--c);font-style:normal;}
+.s-logo{position:absolute;top:16px;left:24px;}
 .s-page{position:absolute;top:16px;right:24px;font-size:11px;color:var(--sp);font-weight:500;}
 .s-footer{height:28px;background:var(--bg);display:flex;align-items:center;padding:0 24px;font-size:9px;color:var(--sp);justify-content:space-between;flex-shrink:0;}
 
@@ -141,7 +140,7 @@ let slides=[];
 slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
   <div style="position:absolute;top:0;left:0;right:0;height:50%;background:var(--cs)"></div>
   <div style="position:relative;z-index:1">
-    <div class="s-logo" style="position:static;font-size:20px;margin-bottom:24px">Площадки<i>.</i></div>
+    <div class="s-logo" style="position:static;margin-bottom:24px"><img src="../assets/logo.svg" alt="МирХАБ" height="22" style="display:block"></div>
     <div class="s-title" style="font-size:36px;margin-bottom:12px">Сравнение площадок</div>
     <div class="s-subtitle" style="font-size:16px;margin-bottom:32px">Персональная подборка для вашего мероприятия · Май 2026</div>
     <div style="display:flex;gap:12px;margin-bottom:40px">${V.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 18px;background:var(--w);border-radius:50px;box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="width:10px;height:10px;border-radius:50%;background:${v.color}"></div><span style="font-size:13px;font-weight:600;color:var(--sd)">${v.name}</span></div>`).join('')}</div>
@@ -157,7 +156,7 @@ slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;
 // VENUE SLIDES (4 each)
 V.forEach((v,vi)=>{
   // Slide 1: Overview
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
     <div class="s-split" style="margin-top:24px">
       <div class="s-split-left" style="background:${v.bg}">
         <div style="text-align:center"><div style="font-size:64px;opacity:.3;margin-bottom:8px">🏢</div><div style="font-size:12px;color:${v.color};font-weight:600">Фото площадки</div></div>
@@ -180,7 +179,7 @@ V.forEach((v,vi)=>{
   </div>`);
 
   // Slide 2: Pricing
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
     <div style="margin-top:24px"><div class="s-section">Цены и условия</div>
     <div class="s-grid s-grid-4" style="margin-bottom:28px">
       <div class="s-card"><div class="s-card-label">За час</div><div class="s-card-val" style="font-size:20px">${v.ph} ₽</div><div class="s-card-note">Мин. 3 часа</div></div>
@@ -196,7 +195,7 @@ V.forEach((v,vi)=>{
   </div>`);
 
   // Slide 3: Capacity
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
     <div style="margin-top:24px"><div class="s-section">Вместимость и форматы</div>
     <div class="s-grid s-grid-6" style="margin-bottom:28px">${Object.entries(v.fmt).map(([f,c])=>`<div class="s-card" style="padding:14px;${c===0?'opacity:.35':''}"><div style="font-size:20px;margin-bottom:6px">${FMT_E[f]||''}</div><div style="font-size:11px;color:var(--sx);margin-bottom:4px">${f}</div><div style="font-size:20px;font-weight:700;color:${c>0?v.color:'var(--sp)'}">${c||'—'}</div>${c>0?'<div style="font-size:10px;color:var(--sp)">чел.</div>':''}</div>`).join('')}</div>
     <div style="max-width:600px">${Object.entries(v.fmt).filter(([,c])=>c>0).map(([f,c])=>`<div class="s-bar-row"><div class="s-bar-label">${f}</div><div class="s-bar" style="width:${c/v.cap*100}%;background:${v.color}">${c}</div></div>`).join('')}</div>
@@ -204,7 +203,7 @@ V.forEach((v,vi)=>{
   </div>`);
 
   // Slide 4: Amenities
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
     <div style="margin-top:24px"><div class="s-section">Услуги и удобства</div>
     <div class="s-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px">${ALL_AM.map(a=>{const has=v.am.includes(a);return `<div class="s-chip${has?' on':''}" style="padding:10px 14px;border-radius:10px;text-align:center;font-size:12px;${has?'':'opacity:.35'}">${AM_E[a]||''} ${a}</div>`;}).join('')}</div>
     <div class="s-grid s-grid-3" style="gap:16px">
@@ -217,7 +216,7 @@ V.forEach((v,vi)=>{
 });
 
 // COMPARISON TABLE
-slides.push(`<div class="slide-inner"><div class="s-accent" style="background:var(--c)"></div><div class="s-logo">Площадки<i>.</i></div>
+slides.push(`<div class="slide-inner"><div class="s-accent" style="background:var(--c)"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div>
   <div style="margin-top:24px"><div class="s-section">Сравнительная таблица</div>
   <table class="s-table"><thead><tr><th>Параметр</th>${V.map(v=>`<th style="background:${v.color}">${v.name.length>20?v.name.slice(0,18)+'...':v.name}</th>`).join('')}</tr></thead><tbody>
   ${[['Тип',V.map(v=>v.type)],['Вместимость',V.map(v=>v.cap+' чел.')],['Площадь',V.map(v=>v.area+' м²')],['Залов',V.map(v=>v.halls)],['Цена/день',V.map(v=>v.pd+' ₽')],['Цена/час',V.map(v=>v.ph+' ₽')],['Рейтинг',V.map(v=>'★ '+v.r)],['Отзывы',V.map(v=>v.rv)],['Кейтеринг',V.map(v=>v.cat)],['Театр',V.map(v=>v.fmt['Театр']||'—')],['Банкет',V.map(v=>v.fmt['Банкет']||'—')],['Фуршет',V.map(v=>v.fmt['Фуршет']||'—')]].map(([l,vals])=>`<tr><td style="font-weight:600">${l}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}
@@ -228,7 +227,7 @@ slides.push(`<div class="slide-inner"><div class="s-accent" style="background:va
 slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
   <div style="position:absolute;top:0;left:0;right:0;height:45%;background:var(--cs)"></div>
   <div style="position:relative;z-index:1">
-    <div class="s-logo" style="position:static;font-size:18px;margin-bottom:20px">Площадки<i>.</i></div>
+    <div class="s-logo" style="position:static;margin-bottom:20px"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></div>
     <div class="s-title" style="font-size:30px">Свяжитесь с нами</div>
     <div class="s-subtitle">Мы поможем выбрать идеальную площадку</div>
     <div class="s-grid s-grid-2" style="gap:20px;max-width:700px">
@@ -250,7 +249,7 @@ const deck=document.getElementById('deck');
 slides.forEach((html,i)=>{
   const el=document.createElement('div');
   el.className='slide'+(i===0?' active':'');
-  el.innerHTML=html+`<div class="s-footer"><span>Площадки. — ploshchadki.ru</span><span>${i+1} / ${slides.length}</span></div>`;
+  el.innerHTML=html+`<div class="s-footer"><span>МирХАБ — mirhub.ru</span><span>${i+1} / ${slides.length}</span></div>`;
   deck.appendChild(el);
 });
 

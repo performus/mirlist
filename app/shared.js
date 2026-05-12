@@ -36,12 +36,9 @@ const MH = (() => {
         font-family: 'Outfit', 'Inter', sans-serif;
       }
       .mh-logo {
-        font-size: 24px; font-weight: 900; letter-spacing: .01em;
         text-decoration: none; white-space: nowrap; margin-right: 40px; flex-shrink: 0;
-        line-height: 1; font-family: 'Outfit', 'Inter', sans-serif;
+        display: flex; align-items: center;
       }
-      .mh-logo .mir { color: #E8846A; }
-      .mh-logo .hab { color: #354E63; }
       .mh-nav {
         display: flex; align-items: center; gap: 4px; flex: 1;
       }
@@ -217,7 +214,7 @@ const MH = (() => {
 
     targetEl.innerHTML = `
       <header class="mh-header">
-        <a class="mh-logo" href="homepage.html"><span class="mir">МИР</span><span class="hab">ХАБ</span></a>
+        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
@@ -263,8 +260,7 @@ const MH = (() => {
         padding: 52px 36px 40px;
       }
       .mh-ft-logo {
-        font-size: 17px; font-weight: 800; letter-spacing: .06em;
-        color: #354E63; margin-bottom: 10px;
+        margin-bottom: 10px;
       }
       .mh-ft-brand p {
         font-size: 13px; line-height: 1.65; color: #8A9DAA;
@@ -330,7 +326,7 @@ const MH = (() => {
       <footer class="mh-footer">
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
-            <div class="mh-ft-logo">МИРХАБ</div>
+            <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></div>
             <p>В2В маркетплейс площадок для деловых мероприятий в России</p>
             <div class="mh-ft-contacts">
               <a class="mh-ft-contact" href="mailto:info@mirhub.ru">${ICON_MAIL} info@mirhub.ru</a>
