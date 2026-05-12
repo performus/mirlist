@@ -41,7 +41,7 @@ img{display:block;max-width:100%;}
 .h-btn.primary:hover{background:var(--coral-hover);}
 
 /* ═══ BREADCRUMB ═══ */
-.breadcrumb{padding:16px 40px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate-muted);}
+.breadcrumb{padding:20px 40px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate-muted);}
 .breadcrumb a{color:var(--slate-muted);transition:color .2s;}
 .breadcrumb a:hover{color:var(--coral);}
 .breadcrumb svg{opacity:.4;flex-shrink:0;}
@@ -59,7 +59,7 @@ img{display:block;max-width:100%;}
 .gallery-thumb{overflow:hidden;cursor:pointer;position:relative;border-radius:4px;}
 .gallery-thumb svg{width:100%;height:100%;transition:transform .5s;}
 .gallery-thumb:hover svg{transform:scale(1.06);}
-.gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:4px;}
+.gallery-side:last-of-type .gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:4px;}
 .gallery-side:first-of-type .gallery-thumb:first-child{border-radius:0 var(--r-lg) 0 0;}
 .gallery-side:last-of-type .gallery-thumb:last-child{border-radius:0 0 var(--r-lg) 0;}
 
@@ -85,7 +85,7 @@ img{display:block;max-width:100%;}
 .stat-value.coral{color:var(--coral);}
 
 /* ═══ SIDEBAR CTA ═══ */
-.sidebar-sticky{position:sticky;top:80px;}
+.sidebar-sticky{position:sticky;top:76px;}
 .cta-card{background:var(--white);border:1px solid rgba(233,134,103,.15);border-radius:var(--r-lg);padding:28px;box-shadow:var(--sh-md);margin-bottom:20px;}
 .cta-price{font-size:14px;color:var(--slate-muted);margin-bottom:4px;}
 .cta-price strong{font-size:28px;font-weight:700;color:var(--slate-deep);}
@@ -234,10 +234,11 @@ img{display:block;max-width:100%;}
 </style>
 </head>
 <body>
-<div class="page">
 
-<!-- HEADER -->
+<!-- HEADER: must live outside .page so position:fixed works through CSS transforms -->
 <div id="mh-nav"></div>
+
+<div class="page">
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
