@@ -393,8 +393,24 @@ const MH = (() => {
     });
   }
 
+  function injectSkeletonCSS() {
+    if (document.getElementById('mh-sk-style')) return;
+    const sel='.v-thumb,.v-img,.venue-thumb,.m-thumb,.city-thumb,.gallery-hero,.gallery-thumb,.sim-img,.vh-img,.hero-vcard-photo';
+    const s = document.createElement('style');
+    s.id = 'mh-sk-style';
+    s.textContent = `@keyframes mh-shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}${sel}{background:linear-gradient(90deg,#e8ecef 25%,#f2f5f7 50%,#e8ecef 75%);background-size:1200px 100%;animation:mh-shimmer 1.5s infinite linear;}img.sk-on{opacity:1!important;}`;
+    document.head.appendChild(s);
+    document.addEventListener('load', e => {
+      if (e.target.tagName !== 'IMG') return;
+      e.target.classList.add('sk-on');
+      const p = e.target.parentElement;
+      if (p) p.style.animation = 'none';
+    }, true);
+  }
+
   function init(active) {
     initTransition();
+    injectSkeletonCSS();
     const el = document.getElementById('mh-nav');
     if (el) renderNav(el, active);
     const fel = document.getElementById('mh-footer');

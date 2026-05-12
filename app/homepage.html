@@ -306,7 +306,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="hero-vcard">
         <div class="hero-vcard-photo">
-          <img src="../assets/photos/hero.jpg" alt="Конференц-зал">
+          <img src="../assets/photos/hero.jpg" alt="Конференц-зал" style="opacity:0;transition:opacity .4s;">
         </div>
         <div class="hero-vcard-info">
           <div class="hero-vcard-name">Лофт «Белый Зал»</div>
@@ -352,8 +352,8 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <script>
-function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">';}
-function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">';}
+function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">';}
+function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">';}
 
 const cities=[{n:'Москва',t:'Столица событий',cnt:'3 200+',h:185,s:1},{n:'Санкт-Петербург',t:'Дворцы и лофты',cnt:'2 100+',h:195,s:2},{n:'Казань',t:'Столица Поволжья',cnt:'780+',h:18,s:3},{n:'Сочи',t:'Море и горы',cnt:'540+',h:170,s:4},{n:'Екатеринбург',t:'Центр Урала',cnt:'620+',h:15,s:5},{n:'Новосибирск',t:'Сердце Сибири',cnt:'480+',h:210,s:6},{n:'Краснодар',t:'Южный простор',cnt:'410+',h:160,s:7},{n:'Нижний Новгород',t:'Особняки и залы',cnt:'350+',h:200,s:8}];
 

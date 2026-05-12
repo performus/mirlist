@@ -508,7 +508,7 @@ const _v = VENUES.find(x => x.s === _vid) || VENUES[0];
 
 function vIll(h,s){
   const n=((s-1)%16)+1;
-  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
+  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">`;
 }
 
 /* Apply venue data to static elements */
