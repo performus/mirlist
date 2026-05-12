@@ -241,7 +241,7 @@ img{display:block;max-width:100%;}
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
-  <a href="list-venue.html" class="back-link">
+  <a href="javascript:history.back()" class="back-link">
     <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     К результатам
   </a>
@@ -476,6 +476,26 @@ img{display:block;max-width:100%;}
 </div><!-- /page -->
 
 <script>
+/* Venue data (mirrors search.html) */
+const VENUES = [
+  {s:10,n:'Конференц-зал «Панорама»',b:'Конференц-зал',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,h:195},
+  {s:11,n:'Бизнес-лофт Level Up',b:'Лофт',c:'Москва, Арбат',g:80,a:150,p:'18 000 ₽',r:4.7,rv:84,h:205},
+  {s:12,n:'Коворкинг Space One',b:'Коворкинг',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,h:180},
+  {s:13,n:'Зал «Империя»',b:'Конференц-зал',c:'Москва, Тверская',g:400,a:600,p:'65 000 ₽',r:4.6,rv:52,h:215},
+  {s:14,n:'Meeting Point Arena',b:'Выставка',c:'Москва, Павелецкая',g:120,a:200,p:'22 000 ₽',r:4.8,rv:91,h:190},
+  {s:15,n:'Центр «Высота»',b:'Конференц-зал',c:'Москва, ВДНХ',g:180,a:320,p:'32 000 ₽',r:4.7,rv:38,h:200},
+  {s:20,n:'Усадьба «Белые ночи»',b:'Банкетный',c:'Москва, Рублёвка',g:150,a:450,p:'95 000 ₽',r:4.9,rv:203,h:25},
+  {s:21,n:'Ресторан «Терракота»',b:'Ресторан',c:'Москва, Патриаршие',g:60,a:120,p:'35 000 ₽',r:4.8,rv:156,h:15},
+  {s:23,n:'Лофт «Кирпич»',b:'Лофт',c:'Москва, Курская',g:100,a:280,p:'28 000 ₽',r:4.6,rv:112,h:20},
+  {s:30,n:'Галерея «Арт-холл»',b:'Галерея',c:'Москва, Винзавод',g:120,a:300,p:'50 000 ₽',r:4.8,rv:74,h:280},
+  {s:40,n:'Шеф-стол Blanc',b:'Частный ужин',c:'Москва, Тверская',g:12,a:40,p:'120 000 ₽',r:5.0,rv:34,h:35},
+  {s:42,n:'Зал «Тишина»',b:'Ресторан',c:'Москва, Якиманка',g:16,a:45,p:'25 000 ₽',r:4.9,rv:61,h:25},
+  {s:50,n:'Terrasa Rooftop',b:'Лофт',c:'Москва, Красный Октябрь',g:90,a:180,p:'42 000 ₽',r:4.7,rv:88,h:170},
+  {s:51,n:'Студия «Формат»',b:'Коворкинг',c:'Москва, Бауманская',g:50,a:110,p:'12 000 ₽',r:4.5,rv:42,h:195},
+];
+const _vid = parseInt(new URLSearchParams(location.search).get('id')) || 10;
+const _v = VENUES.find(x => x.s === _vid) || VENUES[0];
+
 /* SVG generators */
 function vIll(h,s,w,ht){
   return `<svg viewBox="0 0 ${w} ${ht}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
@@ -494,11 +514,23 @@ function vIll(h,s,w,ht){
   </svg>`;
 }
 
+/* Apply venue data to static elements */
+document.title = _v.n + ' — МирХАБ';
+document.querySelector('.venue-title').textContent = _v.n;
+document.querySelector('.venue-type').innerHTML = `<svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="4" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V2.5a2 2 0 014 0V4" stroke="currentColor" stroke-width="1.2"/></svg>${_v.b}`;
+document.querySelector('.venue-subtitle').textContent = _v.n + ' · ' + _v.c;
+document.querySelector('.current').textContent = _v.n;
+const _stats = document.querySelectorAll('.stat-value');
+if (_stats[1]) _stats[1].textContent = 'до ' + _v.g + ' чел.';
+if (_stats[2]) _stats[2].textContent = _v.a + ' м²';
+if (_stats[3]) _stats[3].textContent = '★ ' + _v.r;
+if (_stats[4]) _stats[4].textContent = 'от ' + _v.p;
+
 /* Gallery */
-document.getElementById('heroImg').innerHTML = vIll(195,1,800,440);
+document.getElementById('heroImg').innerHTML = vIll(_v.h,_v.s,800,440);
 const s1=document.getElementById('galSide1'),s2=document.getElementById('galSide2');
-[[205,2],[180,3]].forEach(([h,s])=>{s1.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
-[[215,4],[25,5]].forEach(([h,s])=>{s2.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
+[[(_v.h+15)%360,_v.s+1],[(_v.h+30)%360,_v.s+2]].forEach(([h,s])=>{s1.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
+[[(_v.h+45)%360,_v.s+3],[(_v.h+60)%360,_v.s+4]].forEach(([h,s])=>{s2.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
 
 /* Amenities */
 const amenities = [

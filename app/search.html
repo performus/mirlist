@@ -672,9 +672,10 @@ const ic = {
 /* ══════ RENDER CARDS ══════ */
 const cmpSet = new Set();
 const grid = document.getElementById('listGrid');
+function openVenue(id) { window.location.href = 'venue.html?id=' + id; }
 venues.forEach(v => {
   grid.innerHTML += `
-  <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()">
+  <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()" onclick="openVenue(${v.s})">
     <div class="v-img">
       ${venueIll(v.h,v.s)}
       <div class="v-tags">
@@ -682,8 +683,8 @@ venues.forEach(v => {
         ${v.pr ? '<span class="v-tag prem">Premium</span>' : ''}
       </div>
       <div class="v-actions">
-        <button class="v-act-cmp${cmpSet.has(v.s)?' cmp-on':''}" title="Сравнить" onclick="toggleCmp(${v.s},this)">${ic.cmp}</button>
-        <button class="v-act-fav${MH.isFav(v.s)?' fav-on':''}" title="В избранное" onclick="toggleFavCard(${v.s},this)">${MH.isFav(v.s)?ic.heartOn:ic.heart}</button>
+        <button class="v-act-cmp${cmpSet.has(v.s)?' cmp-on':''}" title="Сравнить" onclick="event.stopPropagation();toggleCmp(${v.s},this)">${ic.cmp}</button>
+        <button class="v-act-fav${MH.isFav(v.s)?' fav-on':''}" title="В избранное" onclick="event.stopPropagation();toggleFavCard(${v.s},this)">${MH.isFav(v.s)?ic.heartOn:ic.heart}</button>
       </div>
     </div>
     <div class="v-body">
@@ -698,7 +699,7 @@ venues.forEach(v => {
         <div class="v-price">от <strong>${v.p}</strong></div>
         <div class="v-btn-pair">
           <button class="v-cta" onclick="event.stopPropagation();toggleCmp(${v.s},this.closest('.v-card').querySelector('.v-act-cmp'))">Сравнить</button>
-          <button class="v-cta" onclick="event.stopPropagation();window.open('venue-presentation.html?ids=${v.s}','_blank')">Презентация</button>
+          <button class="v-cta" onclick="event.stopPropagation();openVenue(${v.s})">Подробнее</button>
         </div>
       </div>
     </div>
@@ -750,7 +751,7 @@ venues.forEach((v, i) => {
     <div class="pin-label">${v.n} · ${v.p}</div>
     <div class="pin-body">${ic.mapPin}${v.p.replace('₽','').trim()}</div>
   `;
-  pin.addEventListener('click', () => focusCard(v.s));
+  pin.addEventListener('click', () => openVenue(v.s));
   canvas.appendChild(pin);
 });
 
