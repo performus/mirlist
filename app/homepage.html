@@ -94,7 +94,7 @@ a{text-decoration:none;color:inherit;}
 .hero-visual{position:relative;z-index:1;flex:0 0 400px;display:flex;align-items:center;justify-content:flex-end;}
 .hero-vcard{width:100%;max-width:360px;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 24px 80px rgba(53,78,99,.18),0 4px 24px rgba(53,78,99,.08);position:relative;}
 .hero-vcard-photo{width:100%;height:210px;overflow:hidden;display:block;}
-.hero-vcard-photo svg{width:100%;height:100%;display:block;}
+.hero-vcard-photo img{width:100%;height:100%;object-fit:cover;display:block;}
 .hero-vcard-info{padding:18px 20px 20px;}
 .hero-vcard-name{font-size:16px;font-weight:700;color:var(--blue-gray);margin-bottom:5px;}
 .hero-vcard-meta{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:14px;margin-bottom:14px;}
@@ -304,52 +304,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="hero-vcard">
         <div class="hero-vcard-photo">
-          <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="vg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ECD8C6"/><stop offset="100%" stop-color="#D8C4B0"/></linearGradient>
-              <linearGradient id="vgw" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#A8CCDC"/><stop offset="100%" stop-color="#7AADBE"/></linearGradient>
-              <linearGradient id="vgt" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#A07850"/><stop offset="100%" stop-color="#7A5C3C"/></linearGradient>
-              <linearGradient id="vgf" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#EEE0CE"/><stop offset="100%" stop-color="#E0CEB8"/></linearGradient>
-            </defs>
-            <rect width="360" height="210" fill="#E8D4C0"/>
-            <rect width="360" height="126" fill="url(#vg1)"/>
-            <polygon points="0,132 360,132 360,210 0,210" fill="url(#vgf)"/>
-            <line x1="0" y1="148" x2="360" y2="151" stroke="#D8C8B0" stroke-width=".8" opacity=".7"/>
-            <line x1="0" y1="164" x2="360" y2="168" stroke="#D8C8B0" stroke-width=".8" opacity=".7"/>
-            <line x1="0" y1="180" x2="360" y2="185" stroke="#D8C8B0" stroke-width=".8" opacity=".7"/>
-            <line x1="0" y1="196" x2="360" y2="202" stroke="#D8C8B0" stroke-width=".8" opacity=".7"/>
-            <rect x="32" y="16" width="86" height="96" rx="6" fill="url(#vgw)" opacity=".88"/>
-            <rect x="138" y="16" width="86" height="96" rx="6" fill="url(#vgw)" opacity=".88"/>
-            <rect x="244" y="16" width="80" height="96" rx="6" fill="url(#vgw)" opacity=".88"/>
-            <rect x="32" y="16" width="86" height="96" rx="6" fill="none" stroke="#C4A880" stroke-width="2.5"/>
-            <rect x="138" y="16" width="86" height="96" rx="6" fill="none" stroke="#C4A880" stroke-width="2.5"/>
-            <rect x="244" y="16" width="80" height="96" rx="6" fill="none" stroke="#C4A880" stroke-width="2.5"/>
-            <line x1="75" y1="16" x2="75" y2="112" stroke="#C4A880" stroke-width="1.5"/>
-            <line x1="32" y1="64" x2="118" y2="64" stroke="#C4A880" stroke-width="1.5"/>
-            <line x1="181" y1="16" x2="181" y2="112" stroke="#C4A880" stroke-width="1.5"/>
-            <line x1="138" y1="64" x2="224" y2="64" stroke="#C4A880" stroke-width="1.5"/>
-            <line x1="284" y1="16" x2="284" y2="112" stroke="#C4A880" stroke-width="1.5"/>
-            <line x1="244" y1="64" x2="324" y2="64" stroke="#C4A880" stroke-width="1.5"/>
-            <ellipse cx="75" cy="64" rx="46" ry="52" fill="#FFF4E8" opacity=".12"/>
-            <ellipse cx="181" cy="64" rx="46" ry="52" fill="#FFF4E8" opacity=".12"/>
-            <ellipse cx="284" cy="64" rx="42" ry="52" fill="#FFF4E8" opacity=".12"/>
-            <rect x="54" y="142" width="252" height="24" rx="7" fill="url(#vgt)"/>
-            <rect x="54" y="142" width="252" height="6" rx="3" fill="#BC9270"/>
-            <ellipse cx="180" cy="170" rx="128" ry="5" fill="rgba(0,0,0,.07)"/>
-            <rect x="70" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <rect x="110" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <rect x="150" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <rect x="190" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <rect x="230" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <rect x="270" y="124" width="26" height="20" rx="7" fill="#C8A880"/>
-            <circle cx="16" cy="144" r="15" fill="#6B9E68" opacity=".8"/>
-            <circle cx="6" cy="132" r="10" fill="#547A52" opacity=".8"/>
-            <rect x="10" y="158" width="12" height="20" rx="5" fill="#8B6E50"/>
-            <circle cx="344" cy="144" r="15" fill="#6B9E68" opacity=".8"/>
-            <circle cx="354" cy="132" r="10" fill="#547A52" opacity=".8"/>
-            <rect x="338" y="158" width="12" height="20" rx="5" fill="#8B6E50"/>
-            <ellipse cx="180" cy="4" rx="90" ry="32" fill="#FFF0D8" opacity=".28"/>
-          </svg>
+          <img src="../assets/photos/hero.jpg" alt="Конференц-зал">
         </div>
         <div class="hero-vcard-info">
           <div class="hero-vcard-name">Лофт «Белый Зал»</div>
