@@ -164,6 +164,34 @@ let venues = [
    formats:{theatre:0,banquet:60,reception:80,class:0,cabaret:40,board:0},
    amenities:['Wi-Fi','Звук','Кондиционер','Гардероб','Кейтеринг','Бар','Мебель'],
    catering:'Свой',alcohol:'Есть',access:'Частичная',hours:'11:00–00:00',cancel:'7 дней — 100%',deposit:'20 000 ₽'},
+  {id:6,n:'Галерея «Арт-холл»',loc:'Москва, Винзавод',type:'Галерея',p:'50 000',cap:120,area:320,halls:2,rooms:0,r:4.7,rv:88,h:280,s:6,
+   formats:{theatre:100,banquet:80,reception:120,class:0,cabaret:60,board:0},
+   amenities:['Wi-Fi','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Мебель'],
+   catering:'Внешний',alcohol:'Свой',access:'Полная',hours:'10:00–23:00',cancel:'7 дней — 100%',deposit:'25 000 ₽'},
+  {id:7,n:'Бизнес-лофт Level Up',loc:'Москва, Нижегородская',type:'Лофт',p:'18 000',cap:80,area:200,halls:1,rooms:0,r:4.5,rv:74,h:42,s:7,
+   formats:{theatre:80,banquet:50,reception:70,class:35,cabaret:40,board:15},
+   amenities:['Wi-Fi','Проектор','Звук','Кондиционер','Мебель','Техподдержка'],
+   catering:'Внешний',alcohol:'Нет',access:'Полная',hours:'9:00–22:00',cancel:'3 дня — 100%',deposit:'10 000 ₽'},
+  {id:8,n:'Зал «Меридиан»',loc:'Москва, Калужская',type:'Конференц-зал',p:'65 000',cap:350,area:500,halls:3,rooms:0,r:4.8,rv:196,h:220,s:8,
+   formats:{theatre:350,banquet:200,reception:300,class:120,cabaret:150,board:30},
+   amenities:['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Мебель','Техподдержка'],
+   catering:'Свой + внешний',alcohol:'Есть',access:'Полная',hours:'8:00–23:00',cancel:'7 дней — 100%',deposit:'30 000 ₽'},
+  {id:9,n:'Meeting Point Arena',loc:'Москва, Сокольники',type:'Конференц-зал',p:'80 000',cap:400,area:600,halls:4,rooms:0,r:4.6,rv:142,h:165,s:9,
+   formats:{theatre:400,banquet:220,reception:350,class:150,cabaret:180,board:40},
+   amenities:['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Мебель','Техподдержка'],
+   catering:'Свой',alcohol:'Есть',access:'Полная',hours:'7:00–00:00',cancel:'10 дней — 100%',deposit:'40 000 ₽'},
+  {id:10,n:'Центр «Высота»',loc:'Москва, Павелецкая',type:'Лофт',p:'32 000',cap:90,area:240,halls:2,rooms:0,r:4.7,rv:91,h:58,s:10,
+   formats:{theatre:90,banquet:60,reception:80,class:40,cabaret:50,board:18},
+   amenities:['Wi-Fi','Проектор','Звук','Кондиционер','Гардероб','Парковка','Мебель'],
+   catering:'Внешний',alcohol:'Свой',access:'Полная',hours:'9:00–22:00',cancel:'5 дней — 100%',deposit:'15 000 ₽'},
+  {id:11,n:'Ресторан La Terrasse',loc:'Москва, Остоженка',type:'Ресторан',p:'55 000',cap:70,area:140,halls:1,rooms:0,r:4.9,rv:211,h:8,s:11,
+   formats:{theatre:0,banquet:70,reception:90,class:0,cabaret:45,board:0},
+   amenities:['Wi-Fi','Звук','Кондиционер','Гардероб','Кейтеринг','Бар','Мебель'],
+   catering:'Свой',alcohol:'Есть',access:'Частичная',hours:'12:00–01:00',cancel:'7 дней — 100%',deposit:'25 000 ₽'},
+  {id:12,n:'Клуб «Бункер»',loc:'Москва, Электрозаводская',type:'Лофт',p:'22 000',cap:200,area:350,halls:2,rooms:0,r:4.4,rv:55,h:300,s:12,
+   formats:{theatre:180,banquet:100,reception:200,class:60,cabaret:120,board:0},
+   amenities:['Wi-Fi','Звук','Свет','Сцена','Кондиционер','Парковка','Мебель','Бар'],
+   catering:'Внешний',alcohol:'Есть',access:'Частичная',hours:'15:00–06:00',cancel:'5 дней — 100%',deposit:'20 000 ₽'},
 ];
 
 /* ═══ PARAM DEFINITIONS ═══ */
@@ -171,7 +199,6 @@ const PARAMS = [
   {group:'Основные параметры', rows:[
     {label:'Тип площадки',icon:'🏢',key:'type'},
     {label:'Цена за день',icon:'💰',key:'p',suffix:' ₽',highlight:'min'},
-    {label:'Рейтинг',icon:'⭐',key:'r',highlight:'max'},
     {label:'Отзывы',icon:'💬',key:'rv',highlight:'max'},
     {label:'Город / район',icon:'📍',key:'loc'},
   ]},
@@ -238,10 +265,11 @@ function render(){
   // Venue header strip
   html += '<div class="venue-strip"><div class="param-label-header">Параметры</div>';
   const bestPrice = findBest('p','min',venues);
-  const bestRating = findBest('r','max',venues);
+  const bestCap = findBest('cap','max',venues);
 
   venues.forEach(v => {
-    const isBest = v.r === bestRating;
+    const pNum = parseInt(String(v.p).replace(/\s/g,''));
+    const isBest = pNum === bestPrice;
     html += `<div class="venue-header${isBest?' best':''}">
       ${!isBest?`<button class="vh-remove" onclick="removeVenue(${v.id})" title="Убрать">✕</button>`:''}
       <div class="vh-img">${vIll(v.h,v.s)}
@@ -271,7 +299,8 @@ function render(){
 
       venues.forEach(v => {
         let val;
-        const isBestCol = v.r === bestRating;
+        const pNum = parseInt(String(v.p).replace(/\s/g,''));
+        const isBestCol = pNum === bestPrice;
 
         if(param.key === '_amenity'){
           const has = v.amenities.includes(param.check);
@@ -330,10 +359,15 @@ function showToast(text){
 
 /* ═══ INIT ═══ */
 (function(){
-  const ids = new URLSearchParams(location.search).get('ids');
+  const params = new URLSearchParams(location.search);
+  const ids = params.get('ids');
   if(ids){
-    const set = new Set(ids.split(',').map(Number));
-    venues = venues.filter(v => set.has(v.id));
+    const set = new Set(ids.split(',').map(Number).filter(Boolean));
+    const filtered = venues.filter(v => set.has(v.id));
+    if(filtered.length > 0) venues = filtered;
+    else venues = venues.slice(0,2); // fallback: show first 2 if IDs unknown
+  } else {
+    venues = venues.slice(0,3); // default demo: show first 3
   }
   render();
 })();
