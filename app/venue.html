@@ -52,13 +52,12 @@ img{display:block;max-width:100%;}
 /* ═══ GALLERY ═══ */
 .gallery{padding:0 40px 32px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:440px;overflow:hidden;border-radius:var(--r-lg);}
 .gallery-hero{grid-row:span 2;border-radius:var(--r-lg) 0 0 var(--r-lg);overflow:hidden;position:relative;cursor:pointer;}
-.gallery-hero svg{width:100%;height:100%;}
-.gallery-hero:hover svg{transform:scale(1.02);}
-.gallery-hero svg{transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.gallery-hero img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.gallery-hero:hover img{transform:scale(1.02);}
 .gallery-side{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .gallery-thumb{overflow:hidden;cursor:pointer;position:relative;border-radius:4px;}
-.gallery-thumb svg{width:100%;height:100%;transition:transform .5s;}
-.gallery-thumb:hover svg{transform:scale(1.06);}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.gallery-thumb:hover img{transform:scale(1.06);}
 .gallery-side:last-of-type .gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:4px;}
 .gallery-side:first-of-type .gallery-thumb:first-child{border-radius:0 var(--r-lg) 0 0;}
 .gallery-side:last-of-type .gallery-thumb:last-child{border-radius:0 0 var(--r-lg) 0;}
@@ -198,8 +197,8 @@ img{display:block;max-width:100%;}
 .sim-card{flex:0 0 280px;border-radius:var(--r-lg);overflow:hidden;background:var(--white);border:1px solid rgba(197,227,225,.15);cursor:pointer;transition:transform .35s,box-shadow .35s;}
 .sim-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);}
 .sim-img{width:100%;height:160px;overflow:hidden;}
-.sim-img svg{width:100%;height:100%;transition:transform .5s;}
-.sim-card:hover .sim-img svg{transform:scale(1.05);}
+.sim-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.sim-card:hover .sim-img img{transform:scale(1.05);}
 .sim-body{padding:14px 16px 16px;}
 .sim-name{font-size:15px;font-weight:600;color:var(--slate-deep);margin-bottom:4px;}
 .sim-loc{font-size:12.5px;color:var(--slate-muted);margin-bottom:8px;}
@@ -507,22 +506,9 @@ const VENUES = [
 const _vid = parseInt(new URLSearchParams(location.search).get('id')) || 10;
 const _v = VENUES.find(x => x.s === _vid) || VENUES[0];
 
-/* SVG generators */
-function vIll(h,s,w,ht){
-  return `<svg viewBox="0 0 ${w} ${ht}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-    <rect width="${w}" height="${ht}" fill="hsl(${h},20%,89%)"/>
-    <defs><linearGradient id="v${s}" x1="0" y1="0" x2="${w}" y2="${ht}">
-      <stop stop-color="hsl(${h},28%,85%)" offset="0"/>
-      <stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/>
-    </linearGradient></defs>
-    <rect width="${w}" height="${ht}" fill="url(#v${s})"/>
-    <rect x="${w*.05}" y="${ht*.3}" width="${w*.9}" height="${ht*.55}" rx="8" fill="hsl(${h},16%,93%)" opacity=".55"/>
-    <rect x="${w*.1}" y="${ht*.12}" width="${w*.25}" height="${ht*.7}" rx="5" fill="hsl(${h},22%,80%)" opacity=".5"/>
-    <rect x="${w*.4}" y="${ht*.2}" width="${w*.2}" height="${ht*.62}" rx="5" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/>
-    <rect x="${w*.65}" y="${ht*.25}" width="${w*.2}" height="${ht*.57}" rx="5" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/>
-    <circle cx="${w*.22+(s*7%30)}" cy="${ht*.78}" r="${ht*.1}" fill="hsl(${h},28%,74%)" opacity=".3"/>
-    <rect x="${w*.08}" y="${ht*.87}" width="${w*.84}" height="${ht*.13}" rx="4" fill="hsl(${h},12%,85%)" opacity=".25"/>
-  </svg>`;
+function vIll(h,s){
+  const n=((s-1)%16)+1;
+  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
 }
 
 /* Apply venue data to static elements */
@@ -538,10 +524,10 @@ if (_stats[3]) _stats[3].textContent = '★ ' + _v.r;
 if (_stats[4]) _stats[4].textContent = 'от ' + _v.p;
 
 /* Gallery */
-document.getElementById('heroImg').innerHTML = vIll(_v.h,_v.s,800,440);
+document.getElementById('heroImg').innerHTML = vIll(_v.h,_v.s);
 const s1=document.getElementById('galSide1'),s2=document.getElementById('galSide2');
-[[(_v.h+15)%360,_v.s+1],[(_v.h+30)%360,_v.s+2]].forEach(([h,s])=>{s1.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
-[[(_v.h+45)%360,_v.s+3],[(_v.h+60)%360,_v.s+4]].forEach(([h,s])=>{s2.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
+[[_v.h,_v.s+1],[_v.h,_v.s+2]].forEach(([h,s])=>{s1.innerHTML+=`<div class="gallery-thumb">${vIll(h,s)}</div>`;});
+[[_v.h,_v.s+3],[_v.h,_v.s+4]].forEach(([h,s])=>{s2.innerHTML+=`<div class="gallery-thumb">${vIll(h,s)}</div>`;});
 
 /* icon-set: svg — to revert replace _av() calls with emoji: 📶 📽 🔊 💡 🎤 ☀️ ❄️ 🧥 🅿️ 🍽 🍸 🪑 🔧 and template back to <span style="font-size:17px">${e}</span>${n} */
 const _av=p=>`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -613,7 +599,7 @@ similar.forEach(v=>{sv.innerHTML+=simCard(v);});
 
 function simCard(v){
   return `<div class="sim-card" onclick="MH.go('venue.html?id=${v.s}')" style="cursor:pointer">
-    <div class="sim-img">${vIll(v.h,v.s,400,200)}</div>
+    <div class="sim-img">${vIll(v.h,v.s)}</div>
     <div class="sim-body">
       <div class="sim-name">${v.n}</div>
       <div class="sim-loc">${v.loc}</div>

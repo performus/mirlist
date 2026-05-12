@@ -136,8 +136,8 @@ button{font-family:inherit;cursor:pointer;}
 }
 .v-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
 .v-thumb{position:relative;height:190px;overflow:hidden;}
-.v-thumb>svg,
-.v-thumb>div:first-child{width:100%;height:100%;}
+.v-thumb>img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1);}
+.v-card:hover .v-thumb>img{transform:scale(1.05);}
 /* badges top-left */
 .v-badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;}
 .v-badge{
@@ -340,18 +340,8 @@ const VENUES=[
 
 /* ── ILLUSTRATED THUMBNAIL ── */
 function vIll(h,s){
-  const h2=(h+30)%360,h3=(h+60)%360;
-  return `<svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-    <rect width="400" height="175" fill="hsl(${h},20%,89%)"/>
-    <defs><linearGradient id="g${s}" x1="0" y1="0" x2="400" y2="175"><stop stop-color="hsl(${h},28%,85%)" offset="0"/><stop stop-color="hsl(${h2},22%,80%)" offset="1"/></linearGradient></defs>
-    <rect width="400" height="175" fill="url(#g${s})"/>
-    <rect x="0" y="110" width="400" height="65" fill="hsl(${h},24%,83%)" opacity=".4"/>
-    <rect x="30" y="20" width="90" height="130" rx="4" fill="hsl(${h},22%,80%)" opacity=".5"/>
-    <rect x="140" y="35" width="70" height="115" rx="4" fill="hsl(${h2},18%,83%)" opacity=".5"/>
-    <rect x="230" y="45" width="60" height="105" rx="4" fill="hsl(${h3},20%,86%)" opacity=".45"/>
-    <rect x="308" y="28" width="72" height="122" rx="4" fill="hsl(${h},16%,88%)" opacity=".4"/>
-    <rect x="30" y="118" width="340" height="4" rx="2" fill="hsl(${h},20%,75%)" opacity=".35"/>
-  </svg>`;
+  const n=((s-1)%16)+1;
+  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy">`;
 }
 
 /* ── ICONS ── */
