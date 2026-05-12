@@ -670,6 +670,7 @@ const ic = {
 };
 
 /* ══════ RENDER CARDS ══════ */
+const cmpSet = new Set();
 const grid = document.getElementById('listGrid');
 venues.forEach(v => {
   grid.innerHTML += `
@@ -782,7 +783,6 @@ function toggleFavCard(id, btn) {
 }
 
 // Compare set
-const cmpSet = new Set();
 function toggleCmp(id, btn) {
   if (cmpSet.has(id)) { cmpSet.delete(id); btn.classList.remove('cmp-on'); }
   else if (cmpSet.size < 4) { cmpSet.add(id); btn.classList.add('cmp-on'); }
