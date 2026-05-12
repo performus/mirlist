@@ -19,7 +19,9 @@
 <meta name="twitter:description" content="Более 12 000 проверенных площадок по всей России.">
 <meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="../assets/photos/hero.jpg">
 <style>
 :root{
   --aqua:#B8E0E0;--aqua-light:#D6EFEF;--aqua-ultra-light:#EDF8F8;
@@ -332,7 +334,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="hero-vcard">
         <div class="hero-vcard-photo">
-          <img src="../assets/photos/hero.jpg" alt="Конференц-зал" style="opacity:0;transition:opacity .4s;" onload="this.style.opacity=1" onerror="this.style.opacity=1">
+          <img src="../assets/photos/hero.jpg" alt="Конференц-зал" fetchpriority="high" style="opacity:0;transition:opacity .4s;" onload="this.style.opacity=1" onerror="this.style.opacity=1">
         </div>
         <div class="hero-vcard-info">
           <div class="hero-vcard-name">Лофт «Белый Зал»</div>
@@ -378,8 +380,8 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <script>
-function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
-function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
+function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
+function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
 
 const cities=[{n:'Москва',t:'Столица событий',cnt:'3 200+',h:185,s:1},{n:'Санкт-Петербург',t:'Дворцы и лофты',cnt:'2 100+',h:195,s:2},{n:'Казань',t:'Столица Поволжья',cnt:'780+',h:18,s:3},{n:'Сочи',t:'Море и горы',cnt:'540+',h:170,s:4},{n:'Екатеринбург',t:'Центр Урала',cnt:'620+',h:15,s:5},{n:'Новосибирск',t:'Сердце Сибири',cnt:'480+',h:210,s:6},{n:'Краснодар',t:'Южный простор',cnt:'410+',h:160,s:7},{n:'Нижний Новгород',t:'Особняки и залы',cnt:'350+',h:200,s:8}];
 
