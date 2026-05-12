@@ -390,6 +390,7 @@ button{font-family:inherit;cursor:pointer;}
   </div>
 </div>
 
+<script src="shared.js"></script>
 <script>
 /* ═══ SVG helper ═══ */
 function vIll(h,s){return `<svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="400" height="180" fill="hsl(${h},20%,89%)"/><defs><linearGradient id="g${s}" x1="0" y1="0" x2="400" y2="180"><stop stop-color="hsl(${h},28%,85%)" offset="0"/><stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/></linearGradient></defs><rect width="400" height="180" fill="url(#g${s})"/><rect x="20" y="50" width="360" height="100" rx="6" fill="hsl(${h},16%,93%)" opacity=".5"/><rect x="40" y="20" width="90" height="130" rx="4" fill="hsl(${h},22%,80%)" opacity=".5"/><rect x="150" y="35" width="70" height="115" rx="4" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/><rect x="240" y="45" width="60" height="105" rx="4" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/></svg>`;}
@@ -1328,7 +1329,6 @@ document.addEventListener('click',e=>{
 });
 
 </script>
-<script src="shared.js"></script>
 <script>
 (function(){
   const sess=MH.getSession();

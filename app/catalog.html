@@ -327,6 +327,7 @@ button{font-family:inherit;cursor:pointer;}
 <!-- FOOTER -->
 <div id="mh-footer"></div>
 
+<script src="shared.js"></script>
 <script>
 /* ── VENUE DATA ── */
 const VENUES=[
@@ -399,7 +400,7 @@ function renderCards(list){
     const fav=MH.isFav(v.id);
     const prem=v.r>=4.9;
     return `
-    <div class="v-card" onclick="MH.go('venue.html')">
+    <div class="v-card" onclick="MH.go('venue.html?id=${v.s}')">
       <div class="v-thumb">
         ${vIll(v.h,v.s)}
         <div class="v-badges">
@@ -475,8 +476,7 @@ function toggleSort(btn){
 
 /* ── INIT ── */
 applyFilters();
+MH.init('catalog');
 </script>
-<script src="shared.js"></script>
-<script>MH.init('catalog');</script>
 </body>
 </html>

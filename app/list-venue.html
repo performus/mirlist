@@ -363,7 +363,7 @@ const venues=[
   {n:'Галерея «Арт-холл»',l:'Москва, Винзавод',p:'50 000 ₽',c:120,b:'Галерея',h:280,s:6},
 ];
 const vEl=document.getElementById('venueExamples');
-venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue.html')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap">👥 до ${v.c} чел.</div></div></div></div>`;});
+venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue.html?id=${v.s}')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap">👥 до ${v.c} чел.</div></div></div></div>`;});
 
 /* Reveal */
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});

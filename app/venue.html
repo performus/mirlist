@@ -479,6 +479,17 @@ img{display:block;max-width:100%;}
 <script>
 /* Venue data (mirrors search.html) */
 const VENUES = [
+  /* catalog IDs (1–12) */
+  {s:1,n:'Конференц-зал «Панорама»',b:'Конференц-зал',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,h:195},
+  {s:2,n:'Лофт «Кирпич»',b:'Лофт',c:'Москва, Курская',g:100,a:280,p:'28 000 ₽',r:4.6,rv:112,h:20},
+  {s:3,n:'Усадьба «Белые ночи»',b:'Банкетный',c:'Москва, Рублёвка',g:150,a:450,p:'95 000 ₽',r:4.9,rv:203,h:25},
+  {s:4,n:'Ресторан «Терракота»',b:'Ресторан',c:'Москва, Патриаршие',g:60,a:120,p:'35 000 ₽',r:4.8,rv:156,h:15},
+  {s:5,n:'Коворкинг Space One',b:'Коворкинг',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,h:180},
+  {s:6,n:'Галерея «Арт-холл»',b:'Галерея',c:'Москва, Винзавод',g:120,a:320,p:'50 000 ₽',r:4.7,rv:88,h:280},
+  {s:7,n:'Бизнес-лофт Level Up',b:'Лофт',c:'Москва, Нижегородская',g:80,a:200,p:'18 000 ₽',r:4.5,rv:74,h:42},
+  {s:8,n:'Зал «Меридиан»',b:'Конференц-зал',c:'Москва, Калужская',g:350,a:500,p:'65 000 ₽',r:4.8,rv:196,h:220},
+  {s:9,n:'Meeting Point Arena',b:'Конференц-зал',c:'Москва, Сокольники',g:400,a:600,p:'80 000 ₽',r:4.6,rv:142,h:165},
+  /* search/map IDs (10+) */
   {s:10,n:'Конференц-зал «Панорама»',b:'Конференц-зал',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,h:195},
   {s:11,n:'Бизнес-лофт Level Up',b:'Лофт',c:'Москва, Арбат',g:80,a:150,p:'18 000 ₽',r:4.7,rv:84,h:205},
   {s:12,n:'Коворкинг Space One',b:'Коворкинг',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,h:180},
@@ -591,7 +602,7 @@ const sv=document.getElementById('similarVenues');
 similar.forEach(v=>{sv.innerHTML+=simCard(v);});
 
 function simCard(v){
-  return `<div class="sim-card" onclick="MH.go('venue.html')" style="cursor:pointer">
+  return `<div class="sim-card" onclick="MH.go('venue.html?id=${v.s}')" style="cursor:pointer">
     <div class="sim-img">${vIll(v.h,v.s,400,200)}</div>
     <div class="sim-body">
       <div class="sim-name">${v.n}</div>
