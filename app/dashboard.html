@@ -109,6 +109,55 @@ button{font-family:inherit;cursor:pointer;}
 
 /* CHAT */
 .chat-list{display:flex;flex-direction:column;gap:4px;}
+
+/* REQUEST CARDS */
+.req-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.req-card{background:var(--w);border:1px solid rgba(197,227,225,.18);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .3s;position:relative;}
+.req-card:hover{border-color:rgba(235,116,84,.2);box-shadow:var(--sh);}
+.req-card.active{border-color:var(--c);box-shadow:0 0 0 2px var(--cg);}
+.req-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.req-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.req-name{font-size:14.5px;font-weight:600;color:var(--sd);}
+.req-role{font-size:12px;color:var(--sx);}
+.req-status{position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;}
+.req-status.new{background:var(--cs);color:var(--c);}
+.req-status.progress{background:var(--aq-p);color:var(--aq);}
+.req-status.closed{background:var(--bg);color:var(--sp);}
+.req-details{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.req-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sx);}
+.req-row svg{flex-shrink:0;color:var(--sp);opacity:.6;}
+.req-row b{color:var(--sd);font-weight:600;}
+.req-preview{font-size:12.5px;color:var(--sx);line-height:1.5;padding:10px 14px;background:var(--bg);border-radius:var(--r);margin-bottom:12px;border-left:3px solid var(--cs);}
+.req-foot{display:flex;align-items:center;justify-content:space-between;}
+.req-time{font-size:11.5px;color:var(--sp);}
+.req-unread{width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* INLINE CHAT PANEL */
+.chat-panel{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:var(--w);border-left:1px solid rgba(197,227,225,.3);box-shadow:-8px 0 40px rgba(53,78,99,.08);z-index:200;display:flex;flex-direction:column;transition:right .4s cubic-bezier(.22,1,.36,1);}
+.chat-panel.open{right:0;}
+.chat-header{padding:18px 22px;border-bottom:1px solid rgba(197,227,225,.25);display:flex;align-items:center;gap:14px;}
+.chat-header-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--sp);background:var(--w);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sx);transition:all .2s;flex-shrink:0;}
+.chat-header-close:hover{border-color:var(--c);color:var(--c);}
+.chat-header-info{flex:1;}
+.chat-header-name{font-size:15px;font-weight:600;color:var(--sd);}
+.chat-header-sub{font-size:12px;color:var(--sx);}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:var(--rm);font-size:13.5px;line-height:1.55;color:var(--sm);}
+.chat-msg.in{background:var(--bg);align-self:flex-start;border-bottom-left-radius:4px;}
+.chat-msg.out{background:var(--cs);color:var(--c6);align-self:flex-end;border-bottom-right-radius:4px;}
+.chat-msg-time{font-size:10.5px;color:var(--sp);margin-top:4px;}
+.chat-input-wrap{padding:14px 22px;border-top:1px solid rgba(197,227,225,.25);display:flex;gap:10px;}
+.chat-input{flex:1;padding:12px 16px;border-radius:var(--rf);border:1.5px solid rgba(197,227,225,.4);background:var(--w);font-family:inherit;font-size:14px;color:var(--sd);outline:none;transition:border-color .2s;}
+.chat-input:focus{border-color:var(--c);}
+.chat-send{width:44px;height:44px;border-radius:50%;background:var(--c);border:none;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;box-shadow:var(--shc);flex-shrink:0;}
+.chat-send:hover{background:var(--c6);}
+.chat-overlay{position:fixed;inset:0;background:rgba(53,78,99,.15);z-index:199;display:none;}
+.chat-overlay.open{display:block;}
+
+@media(max-width:600px){
+  .req-grid{grid-template-columns:1fr;}
+  .chat-panel{width:100%;right:-100%;}
+}
 .chat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--rm);cursor:pointer;transition:background .2s;border:1px solid transparent;}
 .chat-item:hover{background:var(--aq-p);border-color:rgba(197,227,225,.3);}
 .chat-item.active{background:var(--cs);border-color:rgba(235,116,84,.12);}
@@ -154,6 +203,22 @@ button{font-family:inherit;cursor:pointer;}
 
 /* ONBOARDING STEPPER */
 .stepper{display:flex;align-items:center;gap:0;margin-bottom:32px;padding:0 10px;}
+
+/* HALL CARDS */
+.hall-card{background:var(--bg);border:1.5px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:24px;margin-bottom:14px;position:relative;transition:border-color .3s;}
+.hall-card:hover{border-color:rgba(235,116,84,.15);}
+.hall-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.hall-num{font-family:'DM Serif Display',serif;font-size:18px;color:var(--sd);display:flex;align-items:center;gap:8px;}
+.hall-num::before{content:'';width:4px;height:18px;border-radius:2px;background:var(--c);}
+.hall-remove{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--sp);background:var(--w);display:flex;align-items:center;justify-content:center;color:var(--sp);font-size:14px;cursor:pointer;transition:all .2s;}
+.hall-remove:hover{border-color:var(--c);color:var(--c);background:var(--cs);}
+.hall-photos{display:flex;gap:8px;flex-wrap:wrap;}
+.hall-photo-add{width:90px;height:90px;border-radius:var(--r);border:2px dashed var(--sp);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.hall-photo-add:hover{border-color:var(--c);background:var(--cs);}
+.hall-photo-thumb{width:90px;height:90px;border-radius:var(--r);background:var(--aq-p);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+.hall-photo-thumb .photo-placeholder{font-size:11px;color:var(--aq);font-weight:600;}
+.hall-photo-thumb .photo-remove{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.4);color:#fff;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.hall-photo-thumb:hover .photo-remove{opacity:1;}
 .step{display:flex;align-items:center;gap:8px;flex:1;}
 .step-num{width:32px;height:32px;border-radius:50%;border:2px solid var(--sp);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sp);flex-shrink:0;transition:all .25s;}
 .step.active .step-num{background:var(--c);border-color:var(--c);color:#fff;}
@@ -178,14 +243,122 @@ button{font-family:inherit;cursor:pointer;}
 .benefit-title{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
 .benefit-desc{font-size:12.5px;color:var(--sx);line-height:1.5;}
 
-@media(max-width:900px){.sb{width:72px;}.sb-top,.sb-section-label,.sb-uname,.sb-urole,.sb-premium,.sb-role{display:none;}.sb-item{justify-content:center;padding:12px;}.sb-item span{display:none;}.sb-badge{display:none;}.main{padding:20px;}}
+/* ═══ RESPONSIVE ═══ */
+
+/* Tablet */
+@media(max-width:1100px){
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .benefit-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* Sidebar collapse + layout shifts */
+@media(max-width:900px){
+  .sb{width:64px;overflow:visible;}
+  .sb-top{padding:16px 10px 10px;}
+  .sb-logo{font-size:18px;text-align:center;margin-bottom:10px;}
+  .sb-logo i{display:inline;}
+  .sb-role,.sb-section-label,.sb-uname,.sb-urole,.sb-premium{display:none;}
+  .sb-nav{padding:4px 8px;}
+  .sb-item{justify-content:center;padding:12px 8px;border-radius:8px;}
+  .sb-item span{display:none;}
+  .sb-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;padding:0;font-size:9px;display:flex;align-items:center;justify-content:center;}
+  .sb-item{position:relative;}
+  .sb-bottom{padding:10px 8px;}
+  .sb-user{justify-content:center;}
+  .sb-user>div:last-child{display:none;}
+
+  .main{padding:20px 16px 40px;}
+  .page-title{font-size:22px;}
+  .page-sub{font-size:13.5px;margin-bottom:20px;}
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  .section-head{flex-wrap:wrap;gap:8px;}
+  .section-label{font-size:18px;}
+  .stat-val{font-size:24px;}
+  .stat-card{padding:16px;}
+  .card{padding:18px;}
+}
+
+/* Mobile */
+@media(max-width:600px){
+  .sb{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%!important;height:auto;flex-direction:row;border-right:none;border-top:1px solid rgba(197,227,225,.35);z-index:100;padding:0;background:var(--w);}
+  .sb-top,.sb-bottom,.sb-section-label{display:none!important;}
+  .sb-nav{display:flex;flex-direction:row;padding:6px 4px;overflow-x:auto;gap:2px;scrollbar-width:none;flex:1;}
+  .sb-nav::-webkit-scrollbar{display:none;}
+  .sb-item{flex:0 0 auto;padding:10px 14px;flex-direction:column;gap:4px;font-size:0;min-width:56px;align-items:center;justify-content:center;}
+  .sb-item svg{width:20px;height:20px;}
+  .sb-item span{display:block!important;font-size:10px;white-space:nowrap;}
+  .sb-badge{position:absolute;top:2px;right:2px;width:14px;height:14px;font-size:8px;}
+
+  body{flex-direction:column;}
+  .main{height:calc(100vh - 64px);padding:16px 14px 80px;}
+
+  .page-title{font-size:20px;line-height:1.2;}
+  .page-sub{font-size:13px;margin-bottom:16px;}
+  .grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}
+  .benefit-grid{grid-template-columns:1fr;}
+  .section-head{margin-bottom:12px;}
+  .section-label{font-size:17px;}
+
+  .stat-card{padding:14px;}
+  .stat-val{font-size:22px;}
+  .stat-label{font-size:11px;}
+  .stat-change{font-size:11px;}
+
+  .card{padding:14px;border-radius:var(--rm);}
+  .v-card{border-radius:var(--rm);}
+  .v-thumb{height:120px;}
+  .v-name{font-size:13.5px;}
+  .v-body{padding:12px 14px 14px;}
+  .v-actions-row{flex-wrap:wrap;}
+  .v-act-btn{font-size:11px;padding:6px;}
+
+  .btn{padding:9px 18px;font-size:12.5px;}
+  .chip{padding:5px 12px;font-size:11.5px;}
+
+  .check-item{padding:12px 14px;}
+  .check-text{font-size:13px;}
+
+  .chat-item{padding:12px 14px;}
+  .chat-name{font-size:13px;}
+  .chat-preview{font-size:11.5px;}
+
+  .hist-item{padding:12px 14px;}
+  .hist-query{font-size:13px;}
+
+  .form-row{grid-template-columns:1fr;}
+  .form-input{padding:10px 14px;font-size:13px;}
+  .form-toggle button{padding:8px 12px;font-size:12px;}
+
+  .stepper{flex-wrap:wrap;gap:6px;padding:0;}
+  .step{flex:0 0 auto;}
+  .step-line{display:none;}
+  .step-num{width:28px;height:28px;font-size:12px;}
+  .step-label{font-size:11px;}
+
+  .owner-chart{height:100px;padding:12px 14px;}
+
+  .guest-hero{padding:36px 20px;border-radius:var(--rm);}
+  .guest-hero h2{font-size:22px;}
+  .guest-hero p{font-size:14px;}
+
+  /* Horizontal card layouts in dashboard */
+  .card[style*="display:flex"][style*="overflow:hidden"] {
+    flex-direction:column!important;
+  }
+  .card[style*="display:flex"][style*="overflow:hidden"] > div:first-child {
+    width:100%!important;height:100px!important;
+  }
+}
 </style>
 </head>
 <body>
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-top">
-    <div class="sb-logo">Площадки<i>.</i></div>
+    <a class="sb-logo" href="homepage.html" style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.2px;text-decoration:none;display:block;margin-bottom:18px;"><span style="color:#E8846A;">МИР</span><span style="color:#354E63;">ХАБ</span></a>
     <div class="sb-role" id="roleSwitch">
       <button class="active" data-role="user">Пользователь</button>
       <button data-role="owner">Площадка</button>
@@ -198,6 +371,24 @@ button{font-family:inherit;cursor:pointer;}
 
 <!-- MAIN -->
 <div class="main" id="mainContent"></div>
+
+<!-- CHAT PANEL -->
+<div class="chat-overlay" id="chatOverlay" onclick="closeChat()"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <button class="chat-header-close" onclick="closeChat()"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <div class="req-avatar" id="chatPanelAvatar" style="background:var(--cs);color:var(--c);width:38px;height:38px;font-size:13px">АК</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chatPanelName">Название</div>
+      <div class="chat-header-sub" id="chatPanelSub">Площадка</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMsgs"></div>
+  <div class="chat-input-wrap">
+    <input class="chat-input" placeholder="Введите сообщение...">
+    <button class="chat-send"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M2 9l14-6-6 14-2-6z" fill="#fff"/></svg></button>
+  </div>
+</div>
 
 <script>
 /* ═══ SVG helper ═══ */
@@ -222,8 +413,8 @@ const IC={
 const NAVS={
   user:[
     {id:'dash',icon:IC.dash,label:'Дашборд'},
-    {id:'favs',icon:IC.fav,label:'Избранные',badge:'5'},
-    {id:'chats',icon:IC.chat,label:'Чаты',badge:'3'},
+    {id:'favs',icon:IC.fav,label:'Избранные',badge:null,badgeFn:()=>MH.getFavs().size||null},
+    {id:'reqs',icon:IC.req,label:'Заявки',badge:'3'},
     {id:'history',icon:IC.hist,label:'История поиска'},
     {id:'checklist',icon:IC.check,label:'Чеклист'},
     {id:'profile',icon:IC.user,label:'Профиль'},
@@ -233,7 +424,6 @@ const NAVS={
     {id:'ovenues',icon:IC.venue,label:'Мои площадки'},
     {id:'ocreate',icon:IC.add,label:'Добавить площадку'},
     {id:'oreqs',icon:IC.req,label:'Заявки',badge:'7'},
-    {id:'ochats',icon:IC.chat,label:'Чаты',badge:'2'},
     {id:'oprofile',icon:IC.user,label:'Профиль объекта'},
   ],
   guest:[
@@ -247,19 +437,26 @@ let currentRole='user', currentPage='dash';
 function renderNav(){
   const nav=document.getElementById('sideNav');
   const items=NAVS[currentRole];
-  nav.innerHTML='<div class="sb-section-label">Меню</div>'+items.map(it=>`
-    <div class="sb-item${it.id===currentPage?' active':''}" data-page="${it.id}">
+  nav.innerHTML='<div class="sb-section-label">Меню</div>'+items.map(it=>{
+    const b=it.badgeFn?it.badgeFn():it.badge;
+    return `<div class="sb-item${it.id===currentPage?' active':''}" data-page="${it.id}">
       ${it.icon}<span>${it.label}</span>
-      ${it.badge?`<span class="sb-badge">${it.badge}</span>`:''}
-    </div>`).join('');
+      ${b?`<span class="sb-badge">${b}</span>`:''}
+    </div>`;
+  }).join('');
   nav.querySelectorAll('.sb-item').forEach(el=>{
     el.addEventListener('click',()=>{currentPage=el.dataset.page;renderNav();renderPage();});
   });
   // Bottom user
   const bot=document.getElementById('sbBottom');
-  if(currentRole==='guest'){bot.innerHTML='';}
-  else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">АК</div><div><div class="sb-uname">Анна Козлова</div><div class="sb-urole">Пользователь</div><div class="sb-premium">⭐ Premium</div></div></div>`;}
-  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">МС</div><div><div class="sb-uname">Москва-Сити Холл</div><div class="sb-urole">Владелец площадки</div></div></div>`;}
+  const s=window._mhSess;
+  const ini=s?s.initials:'АК';
+  const uname=s?s.name:'Пользователь';
+  const prem=s&&s.premium;
+  const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage.html'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
+  if(currentRole==='guest'){bot.innerHTML=`<a href="auth.html" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
+  else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?'<div class="sb-premium">⭐ Premium</div>':''}</div></div>${logoutBtn}`;}
+  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Владелец площадки</div></div></div>${logoutBtn}`;}
 }
 
 /* ═══ ROLE SWITCH ═══ */
@@ -281,24 +478,137 @@ function renderPage(){
 const PAGES={
 
 /* ── USER DASHBOARD ── */
-dash:()=>`
-  <h1 class="page-title">Добро пожаловать, Анна 👋</h1>
-  <p class="page-sub">Ваш Premium-аккаунт активен. Вот что нового.</p>
-  <div class="grid-3" style="margin-bottom:28px">
+dash:()=>{
+  /* mini data */
+  const favVenues=[
+    {n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',r:4.9,h:195,s:1},
+    {n:'Лофт «Кирпич»',l:'Москва, Курская',p:'28 000 ₽',r:4.6,h:20,s:2},
+    {n:'Усадьба «Белые ночи»',l:'Москва, Рублёвка',p:'95 000 ₽',r:4.9,h:25,s:3},
+  ];
+  const chatsPrev=[
+    {n:'Панорама',ini:'КП',msg:'Зал свободен на указанные даты.',t:'12:34',u:2,on:true},
+    {n:'Лофт «Кирпич»',ini:'ЛК',msg:'Подготовим предложение к вечеру.',t:'Вчера',u:0,on:true},
+    {n:'Белые ночи',ini:'БН',msg:'Можем предложить пакет «Под ключ»...',t:'3 дн.',u:1,on:false},
+  ];
+  const checkItems=[
+    {t:'Вместимость подходит',done:true},{t:'Нужное оборудование',done:true},
+    {t:'Кейтеринг доступен',done:false},{t:'Удобная локация',done:true},
+    {t:'Вписывается в бюджет',done:false},{t:'Хорошие отзывы',done:true},
+    {t:'Даты свободны',done:false},{t:'Wi-Fi и кондиционирование',done:true},
+  ];
+  const checkDone=checkItems.filter(c=>c.done).length;
+  const checkPct=Math.round(checkDone/checkItems.length*100);
+  const histPrev=[
+    {q:'Конференц-залы, Москва',d:'до 100 чел · до 50 000 ₽',t:'Сегодня'},
+    {q:'Лофты с кейтерингом',d:'до 80 чел · В центре',t:'Вчера'},
+  ];
+  const activity=[
+    {t:'Просмотр',v:'Конференц-зал «Панорама»',d:'2 часа назад'},
+    {t:'Запрос отправлен',v:'Лофт «Кирпич»',d:'Вчера'},
+    {t:'Добавлено в избранное',v:'Усадьба «Белые ночи»',d:'3 дня назад'},
+    {t:'Ответ получен',v:'Ресторан «Терракота»',d:'4 дня назад'},
+    {t:'Просмотр',v:'Коворкинг Space One',d:'5 дней назад'},
+  ];
+
+  const _s=window._mhSess;
+  const _firstName=_s?_s.name.split(' ')[1]||_s.name.split(' ')[0]:'';
+  const _prem=_s&&_s.premium;
+  return `
+  <h1 class="page-title">Добро пожаловать${_firstName?', '+_firstName:''} 👋</h1>
+  <p class="page-sub">${_prem?'Ваш Premium-аккаунт активен. Вот что происходит.':'Вот ваша активность.'}</p>
+
+  <!-- ── FIGMA PROTOTYPE LINK ── -->
+  <a href="https://www.figma.com/proto/t1XiRENLO8pjhe0a78Uvm0/%D0%9C%D0%B8%D1%80%D0%A5%D0%B0%D0%B1?node-id=161-4084&p=f&viewport=45%2C332%2C0.03&t=Ct0sejW9gjk66OyF-8&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=241%3A1356&page-id=161%3A4083&hide-ui=1" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:9px;margin-bottom:24px;padding:10px 18px;border-radius:var(--rf);background:var(--w);border:1.5px solid rgba(197,227,225,.35);box-shadow:var(--sh);font-size:13.5px;font-weight:600;color:var(--s);transition:all .25s;text-decoration:none" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.35)';this.style.color='var(--s)'">
+    <svg width="16" height="16" viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 28.5A9.5 9.5 0 1 1 28.5 19 9.5 9.5 0 0 1 19 28.5z" fill="#1ABCFE"/><path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 0 1-19 0z" fill="#0ACF83"/><path d="M19 0v19h9.5a9.5 9.5 0 0 0 0-19z" fill="#FF7262"/><path d="M0 9.5a9.5 9.5 0 0 0 9.5 9.5H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E"/><path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF"/></svg>
+    Посмотреть прототип в Figma
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="opacity:.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+  </a>
+
+  <!-- ── STAT CARDS ── -->
+  <div class="grid-4" style="margin-bottom:28px">
     <div class="stat-card coral"><div class="stat-label">Избранные</div><div class="stat-val">5</div><div class="stat-change up">↑ 2 за неделю</div></div>
-    <div class="stat-card aqua"><div class="stat-label">Активные чаты</div><div class="stat-val">3</div><div class="stat-change up">↑ 1 новый ответ</div></div>
-    <div class="stat-card"><div class="stat-label">Запросы</div><div class="stat-val">8</div><div class="stat-change">отправлено</div></div>
+    <div class="stat-card coral"><div class="stat-label">Непрочитанные</div><div class="stat-val coral">3</div><div class="stat-change up">↑ новые ответы</div></div>
+    <div class="stat-card aqua"><div class="stat-label">Запросы</div><div class="stat-val">8</div><div class="stat-change">отправлено</div></div>
+    <div class="stat-card"><div class="stat-label">Чеклист</div><div class="stat-val">${checkPct}%</div><div class="stat-change">${checkDone} из ${checkItems.length} пунктов</div></div>
   </div>
+
+  <!-- ── QUICK ACTIONS ── -->
   <div class="section-head"><div class="section-label">Быстрые действия</div></div>
-  <div class="grid-3" style="margin-bottom:32px">
-    <div class="card" style="text-align:center;cursor:pointer" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">🔍</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Найти площадку</div><div style="font-size:12px;color:var(--sx);margin-top:4px">Перейти к поиску</div></div>
-    <div class="card" style="text-align:center;cursor:pointer" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">❤️</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Избранное</div><div style="font-size:12px;color:var(--sx);margin-top:4px">5 площадок</div></div>
-    <div class="card" style="text-align:center;cursor:pointer" onclick="currentPage='chats';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">💬</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Чаты</div><div style="font-size:12px;color:var(--sx);margin-top:4px">3 активных</div></div>
+  <div class="grid-4" style="margin-bottom:32px">
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">🔍</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Найти площадку</div><div style="font-size:12px;color:var(--sx);margin-top:4px">Поиск на карте</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='favs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">❤️</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Избранное</div><div style="font-size:12px;color:var(--sx);margin-top:4px">5 площадок</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='reqs';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">💬</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:12px;color:var(--sx);margin-top:4px">3 активных</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:20px" onclick="currentPage='checklist';renderNav();renderPage()"><div style="font-size:28px;margin-bottom:8px">✅</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Чеклист</div><div style="font-size:12px;color:var(--sx);margin-top:4px">${checkPct}% готово</div></div>
   </div>
-  <div class="section-head"><div class="section-label">Недавние действия</div></div>
+
+  <!-- ── TWO COLUMNS: Favorites + Chats ── -->
+  <div class="grid-2" style="margin-bottom:32px;align-items:start">
+
+    <!-- Favorites preview -->
+    <div>
+      <div class="section-head"><div class="section-label">Избранные площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='favs';renderNav();renderPage()">Все →</button></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${favVenues.map(v=>`<div class="card" style="padding:0;display:flex;overflow:hidden;cursor:pointer">
+          <div style="width:120px;height:90px;overflow:hidden;flex-shrink:0">${vIll(v.h,v.s)}</div>
+          <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:14px;font-weight:600;color:var(--sd)">${v.n}</div>
+            <div style="font-size:12px;color:var(--sx);margin-top:2px">${v.l}</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+              <span style="font-size:13px;font-weight:700;color:var(--sd)">от ${v.p}</span>
+              <span style="font-size:12px;color:var(--sx);display:flex;align-items:center;gap:3px">${IC.star} ${v.r}</span>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Chats preview -->
+    <div>
+      <div class="section-head"><div class="section-label">Последние заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='reqs';renderNav();renderPage()">Все →</button></div>
+      <div class="card" style="padding:0">
+        ${chatsPrev.map((c,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(197,227,225,.12);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--aq-p)'" onmouseout="this.style.background=''">
+          <div style="width:38px;height:38px;border-radius:50%;background:${i===0?'var(--cs)':'var(--aq-s)'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${i===0?'var(--c)':'var(--sm)'};position:relative;flex-shrink:0">${c.ini}${c.on?'<div style="position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;background:#4CAF78;border:2px solid var(--w)"></div>':''}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${c.n}</div><div style="font-size:12px;color:var(--sx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.msg}</div></div>
+          <div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--sp)">${c.t}</div>${c.u?'<div style="width:18px;height:18px;border-radius:50%;background:var(--c);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto">'+c.u+'</div>':''}</div>
+        </div>`).join('')}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── HISTORY PREVIEW ── -->
+  <div class="section-head"><div class="section-label">Недавние поиски</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='history';renderNav();renderPage()">Все →</button></div>
+  <div class="grid-2" style="margin-bottom:32px">
+    ${histPrev.map(h=>`<div class="card" style="display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px" onmouseover="this.style.borderColor='rgba(235,116,84,.2)'" onmouseout="this.style.borderColor=''">
+      <div style="width:40px;height:40px;border-radius:12px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔍</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${h.q}</div><div style="font-size:12px;color:var(--sx)">${h.d} · ${h.t}</div></div>
+      <button class="btn btn-cs" style="padding:6px 14px;font-size:12px">Повторить</button>
+    </div>`).join('')}
+  </div>
+
+  <!-- ── PREMIUM BLOCK ── -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 50%,var(--aq-p) 100%);border:1.5px solid rgba(235,116,84,.12);margin-bottom:32px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="font-size:42px">⭐</div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:700;color:var(--c);margin-bottom:4px">Premium активен</div>
+        <div style="font-size:14px;color:var(--sm);line-height:1.6">Приоритетные ответы от площадок · Расширенные фильтры · Доступ к скрытым предложениям · Чеклист площадок</div>
+      </div>
+      <div class="chip coral" style="font-size:12px;padding:7px 18px">Активно</div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY FEED ── -->
+  <div class="section-head"><div class="section-label">Лента активности</div></div>
   <div class="card" style="padding:0">
-    ${[{t:'Просмотр',v:'Конференц-зал «Панорама»',d:'2 часа назад'},{t:'Запрос',v:'Лофт «Кирпич»',d:'Вчера'},{t:'Избранное',v:'Усадьба «Белые ночи»',d:'3 дня назад'}].map(a=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(197,227,225,.15)"><div style="width:36px;height:36px;border-radius:10px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px">${a.t==='Просмотр'?'👁':a.t==='Запрос'?'📩':'❤️'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${a.v}</div><div style="font-size:12px;color:var(--sx)">${a.t}</div></div><div style="font-size:12px;color:var(--sp)">${a.d}</div></div>`).join('')}
-  </div>`,
+    ${activity.map(a=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(197,227,225,.12)">
+      <div style="width:36px;height:36px;border-radius:10px;background:${a.t.includes('Ответ')?'var(--aq-s)':'var(--cs)'};display:flex;align-items:center;justify-content:center;font-size:14px">${a.t.includes('Просмотр')?'👁':a.t.includes('Запрос')?'📩':a.t.includes('Ответ')?'📬':'❤️'}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${a.v}</div><div style="font-size:12px;color:var(--sx)">${a.t}</div></div>
+      <div style="font-size:12px;color:var(--sp)">${a.d}</div>
+    </div>`).join('')}
+  </div>
+  `;
+},
 
 /* ── FAVORITES ── */
 favs:()=>{
@@ -309,30 +619,58 @@ favs:()=>{
     {n:'Коворкинг Space One',l:'Москва, Сити',p:'8 000 ₽',r:4.8,h:180,s:4},
     {n:'Ресторан «Терракота»',l:'Москва, Патриаршие',p:'35 000 ₽',r:4.8,h:15,s:5},
   ];
-  return `<h1 class="page-title">Избранные площадки</h1><p class="page-sub">${venues.length} сохранённых площадок</p>
+  const _ids=venues.map(v=>v.s).slice(0,3).join(',');
+  return `<h1 class="page-title">Избранные площадки</h1>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+    <p class="page-sub" style="margin:0">${venues.length} сохранённых площадок</p>
+    <button class="btn" style="display:flex;align-items:center;gap:6px;padding:8px 18px;font-size:13px;background:none;border:1.5px solid var(--c);color:var(--c);border-radius:var(--rf);cursor:pointer" onclick="window.open('venue-presentation.html?ids=${_ids}','_blank')">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M4 4h8v8H4zM8 2v2M8 12v2M2 8h2M12 8h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6 7.5l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Скачать презентацию
+    </button>
+  </div>
   <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
     <div class="chip coral">Все</div><div class="chip">Москва</div><div class="chip">Конференции</div><div class="chip">до 50 000 ₽</div>
   </div>
   <div class="grid-3">${venues.map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-tag">Конференц-зал</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div><div class="v-rating">${IC.star} ${v.r}</div></div><div class="v-actions-row"><button class="v-act-btn">Открыть</button><button class="v-act-btn">Написать</button><button class="v-act-btn" style="color:var(--c8)">✕</button></div></div></div>`).join('')}</div>`;
 },
 
-/* ── CHATS ── */
-chats:()=>`
-  <h1 class="page-title">Чаты</h1><p class="page-sub">Диалоги с площадками</p>
-  <div class="card" style="padding:0">
-    <div class="chat-list">
-      ${[
-        {n:'Конференц-зал «Панорама»',msg:'Добрый день! Зал свободен на указанные даты.',t:'12:34',u:2,on:true},
-        {n:'Лофт «Кирпич»',msg:'Спасибо за запрос, подготовим предложение к вечеру.',t:'Вчера',u:0,on:true},
-        {n:'Усадьба «Белые ночи»',msg:'Здравствуйте, можем предложить пакет...',t:'3 дн.',u:1,on:false},
-        {n:'Коворкинг Space One',msg:'Да, конференц-зона подойдёт.',t:'5 дн.',u:0,on:false},
-      ].map((c,i)=>`<div class="chat-item${i===0?' active':''}">
-        <div class="chat-avatar">${c.n[0]}${c.n.split('«')[1]?c.n.split('«')[1][0]:''}${c.on?'<div class="chat-online"></div>':''}</div>
-        <div class="chat-info"><div class="chat-name">${c.n}</div><div class="chat-preview">${c.msg}</div></div>
-        <div class="chat-meta"><div class="chat-time">${c.t}</div>${c.u?`<div class="chat-unread">${c.u}</div>`:''}</div>
-      </div>`).join('')}
-    </div>
-  </div>`,
+/* ── USER REQUESTS ── */
+reqs:()=>{
+  const r=[
+    {id:1,n:'Конференц-зал «Панорама»',ini:'КП',type:'Конференция',guests:80,date:'15 марта 2026',budget:'до 50 000 ₽',st:'new',msg:'Добрый день! Зал свободен на указанные даты. Стоимость аренды на полный день — 45 000 ₽.',t:'Сегодня, 12:34',u:2},
+    {id:2,n:'Лофт «Кирпич»',ini:'ЛК',type:'Корпоратив',guests:60,date:'22 марта 2026',budget:'до 35 000 ₽',st:'progress',msg:'Спасибо за запрос, подготовим коммерческое предложение к вечеру.',t:'Вчера',u:0},
+    {id:3,n:'Усадьба «Белые ночи»',ini:'БН',type:'Свадьба',guests:150,date:'15 июня 2026',budget:'до 100 000 ₽',st:'new',msg:'Здравствуйте, можем предложить пакет «Под ключ» за 95 000 ₽.',t:'3 дня назад',u:1},
+    {id:4,n:'Коворкинг Space One',ini:'SO',type:'Бизнес-встреча',guests:20,date:'10 марта 2026',budget:'до 15 000 ₽',st:'closed',msg:'Бронирование подтверждено. Ждём вас!',t:'5 дней назад',u:0},
+  ];
+  return `
+  <h1 class="page-title">Заявки</h1>
+  <p class="page-sub">Ваши запросы в площадки · ${r.length} заявки</p>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="chip coral">Все (${r.length})</div>
+    <div class="chip">Новые (${r.filter(x=>x.st==='new').length})</div>
+    <div class="chip">В работе (${r.filter(x=>x.st==='progress').length})</div>
+    <div class="chip">Закрытые (${r.filter(x=>x.st==='closed').length})</div>
+  </div>
+  <div class="req-grid">
+    ${r.map(q=>`<div class="req-card" onclick="openChat(${q.id},'${q.n}','${q.ini}','user')">
+      <div class="req-status ${q.st}">${q.st==='new'?'Новая':q.st==='progress'?'В работе':'Закрыта'}</div>
+      <div class="req-top">
+        <div class="req-avatar" style="background:${q.st==='new'?'var(--cs)':'var(--aq-p)'};color:${q.st==='new'?'var(--c)':'var(--sm)'}">${q.ini}</div>
+        <div><div class="req-name">${q.n}</div><div class="req-role">Площадка</div></div>
+      </div>
+      <div class="req-details">
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="3" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6h11" stroke="currentColor" stroke-width="1.2"/></svg><b>${q.date}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>${q.guests} гостей · <b>${q.type}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v10M4 5h6M3 8h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${q.budget}</div>
+      </div>
+      <div class="req-preview">${q.msg}</div>
+      <div class="req-foot">
+        <div class="req-time">${q.t}</div>
+        ${q.u?`<div class="req-unread">${q.u}</div>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+},
 
 /* ── HISTORY ── */
 history:()=>`
@@ -386,16 +724,85 @@ profile:()=>`
 /* ══════ OWNER PAGES ══════ */
 
 /* ── OWNER DASHBOARD ── */
-odash:()=>`
-  <h1 class="page-title">Статистика</h1><p class="page-sub">Обзор ваших площадок за 30 дней</p>
+odash:()=>{
+  const ov=[
+    {n:'Конференц-зал «Панорама»',st:'active',views:1240,reqs:18,h:195,s:10},
+    {n:'Зал «Горизонт»',st:'active',views:680,reqs:11,h:205,s:11},
+    {n:'Переговорная «Бриз»',st:'pending',views:45,reqs:5,h:180,s:12},
+  ];
+  const reqs=[
+    {n:'Анна К.',t:'Конференция, 80 чел.',d:'Сегодня',st:'new'},
+    {n:'Дмитрий М.',t:'Корпоратив, 150 чел.',d:'Сегодня',st:'new'},
+    {n:'Ольга С.',t:'Семинар, 40 чел.',d:'Вчера',st:'new'},
+  ];
+  const oReqPrev=[
+    {ini:'АК',n:'Анна К.',msg:'Подскажите, зал доступен 15 марта?',t:'14:30',u:1,on:true},
+    {ini:'ДМ',n:'Дмитрий М.',msg:'Спасибо, нас всё устраивает.',t:'Вчера',u:0,on:false},
+  ];
+  return `
+  <h1 class="page-title">Дашборд площадки</h1>
+  <p class="page-sub">Обзор за 30 дней · Москва-Сити Холл</p>
+
+  <!-- Stats -->
   <div class="grid-4" style="margin-bottom:28px">
     <div class="stat-card coral"><div class="stat-label">Просмотры</div><div class="stat-val">2 480</div><div class="stat-change up">↑ 12%</div></div>
-    <div class="stat-card coral"><div class="stat-label">Заявки</div><div class="stat-val coral">34</div><div class="stat-change up">↑ 8 новых</div></div>
+    <div class="stat-card coral"><div class="stat-label">Новые заявки</div><div class="stat-val coral">8</div><div class="stat-change up">↑ 3 сегодня</div></div>
     <div class="stat-card aqua"><div class="stat-label">Конверсия</div><div class="stat-val">1.4%</div><div class="stat-change up">↑ 0.2%</div></div>
-    <div class="stat-card"><div class="stat-label">Средняя оценка</div><div class="stat-val">4.8</div><div class="stat-change">127 отзывов</div></div>
+    <div class="stat-card"><div class="stat-label">Средняя оценка</div><div class="stat-val">4.8 ★</div><div class="stat-change">127 отзывов</div></div>
   </div>
+
+  <!-- Quick actions -->
+  <div class="section-head"><div class="section-label">Быстрые действия</div></div>
+  <div class="grid-4" style="margin-bottom:28px">
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ocreate';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">➕</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Добавить площадку</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">📩</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--c);font-weight:600;margin-top:2px">8 новых</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">💬</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">2 активных</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ovenues';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">🏢</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Мои площадки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">${ov.length} объекта</div></div>
+  </div>
+
+  <!-- Chart -->
   <div class="section-head"><div class="section-label">Просмотры за месяц</div></div>
-  <div class="card" style="padding:20px"><div class="owner-chart">${Array.from({length:30},(_,i)=>`<div class="chart-bar" style="height:${20+Math.random()*80}%"></div>`).join('')}</div></div>`,
+  <div class="card" style="padding:20px;margin-bottom:28px"><div class="owner-chart">${Array.from({length:30},(_,i)=>`<div class="chart-bar" style="height:${20+Math.random()*80}%"></div>`).join('')}</div></div>
+
+  <!-- Two cols: Venues + Requests -->
+  <div class="grid-2" style="margin-bottom:28px;align-items:start">
+    <div>
+      <div class="section-head"><div class="section-label">Мои площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='ovenues';renderNav();renderPage()">Все →</button></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${ov.map(v=>`<div class="card" style="padding:0;display:flex;overflow:hidden;cursor:pointer">
+          <div style="width:110px;height:80px;overflow:hidden;flex-shrink:0">${vIll(v.h,v.s)}</div>
+          <div style="padding:10px 14px;flex:1;display:flex;align-items:center;gap:12px">
+            <div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${v.n}</div><div style="font-size:12px;color:var(--sx);margin-top:2px">👁 ${v.views} · 📩 ${v.reqs}</div></div>
+            <div class="chip${v.st==='active'?'':' coral'}" style="font-size:10.5px">${v.st==='active'?'✓ Активна':'На модерации'}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="section-head"><div class="section-label">Последние заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='oreqs';renderNav();renderPage()">Все →</button></div>
+      <div class="card" style="padding:0">
+        ${reqs.map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(197,227,225,.12)">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--c);flex-shrink:0">${r.n[0]}${r.n.split(' ')[1][0]}</div>
+          <div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${r.n}</div><div style="font-size:12px;color:var(--sx)">${r.t}</div></div>
+          <div class="chip coral" style="font-size:10px">Новая</div>
+        </div>`).join('')}
+      </div>
+
+      <!-- Chats preview -->
+      <div style="margin-top:16px">
+        <div class="section-head"><div class="section-label">Заявки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='oreqs';renderNav();renderPage()">Все →</button></div>
+        <div class="card" style="padding:0">
+          ${oReqPrev.map(c=>`<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(197,227,225,.12)">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--aq-s);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sm);flex-shrink:0;position:relative">${c.ini}${c.on?'<div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#4CAF78;border:2px solid var(--w)"></div>':''}</div>
+            <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:600;color:var(--sd)">${c.n}</div><div style="font-size:12px;color:var(--sx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.msg}</div></div>
+            ${c.u?'<div style="width:18px;height:18px;border-radius:50%;background:var(--c);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+c.u+'</div>':'<div style="font-size:11px;color:var(--sp)">'+c.t+'</div>'}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+},
 
 /* ── OWNER VENUES ── */
 ovenues:()=>{
@@ -410,46 +817,268 @@ ovenues:()=>{
 },
 
 /* ── OWNER CREATE (stepper) ── */
-ocreate:()=>`
-  <h1 class="page-title">Добавить площадку</h1><p class="page-sub">Заполните информацию о вашем пространстве</p>
-  <div class="stepper">
-    ${['Основное','Локация','Параметры','Цены','Услуги','Фото','Правила','Публикация'].map((s,i)=>`
-      <div class="step ${i===0?'active':i<0?'done':''}">
-        <div class="step-num">${i+1}</div>
-        <div class="step-label">${s}</div>
-      </div>${i<7?'<div class="step-line"></div>':''}
-    `).join('')}
-  </div>
-  <div class="card" style="max-width:680px">
-    <div class="form-group"><label class="form-label">Название площадки</label><input class="form-input" placeholder="Например: Конференц-зал «Панорама»"></div>
+ocreate:()=>{
+  const steps=['Основное','Локация','Параметры','Залы','Цены','Услуги','Фото','Правила','Публикация'];
+  const stepContent=[
+    /* 0: Основное */
+    `<div class="form-group"><label class="form-label">Название площадки</label><input class="form-input" placeholder="Например: Конференц-зал «Панорама»"></div>
     <div class="form-group"><label class="form-label">Тип площадки</label>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${['Конференц-зал','Лофт','Ресторан','Банкетный зал','Коворкинг','Галерея','Другое'].map((t,i)=>`<div class="chip${i===0?' coral':''}" style="cursor:pointer">${t}</div>`).join('')}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['Конференц-зал','Лофт','Ресторан','Банкетный зал','Коворкинг','Галерея','Загородная','Другое'].map((t,i)=>`<div class="chip${i===0?' coral':''}" style="cursor:pointer" data-select="single">${t}</div>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Краткое описание</label><input class="form-input" placeholder="Одно предложение о площадке"></div>
+    <div class="form-group"><label class="form-label">Полное описание</label><textarea class="form-input" rows="5" placeholder="Расскажите подробно о пространстве, атмосфере, архитектуре и возможностях для мероприятий..."></textarea></div>`,
+
+    /* 1: Локация */
+    `<div class="form-group"><label class="form-label">Город</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['Москва','Санкт-Петербург','Казань','Сочи','Екатеринбург','Новосибирск','Другой'].map((c,i)=>`<div class="chip${i===0?' coral':''}" style="cursor:pointer" data-select="single">${c}</div>`).join('')}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Адрес</label><input class="form-input" placeholder="Улица, дом, строение"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Район</label><input class="form-input" placeholder="Пресненский"></div>
+      <div class="form-group"><label class="form-label">Метро / ориентир</label><input class="form-input" placeholder="Выставочная"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Карта</label>
+      <div style="height:200px;border-radius:var(--rm);overflow:hidden;background:var(--aq-p);display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--sp)">
+        <div style="text-align:center;color:var(--sx)"><div style="font-size:28px;margin-bottom:8px">📍</div><div style="font-size:13px">Укажите точку на карте или введите адрес выше</div></div>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Описание</label><textarea class="form-input" rows="5" placeholder="Расскажите о вашем пространстве, его атмосфере и возможностях..."></textarea></div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px"><button class="btn btn-o">Сохранить черновик</button><button class="btn btn-c">Далее →</button></div>
-  </div>`,
+    <div class="form-group"><label class="form-label">Информация о парковке</label><input class="form-input" placeholder="Подземная, 200 мест, 300 ₽/час"></div>`,
+
+    /* 2: Параметры */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Максимальная вместимость</label><input class="form-input" type="number" placeholder="250"></div>
+      <div class="form-group"><label class="form-label">Площадь (м²)</label><input class="form-input" type="number" placeholder="380"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Количество залов / пространств</label><input class="form-input" type="number" placeholder="3"></div>
+    <div class="form-group"><label class="form-label">Номерной фонд (если есть)</label><input class="form-input" type="number" placeholder="0"></div>
+    <div class="form-group"><label class="form-label">Форматы рассадки</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${[{f:'Театр',e:'🎭'},{f:'Банкет',e:'🍽'},{f:'Фуршет',e:'🥂'},{f:'Класс',e:'📚'},{f:'Кабаре',e:'🎤'},{f:'Переговорная',e:'💼'}].map(x=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.35);background:var(--w)">
+          <span style="font-size:20px">${x.e}</span>
+          <span style="font-size:13px;color:var(--sd);font-weight:500;flex:1">${x.f}</span>
+          <input class="form-input" style="width:80px;padding:8px 10px;text-align:center;font-size:13px" type="number" placeholder="0">
+          <span style="font-size:11px;color:var(--sx)">чел.</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Трансформируемое пространство</label>
+      <div class="form-toggle"><button class="active">Да</button><button>Нет</button></div>
+    </div>`,
+
+    /* 3: Залы */
+    `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div><div style="font-size:16px;font-weight:600;color:var(--sd)">Залы и пространства</div><div style="font-size:13px;color:var(--sx);margin-top:2px">Добавьте каждый зал или пространство отдельно</div></div>
+      <button class="btn btn-cs" style="padding:8px 18px;font-size:13px;border:none;border-radius:var(--rf);font-weight:600;cursor:pointer;background:var(--cs);color:var(--c)" onclick="addHall()">+ Добавить зал</button>
+    </div>
+    <div id="hallsList">
+      <div class="hall-card" data-hall="1">
+        <div class="hall-header">
+          <div class="hall-num">Зал 1</div>
+          <button class="hall-remove" onclick="removeHall(this)" title="Удалить">✕</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Название зала</label><input class="form-input" placeholder="Например: Большой зал, Переговорная А"></div>
+          <div class="form-group"><label class="form-label">Тип</label>
+            <select class="form-input" style="-webkit-appearance:none;padding-right:36px;cursor:pointer;background-image:url(&quot;data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23B4C3CC' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center"><option>Конференц-зал</option><option>Банкетный зал</option><option>Переговорная</option><option>Лофт</option><option>Терраса</option><option>VIP-зона</option><option>Другое</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Вместимость (макс.)</label><input class="form-input" type="number" placeholder="250"></div>
+          <div class="form-group"><label class="form-label">Площадь (м²)</label><input class="form-input" type="number" placeholder="380"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Форматы рассадки</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🎭</span>Театр<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🍽</span>Банкет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🥂</span>Фуршет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>📚</span>Класс<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🎤</span>Кабаре<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>💼</span>П-образ.<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Особенности зала</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Естественный свет</div>
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Панорамный вид</div>
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Сцена</div>
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Звукоизоляция</div>
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Отдельный вход</div>
+            <div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">Терраса</div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Фото зала (до 10)</label>
+          <div class="hall-photos">
+            <div class="hall-photo-add" onclick="this.querySelector('input').click()">
+              <input type="file" accept="image/*" multiple style="display:none" onchange="handleHallPhotos(this)">
+              <div style="font-size:24px;color:var(--sp);margin-bottom:4px">+</div>
+              <div style="font-size:11px;color:var(--sp)">Добавить фото</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Цена за зал (₽/день)</label><input class="form-input" type="number" placeholder="45 000"></div>
+      </div>
+    </div>
+    <button style="width:100%;padding:14px;border-radius:var(--rm);border:2px dashed var(--sp);background:none;color:var(--sx);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='var(--sp)';this.style.color='var(--sx)'" onclick="addHall()">
+      <span style="font-size:18px">+</span> Добавить ещё зал
+    </button>`,
+
+    /* 4: Цены */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Цена за час (₽)</label><input class="form-input" type="number" placeholder="12 000"></div>
+      <div class="form-group"><label class="form-label">Цена за день (₽)</label><input class="form-input" type="number" placeholder="45 000"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Минимальный депозит (₽)</label><input class="form-input" type="number" placeholder="20 000"></div>
+      <div class="form-group"><label class="form-label">Минимальное время аренды</label>
+        <div class="form-toggle"><button class="active">3 часа</button><button>Полдня</button><button>Полный день</button></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Пакет «Под ключ» (₽)</label><input class="form-input" type="number" placeholder="85 000"></div>
+    <div class="form-group"><label class="form-label">Что включено в стоимость</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['Аренда зала','Wi-Fi','Проектор','Звук','Мебель','Гардероб','Координатор','Уборка'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Примечание к ценам</label><textarea class="form-input" rows="3" placeholder="Скидки при бронировании на несколько дней, специальные условия для постоянных клиентов..."></textarea></div>`,
+
+    /* 4: Услуги */
+    `<div class="form-group"><label class="form-label">Оборудование и техника</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['📽 Проектор','🔊 Звук','💡 Свет','🎤 Микрофоны','📺 Экран','📹 Видеозапись','💻 Видеоконференция','🖨 Принтер'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Комфорт</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['📶 Wi-Fi','❄️ Кондиционер','☀️ Естественный свет','🧥 Гардероб','🪑 Мебель','🅿️ Парковка','♿ Доступность','🔧 Техподдержка'].map((x,i)=>`<div class="chip${i<3?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Кейтеринг</label>
+      <div class="form-toggle" style="margin-bottom:12px"><button class="active">Свой кейтеринг</button><button>Внешний допускается</button><button>Нет кейтеринга</button></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['☕ Кофе-брейк','🍽 Банкет','🥂 Фуршет','🍸 Бар','🥗 Диетическое меню','🍷 Пробковый сбор'].map(x=>`<div class="chip" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Сцена</label>
+      <div class="form-toggle"><button class="active">Есть</button><button>Нет</button><button>Можно установить</button></div>
+    </div>`,
+
+    /* 5: Фото */
+    `<div class="form-group"><label class="form-label">Главное фото</label>
+      <div style="height:200px;border-radius:var(--rm);border:2px dashed var(--sp);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;background:var(--bg)" onmouseover="this.style.borderColor='var(--c)'" onmouseout="this.style.borderColor='var(--sp)'">
+        <div style="text-align:center;color:var(--sx)"><div style="font-size:36px;margin-bottom:8px">📷</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Загрузите главное фото</div><div style="font-size:12px;margin-top:4px">JPG, PNG · до 10 МБ · рекомендуется 1600×900</div></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Галерея (до 20 фото)</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        ${Array.from({length:8},(_,i)=>`<div style="aspect-ratio:1;border-radius:var(--r);border:1.5px dashed ${i<3?'var(--c)':'var(--sp)'};display:flex;align-items:center;justify-content:center;cursor:pointer;background:${i<3?'var(--cs)':'var(--bg)'};transition:border-color .2s" onmouseover="this.style.borderColor='var(--c)'" onmouseout="this.style.borderColor='${i<3?'var(--c)':'var(--sp)'}'">${i<3?`<div style="text-align:center"><div style="font-size:16px;color:var(--c)">✓</div><div style="font-size:10px;color:var(--c);font-weight:600">Фото ${i+1}</div></div>`:`<div style="font-size:20px;color:var(--sp)">+</div>`}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Видео (необязательно)</label><input class="form-input" placeholder="Ссылка на YouTube или Vimeo"></div>`,
+
+    /* 6: Правила */
+    `<div class="form-row">
+      <div class="form-group"><label class="form-label">Время работы</label>
+        <div style="display:flex;gap:10px"><input class="form-input" style="width:100px" placeholder="8:00"><span style="display:flex;align-items:center;color:var(--sx)">—</span><input class="form-input" style="width:100px" placeholder="23:00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Музыка / шум до</label><input class="form-input" placeholder="23:00"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Монтаж / демонтаж</label>
+      <div class="form-row">
+        <input class="form-input" placeholder="Монтаж за 2 часа до">
+        <input class="form-input" placeholder="Демонтаж в течение 3 часов">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Внешние подрядчики</label>
+      <div class="form-toggle"><button class="active">По согласованию</button><button>Допускаются</button><button>Запрещены</button></div>
+    </div>
+    <div class="form-group"><label class="form-label">Политика отмены</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена за 7+ дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="100%" placeholder="%"></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена за 3–7 дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="50%" placeholder="%"></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--bg)"><span style="font-size:13px;color:var(--sd);flex:1">Отмена менее 3 дней</span><input class="form-input" style="width:100px;padding:8px;text-align:center" value="0%" placeholder="%"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Дополнительные правила</label><textarea class="form-input" rows="3" placeholder="Любые дополнительные ограничения или условия..."></textarea></div>`,
+
+    /* 7: Публикация */
+    `<div style="text-align:center;padding:20px 0 10px">
+      <div style="font-size:48px;margin-bottom:16px">🎉</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);margin-bottom:8px">Всё готово к публикации!</div>
+      <div style="font-size:14px;color:var(--sx);max-width:400px;margin:0 auto 28px;line-height:1.6">Проверьте информацию перед отправкой. После модерации (обычно 1–2 рабочих дня) ваша площадка появится на платформе.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      ${[{l:'Название',v:'Конференц-зал «Панорама»'},{l:'Город',v:'Москва, Пресня'},{l:'Вместимость',v:'до 250 чел.'},{l:'Цена',v:'от 45 000 ₽/день'},{l:'Тип',v:'Конференц-зал'},{l:'Залов',v:'3'},{l:'Фото',v:'3 загружено'},{l:'Кейтеринг',v:'Свой + внешний'}].map(x=>`<div style="padding:14px 16px;border-radius:var(--r);background:var(--bg);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:var(--sx);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${x.l}</span><span style="font-size:14px;font-weight:600;color:var(--sd)">${x.v}</span></div>`).join('')}
+    </div>
+    <div style="padding:16px;border-radius:var(--rm);background:var(--cs);display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <span style="font-size:20px">📋</span>
+      <span style="font-size:13px;color:var(--c6);line-height:1.5">После публикации площадка будет отправлена на модерацию. Вы получите уведомление о результате.</span>
+    </div>`,
+  ];
+
+  const html = `
+  <h1 class="page-title">Добавить площадку</h1>
+  <p class="page-sub">Шаг <span id="stepCurrent">1</span> из ${steps.length} · <span id="stepName">${steps[0]}</span></p>
+  <div class="stepper" id="stepper">
+    ${steps.map((s,i)=>`<div class="step${i===0?' active':''}" data-step="${i}">
+      <div class="step-num">${i+1}</div>
+      <div class="step-label">${s}</div>
+    </div>${i<steps.length-1?'<div class="step-line"></div>':''}`).join('')}
+  </div>
+  <div class="card" style="max-width:720px" id="stepContent">${stepContent[0]}</div>
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;max-width:720px" id="stepNav">
+    <button class="btn btn-o" id="stepPrev" style="display:none" onclick="changeStep(-1)">← Назад</button>
+    <button class="btn btn-o">Сохранить черновик</button>
+    <button class="btn btn-c" id="stepNext" onclick="changeStep(1)">Далее →</button>
+  </div>`;
+  // Store data globally after render
+  setTimeout(()=>{
+    window._stepData=stepContent;
+    window._stepNames=steps;
+    window._currentStep=0;
+    initStepInteractions();
+  },0);
+  return html;
+},
 
 /* ── OWNER REQUESTS ── */
-oreqs:()=>`
-  <h1 class="page-title">Заявки</h1><p class="page-sub">7 новых заявок</p>
-  <div style="display:flex;gap:8px;margin-bottom:20px"><div class="chip coral">Новые (7)</div><div class="chip">В работе (3)</div><div class="chip">Закрытые (15)</div></div>
-  <div class="card" style="padding:0">
-    ${[
-      {n:'Анна К.',t:'Конференция на 80 чел.',d:'Сегодня, 14:30',st:'new'},
-      {n:'Дмитрий М.',t:'Корпоратив, 150 чел., декабрь',d:'Сегодня, 11:15',st:'new'},
-      {n:'Ольга С.',t:'Семинар, 40 чел., январь',d:'Вчера',st:'new'},
-      {n:'ООО «Техсофт»',t:'Конференция, 200 чел.',d:'2 дня назад',st:'progress'},
-    ].map(r=>`<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(197,227,225,.15);cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--aq-p)'" onmouseout="this.style.background=''">
-      <div style="width:40px;height:40px;border-radius:50%;background:${r.st==='new'?'var(--cs)':'var(--aq-s)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:${r.st==='new'?'var(--c)':'var(--sm)'}">${r.n[0]}${r.n.split(' ')[1]?r.n.split(' ')[1][0]:''}</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--sd)">${r.n}</div><div style="font-size:12.5px;color:var(--sx)">${r.t}</div></div>
-      <div style="text-align:right"><div style="font-size:11.5px;color:var(--sp)">${r.d}</div><div class="chip${r.st==='new'?' coral':''}" style="font-size:10px;margin-top:4px">${r.st==='new'?'Новая':'В работе'}</div></div>
+oreqs:()=>{
+  const r=[
+    {id:10,n:'Анна Козлова',ini:'АК',type:'Конференция',guests:80,date:'15 марта 2026',venue:'Конференц-зал «Панорама»',budget:'до 50 000 ₽',st:'new',msg:'Здравствуйте, хотели бы забронировать зал на полный день для конференции.',t:'Сегодня, 14:30',u:1},
+    {id:11,n:'Дмитрий Морозов',ini:'ДМ',type:'Корпоратив',guests:150,date:'20 декабря 2026',venue:'Зал «Горизонт»',budget:'до 80 000 ₽',st:'new',msg:'Планируем новогодний корпоратив. Нужен банкет на 150 чел. с кейтерингом.',t:'Сегодня, 11:15',u:1},
+    {id:12,n:'Ольга Смирнова',ini:'ОС',type:'Семинар',guests:40,date:'5 января 2026',venue:'Переговорная «Бриз»',budget:'до 15 000 ₽',st:'progress',msg:'Подскажите, есть ли проектор и флипчарт?',t:'Вчера',u:0},
+    {id:13,n:'ООО «Техсофт»',ini:'ТС',type:'Конференция',guests:200,date:'1 февраля 2026',venue:'Конференц-зал «Панорама»',budget:'до 70 000 ₽',st:'progress',msg:'Нужна видеоконференцсвязь и трансляция на YouTube.',t:'2 дня назад',u:0},
+    {id:14,n:'Мария Иванова',ini:'МИ',type:'День рождения',guests:30,date:'28 февраля 2026',venue:'Зал «Горизонт»',budget:'до 40 000 ₽',st:'new',msg:'Можно ли принести свой торт? И есть ли музыкальное оборудование?',t:'2 дня назад',u:1},
+    {id:15,n:'Павел Сидоров',ini:'ПС',type:'Бизнес-встреча',guests:12,date:'10 марта 2026',venue:'Переговорная «Бриз»',budget:'до 10 000 ₽',st:'closed',msg:'Спасибо, бронирование подтверждено!',t:'5 дней назад',u:0},
+  ];
+  return `
+  <h1 class="page-title">Заявки</h1>
+  <p class="page-sub">Входящие запросы от клиентов · ${r.length} заявок</p>
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="chip coral">Все (${r.length})</div>
+    <div class="chip">Новые (${r.filter(x=>x.st==='new').length})</div>
+    <div class="chip">В работе (${r.filter(x=>x.st==='progress').length})</div>
+    <div class="chip">Закрытые (${r.filter(x=>x.st==='closed').length})</div>
+  </div>
+  <div class="req-grid">
+    ${r.map(q=>`<div class="req-card" onclick="openChat(${q.id},'${q.n}','${q.ini}','owner')">
+      <div class="req-status ${q.st}">${q.st==='new'?'Новая':q.st==='progress'?'В работе':'Закрыта'}</div>
+      <div class="req-top">
+        <div class="req-avatar" style="background:${q.st==='new'?'var(--cs)':'var(--aq-p)'};color:${q.st==='new'?'var(--c)':'var(--sm)'}">${q.ini}</div>
+        <div><div class="req-name">${q.n}</div><div class="req-role">${q.type} · ${q.venue}</div></div>
+      </div>
+      <div class="req-details">
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="3" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6h11" stroke="currentColor" stroke-width="1.2"/></svg><b>${q.date}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>${q.guests} гостей · <b>${q.type}</b></div>
+        <div class="req-row"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2v10M4 5h6M3 8h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${q.budget}</div>
+      </div>
+      <div class="req-preview">${q.msg}</div>
+      <div class="req-foot">
+        <div class="req-time">${q.t}</div>
+        ${q.u?`<div class="req-unread">${q.u}</div>`:''}
+      </div>
     </div>`).join('')}
-  </div>`,
-
-/* ── OWNER CHATS ── */
-ochats:()=>PAGES.chats(),
+  </div>`;
+},
 
 /* ── OWNER PROFILE ── */
 oprofile:()=>`
@@ -472,22 +1101,211 @@ oprofile:()=>`
 guest:()=>`
   <div class="guest-hero">
     <h2>Войдите или зарегистрируйтесь</h2>
-    <p>Получите доступ к сохранению площадок, истории поиска и быстрым откликам от площадок</p>
+    <p>Получите доступ ко всем возможностям маркетплейса площадок</p>
     <div style="display:flex;gap:12px;justify-content:center">
-      <button class="btn btn-c">Войти</button>
-      <button class="btn btn-cs">Зарегистрироваться</button>
+      <button class="btn btn-c" style="padding:14px 32px;font-size:15px">Войти</button>
+      <button class="btn btn-cs" style="padding:14px 32px;font-size:15px">Зарегистрироваться</button>
     </div>
   </div>
-  <div class="benefit-grid">
-    <div class="benefit"><div class="benefit-icon">❤️</div><div class="benefit-title">Сохраняйте площадки</div><div class="benefit-desc">Добавляйте понравившиеся площадки в избранное для быстрого доступа</div></div>
+
+  <div class="section-head"><div class="section-label">Преимущества регистрации</div></div>
+  <div class="grid-3" style="margin-bottom:32px">
+    <div class="benefit"><div class="benefit-icon">❤️</div><div class="benefit-title">Сохраняйте площадки</div><div class="benefit-desc">Добавляйте понравившиеся площадки в избранное и сравнивайте</div></div>
     <div class="benefit"><div class="benefit-icon">🕐</div><div class="benefit-title">История поиска</div><div class="benefit-desc">Возвращайтесь к прошлым запросам и повторяйте поиск в один клик</div></div>
     <div class="benefit"><div class="benefit-icon">⚡</div><div class="benefit-title">Быстрые отклики</div><div class="benefit-desc">Получайте ответы от площадок напрямую в личном кабинете</div></div>
-  </div>`,
+  </div>
+
+  <div class="section-head"><div class="section-label">Как это работает</div></div>
+  <div class="grid-4" style="margin-bottom:32px">
+    ${[
+      {e:'🔍',t:'Найдите',d:'Используйте фильтры и карту'},
+      {e:'📋',t:'Сравните',d:'Чеклист поможет выбрать'},
+      {e:'📩',t:'Свяжитесь',d:'Запросите предложение'},
+      {e:'🎉',t:'Забронируйте',d:'Проведите мероприятие'},
+    ].map((s,i)=>`<div class="card" style="text-align:center;padding:24px;position:relative">
+      <div style="position:absolute;top:12px;left:16px;font-size:11px;font-weight:700;color:var(--sp)">${i+1}</div>
+      <div style="font-size:32px;margin-bottom:10px">${s.e}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px">${s.t}</div>
+      <div style="font-size:12.5px;color:var(--sx);line-height:1.5">${s.d}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="section-head"><div class="section-label">Популярные площадки</div></div>
+  <div class="grid-3" style="margin-bottom:32px">
+    ${[
+      {n:'Конференц-зал «Панорама»',l:'Москва',p:'45 000 ₽',r:4.9,h:195,s:90},
+      {n:'Лофт «Кирпич»',l:'Москва',p:'28 000 ₽',r:4.6,h:20,s:91},
+      {n:'Усадьба «Белые ночи»',l:'Москва',p:'95 000 ₽',r:4.9,h:25,s:92},
+    ].map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-tag">Конференц-зал</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div><div class="v-rating">${IC.star} ${v.r}</div></div></div></div>`).join('')}
+  </div>
+
+  <div class="card" style="text-align:center;padding:36px;background:linear-gradient(135deg,var(--aq-p),var(--pc))">
+    <div style="font-size:32px;margin-bottom:12px">🏢</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);margin-bottom:8px">Вы владелец площадки?</div>
+    <div style="font-size:14px;color:var(--sx);margin-bottom:18px;max-width:400px;margin-left:auto;margin-right:auto">Разместите вашу площадку на маркетплейсе и получайте заявки от организаторов мероприятий</div>
+    <button class="btn btn-c">Разместить площадку</button>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:40px;padding:32px 0;opacity:.4">
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px">⭐ 4.8 рейтинг</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">12 000+ площадок</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">120 городов</div>
+  </div>
+`,
 };
+
+/* ═══ HALL MANAGEMENT ═══ */
+let hallCounter=1;
+
+function addHall(){
+  hallCounter++;
+  const list=document.getElementById('hallsList');
+  if(!list)return;
+  const existing=list.querySelectorAll('.hall-card').length;
+  if(existing>=10){alert('Максимум 10 залов');return;}
+  const card=document.createElement('div');
+  card.className='hall-card';
+  card.dataset.hall=hallCounter;
+  card.innerHTML=`
+    <div class="hall-header">
+      <div class="hall-num">Зал ${existing+1}</div>
+      <button class="hall-remove" onclick="removeHall(this)" title="Удалить">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Название зала</label><input class="form-input" placeholder="Название зала"></div>
+      <div class="form-group"><label class="form-label">Тип</label>
+        <select class="form-input" style="-webkit-appearance:none;padding-right:36px;cursor:pointer"><option>Конференц-зал</option><option>Банкетный зал</option><option>Переговорная</option><option>Лофт</option><option>Терраса</option><option>VIP-зона</option><option>Другое</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Вместимость (макс.)</label><input class="form-input" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Площадь (м²)</label><input class="form-input" type="number" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Форматы рассадки</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${[['🎭','Театр'],['🍽','Банкет'],['🥂','Фуршет'],['📚','Класс'],['🎤','Кабаре'],['💼','П-образ.']].map(([e,f])=>`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>${e}</span>${f}<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Особенности</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['Естественный свет','Панорамный вид','Сцена','Звукоизоляция','Отдельный вход','Терраса'].map(f=>`<div class="chip" style="cursor:pointer;padding:6px 14px;font-size:12px" data-select="multi">${f}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Фото зала (до 10)</label>
+      <div class="hall-photos">
+        <div class="hall-photo-add" onclick="this.querySelector('input').click()">
+          <input type="file" accept="image/*" multiple style="display:none" onchange="handleHallPhotos(this)">
+          <div style="font-size:24px;color:var(--sp);margin-bottom:4px">+</div>
+          <div style="font-size:11px;color:var(--sp)">Добавить</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Цена за зал (₽/день)</label><input class="form-input" type="number" placeholder="0"></div>
+  `;
+  list.appendChild(card);
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  initStepInteractions();
+  renumberHalls();
+}
+
+function removeHall(btn){
+  const card=btn.closest('.hall-card');
+  const list=card.parentElement;
+  if(list.querySelectorAll('.hall-card').length<=1){alert('Необходим минимум 1 зал');return;}
+  card.style.opacity='0';card.style.transform='translateX(-20px)';card.style.transition='all .3s';
+  setTimeout(()=>{card.remove();renumberHalls();},300);
+}
+
+function renumberHalls(){
+  const cards=document.querySelectorAll('#hallsList .hall-card');
+  cards.forEach((c,i)=>{c.querySelector('.hall-num').textContent='Зал '+(i+1);});
+}
+
+function handleHallPhotos(input){
+  const container=input.closest('.hall-photos');
+  const files=input.files;
+  const existing=container.querySelectorAll('.hall-photo-thumb').length;
+  const max=10-existing;
+  for(let i=0;i<Math.min(files.length,max);i++){
+    const thumb=document.createElement('div');
+    thumb.className='hall-photo-thumb';
+    const num=existing+i+1;
+    thumb.innerHTML=`<div class="photo-placeholder">Фото ${num}</div><button class="photo-remove" onclick="this.parentElement.remove()">✕</button>`;
+    container.insertBefore(thumb,container.querySelector('.hall-photo-add'));
+  }
+  input.value='';
+}
+
+/* ═══ STEPPER NAVIGATION ═══ */
+function changeStep(dir){
+  if(!window._stepData) return;
+  const total=window._stepData.length;
+  let next=window._currentStep+dir;
+  if(next<0||next>=total) return;
+  window._currentStep=next;
+  document.getElementById('stepContent').innerHTML=window._stepData[next];
+  document.getElementById('stepCurrent').textContent=next+1;
+  document.getElementById('stepName').textContent=window._stepNames[next];
+  document.querySelectorAll('#stepper .step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<next) s.classList.add('done');
+    if(i===next) s.classList.add('active');
+  });
+  document.querySelectorAll('#stepper .step-line').forEach((l,i)=>{
+    l.style.background=i<next?'var(--c)':'';
+    l.style.opacity=i<next?'.5':'';
+  });
+  document.getElementById('stepPrev').style.display=next===0?'none':'';
+  const nextBtn=document.getElementById('stepNext');
+  if(next===total-1){nextBtn.textContent='Опубликовать';nextBtn.onclick=()=>{currentPage='ovenues';renderNav();renderPage();};}
+  else{nextBtn.textContent='Далее →';nextBtn.onclick=()=>changeStep(1);}
+  initStepInteractions();
+  document.querySelector('.main').scrollTo({top:0,behavior:'smooth'});
+}
+
+function initStepInteractions(){
+  // Form toggles
+  document.querySelectorAll('#stepContent .form-toggle button').forEach(b=>{
+    b.addEventListener('click',e=>{e.preventDefault();b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');});
+  });
+  // Chip toggles (single-select groups)
+  document.querySelectorAll('#stepContent .chip[data-select="single"]').forEach(c=>{
+    c.addEventListener('click',()=>{c.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('coral'));c.classList.add('coral');});
+  });
+  // Chip toggles (multi-select)
+  document.querySelectorAll('#stepContent .chip[data-select="multi"]').forEach(c=>{
+    c.addEventListener('click',()=>{c.classList.toggle('coral');});
+  });
+}
 
 /* ═══ INIT ═══ */
 renderNav();
 renderPage();
+
+/* ═══ CHAT PANEL ═══ */
+function openChat(id,name,ini,role){
+  const panel=document.getElementById('chatPanel');
+  const overlay=document.getElementById('chatOverlay');
+  document.getElementById('chatPanelName').textContent=name;
+  document.getElementById('chatPanelSub').textContent=role==='user'?'Площадка':'Клиент';
+  document.getElementById('chatPanelAvatar').textContent=ini;
+  // sample messages
+  const msgs=document.getElementById('chatMsgs');
+  const isOwner=role==='owner';
+  msgs.innerHTML=`
+    <div class="chat-msg ${isOwner?'in':'out'}"><div>${isOwner?'Здравствуйте, хотели бы забронировать зал.':'Здравствуйте! Хочу узнать о доступности зала.'}</div><div class="chat-msg-time">${isOwner?'14:30':'14:25'}</div></div>
+    <div class="chat-msg ${isOwner?'out':'in'}"><div>${isOwner?'Добрый день! Зал свободен на указанные даты. Стоимость — 45 000 ₽/день.':'Добрый день! Зал свободен. Стоимость аренды на полный день — 45 000 ₽.'}</div><div class="chat-msg-time">${isOwner?'14:35':'14:30'}</div></div>
+    <div class="chat-msg ${isOwner?'in':'out'}"><div>${isOwner?'Подскажите, кейтеринг входит в стоимость?':'Отлично! А есть ли кейтеринг?'}</div><div class="chat-msg-time">${isOwner?'14:40':'14:35'}</div></div>
+    <div class="chat-msg ${isOwner?'out':'in'}"><div>Кейтеринг оплачивается отдельно, от 2 500 ₽/чел. Могу прислать меню.</div><div class="chat-msg-time">${isOwner?'14:42':'14:40'}</div></div>
+  `;
+  msgs.scrollTop=msgs.scrollHeight;
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+function closeChat(){
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('chatOverlay').classList.remove('open');
+}
 
 // Toggle form buttons
 document.addEventListener('click',e=>{
@@ -501,6 +1319,21 @@ document.addEventListener('click',e=>{
     if(ch.closest('.chip-scroll')||ch.closest('[style]'))ch.classList.toggle('coral');
   }
 });
+
+</script>
+<script src="shared.js"></script>
+<script>
+(function(){
+  const sess=MH.getSession();
+  if(!sess){window.location.href='auth.html?next=dashboard.html';return;}
+  window._mhSess=sess;
+  if(sess.role==='venue'){
+    currentRole='owner';
+    currentPage='odash';
+    document.querySelectorAll('.sb-role button').forEach(b=>b.classList.toggle('active',b.dataset.role==='owner'));
+  }
+  renderNav();renderPage();
+})();
 </script>
 </body>
 </html>
