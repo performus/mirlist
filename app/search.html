@@ -216,7 +216,7 @@ button { font-family:inherit; cursor:pointer; }
 /* ══════════════════════════════════════════════
    MAIN SPLIT: LIST + MAP
    ══════════════════════════════════════════════ */
-.main { display:flex; flex:1; overflow:hidden; position:relative; }
+.main { display:flex; flex:1; overflow:hidden; position:relative; min-height:0; }
 
 /* ── FILTER DRAWER ── */
 .filter-drawer {
@@ -375,7 +375,7 @@ button { font-family:inherit; cursor:pointer; }
 }
 .map-panel.expanded { flex:3; }
 
-.map-canvas { width:100%; height:100%; position:relative; }
+.map-canvas { position:absolute; inset:0; }
 .map-bg { width:100%; height:100%; }
 
 .map-pin {
@@ -443,10 +443,13 @@ button { font-family:inherit; cursor:pointer; }
 /* ══════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════ */
-@media(max-width:1100px) {
+@media(max-width:900px) {
   .list-panel { width:100%; min-width:0; }
   .map-panel { display:none; }
   .header-search { display:none; }
+}
+@media(min-width:901px) and (max-width:1200px) {
+  .list-panel { width:44%; min-width:360px; }
 }
 @media(max-width:768px) {
   .header { padding:0 16px; gap:16px; }
@@ -697,34 +700,39 @@ venues.forEach(v => {
 const canvas = document.getElementById('mapCanvas');
 // Background SVG map
 canvas.innerHTML = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-  <rect width="100" height="100" fill="#EDF6F5"/>
   <defs>
     <linearGradient id="mg" x1="0" y1="0" x2="100" y2="100">
-      <stop stop-color="#E8F2F1" offset="0"/>
-      <stop stop-color="#D9ECEB" offset="1"/>
+      <stop stop-color="#E2F0EF" offset="0"/>
+      <stop stop-color="#CDE5E3" offset="1"/>
     </linearGradient>
   </defs>
   <rect width="100" height="100" fill="url(#mg)"/>
-  <!-- Roads -->
-  <path d="M5 35 Q25 20 50 32 T95 28" stroke="#C5E3E1" stroke-width=".6" fill="none"/>
-  <path d="M10 55 Q30 45 50 52 T90 48" stroke="#C5E3E1" stroke-width=".5" fill="none"/>
-  <path d="M15 70 Q35 62 55 68 T85 65" stroke="#C5E3E1" stroke-width=".4" fill="none"/>
-  <path d="M35 5 Q40 30 38 55 T42 95" stroke="#C5E3E1" stroke-width=".5" fill="none"/>
-  <path d="M60 5 Q58 25 62 50 T58 95" stroke="#C5E3E1" stroke-width=".4" fill="none"/>
-  <!-- Parks -->
-  <ellipse cx="25" cy="60" rx="8" ry="6" fill="#C5E3E1" opacity=".35"/>
-  <ellipse cx="72" cy="35" rx="6" ry="5" fill="#C5E3E1" opacity=".3"/>
-  <ellipse cx="50" cy="75" rx="10" ry="4" fill="#C5E3E1" opacity=".25"/>
-  <!-- River -->
-  <path d="M0 45 Q20 42 40 48 T70 44 T100 50" stroke="#A8D4D8" stroke-width="1.2" fill="none" opacity=".5"/>
-  <!-- Blocks -->
-  ${Array.from({length:20},(_, i) => {
-    const x = 10 + (i*4.5 + (i*7)%15);
-    const y = 15 + ((i*11 + 3) % 65);
-    const w = 2 + (i%3);
-    const h = 1.5 + (i%2);
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".3" fill="#B4C3CC" opacity=".12"/>`;
+  <!-- City blocks -->
+  ${Array.from({length:28},(_, i) => {
+    const x = 8 + (i*3.2 + (i*5)%22);
+    const y = 12 + ((i*9 + 5) % 72);
+    const w = 3 + (i%4);
+    const h = 2.5 + (i%3);
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".4" fill="#B8CDD8" opacity="${0.18 + (i%3)*0.07}"/>`;
   }).join('')}
+  <!-- Parks -->
+  <ellipse cx="22" cy="58" rx="9" ry="7" fill="#8FC8B8" opacity=".28"/>
+  <ellipse cx="70" cy="32" rx="7" ry="6" fill="#8FC8B8" opacity=".24"/>
+  <ellipse cx="48" cy="78" rx="11" ry="5" fill="#8FC8B8" opacity=".22"/>
+  <ellipse cx="82" cy="68" rx="6" ry="4" fill="#8FC8B8" opacity=".2"/>
+  <!-- Major roads -->
+  <path d="M0 38 Q22 28 50 34 T100 30" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"/>
+  <path d="M0 55 Q25 48 52 54 T100 50" stroke="#fff" stroke-width="1.1" fill="none" opacity=".6"/>
+  <path d="M0 70 Q30 64 55 70 T100 68" stroke="#fff" stroke-width=".9" fill="none" opacity=".5"/>
+  <path d="M38 0 Q40 28 38 55 T42 100" stroke="#fff" stroke-width="1.2" fill="none" opacity=".65"/>
+  <path d="M62 0 Q60 22 63 50 T60 100" stroke="#fff" stroke-width=".9" fill="none" opacity=".55"/>
+  <!-- Secondary roads -->
+  <path d="M0 38 Q22 28 50 34 T100 30" stroke="#9BBFC8" stroke-width=".5" fill="none" opacity=".6"/>
+  <path d="M0 55 Q25 48 52 54 T100 50" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"/>
+  <path d="M38 0 Q40 28 38 55 T42 100" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"/>
+  <!-- River -->
+  <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#7BB8C8" stroke-width="2.2" fill="none" opacity=".45"/>
+  <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#A8D4DC" stroke-width="1.2" fill="none" opacity=".6"/>
 </svg>`;
 
 // Pins
