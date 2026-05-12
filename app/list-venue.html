@@ -72,8 +72,11 @@ button{font-family:inherit;cursor:pointer;}
 .hc-2{width:280px;top:60px;right:80px;z-index:2;opacity:.7;animation:cardFloat 6s ease-in-out 2s infinite;}
 .hc-3{width:240px;top:110px;right:140px;z-index:1;opacity:.45;animation:cardFloat 6s ease-in-out 4s infinite;}
 @keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hc-img{height:120px;overflow:hidden;}
+.hc-img{height:120px;overflow:hidden;position:relative;}
 .hc-img svg{width:100%;height:100%;}
+.hc-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;}
+.hc-1 .hc-img img{animation:kenBurns 18s ease-in-out infinite alternate;}
+@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.06) translate(-1%,.5%)}100%{transform:scale(1.03) translate(.5%,-1%)}}
 .hc-body{padding:16px 18px;}
 .hc-name{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
 .hc-meta{font-size:12px;color:var(--sx);display:flex;gap:10px;}
@@ -219,15 +222,15 @@ button{font-family:inherit;cursor:pointer;}
   <div class="hero-right">
     <div class="hero-card-stack" style="height:320px">
       <div class="hc hc-1">
-        <div class="hc-img"><svg viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="340" height="120" fill="#E8DDD5"/><defs><linearGradient id="hg1" x1="0" y1="0" x2="340" y2="120"><stop stop-color="#D4C4B8" offset="0"/><stop stop-color="#E8D5C8" offset="1"/></linearGradient></defs><rect width="340" height="120" fill="url(#hg1)"/><rect x="20" y="30" width="100" height="70" rx="4" fill="#C4B0A0" opacity=".5"/><rect x="140" y="20" width="70" height="80" rx="4" fill="#D4C0B0" opacity=".45"/><rect x="230" y="35" width="80" height="65" rx="4" fill="#C8B8A8" opacity=".4"/></svg><div class="hc-badge">Конференц-зал</div></div>
+        <div class="hc-img"><img src="../assets/photos/v1.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"><div class="hc-badge">Конференц-зал</div></div>
         <div class="hc-body"><div class="hc-name">Конференц-зал «Панорама»</div><div class="hc-meta"><span>до 250 чел.</span><span>от 45 000 ₽</span></div></div>
       </div>
       <div class="hc hc-2">
-        <div class="hc-img"><svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="280" height="120" fill="#D5E0DE"/><rect x="15" y="25" width="80" height="75" rx="4" fill="#B0C4C0" opacity=".5"/><rect x="110" y="15" width="60" height="85" rx="4" fill="#C0D0CC" opacity=".45"/></svg></div>
+        <div class="hc-img"><img src="../assets/photos/v9.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"></div>
         <div class="hc-body"><div class="hc-name">Лофт «Кирпич»</div><div class="hc-meta"><span>до 100 чел.</span></div></div>
       </div>
       <div class="hc hc-3">
-        <div class="hc-img"><svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="240" height="120" fill="#E0D5CC"/></svg></div>
+        <div class="hc-img"><img src="../assets/photos/v3.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"></div>
       </div>
     </div>
   </div>

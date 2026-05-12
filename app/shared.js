@@ -398,10 +398,22 @@ const MH = (() => {
     document.head.appendChild(s);
     document.addEventListener('load', e => {
       if (e.target.tagName !== 'IMG') return;
-      e.target.classList.add('sk-on');
-      const p = e.target.parentElement;
-      if (p) p.style.animation = 'none';
+      const img = e.target;
+      requestAnimationFrame(() => {
+        img.classList.add('sk-on');
+        const p = img.parentElement;
+        if (p) p.style.animation = 'none';
+      });
     }, true);
+    requestAnimationFrame(() => {
+      document.querySelectorAll('img').forEach(img => {
+        if (img.complete && !img.classList.contains('sk-on')) {
+          img.classList.add('sk-on');
+          const p = img.parentElement;
+          if (p) p.style.animation = 'none';
+        }
+      });
+    });
   }
 
   function init(active) {
