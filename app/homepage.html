@@ -13,7 +13,7 @@
 <meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
 <meta property="og:image:width" content="800">
 <meta property="og:image:height" content="523">
-<meta property="og:url" content="https://mirhub.vercel.app/app/homepage.html">
+<meta property="og:url" content="https://mirhub.vercel.app/app/homepage">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="МирХАБ — Площадки для любого мероприятия">
 <meta name="twitter:description" content="Более 12 000 проверенных площадок по всей России.">
@@ -309,7 +309,7 @@ a{text-decoration:none;color:inherit;}
 
 <div id="mh-nav"></div>
 
-<div class="compare-bar" id="compareBar"><div class="cb-count" id="cbCount">0</div><span>Сравнить площадки</span><button onclick="MH.go('compare.html?ids='+[...compareSet].join(','))">Сравнить</button><button class="cb-clear" onclick="clearCompare()">✕ Сбросить</button></div>
+<div class="compare-bar" id="compareBar"><div class="cb-count" id="cbCount">0</div><span>Сравнить площадки</span><button onclick="MH.go('compare?ids='+[...compareSet].join(','))">Сравнить</button><button class="cb-clear" onclick="clearCompare()">✕ Сбросить</button></div>
 
 <div id="step1">
 <section class="hero">
@@ -395,8 +395,8 @@ let compareSet=new Set();
 function toggleCompare(id,btn){if(compareSet.has(id)){compareSet.delete(id);btn.classList.remove('cmp-on');}else if(compareSet.size<4){compareSet.add(id);btn.classList.add('cmp-on');}document.getElementById('cbCount').textContent=compareSet.size;document.getElementById('compareBar').classList.toggle('show',compareSet.size>0);}
 function clearCompare(){compareSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
 
-function bigCard(v){return '<div class="venue-card" onclick="window.location.href=\'venue.html?id='+v.s+'\'"><div class="venue-thumb">'+venueIll(v.h,v.s)+'<div class="venue-badges"><span class="venue-badge type">'+v.b+'</span>'+(v.pr?'<span class="venue-badge premium">Premium</span>':'')+'</div><div class="venue-actions"><button class="va-btn" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="va-btn" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="venue-body"><div class="venue-name">'+v.n+'</div><div class="venue-loc">'+ic.pin+v.c+'</div><div class="venue-stats"><div class="venue-stat">'+ic.usr+'до '+v.g+'</div><div class="venue-stat">'+ic.area+v.a+' м²</div></div><div class="venue-bottom"><div class="venue-price">от <strong>'+v.p+'</strong> <span>/ день</span></div><button class="venue-cta" onclick="event.stopPropagation();window.location.href=\'venue.html?id='+v.s+'\'">Подробнее</button></div></div></div>';}
-function smallCard(v){return '<div class="m-card" onclick="window.location.href=\'venue.html?id='+v.s+'\'"><div class="m-thumb">'+venueIll(v.h,v.s)+'<div class="m-badges"><span class="m-badge type">'+v.b+'</span>'+(v.pr?'<span class="m-badge premium">Premium</span>':'')+'</div><div class="m-acts"><button class="m-act" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="m-act" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="m-body"><div class="m-name">'+v.n+'</div><div class="m-loc">'+ic.pin+v.c+'</div><div class="m-row"><div class="m-price">от <strong>'+v.p+'</strong></div></div></div></div>';}
+function bigCard(v){return '<div class="venue-card" onclick="window.location.href=\'venue?id='+v.s+'\'"><div class="venue-thumb">'+venueIll(v.h,v.s)+'<div class="venue-badges"><span class="venue-badge type">'+v.b+'</span>'+(v.pr?'<span class="venue-badge premium">Premium</span>':'')+'</div><div class="venue-actions"><button class="va-btn" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="va-btn" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="venue-body"><div class="venue-name">'+v.n+'</div><div class="venue-loc">'+ic.pin+v.c+'</div><div class="venue-stats"><div class="venue-stat">'+ic.usr+'до '+v.g+'</div><div class="venue-stat">'+ic.area+v.a+' м²</div></div><div class="venue-bottom"><div class="venue-price">от <strong>'+v.p+'</strong> <span>/ день</span></div><button class="venue-cta" onclick="event.stopPropagation();window.location.href=\'venue?id='+v.s+'\'">Подробнее</button></div></div></div>';}
+function smallCard(v){return '<div class="m-card" onclick="window.location.href=\'venue?id='+v.s+'\'"><div class="m-thumb">'+venueIll(v.h,v.s)+'<div class="m-badges"><span class="m-badge type">'+v.b+'</span>'+(v.pr?'<span class="m-badge premium">Premium</span>':'')+'</div><div class="m-acts"><button class="m-act" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="m-act" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="m-body"><div class="m-name">'+v.n+'</div><div class="m-loc">'+ic.pin+v.c+'</div><div class="m-row"><div class="m-price">от <strong>'+v.p+'</strong></div></div></div></div>';}
 
 // Render cities
 const cEl=document.getElementById('cityScroll');
@@ -404,7 +404,7 @@ cities.forEach(c=>{const d=document.createElement('div');d.className='city-card'
 
 // Render events
 const tw=document.getElementById('eTabs'),gw=document.getElementById('eGroups');
-groups.forEach((g,i)=>{tw.insertAdjacentHTML('beforeend','<div class="event-tab'+(i===0?' active':'')+'" data-g="'+g.id+'">'+g.emoji+g.label+'</div>');gw.insertAdjacentHTML('beforeend','<div class="event-group'+(i===0?' active':'')+'" data-g="'+g.id+'"><div class="event-group-header"><div><div class="event-group-title">'+g.title+'</div><div class="event-group-count">'+g.total+' площадок</div></div><a href="search.html?type='+encodeURIComponent(g.id)+'" class="event-group-link">Все '+ic.chev+'</a></div><div class="venue-scroll">'+g.v.map(v=>bigCard(v)).join('')+'</div></div>');});
+groups.forEach((g,i)=>{tw.insertAdjacentHTML('beforeend','<div class="event-tab'+(i===0?' active':'')+'" data-g="'+g.id+'">'+g.emoji+g.label+'</div>');gw.insertAdjacentHTML('beforeend','<div class="event-group'+(i===0?' active':'')+'" data-g="'+g.id+'"><div class="event-group-header"><div><div class="event-group-title">'+g.title+'</div><div class="event-group-count">'+g.total+' площадок</div></div><a href="search?type='+encodeURIComponent(g.id)+'" class="event-group-link">Все '+ic.chev+'</a></div><div class="venue-scroll">'+g.v.map(v=>bigCard(v)).join('')+'</div></div>');});
 document.querySelectorAll('.event-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.event-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.event-group').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelector('.event-group[data-g="'+t.dataset.g+'"]').classList.add('active');});});
 
 // Dropdowns
@@ -449,7 +449,7 @@ function goSearch(cityO) {
   const type = document.querySelector('.sf[data-field="type"] .sf-value').textContent;
   const guests = document.querySelector('.sf[data-field="guests"] .sf-value').textContent;
   const p = new URLSearchParams({ city, type, guests });
-  window.location.href = 'search.html?' + p.toString();
+  window.location.href = 'search?' + p.toString();
 }
 
 // Keep old step2 for inline map (used by city cards on homepage)

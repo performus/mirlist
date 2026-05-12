@@ -261,7 +261,7 @@ button{font-family:inherit;cursor:pointer;}
 
         <button class="submit-btn" onclick="loginUser()">Зарегистрироваться</button>
 
-        <div class="form-legal">Нажимая «Зарегистрироваться», вы принимаете <a href="#">Условия использования</a>, <a href="privacy.html">Политику конфиденциальности</a> и <a href="#">Политику отмены и возврата</a>.</div>
+        <div class="form-legal">Нажимая «Зарегистрироваться», вы принимаете <a href="#">Условия использования</a>, <a href="privacy">Политику конфиденциальности</a> и <a href="#">Политику отмены и возврата</a>.</div>
 
         <div class="form-bottom">
           Уже есть аккаунт? <a href="#" onclick="showView('viewUserLogin')">Войти</a>
@@ -343,7 +343,7 @@ button{font-family:inherit;cursor:pointer;}
 
         <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)" onclick="loginVenue()">Зарегистрировать площадку</button>
 
-        <div class="form-legal">Нажимая кнопку, вы принимаете <a href="#">Условия для площадок</a> и <a href="privacy.html">Политику конфиденциальности</a>.</div>
+        <div class="form-legal">Нажимая кнопку, вы принимаете <a href="#">Условия для площадок</a> и <a href="privacy">Политику конфиденциальности</a>.</div>
 
         <div class="form-bottom">
           Уже зарегистрированы? <a href="#" onclick="showView('viewVenueLogin')">Войти</a>
@@ -379,12 +379,12 @@ function _nextUrl(fallback) {
 
 function loginUser() {
   MH.setSession({ name: 'Анна Козлова', initials: 'АК', role: 'user', premium: true });
-  window.location.href = _nextUrl('dashboard.html');
+  window.location.href = _nextUrl('dashboard');
 }
 
 function loginVenue() {
   MH.setSession({ name: 'Москва-Сити Холл', initials: 'МС', role: 'venue', premium: false });
-  window.location.href = _nextUrl('dashboard.html');
+  window.location.href = _nextUrl('dashboard');
 }
 
 // Social login buttons simulate user login

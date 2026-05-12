@@ -361,7 +361,7 @@ button{font-family:inherit;cursor:pointer;}
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-top">
-    <a class="sb-logo" href="homepage.html" style="text-decoration:none;display:block;margin-bottom:18px;"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></a>
+    <a class="sb-logo" href="homepage" style="text-decoration:none;display:block;margin-bottom:18px;"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></a>
     <div class="sb-role" id="roleSwitch">
       <button class="active" data-role="user">Пользователь</button>
       <button data-role="owner">Площадка</button>
@@ -450,7 +450,7 @@ function renderNav(){
   }).join('');
   nav.querySelectorAll('.sb-item').forEach(el=>{
     el.addEventListener('click',()=>{
-      if(el.dataset.page==='_addvenue'){MH.go('list-venue.html');return;}
+      if(el.dataset.page==='_addvenue'){MH.go('list-venue');return;}
       currentPage=el.dataset.page;renderNav();renderPage();
     });
   });
@@ -460,8 +460,8 @@ function renderNav(){
   const ini=s?s.initials:'АК';
   const uname=s?s.name:'Пользователь';
   const prem=s&&s.premium;
-  const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage.html'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
-  if(currentRole==='guest'){bot.innerHTML=`<a href="auth.html" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
+  const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
+  if(currentRole==='guest'){bot.innerHTML=`<a href="auth" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
   else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?'<div class="sb-premium">⭐ Premium</div>':''}</div></div>${logoutBtn}`;}
   else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Владелец площадки</div></div></div>${logoutBtn}`;}
 }
@@ -525,7 +525,7 @@ dash:()=>{
         <div style="font-size:13px;color:var(--sx);margin-top:3px">Следующее списание: 01.05.2026</div>
       </div>
       <div style="display:flex;gap:8px;margin-left:auto">
-        <button class="btn btn-c" style="padding:8px 18px;font-size:13px" onclick="MH.go('pricing.html')">Изменить тариф</button>
+        <button class="btn btn-c" style="padding:8px 18px;font-size:13px" onclick="MH.go('pricing')">Изменить тариф</button>
         <button class="btn btn-o" style="padding:8px 18px;font-size:13px">Отменить</button>
       </div>
     </div>
@@ -590,13 +590,13 @@ dash:()=>{
     <div>
       <div class="section-head"><div class="section-label">Избранные площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='favs';renderNav();renderPage()">Все →</button></div>
       <div class="grid-2" style="gap:12px">
-        ${favVenues.map(v=>`<div class="v-card" onclick="MH.go('venue.html?id=${v.s}')">
+        ${favVenues.map(v=>`<div class="v-card" onclick="MH.go('venue?id=${v.s}')">
           <div class="v-thumb">${vIll(v.h,v.s)}<div class="v-tag">Конференц-зал</div></div>
           <div class="v-body">
             <div class="v-name">${v.n}</div>
             <div class="v-loc">${v.l}</div>
             <div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div></div>
-            <div class="v-actions-row"><button class="v-act-btn" onclick="event.stopPropagation();MH.go('venue.html?id=${v.s}')">Открыть</button><button class="v-act-btn" onclick="event.stopPropagation()">Написать</button></div>
+            <div class="v-actions-row"><button class="v-act-btn" onclick="event.stopPropagation();MH.go('venue?id=${v.s}')">Открыть</button><button class="v-act-btn" onclick="event.stopPropagation()">Написать</button></div>
           </div>
         </div>`).join('')}
       </div>
@@ -622,7 +622,7 @@ dash:()=>{
     ${activity.filter(a=>a.t==='Просмотр').concat(activity.filter(a=>a.t!=='Просмотр')).slice(0,4).map((a,i)=>{
       const hv=[{n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',r:4.9,h:195,s:1},{n:'Лофт «Кирпич»',l:'Москва, Курская',p:'28 000 ₽',r:4.6,h:20,s:2},{n:'Усадьба «Белые ночи»',l:'Москва, Рублёвка',p:'95 000 ₽',r:4.9,h:25,s:3},{n:'Коворкинг Space One',l:'Москва, Сити',p:'8 000 ₽',r:4.8,h:180,s:4}];
       const v=hv[i%hv.length];
-      return `<div class="v-card" onclick="MH.go('venue.html?id=${v.s}')"><div class="v-thumb">${vIll(v.h,v.s)}</div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div></div></div></div>`;
+      return `<div class="v-card" onclick="MH.go('venue?id=${v.s}')"><div class="v-thumb">${vIll(v.h,v.s)}</div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc">${v.l}</div><div class="v-foot"><div class="v-price">от <strong>${v.p}</strong></div></div></div></div>`;
     }).join('')}
   </div>
 
@@ -642,7 +642,7 @@ favs:()=>{
   return `<h1 class="page-title">Избранное</h1>
   <p class="page-sub" style="margin-bottom:20px">${venues.length} сохранённых объекта</p>
   <div class="grid-3">
-    ${venues.map(v=>`<div class="v-card" onclick="MH.go('venue.html?id=${v.s}')">
+    ${venues.map(v=>`<div class="v-card" onclick="MH.go('venue?id=${v.s}')">
       <div class="v-thumb" style="height:180px">${vIll(v.h,v.s)}
         <div class="v-tag">${v.b}</div>
       </div>
@@ -664,7 +664,7 @@ favs:()=>{
         </div>
         <div class="v-foot">
           <div class="v-price">от <strong>${v.p}</strong> / день</div>
-          <button class="v-act-btn" style="padding:7px 14px" onclick="event.stopPropagation();MH.go('venue.html?id=${v.s}')">Подробнее</button>
+          <button class="v-act-btn" style="padding:7px 14px" onclick="event.stopPropagation();MH.go('venue?id=${v.s}')">Подробнее</button>
         </div>
       </div>
     </div>`).join('')}
@@ -802,7 +802,7 @@ odash:()=>{
     <div>
       <div class="section-head"><div class="section-label">Мои площадки</div><button class="btn btn-cs" style="padding:6px 14px;font-size:12px" onclick="currentPage='ovenues';renderNav();renderPage()">Все →</button></div>
       <div class="grid-2" style="gap:12px">
-        ${ov.map(v=>`<div class="v-card" onclick="MH.go('venue.html?id=${v.s}')">
+        ${ov.map(v=>`<div class="v-card" onclick="MH.go('venue?id=${v.s}')">
           <div class="v-thumb">${vIll(v.h,v.s)}<div class="v-status ${v.st==='active'?'active':'pending'}">${v.st==='active'?'Активна':'На модерации'}</div></div>
           <div class="v-body">
             <div class="v-name">${v.n}</div>
@@ -833,7 +833,7 @@ odash:()=>{
         <div style="font-size:13px;color:var(--sx);margin-top:3px">Следующее списание: 12 апреля</div>
       </div>
       <div style="display:flex;gap:8px;margin-left:auto">
-        <button class="btn btn-c" style="padding:8px 18px;font-size:13px" onclick="MH.go('pricing.html')">Изменить тариф</button>
+        <button class="btn btn-c" style="padding:8px 18px;font-size:13px" onclick="MH.go('pricing')">Изменить тариф</button>
         <button class="btn btn-o" style="padding:8px 18px;font-size:13px">Отменить</button>
       </div>
     </div>
@@ -1382,7 +1382,7 @@ document.addEventListener('click',e=>{
 <script>
 (function(){
   const sess=MH.getSession();
-  if(!sess){window.location.href='auth.html?next=dashboard.html';return;}
+  if(!sess){window.location.href='auth?next=dashboard';return;}
   window._mhSess=sess;
   if(sess.role==='venue'){
     currentRole='owner';

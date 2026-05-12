@@ -467,11 +467,11 @@ button { font-family:inherit; cursor:pointer; }
 <!-- ══════ HEADER ══════ -->
 <div id="mh-nav"></div>
 <header class="header" style="display:none">
-  <a class="logo" href="homepage.html"><img src="../assets/logo.svg" alt="МирХАБ" height="22" style="display:block"></a>
+  <a class="logo" href="homepage"><img src="../assets/logo.svg" alt="МирХАБ" height="22" style="display:block"></a>
   <nav class="header-nav">
-    <a href="list-venue.html">Каталог</a>
+    <a href="list-venue">Каталог</a>
     <a href="#" class="active">Карта</a>
-    <a href="for-organizers.html">Для бизнеса</a>
+    <a href="for-organizers">Для бизнеса</a>
   </nav>
   <div class="header-search">
     <div class="hs-field">
@@ -663,7 +663,7 @@ const ic = {
 /* ══════ RENDER CARDS ══════ */
 const cmpSet = new Set();
 const grid = document.getElementById('listGrid');
-function openVenue(id) { window.location.href = 'venue.html?id=' + id; }
+function openVenue(id) { window.location.href = 'venue?id=' + id; }
 venues.forEach(v => {
   grid.insertAdjacentHTML('beforeend', `
   <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()" onclick="openVenue(${v.s})">
@@ -786,7 +786,7 @@ function toggleCmp(id, btn) {
   bar.style.display = cmpSet.size > 0 ? 'flex' : 'none';
   document.getElementById('cmpBarCount').textContent = cmpSet.size;
 }
-function openCompare() { window.location.href = 'compare.html?ids=' + [...cmpSet].join(','); }
+function openCompare() { window.location.href = 'compare?ids=' + [...cmpSet].join(','); }
 
 // Pin ↔ card interaction
 function focusCard(vid) {

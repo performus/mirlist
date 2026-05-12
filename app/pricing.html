@@ -41,7 +41,7 @@
 <div class="pricing-wrap"><div class="pricing-grid" id="uG"></div><div class="pricing-grid" id="vG" style="display:none"></div></div>
 <div class="compare-section" id="cS"></div>
 <div class="faq-section"><h2 class="faq-title">Частые вопросы</h2><div id="fL"></div></div>
-<div class="final-cta"><h2>Готовы начать?</h2><p>Выберите тариф и получите доступ к лучшим площадкам России</p><button class="final-btn" onclick="MH.go('auth.html')">Выбрать тариф</button></div>
+<div class="final-cta"><h2>Готовы начать?</h2><p>Выберите тариф и получите доступ к лучшим площадкам России</p><button class="final-btn" onclick="MH.go('auth')">Выбрать тариф</button></div>
 <div id="mh-footer"></div>
 <script>
 const CHK='<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -82,7 +82,7 @@ function renderCards(){
       <div class="plan-name">${p.name}</div><div class="plan-desc">${p.desc}</div>
       <div class="plan-price">${price===0?`<span class="price-amount">0 <span class="price-currency">₽</span></span>`:`${om?`<span class="price-old">${fmt(om)} ₽/мес</span>`:''}<span class="price-amount${p.ft?' coral':''}">${fmt(yr?(me||0):price)} <span class="price-currency">₽</span></span>`}</div>
       <div class="price-period">${price===0?'Бесплатно навсегда':yr?fmt(price)+' ₽ / год':'в месяц'}</div>
-      <button class="plan-cta ${p.cc}" onclick="MH.go('auth.html')">${p.cta}</button><div class="plan-divider"></div>
+      <button class="plan-cta ${p.cc}" onclick="MH.go('auth')">${p.cta}</button><div class="plan-divider"></div>
       <ul class="plan-features">${p.f.map(f=>`<li><span class="feat-check">${CHK}</span>${f}</li>`).join('')}${p.x.map(f=>`<li style="opacity:.4"><span class="feat-dash">${DSH}</span>${f}</li>`).join('')}</ul>
     </div>`;
   }).join('');

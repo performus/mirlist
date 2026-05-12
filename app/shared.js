@@ -175,27 +175,27 @@ const MH = (() => {
 
   function buildRight(session) {
     if (session) {
-      return `<a class="mh-avatar-wrap" href="dashboard.html">
+      return `<a class="mh-avatar-wrap" href="dashboard">
         <div class="mh-avatar">${session.initials || 'АК'}</div>
         <span class="mh-uname">${session.name || 'Профиль'}</span>
         ${session.premium ? '<span class="mh-prem-badge">★ Premium</span>' : ''}
       </a>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing.html"><span class="star">⭐</span> Премиум</a>
-      <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
-      <a class="mh-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
+    return `<a class="mh-prem" href="pricing"><span class="star">⭐</span> Премиум</a>
+      <a class="mh-login" href="auth?next=${_next}">Войти</a>
+      <a class="mh-cta" href="auth?mode=venue">Разместить площадку</a>`;
   }
 
   function renderNav(targetEl, active) {
     injectNavCSS();
     const session = getSession();
     const links = [
-      { label: 'КАРТА',      href: 'search.html',         key: 'map' },
-      { label: 'КАТАЛОГ',    href: 'catalog.html',        key: 'catalog' },
-      { label: 'АГЕНТСТВАМ', href: 'for-organizers.html', key: 'agencies' },
-      { label: 'ПЛОЩАДКАМ',  href: 'list-venue.html',     key: 'venues' },
-      { label: 'ПОДБОР',     href: 'request-form.html',   key: 'request' },
+      { label: 'КАРТА',      href: 'search',         key: 'map' },
+      { label: 'КАТАЛОГ',    href: 'catalog',        key: 'catalog' },
+      { label: 'АГЕНТСТВАМ', href: 'for-organizers', key: 'agencies' },
+      { label: 'ПЛОЩАДКАМ',  href: 'list-venue',     key: 'venues' },
+      { label: 'ПОДБОР',     href: 'request-form',   key: 'request' },
     ];
     const navLinks = links.map(l =>
       `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
@@ -206,15 +206,15 @@ const MH = (() => {
     ).join('');
     const drawerRight = session
       ? `<div class="mh-drawer-sep"></div>
-         <a href="dashboard.html" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
+         <a href="dashboard" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
       : `<div class="mh-drawer-sep"></div>
-         <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">⭐ Премиум</a>
-         <a href="${'auth.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
-         <a class="mh-drawer-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
+         <a href="pricing" style="text-transform:none;letter-spacing:0;font-size:14px;">⭐ Премиум</a>
+         <a href="${'auth?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
+         <a class="mh-drawer-cta" href="auth?mode=venue">Разместить площадку</a>`;
 
     targetEl.innerHTML = `
       <header class="mh-header">
-        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
+        <a class="mh-logo" href="homepage"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
@@ -335,25 +335,25 @@ const MH = (() => {
           </div>
           <div class="mh-ft-col">
             <h4>Платформа</h4>
-            <a href="catalog.html">Площадки</a>
+            <a href="catalog">Площадки</a>
             <a href="#">Как это работает</a>
-            <a href="pricing.html">Тарифы</a>
+            <a href="pricing">Тарифы</a>
           </div>
           <div class="mh-ft-col">
             <h4>Для площадок</h4>
-            <a href="list-venue.html">Разместить площадку</a>
-            <a href="pricing.html">Тарифы</a>
+            <a href="list-venue">Разместить площадку</a>
+            <a href="pricing">Тарифы</a>
             <a href="#" onclick="event.preventDefault();MH.feedback()">Поддержка</a>
           </div>
           <div class="mh-ft-col">
             <h4>Компания</h4>
             <a href="#">О нас</a>
             <a href="#" onclick="event.preventDefault();MH.feedback()">Связаться с нами</a>
-            <a href="request-form.html" class="bold">Подбор площадки</a>
+            <a href="request-form" class="bold">Подбор площадки</a>
           </div>
           <div class="mh-ft-col">
             <h4>Документы</h4>
-            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="privacy">Политика конфиденциальности</a>
             <a href="#">Условия использования</a>
             <a href="#">Оферта</a>
           </div>
@@ -365,7 +365,7 @@ const MH = (() => {
         <div class="mh-ft-bottom">
           <span>© 2026 Мирхаб. Рынок открыт.</span>
           <div>
-            <a href="privacy.html">Политика конфиденциальности</a>
+            <a href="privacy">Политика конфиденциальности</a>
             <a href="#">Условия</a>
           </div>
         </div>

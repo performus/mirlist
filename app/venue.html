@@ -233,13 +233,13 @@ img{display:block;max-width:100%;}
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
-  <a href="catalog.html" class="back-link">
+  <a href="catalog" class="back-link">
     <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     К результатам
   </a>
-  <a href="search.html">Москва</a>
+  <a href="search">Москва</a>
   <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M4.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-  <a href="list-venue.html">Конференц-залы</a>
+  <a href="list-venue">Конференц-залы</a>
   <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M4.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
   <span class="current">Конференц-зал «Панорама»</span>
 </div>
@@ -404,11 +404,11 @@ img{display:block;max-width:100%;}
       <div class="cta-card">
         <div class="cta-price">от <strong>45 000 ₽</strong> <span>/ день</span></div>
         <div class="cta-divider"></div>
-        <button class="cta-btn primary" onclick="MH.go('request-form.html')">
+        <button class="cta-btn primary" onclick="MH.go('request-form')">
           <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 4h12M4 4V2.5a2 2 0 014 0V4m4 0v9a2 2 0 01-2 2H4a2 2 0 01-2-2V4" stroke="#fff" stroke-width="1.3"/></svg>
           Запросить предложение
         </button>
-        <button class="cta-btn secondary" onclick="MH.go('request-form.html')">
+        <button class="cta-btn secondary" onclick="MH.go('request-form')">
           <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Связаться с площадкой
         </button>
@@ -451,7 +451,7 @@ img{display:block;max-width:100%;}
 </div><!-- /page -->
 
 <script>
-/* Venue data (mirrors search.html) */
+/* Venue data (mirrors search) */
 const VENUES = [
   /* catalog IDs (1–12) */
   {s:1,n:'Конференц-зал «Панорама»',b:'Конференц-зал',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,h:195},
@@ -573,7 +573,7 @@ const sv=document.getElementById('similarVenues');
 similar.forEach(v=>{sv.innerHTML+=simCard(v);});
 
 function simCard(v){
-  return `<div class="sim-card" onclick="MH.go('venue.html?id=${v.s}')" style="cursor:pointer">
+  return `<div class="sim-card" onclick="MH.go('venue?id=${v.s}')" style="cursor:pointer">
     <div class="sim-img">${vIll(v.h,v.s)}</div>
     <div class="sim-body">
       <div class="sim-name">${v.n}</div>

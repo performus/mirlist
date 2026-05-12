@@ -373,7 +373,7 @@ function toggleCmp(id,btn){
   document.getElementById('cbCount').textContent=cmpSet.size;
   document.getElementById('compareBar').classList.toggle('show',cmpSet.size>0);
 }
-function openCompare(){MH.go('compare.html?ids='+[...cmpSet].join(','));}
+function openCompare(){MH.go('compare?ids='+[...cmpSet].join(','));}
 function clearCompare(){cmpSet.clear();document.querySelectorAll('.v-cmp.on').forEach(b=>b.classList.remove('on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
 
 /* ── FAVORITES ── */
@@ -394,7 +394,7 @@ function renderCards(list){
     const fav=MH.isFav(v.id);
     const prem=v.r>=4.9;
     return `
-    <div class="v-card" onclick="MH.go('venue.html?id=${v.s}')">
+    <div class="v-card" onclick="MH.go('venue?id=${v.s}')">
       <div class="v-thumb">
         ${vIll(v.h,v.s)}
         <div class="v-badges">
@@ -417,7 +417,7 @@ function renderCards(list){
           <div class="v-price">от <strong>${v.p} ₽</strong></div>
           <div class="v-btn-pair">
             <button class="v-btn" onclick="event.stopPropagation();toggleCmp(${v.id},document.querySelector('.v-tr-cmp[data-id=\\'${v.id}\\']'))">Сравнить</button>
-            <button class="v-btn" onclick="event.stopPropagation();window.open('venue-presentation.html?ids=${v.id}','_blank')">Презентация</button>
+            <button class="v-btn" onclick="event.stopPropagation();window.open('venue-presentation?ids=${v.id}','_blank')">Презентация</button>
           </div>
         </div>
       </div>
