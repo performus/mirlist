@@ -1,0 +1,22 @@
+{
+  "cleanUrls": false,
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    },
+    {
+      "source": "/app/shared.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/home", "destination": "/app/homepage.html", "permanent": false },
+    { "source": "/login", "destination": "/app/auth.html", "permanent": false },
+    { "source": "/dashboard", "destination": "/app/dashboard.html", "permanent": false }
+  ]
+}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Вход — Площадки</title>
+<title>Вход — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -135,19 +135,7 @@ button{font-family:inherit;cursor:pointer;}
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <a class="logo" href="#">Площадки<i>.</i></a>
-  <nav class="header-nav">
-    <a href="#">Каталог</a>
-    <a href="#">Карта</a>
-    <a href="#">Для бизнеса</a>
-    <a href="#">Блог</a>
-  </nav>
-  <div class="header-right">
-    <a class="h-btn" href="#">Разместить площадку</a>
-  </div>
-</header>
+<div id="mh-nav"></div>
 
 <!-- AUTH MAIN -->
 <main class="auth-main">
@@ -215,7 +203,7 @@ button{font-family:inherit;cursor:pointer;}
           <input class="field-input" type="password" placeholder="Пароль">
         </div>
 
-        <button class="submit-btn">Войти</button>
+        <button class="submit-btn" onclick="loginUser()">Войти</button>
 
         <div class="form-bottom">
           Нет аккаунта? <a href="#" onclick="showView('viewUserSignup')">Зарегистрироваться</a>
@@ -269,9 +257,9 @@ button{font-family:inherit;cursor:pointer;}
           <span class="checkbox-text">Хочу получать подборки площадок, акции и вдохновение. Можно отписаться в любой момент.</span>
         </label>
 
-        <button class="submit-btn">Зарегистрироваться</button>
+        <button class="submit-btn" onclick="loginUser()">Зарегистрироваться</button>
 
-        <div class="form-legal">Нажимая «Зарегистрироваться», вы принимаете <a href="#">Условия использования</a>, <a href="#">Политику конфиденциальности</a> и <a href="#">Политику отмены и возврата</a>.</div>
+        <div class="form-legal">Нажимая «Зарегистрироваться», вы принимаете <a href="#">Условия использования</a>, <a href="privacy.html">Политику конфиденциальности</a> и <a href="#">Политику отмены и возврата</a>.</div>
 
         <div class="form-bottom">
           Уже есть аккаунт? <a href="#" onclick="showView('viewUserLogin')">Войти</a>
@@ -300,7 +288,7 @@ button{font-family:inherit;cursor:pointer;}
           <input class="field-input" type="password" placeholder="Пароль">
         </div>
 
-        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)">Войти</button>
+        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)" onclick="loginVenue()">Войти</button>
 
         <div class="form-bottom">
           Нет аккаунта площадки? <a href="#" onclick="showView('viewVenueSignup')">Зарегистрировать площадку</a>
@@ -351,9 +339,9 @@ button{font-family:inherit;cursor:pointer;}
           <span class="checkbox-text">Согласен с условиями размещения площадки на платформе</span>
         </label>
 
-        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)">Зарегистрировать площадку</button>
+        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)" onclick="loginVenue()">Зарегистрировать площадку</button>
 
-        <div class="form-legal">Нажимая кнопку, вы принимаете <a href="#">Условия для площадок</a> и <a href="#">Политику конфиденциальности</a>.</div>
+        <div class="form-legal">Нажимая кнопку, вы принимаете <a href="#">Условия для площадок</a> и <a href="privacy.html">Политику конфиденциальности</a>.</div>
 
         <div class="form-bottom">
           Уже зарегистрированы? <a href="#" onclick="showView('viewVenueLogin')">Войти</a>
@@ -364,26 +352,43 @@ button{font-family:inherit;cursor:pointer;}
 
 </main>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="logo" style="font-size:24px;color:#fff">Площадки<i>.</i></div>
-      <p>Маркетплейс площадок для мероприятий. 12 000+ пространств в 120 городах России.</p>
-    </div>
-    <div class="footer-col"><h4>Пользователям</h4><a href="#">Каталог площадок</a><a href="#">Карта</a><a href="#">Вход</a></div>
-    <div class="footer-col"><h4>Площадкам</h4><a href="#">Разместить площадку</a><a href="#">Вход для площадок</a></div>
-    <div class="footer-col"><h4>Компания</h4><a href="#">О нас</a><a href="#">Блог</a><a href="#">Контакты</a><a href="#">Помощь</a></div>
-  </div>
-  <div class="footer-bottom">© 2026 Площадки. Все права защищены.</div>
-</footer>
+<div id="mh-footer"></div>
 
+<script src="shared.js"></script>
 <script>
-function showView(id){
-  document.querySelectorAll('.auth-view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+MH.init();
+
+// Check if arriving in venue mode
+if (new URLSearchParams(location.search).get('mode') === 'venue') {
+  document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('viewVenueLogin').classList.add('active');
 }
+
+function showView(id) {
+  document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function _nextUrl(fallback) {
+  const p = new URLSearchParams(location.search).get('next');
+  return p || fallback;
+}
+
+function loginUser() {
+  MH.setSession({ name: 'Анна Козлова', initials: 'АК', role: 'user', premium: true });
+  window.location.href = _nextUrl('dashboard.html');
+}
+
+function loginVenue() {
+  MH.setSession({ name: 'Москва-Сити Холл', initials: 'МС', role: 'venue', premium: false });
+  window.location.href = _nextUrl('dashboard.html');
+}
+
+// Social login buttons simulate user login
+document.querySelectorAll('.social-btn').forEach(btn => {
+  btn.addEventListener('click', loginUser);
+});
 </script>
 </body>
 </html>

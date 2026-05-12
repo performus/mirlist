@@ -1,0 +1,12 @@
+{
+  "name": "mirhub",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "browser-sync start --server --files 'index.html,app/**/*.html,app/**/*.js,assets/**/*' --no-notify --open",
+    "serve": "npx serve . -p 3000"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}

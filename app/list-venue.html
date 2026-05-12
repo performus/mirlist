@@ -179,17 +179,7 @@ button{font-family:inherit;cursor:pointer;}
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <a class="nav-logo" href="#">Площадки<i>.</i></a>
-  <div class="nav-links">
-    <a href="#">Каталог</a>
-    <a href="#">Карта</a>
-    <a href="#">Блог</a>
-    <a href="#">Войти</a>
-    <a class="nav-cta" href="#">Добавить площадку</a>
-  </div>
-</nav>
+<div id="mh-nav"></div>
 
 <!-- HERO -->
 <section class="hero">
@@ -209,7 +199,7 @@ button{font-family:inherit;cursor:pointer;}
     <h1 class="hero-h1">Привлекайте <em>клиентов</em> на&nbsp;вашу площадку</h1>
     <p class="hero-sub">Получайте заявки на мероприятия напрямую от организаторов. Бесплатная регистрация, простое управление, реальные клиенты.</p>
     <div class="hero-actions">
-      <button class="btn-hero primary" onclick="location.href='#'">Добавить площадку</button>
+      <button class="btn-hero primary" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
       <button class="btn-hero secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Как это работает</button>
     </div>
     <div class="hero-trust">
@@ -352,21 +342,13 @@ button{font-family:inherit;cursor:pointer;}
   <div class="cta-inner reveal">
     <h2 class="cta-title">Начните получать заявки уже сегодня</h2>
     <p class="cta-desc">Бесплатная регистрация. Быстрая модерация. Реальные клиенты.</p>
-    <button class="cta-btn">Добавить площадку</button>
+    <button class="cta-btn" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
     <div class="cta-note">Регистрация занимает 10 минут · Без комиссий</div>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-brand"><div class="nav-logo" style="font-size:24px;color:#fff">Площадки<i>.</i></div><p>Маркетплейс площадок для мероприятий. 12 000+ пространств в 120 городах России.</p></div>
-    <div class="footer-col"><h4>Площадкам</h4><a href="#">Разместить площадку</a><a href="#">Вход для площадок</a><a href="#">Помощь</a></div>
-    <div class="footer-col"><h4>Пользователям</h4><a href="#">Каталог площадок</a><a href="#">Карта</a><a href="#">Вход</a></div>
-    <div class="footer-col"><h4>Компания</h4><a href="#">О нас</a><a href="#">Блог</a><a href="#">Контакты</a><a href="#">Условия</a></div>
-  </div>
-  <div class="footer-bottom">© 2026 Площадки. Все права защищены.</div>
-</footer>
+<div id="mh-footer"></div>
 
 <script>
 /* Venue examples */
@@ -381,14 +363,14 @@ const venues=[
   {n:'Галерея «Арт-холл»',l:'Москва, Винзавод',p:'50 000 ₽',c:120,b:'Галерея',h:280,s:6},
 ];
 const vEl=document.getElementById('venueExamples');
-venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap">👥 до ${v.c} чел.</div></div></div></div>`;});
+venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue.html')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap">👥 до ${v.c} чел.</div></div></div></div>`;});
 
 /* Reveal */
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
-/* Nav scroll */
-window.addEventListener('scroll',()=>{const n=document.querySelector('.nav');n.style.background=window.scrollY>40?'rgba(255,255,255,.96)':'rgba(255,255,255,.88)';n.style.boxShadow=window.scrollY>40?'0 1px 12px rgba(53,78,99,.06)':'none';});
 </script>
+<script src="shared.js"></script>
+<script>MH.init('venues');</script>
 </body>
 </html>
