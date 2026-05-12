@@ -372,6 +372,26 @@ const MH = (() => {
       </footer>`;
   }
 
+  const VENUES = [
+    {id:1, n:'Конференц-зал «Панорама»',      loc:'Москва, Пресня',           metro:'Выставочная',       type:'Конференц-зал', area:380, cap:250, r:4.9, rv:127, p:'45 000',  h:195, s:1,  tags:['all','center','view'],             pr:1, px:52, py:38},
+    {id:2, n:'Лофт «Кирпич»',                loc:'Москва, Курская',           metro:'Курская',            type:'Лофт',          area:280, cap:100, r:4.6, rv:112, p:'28 000',  h:20,  s:2,  tags:['all','loft','catering'],                 px:57, py:46},
+    {id:3, n:'Усадьба «Белые ночи»',         loc:'Москва, Рублёвка',          metro:null,                 type:'Банкетный зал', area:450, cap:150, r:4.9, rv:203, p:'95 000',  h:25,  s:3,  tags:['all','outdoor','catering'],        pr:1, px:28, py:40},
+    {id:4, n:'Ресторан «Терракота»',         loc:'Москва, Патриаршие',        metro:'Маяковская',         type:'Ресторан',      area:120, cap:60,  r:4.8, rv:156, p:'35 000',  h:15,  s:4,  tags:['all','center','catering'],               px:47, py:44},
+    {id:5, n:'Коворкинг Space One',          loc:'Москва, Сити',              metro:'Деловой центр',      type:'Коворкинг',     area:90,  cap:40,  r:4.8, rv:63,  p:'8 000',   h:180, s:5,  tags:['all','center','corporate'],              px:58, py:35},
+    {id:6, n:'Галерея «Арт-холл»',          loc:'Москва, Винзавод',          metro:'Курская',            type:'Галерея',       area:320, cap:120, r:4.7, rv:88,  p:'50 000',  h:280, s:6,  tags:['all','loft','view'],                     px:56, py:48},
+    {id:7, n:'Бизнес-лофт Level Up',        loc:'Москва, Нижегородская',     metro:'Авиамоторная',       type:'Лофт',          area:200, cap:80,  r:4.5, rv:74,  p:'18 000',  h:42,  s:7,  tags:['all','loft','corporate'],                px:45, py:42},
+    {id:8, n:'Зал «Меридиан»',              loc:'Москва, Калужская',         metro:'Калужская',          type:'Конференц-зал', area:500, cap:350, r:4.8, rv:196, p:'65 000',  h:220, s:8,  tags:['all','center','parking'],                px:42, py:68},
+    {id:9, n:'Meeting Point Arena',         loc:'Москва, Сокольники',        metro:'Сокольники',         type:'Конференц-зал', area:600, cap:400, r:4.6, rv:142, p:'80 000',  h:165, s:9,  tags:['all','corporate','parking'],             px:55, py:52},
+    {id:10,n:'Центр «Высота»',              loc:'Москва, Павелецкая',        metro:'Павелецкая',         type:'Лофт',          area:240, cap:90,  r:4.7, rv:91,  p:'32 000',  h:58,  s:10, tags:['all','view','loft'],                     px:62, py:25},
+    {id:11,n:'Ресторан La Terrasse',        loc:'Москва, Остоженка',         metro:'Кропоткинская',      type:'Ресторан',      area:140, cap:70,  r:4.9, rv:211, p:'55 000',  h:8,   s:11, tags:['all','center','catering','view'],  pr:1, px:44, py:50},
+    {id:12,n:'Клуб «Бункер»',              loc:'Москва, Электрозаводская',  metro:'Электрозаводская',   type:'Лофт',          area:350, cap:200, r:4.4, rv:55,  p:'22 000',  h:300, s:12, tags:['all','loft','parking'],                  px:64, py:38},
+    {id:13,n:'Зал «Империя»',              loc:'Москва, Тверская',          metro:'Тверская',           type:'Конференц-зал', area:600, cap:400, r:4.6, rv:52,  p:'65 000',  h:215, s:13, tags:['all','center'],                    pr:1, px:50, py:30},
+    {id:14,n:'Шеф-стол Blanc',             loc:'Москва, Тверская',          metro:'Тверская',           type:'Частный ужин',  area:40,  cap:12,  r:5.0, rv:34,  p:'120 000', h:35,  s:14, tags:['all','center','catering'],         pr:1, px:49, py:33},
+    {id:15,n:'Зал «Тишина»',               loc:'Москва, Якиманка',          metro:'Октябрьская',        type:'Ресторан',      area:45,  cap:16,  r:4.9, rv:61,  p:'25 000',  h:25,  s:15, tags:['all','center','catering'],         pr:1, px:52, py:55},
+    {id:16,n:'Terrasa Rooftop',            loc:'Москва, Красный Октябрь',   metro:'Кропоткинская',      type:'Лофт',          area:180, cap:90,  r:4.7, rv:88,  p:'42 000',  h:170, s:16, tags:['all','view','loft'],                     px:48, py:48},
+    {id:17,n:'Студия «Формат»',            loc:'Москва, Бауманская',        metro:'Бауманская',         type:'Коворкинг',     area:110, cap:50,  r:4.5, rv:42,  p:'12 000',  h:195, s:17, tags:['all','corporate'],                       px:60, py:43},
+  ];
+
   function go(url) {
     document.body.style.transition = 'opacity .15s ease';
     document.body.style.opacity = '0';
@@ -601,5 +621,5 @@ const MH = (() => {
     });
   }
 
-  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback };
+  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback, VENUES };
 })();

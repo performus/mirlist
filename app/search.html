@@ -264,9 +264,19 @@ button { font-family:inherit; cursor:pointer; }
   border-radius:2px; background:var(--aqua-2); outline:none;
 }
 .fd-range input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance:none; width:18px; height:18px;
-  border-radius:50%; background:var(--coral); cursor:pointer;
-  box-shadow:0 2px 8px rgba(233,134,103,.3);
+  -webkit-appearance:none; width:16px; height:16px;
+  border-radius:50%; background:var(--aqua-3); cursor:pointer;
+  border:2.5px solid #fff;
+  box-shadow:0 2px 8px rgba(168,212,216,.45);
+  transition:transform .15s, box-shadow .15s;
+}
+.fd-range input[type=range]::-webkit-slider-thumb:hover {
+  transform:scale(1.2); box-shadow:0 2px 14px rgba(168,212,216,.6);
+}
+.fd-range input[type=range]::-moz-range-thumb {
+  width:16px; height:16px; border-radius:50%;
+  background:var(--aqua-3); cursor:pointer;
+  border:2.5px solid #fff; box-shadow:0 2px 8px rgba(168,212,216,.45);
 }
 .fd-range-row { display:flex; justify-content:space-between; font-size:12px; color:var(--slate-muted); margin-top:6px; }
 
@@ -632,22 +642,7 @@ function venueIll(h,s){
 }
 
 /* ══════ DATA ══════ */
-const venues = [
-  {n:'Конференц-зал «Панорама»',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,b:'Конференц-зал',pr:1,h:195,s:10,px:52,py:38},
-  {n:'Бизнес-лофт Level Up',c:'Москва, Арбат',g:80,a:150,p:'18 000 ₽',r:4.7,rv:84,b:'Лофт',h:205,s:11,px:45,py:42},
-  {n:'Коворкинг Space One',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,b:'Коворкинг',h:180,s:12,px:58,py:35},
-  {n:'Зал «Империя»',c:'Москва, Тверская',g:400,a:600,p:'65 000 ₽',r:4.6,rv:52,b:'Конференц-зал',pr:1,h:215,s:13,px:50,py:30},
-  {n:'Meeting Point Arena',c:'Москва, Павелецкая',g:120,a:200,p:'22 000 ₽',r:4.8,rv:91,b:'Выставка',h:190,s:14,px:55,py:52},
-  {n:'Центр «Высота»',c:'Москва, ВДНХ',g:180,a:320,p:'32 000 ₽',r:4.7,rv:38,b:'Конференц-зал',h:200,s:15,px:62,py:25},
-  {n:'Усадьба «Белые ночи»',c:'Москва, Рублёвка',g:150,a:450,p:'95 000 ₽',r:4.9,rv:203,b:'Банкетный',pr:1,h:25,s:20,px:28,py:40},
-  {n:'Ресторан «Терракота»',c:'Москва, Патриаршие',g:60,a:120,p:'35 000 ₽',r:4.8,rv:156,b:'Ресторан',h:15,s:21,px:47,py:44},
-  {n:'Лофт «Кирпич»',c:'Москва, Курская',g:100,a:280,p:'28 000 ₽',r:4.6,rv:112,b:'Лофт',h:20,s:23,px:57,py:46},
-  {n:'Галерея «Арт-холл»',c:'Москва, Винзавод',g:120,a:300,p:'50 000 ₽',r:4.8,rv:74,b:'Галерея',h:280,s:30,px:56,py:48},
-  {n:'Шеф-стол Blanc',c:'Москва, Тверская',g:12,a:40,p:'120 000 ₽',r:5.0,rv:34,b:'Частный ужин',pr:1,h:35,s:40,px:49,py:33},
-  {n:'Зал «Тишина»',c:'Москва, Якиманка',g:16,a:45,p:'25 000 ₽',r:4.9,rv:61,b:'Ресторан',h:25,s:42,px:52,py:55},
-  {n:'Terrasa Rooftop',c:'Москва, Красный Октябрь',g:90,a:180,p:'42 000 ₽',r:4.7,rv:88,b:'Лофт',h:170,s:50,px:48,py:48},
-  {n:'Студия «Формат»',c:'Москва, Бауманская',g:50,a:110,p:'12 000 ₽',r:4.5,rv:42,b:'Коворкинг',h:195,s:51,px:60,py:43},
-];
+const venues = MH.VENUES;
 
 const ic = {
   pin:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
@@ -670,7 +665,7 @@ venues.forEach(v => {
     <div class="v-img">
       ${venueIll(v.h,v.s)}
       <div class="v-tags">
-        <span class="v-tag cat">${v.b}</span>
+        <span class="v-tag cat">${v.type}</span>
         ${v.pr ? '<span class="v-tag prem">Premium</span>' : ''}
       </div>
       <div class="v-actions">
@@ -680,13 +675,13 @@ venues.forEach(v => {
     </div>
     <div class="v-body">
       <div class="v-name">${v.n}</div>
-      <div class="v-loc">${ic.pin} ${v.c}</div>
+      <div class="v-loc">${ic.pin} ${v.loc}${v.metro ? ' · ' + v.metro : ''}</div>
       <div class="v-meta">
-        <span class="v-meta-item">${ic.usr} до ${v.g} гостей</span>
-        <span class="v-meta-item">${ic.area} ${v.a} м²</span>
+        <span class="v-meta-item">${ic.usr} до ${v.cap} гостей</span>
+        <span class="v-meta-item">${ic.area} ${v.area} м²</span>
       </div>
       <div class="v-foot">
-        <div class="v-price">от <strong>${v.p}</strong></div>
+        <div class="v-price">от <strong>${v.p} ₽</strong></div>
         <div class="v-btn-pair">
           <button class="v-cta" onclick="event.stopPropagation();toggleCmp(${v.s},this.closest('.v-card').querySelector('.v-act-cmp'))">Сравнить</button>
           <button class="v-cta" onclick="event.stopPropagation();openVenue(${v.s})">Подробнее</button>
@@ -743,8 +738,8 @@ venues.forEach((v, i) => {
   pin.style.left = v.px + '%';
   pin.style.top = v.py + '%';
   pin.innerHTML = `
-    <div class="pin-label">${v.n} · ${v.p}</div>
-    <div class="pin-body">${ic.mapPin}${v.p.replace('₽','').trim()}</div>
+    <div class="pin-label">${v.n} · ${v.p} ₽</div>
+    <div class="pin-body">${ic.mapPin}${v.p}</div>
   `;
   pin.addEventListener('click', () => openVenue(v.s));
   canvas.appendChild(pin);

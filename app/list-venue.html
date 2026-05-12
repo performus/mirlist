@@ -120,8 +120,8 @@ button{font-family:inherit;cursor:pointer;}
 .ex-card{flex:0 0 280px;border-radius:var(--rl);overflow:hidden;background:var(--w);border:1px solid rgba(197,227,225,.12);cursor:pointer;transition:all .35s;}
 .ex-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
 .ex-img{height:170px;overflow:hidden;position:relative;}
-.ex-img svg{width:100%;height:100%;transition:transform .5s;}
-.ex-card:hover .ex-img svg{transform:scale(1.05);}
+.ex-img svg,.ex-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.ex-card:hover .ex-img svg,.ex-card:hover .ex-img img{transform:scale(1.05);}
 .ex-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);color:var(--s);}
 .ex-body{padding:16px 18px 18px;}
 .ex-name{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:4px;}
@@ -363,7 +363,7 @@ button{font-family:inherit;cursor:pointer;}
 
 <script>
 /* Venue examples */
-function vIll(h,s){return `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="400" height="200" fill="hsl(${h},20%,89%)"/><defs><linearGradient id="v${s}" x1="0" y1="0" x2="400" y2="200"><stop stop-color="hsl(${h},28%,85%)" offset="0"/><stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/></linearGradient></defs><rect width="400" height="200" fill="url(#v${s})"/><rect x="20" y="55" width="360" height="110" rx="6" fill="hsl(${h},16%,93%)" opacity=".5"/><rect x="40" y="25" width="100" height="140" rx="4" fill="hsl(${h},22%,80%)" opacity=".5"/><rect x="160" y="40" width="75" height="125" rx="4" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/><rect x="255" y="50" width="65" height="115" rx="4" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/></svg>`;}
+function vIll(h,s){const n=((s-1)%16)+1;return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s,transform .5s;" onload="this.style.opacity=1" onerror="this.style.opacity=1">`;}
 
 const venues=[
   {n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',c:250,b:'Конференц-зал',h:195,s:1},

@@ -107,7 +107,28 @@ button{font-family:inherit;cursor:pointer;}
 .fd-check input:checked ~ .fd-box .fd-chk{opacity:1;}
 
 .sb-range{padding:0;}
-.range-track{width:100%;accent-color:var(--c);cursor:pointer;height:4px;border-radius:2px;}
+.range-track{
+  width:100%;cursor:pointer;height:4px;border-radius:2px;
+  -webkit-appearance:none;appearance:none;
+  background:var(--aq-p);outline:none;border:none;
+}
+.range-track::-webkit-slider-runnable-track{
+  height:4px;border-radius:2px;background:rgba(121,185,195,.25);
+}
+.range-track::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;margin-top:-6px;
+  border-radius:50%;background:var(--aq);cursor:pointer;
+  border:2.5px solid #fff;
+  box-shadow:0 2px 8px rgba(121,185,195,.4);
+  transition:transform .15s,box-shadow .15s;
+}
+.range-track::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 2px 14px rgba(121,185,195,.55);}
+.range-track::-moz-range-track{height:4px;border-radius:2px;background:rgba(121,185,195,.25);}
+.range-track::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--aq);cursor:pointer;border:2.5px solid #fff;
+  box-shadow:0 2px 8px rgba(121,185,195,.4);
+}
 .range-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sx);margin-top:8px;}
 .range-value{font-size:12.5px;font-weight:600;color:var(--sd);text-align:center;margin-bottom:10px;}
 
@@ -333,20 +354,7 @@ button{font-family:inherit;cursor:pointer;}
 <script src="shared.js"></script>
 <script>
 /* ── VENUE DATA ── */
-const VENUES=[
-  {id:1,n:'Конференц-зал «Панорама»',loc:'Москва, Пресня',metro:'Выставочная',type:'Конференц-зал',area:380,cap:250,r:4.9,rv:127,p:'45 000',h:195,s:1,tags:['all','center','view']},
-  {id:2,n:'Лофт «Кирпич»',loc:'Москва, Курская',metro:'Курская',type:'Лофт',area:280,cap:100,r:4.6,rv:112,p:'28 000',h:20,s:2,tags:['all','loft','catering']},
-  {id:3,n:'Усадьба «Белые ночи»',loc:'Москва, Рублёвка',metro:null,type:'Банкетный зал',area:450,cap:150,r:4.9,rv:203,p:'95 000',h:25,s:3,tags:['all','outdoor','catering']},
-  {id:4,n:'Ресторан «Терракота»',loc:'Москва, Патриаршие',metro:'Маяковская',type:'Ресторан',area:120,cap:60,r:4.8,rv:156,p:'35 000',h:15,s:4,tags:['all','center','catering']},
-  {id:5,n:'Коворкинг Space One',loc:'Москва, Сити',metro:'Деловой центр',type:'Коворкинг',area:90,cap:40,r:4.8,rv:63,p:'8 000',h:180,s:5,tags:['all','center','corporate']},
-  {id:6,n:'Галерея «Арт-холл»',loc:'Москва, Винзавод',metro:'Курская',type:'Галерея',area:320,cap:120,r:4.7,rv:88,p:'50 000',h:280,s:6,tags:['all','loft','view']},
-  {id:7,n:'Бизнес-лофт Level Up',loc:'Москва, Нижегородская',metro:'Авиамоторная',type:'Лофт',area:200,cap:80,r:4.5,rv:74,p:'18 000',h:42,s:7,tags:['all','loft','corporate']},
-  {id:8,n:'Зал «Меридиан»',loc:'Москва, Калужская',metro:'Калужская',type:'Конференц-зал',area:500,cap:350,r:4.8,rv:196,p:'65 000',h:220,s:8,tags:['all','center','parking']},
-  {id:9,n:'Meeting Point Arena',loc:'Москва, Сокольники',metro:'Сокольники',type:'Конференц-зал',area:600,cap:400,r:4.6,rv:142,p:'80 000',h:165,s:9,tags:['all','corporate','parking']},
-  {id:10,n:'Центр «Высота»',loc:'Москва, Павелецкая',metro:'Павелецкая',type:'Лофт',area:240,cap:90,r:4.7,rv:91,p:'32 000',h:58,s:10,tags:['all','view','loft']},
-  {id:11,n:'Ресторан La Terrasse',loc:'Москва, Остоженка',metro:'Кропоткинская',type:'Ресторан',area:140,cap:70,r:4.9,rv:211,p:'55 000',h:8,s:11,tags:['all','center','catering','view']},
-  {id:12,n:'Клуб «Бункер»',loc:'Москва, Электрозаводская',metro:'Электрозаводская',type:'Лофт',area:350,cap:200,r:4.4,rv:55,p:'22 000',h:300,s:12,tags:['all','loft','parking']},
-];
+const VENUES = MH.VENUES;
 
 /* ── ILLUSTRATED THUMBNAIL ── */
 function vIll(h,s){
