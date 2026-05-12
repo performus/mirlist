@@ -152,7 +152,7 @@ a{text-decoration:none;color:inherit;}
 .city-card{flex:0 0 310px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:var(--surface-white);border:1px solid rgba(184,224,224,.15);transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;}
 .city-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-elevated);}
 .city-thumb{width:100%;height:240px;overflow:hidden;}
-.city-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.city-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.8s cubic-bezier(.22,1,.36,1);}
 .city-card:hover .city-thumb img{transform:scale(1.05);}
 .city-body{padding:20px 22px 24px;}
 .city-name{font-family:'DM Serif Display',serif;font-size:24px;color:var(--blue-gray);margin-bottom:6px;}
@@ -183,7 +183,7 @@ a{text-decoration:none;color:inherit;}
 .venue-card{flex:0 0 300px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-white);border:1px solid rgba(184,224,224,.12);cursor:pointer;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;}
 .venue-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-elevated);}
 .venue-thumb{width:100%;height:180px;position:relative;overflow:hidden;}
-.venue-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.venue-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.8s cubic-bezier(.22,1,.36,1);}
 .venue-card:hover .venue-thumb img{transform:scale(1.04);}
 .venue-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:1;}
 .venue-badge{padding:5px 12px;border-radius:50px;font-size:11.5px;font-weight:600;backdrop-filter:blur(12px);}
@@ -193,6 +193,8 @@ a{text-decoration:none;color:inherit;}
 .va-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:all .2s;color:#5A7080;border:none;cursor:pointer;}
 .va-btn:hover{background:#fff;color:var(--coral);transform:scale(1.08);}
 .va-btn.cmp-on{background:#FCEAE4!important;color:var(--coral)!important;}
+.va-btn.fav-on{background:#FCEAE4!important;color:var(--coral)!important;}
+.va-btn.fav-on svg path{fill:currentColor;}
 .venue-body{padding:18px 20px 20px;}
 .venue-name{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:5px;}
 .venue-loc{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:5px;margin-bottom:14px;}
@@ -228,7 +230,7 @@ a{text-decoration:none;color:inherit;}
 .m-card{border-radius:var(--radius-md);overflow:hidden;background:#fff;border:1px solid rgba(184,224,224,.12);cursor:pointer;transition:all .3s;}
 .m-card:hover{box-shadow:var(--shadow-card);transform:translateY(-3px);}
 .m-card .m-thumb{height:120px;overflow:hidden;position:relative;}
-.m-card .m-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.m-card .m-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.6s cubic-bezier(.22,1,.36,1);}
 .m-card:hover .m-thumb img{transform:scale(1.05);}
 .m-card .m-badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;z-index:1;}
 .m-card .m-badge{padding:3px 9px;border-radius:50px;font-size:10.5px;font-weight:600;backdrop-filter:blur(8px);}
@@ -238,6 +240,8 @@ a{text-decoration:none;color:inherit;}
 .m-card .m-act{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#5A7080;transition:all .2s;}
 .m-card .m-act:hover{background:#fff;color:var(--coral);transform:scale(1.08);}
 .m-card .m-act.cmp-on{background:#FCEAE4!important;color:var(--coral)!important;}
+.m-card .m-act.fav-on{background:#FCEAE4!important;color:var(--coral)!important;}
+.m-card .m-act.fav-on svg path{fill:currentColor;}
 .m-card .m-body{padding:12px 14px 14px;}
 .m-card .m-name{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px;}
 .m-card .m-loc{font-size:12px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;}
@@ -374,8 +378,8 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <script>
-function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">';}
-function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">';}
+function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
+function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
 
 const cities=[{n:'Москва',t:'Столица событий',cnt:'3 200+',h:185,s:1},{n:'Санкт-Петербург',t:'Дворцы и лофты',cnt:'2 100+',h:195,s:2},{n:'Казань',t:'Столица Поволжья',cnt:'780+',h:18,s:3},{n:'Сочи',t:'Море и горы',cnt:'540+',h:170,s:4},{n:'Екатеринбург',t:'Центр Урала',cnt:'620+',h:15,s:5},{n:'Новосибирск',t:'Сердце Сибири',cnt:'480+',h:210,s:6},{n:'Краснодар',t:'Южный простор',cnt:'410+',h:160,s:7},{n:'Нижний Новгород',t:'Особняки и залы',cnt:'350+',h:200,s:8}];
 
@@ -389,8 +393,8 @@ let compareSet=new Set();
 function toggleCompare(id,btn){if(compareSet.has(id)){compareSet.delete(id);btn.classList.remove('cmp-on');}else if(compareSet.size<4){compareSet.add(id);btn.classList.add('cmp-on');}document.getElementById('cbCount').textContent=compareSet.size;document.getElementById('compareBar').classList.toggle('show',compareSet.size>0);}
 function clearCompare(){compareSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
 
-function bigCard(v){return '<div class="venue-card"><div class="venue-thumb">'+venueIll(v.h,v.s)+'<div class="venue-badges"><span class="venue-badge type">'+v.b+'</span>'+(v.pr?'<span class="venue-badge premium">Premium</span>':'')+'</div><div class="venue-actions"><button class="va-btn" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="va-btn" title="Избранное">'+ic.heart+'</button></div></div><div class="venue-body"><div class="venue-name">'+v.n+'</div><div class="venue-loc">'+ic.pin+v.c+'</div><div class="venue-stats"><div class="venue-stat">'+ic.usr+'до '+v.g+'</div><div class="venue-stat">'+ic.area+v.a+' м²</div></div><div class="venue-bottom"><div class="venue-price">от <strong>'+v.p+'</strong> <span>/ день</span></div><button class="venue-cta" onclick="window.location.href=\'venue.html\'">Подробнее</button></div></div></div>';}
-function smallCard(v){return '<div class="m-card"><div class="m-thumb">'+venueIll(v.h,v.s)+'<div class="m-badges"><span class="m-badge type">'+v.b+'</span>'+(v.pr?'<span class="m-badge premium">Premium</span>':'')+'</div><div class="m-acts"><button class="m-act" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="m-act" title="♡">'+ic.heart+'</button></div></div><div class="m-body"><div class="m-name">'+v.n+'</div><div class="m-loc">'+ic.pin+v.c+'</div><div class="m-row"><div class="m-price">от <strong>'+v.p+'</strong></div></div></div></div>';}
+function bigCard(v){return '<div class="venue-card"><div class="venue-thumb">'+venueIll(v.h,v.s)+'<div class="venue-badges"><span class="venue-badge type">'+v.b+'</span>'+(v.pr?'<span class="venue-badge premium">Premium</span>':'')+'</div><div class="venue-actions"><button class="va-btn" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="va-btn" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="venue-body"><div class="venue-name">'+v.n+'</div><div class="venue-loc">'+ic.pin+v.c+'</div><div class="venue-stats"><div class="venue-stat">'+ic.usr+'до '+v.g+'</div><div class="venue-stat">'+ic.area+v.a+' м²</div></div><div class="venue-bottom"><div class="venue-price">от <strong>'+v.p+'</strong> <span>/ день</span></div><button class="venue-cta" onclick="window.location.href=\'venue.html\'">Подробнее</button></div></div></div>';}
+function smallCard(v){return '<div class="m-card"><div class="m-thumb">'+venueIll(v.h,v.s)+'<div class="m-badges"><span class="m-badge type">'+v.b+'</span>'+(v.pr?'<span class="m-badge premium">Premium</span>':'')+'</div><div class="m-acts"><button class="m-act" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="m-act" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="m-body"><div class="m-name">'+v.n+'</div><div class="m-loc">'+ic.pin+v.c+'</div><div class="m-row"><div class="m-price">от <strong>'+v.p+'</strong></div></div></div></div>';}
 
 // Render cities
 const cEl=document.getElementById('cityScroll');
@@ -398,7 +402,7 @@ cities.forEach(c=>{const d=document.createElement('div');d.className='city-card'
 
 // Render events
 const tw=document.getElementById('eTabs'),gw=document.getElementById('eGroups');
-groups.forEach((g,i)=>{tw.innerHTML+='<div class="event-tab'+(i===0?' active':'')+'" data-g="'+g.id+'">'+g.emoji+g.label+'</div>';gw.innerHTML+='<div class="event-group'+(i===0?' active':'')+'" data-g="'+g.id+'"><div class="event-group-header"><div><div class="event-group-title">'+g.title+'</div><div class="event-group-count">'+g.total+' площадок</div></div><a href="search.html?type='+encodeURIComponent(g.id)+'" class="event-group-link">Все '+ic.chev+'</a></div><div class="venue-scroll">'+g.v.map(v=>bigCard(v)).join('')+'</div></div>';});
+groups.forEach((g,i)=>{tw.insertAdjacentHTML('beforeend','<div class="event-tab'+(i===0?' active':'')+'" data-g="'+g.id+'">'+g.emoji+g.label+'</div>');gw.insertAdjacentHTML('beforeend','<div class="event-group'+(i===0?' active':'')+'" data-g="'+g.id+'"><div class="event-group-header"><div><div class="event-group-title">'+g.title+'</div><div class="event-group-count">'+g.total+' площадок</div></div><a href="search.html?type='+encodeURIComponent(g.id)+'" class="event-group-link">Все '+ic.chev+'</a></div><div class="venue-scroll">'+g.v.map(v=>bigCard(v)).join('')+'</div></div>');});
 document.querySelectorAll('.event-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.event-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.event-group').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelector('.event-group[data-g="'+t.dataset.g+'"]').classList.add('active');});});
 
 // Dropdowns
@@ -463,6 +467,6 @@ const obs=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting){
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
 <script src="shared.js"></script>
-<script>MH.init();</script>
+<script>MH.init();document.querySelectorAll('[data-fav]').forEach(b=>{if(MH.isFav(+b.dataset.fav))b.classList.add('fav-on');});</script>
 </body>
 </html>

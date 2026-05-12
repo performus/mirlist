@@ -624,7 +624,7 @@ MH.init('map');
 /* ══════ SVG GENERATORS ══════ */
 function venueIll(h,s){
   const n=((s-1)%16)+1;
-  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;">`;
+  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">`;
 }
 
 /* ══════ DATA ══════ */
@@ -661,7 +661,7 @@ const cmpSet = new Set();
 const grid = document.getElementById('listGrid');
 function openVenue(id) { window.location.href = 'venue.html?id=' + id; }
 venues.forEach(v => {
-  grid.innerHTML += `
+  grid.insertAdjacentHTML('beforeend', `
   <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()" onclick="openVenue(${v.s})">
     <div class="v-img">
       ${venueIll(v.h,v.s)}
