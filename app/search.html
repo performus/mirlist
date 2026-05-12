@@ -618,7 +618,9 @@ button { font-family:inherit; cursor:pointer; }
   <button onclick="cmpSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('cmpBar').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;">✕</button>
 </div>
 
+<script src="shared.js"></script>
 <script>
+MH.init('map');
 /* ══════ SVG GENERATORS ══════ */
 function venueIll(h,s){
   return `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
@@ -826,7 +828,5 @@ function clearPinHighlight() {
   }
 })();
 </script>
-<script src="shared.js"></script>
-<script>MH.init('map');</script>
 </body>
 </html>
