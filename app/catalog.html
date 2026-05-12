@@ -41,7 +41,7 @@ button{font-family:inherit;cursor:pointer;}
   display:flex;align-items:center;gap:6px;padding:6px 14px;
   border-radius:var(--rf);border:1.5px solid var(--sp);background:var(--w);
   font-size:13px;font-weight:500;color:var(--sx);white-space:nowrap;
-  transition:all .2s;flex-shrink:0;
+  transition:border-color .2s,color .2s,background .2s;flex-shrink:0;
 }
 .tb-chip:hover{border-color:var(--c);color:var(--c);}
 .tb-chip.active{background:var(--cs);border-color:var(--c);color:var(--c);font-weight:600;}
@@ -66,7 +66,7 @@ button{font-family:inherit;cursor:pointer;}
 .cat-chip{
   padding:5px 14px;border-radius:var(--rf);font-size:12.5px;font-weight:500;
   color:var(--sx);border:none;background:none;white-space:nowrap;
-  transition:all .2s;flex-shrink:0;
+  transition:background .2s,color .2s;flex-shrink:0;
 }
 .cat-chip:hover{background:var(--aq-p);color:var(--sm);}
 .cat-chip.active{background:var(--cs);color:var(--c);font-weight:600;}
@@ -142,11 +142,11 @@ button{font-family:inherit;cursor:pointer;}
 /* ── VENUE CARD ── */
 .v-card{
   background:var(--w);border-radius:var(--rl);overflow:hidden;
-  box-shadow:var(--sh);transition:all .3s cubic-bezier(.22,1,.36,1);cursor:pointer;
+  box-shadow:var(--sh);transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s;cursor:pointer;will-change:transform;
 }
 .v-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
 .v-thumb{position:relative;height:190px;overflow:hidden;}
-.v-thumb>img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1);}
+.v-thumb>img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1);will-change:transform;}
 .v-card:hover .v-thumb>img{transform:scale(1.05);}
 /* badges top-left */
 .v-badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;}
