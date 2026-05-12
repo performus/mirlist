@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Каталог площадок — МирХАБ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
+  --aq:#79B9C3;--aq-p:#EDF6F5;
+  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
+  --bg:#F8F5F2;--w:#FFF;
+  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);
+  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
+body.has-mh-nav{padding-top:64px;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+/* ── TOP FILTER BAR ── */
+.top-bar{
+  background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);
+  padding:0 24px;display:flex;align-items:center;gap:8px;height:52px;overflow-x:auto;
+  scrollbar-width:none;flex-shrink:0;
+}
+.top-bar::-webkit-scrollbar{display:none;}
+.tb-chip{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:var(--rf);border:1.5px solid var(--sp);background:var(--w);
+  font-size:13px;font-weight:500;color:var(--sx);white-space:nowrap;
+  transition:all .2s;flex-shrink:0;
+}
+.tb-chip:hover{border-color:var(--c);color:var(--c);}
+.tb-chip.active{background:var(--cs);border-color:var(--c);color:var(--c);font-weight:600;}
+.tb-sep{width:1px;height:20px;background:rgba(197,227,225,.4);flex-shrink:0;margin:0 4px;}
+.tb-search{
+  display:flex;align-items:center;gap:8px;padding:6px 14px;
+  border-radius:var(--rf);border:1.5px solid var(--sp);background:var(--w);
+  font-size:13px;color:var(--sx);white-space:nowrap;flex-shrink:0;
+  transition:border-color .2s;
+}
+.tb-search:hover{border-color:var(--aq);}
+.tb-search svg{opacity:.55;}
+
+/* ── CATEGORY CHIPS ── */
+.cat-bar{
+  background:var(--w);border-bottom:1px solid rgba(197,227,225,.2);
+  padding:0 24px;display:flex;align-items:center;gap:8px;height:44px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-chip{
+  padding:5px 14px;border-radius:var(--rf);font-size:12.5px;font-weight:500;
+  color:var(--sx);border:none;background:none;white-space:nowrap;
+  transition:all .2s;flex-shrink:0;
+}
+.cat-chip:hover{background:var(--aq-p);color:var(--sm);}
+.cat-chip.active{background:var(--cs);color:var(--c);font-weight:600;}
+
+/* ── MAIN LAYOUT ── */
+.main{display:flex;min-height:calc(100vh - 160px);}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:236px;flex-shrink:0;background:var(--w);
+  border-right:1px solid rgba(197,227,225,.3);
+  padding:20px 0;overflow-y:auto;
+  position:sticky;top:160px;align-self:flex-start;
+  max-height:calc(100vh - 160px);scrollbar-width:thin;
+  scrollbar-color:var(--sp) transparent;
+}
+.sb-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px 16px;border-bottom:1px solid rgba(197,227,225,.25);margin-bottom:4px;
+}
+.sb-title{font-size:14px;font-weight:700;color:var(--sd);letter-spacing:.02em;}
+.sb-reset{font-size:12px;color:var(--sx);background:none;border:none;cursor:pointer;transition:color .2s;}
+.sb-reset:hover{color:var(--c);}
+
+.sb-group{padding:16px 18px;border-bottom:1px solid rgba(197,227,225,.18);}
+.sb-group-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sp);margin-bottom:12px;}
+
+.fd-check{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--sm);margin-bottom:10px;cursor:pointer;user-select:none;}
+.fd-check:last-child{margin-bottom:0;}
+.fd-check input{display:none;}
+.fd-box{
+  width:17px;height:17px;border-radius:4px;border:1.5px solid var(--sp);
+  background:var(--w);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.fd-check input:checked ~ .fd-box{background:var(--c);border-color:var(--c);}
+.fd-chk{opacity:0;transition:opacity .15s;}
+.fd-check input:checked ~ .fd-box .fd-chk{opacity:1;}
+
+.sb-range{padding:0;}
+.range-track{width:100%;accent-color:var(--c);cursor:pointer;height:4px;border-radius:2px;}
+.range-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sx);margin-top:8px;}
+.range-value{font-size:12.5px;font-weight:600;color:var(--sd);text-align:center;margin-bottom:10px;}
+
+.sb-apply{
+  margin:16px 18px 8px;width:calc(100% - 36px);
+  padding:12px;border-radius:var(--rm);border:none;
+  background:var(--c);color:#fff;font-size:13.5px;font-weight:600;
+  box-shadow:var(--shc);transition:background .2s;
+}
+.sb-apply:hover{background:var(--c6);}
+.sb-reset-full{display:block;text-align:center;font-size:12px;color:var(--sx);padding:4px;cursor:pointer;transition:color .2s;background:none;border:none;width:100%;}
+.sb-reset-full:hover{color:var(--c);}
+
+/* ── CONTENT ── */
+.content{flex:1;padding:20px 24px 48px;min-width:0;}
+.cards-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:10px;
+}
+.cards-count{font-size:14px;color:var(--sx);}
+.cards-count b{color:var(--sd);font-weight:700;}
+.sort-select{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:var(--rf);border:1.5px solid var(--sp);background:var(--w);
+  font-size:13px;font-weight:500;color:var(--sm);cursor:pointer;transition:border-color .2s;
+}
+.sort-select:hover{border-color:var(--aq);}
+.sort-select svg{opacity:.55;}
+
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+/* ── VENUE CARD ── */
+.v-card{
+  background:var(--w);border-radius:var(--rl);overflow:hidden;
+  box-shadow:var(--sh);transition:all .3s cubic-bezier(.22,1,.36,1);cursor:pointer;
+}
+.v-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
+.v-thumb{position:relative;height:190px;overflow:hidden;}
+.v-thumb>svg,
+.v-thumb>div:first-child{width:100%;height:100%;}
+/* badges top-left */
+.v-badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;}
+.v-badge{
+  padding:5px 12px;border-radius:var(--rf);
+  background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+  font-size:11.5px;font-weight:600;color:var(--sd);
+}
+.v-badge.premium{background:var(--c);color:#fff;}
+/* icon buttons top-right */
+.v-tr{position:absolute;top:10px;right:10px;display:flex;gap:6px;}
+.v-tr-cmp{
+  width:34px;height:34px;border-radius:50%;border:none;
+  background:var(--sd);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);transition:all .2s;
+}
+.v-tr-cmp:hover{background:var(--sm);transform:scale(1.08);}
+.v-tr-cmp.on{background:var(--c);}
+.v-tr-fav{
+  width:34px;height:34px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.92);color:var(--sp);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);transition:all .2s;
+}
+.v-tr-fav:hover{background:#fff;color:var(--c);}
+.v-tr-fav.on{color:var(--c);}
+.v-body{padding:14px 14px 16px;}
+.v-name{font-size:15px;font-weight:700;color:var(--sd);margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.v-loc{font-size:12.5px;color:var(--sx);margin-bottom:10px;
+  display:flex;align-items:center;gap:4px;}
+.v-meta{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.v-meta-item{display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--sx);}
+.v-meta-item svg{opacity:.65;flex-shrink:0;}
+.v-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.v-price{font-size:12px;color:var(--sx);white-space:nowrap;}
+.v-price strong{font-size:17px;font-weight:800;color:var(--sd);}
+.v-btn-pair{display:flex;gap:6px;}
+.v-btn{
+  padding:8px 14px;border-radius:var(--rf);border:none;
+  background:var(--aq-p);font-size:12.5px;font-weight:600;color:var(--sm);
+  transition:all .2s;white-space:nowrap;
+}
+.v-btn:hover{background:var(--aqua,#D9ECEB);color:var(--sd);}
+
+/* ── COMPARE BAR ── */
+.compare-bar{
+  position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);z-index:300;
+  background:var(--sd);color:#fff;padding:14px 28px;border-radius:var(--rf);
+  display:flex;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(53,78,99,.3);
+  transition:bottom .4s cubic-bezier(.22,1,.36,1);font-size:14px;font-weight:500;white-space:nowrap;
+}
+.compare-bar.show{bottom:28px;}
+.cb-count{background:var(--c);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+.compare-bar button{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:var(--rf);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.compare-bar button:hover{background:rgba(255,255,255,.25);}
+.cb-clear{background:none!important;border:none!important;color:rgba(255,255,255,.55)!important;padding:7px 8px!important;}
+
+/* ── FOOTER ── */
+.footer{background:var(--sd);color:rgba(255,255,255,.45);padding:40px 48px 24px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;max-width:1100px;margin:0 auto 28px;}
+.footer-brand p{font-size:13px;line-height:1.7;margin-top:10px;color:rgba(255,255,255,.3);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.22);margin-bottom:12px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:7px;transition:color .2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.18);}
+
+@media(max-width:1100px){.cards-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:860px){
+  .sidebar{display:none;}
+  .main{flex-direction:column;}
+  .cards-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:560px){.cards-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<!-- TOP FILTER BAR -->
+<div class="top-bar">
+  <button class="tb-chip active">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M6.5 1a3.5 3.5 0 100 7A3.5 3.5 0 006.5 1zM1 12c0-2.8 2.46-5 5.5-5s5.5 2.2 5.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    Москва
+    <svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2.5 4l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  </button>
+  <button class="tb-chip">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><rect x="1" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 1v2M9 1v2M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    Дата
+  </button>
+  <button class="tb-chip active">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="5.5" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 11.5c0-2.2 1.79-4 4-4M9 7.5v4M7 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    20–50 чел.
+  </button>
+  <button class="tb-chip">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 4.5v2l1.5 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    Цена
+  </button>
+  <div class="tb-sep"></div>
+  <div class="tb-search">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9 9l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    Поиск по названию
+  </div>
+</div>
+
+<!-- CATEGORY CHIPS -->
+<div class="cat-bar">
+  <button class="cat-chip active" onclick="filterCat(this,'all')">Конференции</button>
+  <button class="cat-chip" onclick="filterCat(this,'corp')">Корпоративы</button>
+  <button class="cat-chip" onclick="filterCat(this,'catering')">С кейтерингом</button>
+  <button class="cat-chip" onclick="filterCat(this,'center')">В центре</button>
+  <button class="cat-chip" onclick="filterCat(this,'corporate')">Для корпоратива</button>
+  <button class="cat-chip" onclick="filterCat(this,'loft')">Лофт</button>
+  <button class="cat-chip" onclick="filterCat(this,'view')">С панорамой</button>
+  <button class="cat-chip" onclick="filterCat(this,'parking')">Парковка</button>
+  <button class="cat-chip" onclick="filterCat(this,'outdoor')">Загородные</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <span class="sb-title">Фильтры</span>
+      <button class="sb-reset" onclick="resetFilters()">Сбросить</button>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-group-label">Тип площадки</div>
+      <label class="fd-check"><input type="checkbox" checked onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Конференц-зал</label>
+      <label class="fd-check"><input type="checkbox" checked onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Лофт</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ресторан</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Банкетный зал</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Коворкинг</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Галерея</label>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-group-label">Цена за день</div>
+      <div class="range-value" id="priceVal">до 100 000 ₽</div>
+      <input class="range-track" type="range" min="5000" max="200000" value="100000" oninput="updatePrice(this.value)">
+      <div class="range-labels"><span>5 000 ₽</span><span>200 000 ₽</span></div>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-group-label">Вместимость</div>
+      <div class="range-value" id="capVal">до 300 чел.</div>
+      <input class="range-track" type="range" min="10" max="1000" value="300" oninput="updateCap(this.value)">
+      <div class="range-labels"><span>10</span><span>1000</span></div>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-group-label">Услуги</div>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Wi-Fi</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Проектор</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Парковка</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Кейтеринг</label>
+      <label class="fd-check"><input type="checkbox" onchange="applyFilters()"><span class="fd-box"><svg class="fd-chk" width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Звук и свет</label>
+    </div>
+
+    <button class="sb-apply" onclick="applyFilters()">Показать <span id="countBtn">385</span> площадок</button>
+    <button class="sb-reset-full" onclick="resetFilters()">Сбросить фильтры</button>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="cards-header">
+      <div class="cards-count"><b id="countLabel">385</b> площадок найдено</div>
+      <button class="sort-select" onclick="toggleSort(this)">
+        По рейтингу
+        <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2 4.5l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div class="cb-count" id="cbCount">0</div>
+  <span>Сравнить площадки</span>
+  <button onclick="openCompare()">Сравнить</button>
+  <button class="cb-clear" onclick="clearCompare()">✕</button>
+</div>
+
+<!-- FOOTER -->
+<div id="mh-footer"></div>
+
+<script>
+/* ── VENUE DATA ── */
+const VENUES=[
+  {id:1,n:'Конференц-зал «Панорама»',loc:'Москва, Пресня',metro:'Выставочная',type:'Конференц-зал',area:380,cap:250,r:4.9,rv:127,p:'45 000',h:195,s:1,tags:['all','center','view']},
+  {id:2,n:'Лофт «Кирпич»',loc:'Москва, Курская',metro:'Курская',type:'Лофт',area:280,cap:100,r:4.6,rv:112,p:'28 000',h:20,s:2,tags:['all','loft','catering']},
+  {id:3,n:'Усадьба «Белые ночи»',loc:'Москва, Рублёвка',metro:null,type:'Банкетный зал',area:450,cap:150,r:4.9,rv:203,p:'95 000',h:25,s:3,tags:['all','outdoor','catering']},
+  {id:4,n:'Ресторан «Терракота»',loc:'Москва, Патриаршие',metro:'Маяковская',type:'Ресторан',area:120,cap:60,r:4.8,rv:156,p:'35 000',h:15,s:4,tags:['all','center','catering']},
+  {id:5,n:'Коворкинг Space One',loc:'Москва, Сити',metro:'Деловой центр',type:'Коворкинг',area:90,cap:40,r:4.8,rv:63,p:'8 000',h:180,s:5,tags:['all','center','corporate']},
+  {id:6,n:'Галерея «Арт-холл»',loc:'Москва, Винзавод',metro:'Курская',type:'Галерея',area:320,cap:120,r:4.7,rv:88,p:'50 000',h:280,s:6,tags:['all','loft','view']},
+  {id:7,n:'Бизнес-лофт Level Up',loc:'Москва, Нижегородская',metro:'Авиамоторная',type:'Лофт',area:200,cap:80,r:4.5,rv:74,p:'18 000',h:42,s:7,tags:['all','loft','corporate']},
+  {id:8,n:'Зал «Меридиан»',loc:'Москва, Калужская',metro:'Калужская',type:'Конференц-зал',area:500,cap:350,r:4.8,rv:196,p:'65 000',h:220,s:8,tags:['all','center','parking']},
+  {id:9,n:'Meeting Point Arena',loc:'Москва, Сокольники',metro:'Сокольники',type:'Конференц-зал',area:600,cap:400,r:4.6,rv:142,p:'80 000',h:165,s:9,tags:['all','corporate','parking']},
+  {id:10,n:'Центр «Высота»',loc:'Москва, Павелецкая',metro:'Павелецкая',type:'Лофт',area:240,cap:90,r:4.7,rv:91,p:'32 000',h:58,s:10,tags:['all','view','loft']},
+  {id:11,n:'Ресторан La Terrasse',loc:'Москва, Остоженка',metro:'Кропоткинская',type:'Ресторан',area:140,cap:70,r:4.9,rv:211,p:'55 000',h:8,s:11,tags:['all','center','catering','view']},
+  {id:12,n:'Клуб «Бункер»',loc:'Москва, Электрозаводская',metro:'Электрозаводская',type:'Лофт',area:350,cap:200,r:4.4,rv:55,p:'22 000',h:300,s:12,tags:['all','loft','parking']},
+];
+
+/* ── ILLUSTRATED THUMBNAIL ── */
+function vIll(h,s){
+  const h2=(h+30)%360,h3=(h+60)%360;
+  return `<svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="175" fill="hsl(${h},20%,89%)"/>
+    <defs><linearGradient id="g${s}" x1="0" y1="0" x2="400" y2="175"><stop stop-color="hsl(${h},28%,85%)" offset="0"/><stop stop-color="hsl(${h2},22%,80%)" offset="1"/></linearGradient></defs>
+    <rect width="400" height="175" fill="url(#g${s})"/>
+    <rect x="0" y="110" width="400" height="65" fill="hsl(${h},24%,83%)" opacity=".4"/>
+    <rect x="30" y="20" width="90" height="130" rx="4" fill="hsl(${h},22%,80%)" opacity=".5"/>
+    <rect x="140" y="35" width="70" height="115" rx="4" fill="hsl(${h2},18%,83%)" opacity=".5"/>
+    <rect x="230" y="45" width="60" height="105" rx="4" fill="hsl(${h3},20%,86%)" opacity=".45"/>
+    <rect x="308" y="28" width="72" height="122" rx="4" fill="hsl(${h},16%,88%)" opacity=".4"/>
+    <rect x="30" y="118" width="340" height="4" rx="2" fill="hsl(${h},20%,75%)" opacity=".35"/>
+  </svg>`;
+}
+
+/* ── ICONS ── */
+const IC={
+  pin:`<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M6 1a3.5 3.5 0 013.5 3.5C9.5 7 6 11 6 11S2.5 7 2.5 4.5A3.5 3.5 0 016 1z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
+  area:`<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M4 8l4-4M4 5h-1M7 8h1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>`,
+  cap:`<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><circle cx="5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 10.5c0-2.2 1.8-4 4-4M9.5 6v4M7.5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  star:`<svg width="12" height="12" fill="currentColor" viewBox="0 0 12 12"><path d="M6 1l1.55 3.14L11 4.69l-2.5 2.44.59 3.44L6 8.92l-3.09 1.65.59-3.44L1 4.69l3.45-.55z"/></svg>`,
+  heart:`<svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 12S1.5 8 1.5 4.5a3.5 3.5 0 017 0 3.5 3.5 0 017 0C15.5 8 7 12 7 12z" stroke="currentColor" stroke-width="1.3"/></svg>`,
+  cmp:`<svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 4h10M2 7h7M2 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+};
+
+/* ── COMPARE ── */
+let cmpSet=new Set();
+function toggleCmp(id,btn){
+  if(cmpSet.has(id)){cmpSet.delete(id);btn.classList.remove('on');}
+  else if(cmpSet.size<4){cmpSet.add(id);btn.classList.add('on');}
+  document.getElementById('cbCount').textContent=cmpSet.size;
+  document.getElementById('compareBar').classList.toggle('show',cmpSet.size>0);
+}
+function openCompare(){MH.go('compare.html?ids='+[...cmpSet].join(','));}
+function clearCompare(){cmpSet.clear();document.querySelectorAll('.v-cmp.on').forEach(b=>b.classList.remove('on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
+
+/* ── FAVORITES ── */
+function toggleFavBtn(id,btn){
+  const added=MH.toggleFav(id);
+  btn.classList.toggle('on',added);
+  btn.innerHTML=added?'<svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 12S1.5 8 1.5 4.5a3.5 3.5 0 017 0 3.5 3.5 0 017 0C15.5 8 7 12 7 12z" stroke="currentColor" stroke-width="1.3"/></svg>':IC.heart;
+}
+
+/* ── RENDER ── */
+let activeCat='all';
+function renderCards(list){
+  const grid=document.getElementById('cardsGrid');
+  const ICO_CMP=`<svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1" y="4" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 4V2.5a2 2 0 014 0V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4 9h3M4 11.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+  const ICO_FAV_OFF=`<svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M7.5 13S1.5 8.5 1.5 5a4 4 0 018 0 4 4 0 018 0C17.5 8.5 7.5 13 7.5 13z" stroke="currentColor" stroke-width="1.3"/></svg>`;
+  const ICO_FAV_ON=`<svg width="15" height="15" fill="currentColor" viewBox="0 0 15 15"><path d="M7.5 13S1.5 8.5 1.5 5a4 4 0 018 0 4 4 0 018 0C17.5 8.5 7.5 13 7.5 13z"/></svg>`;
+  grid.innerHTML=list.map(v=>{
+    const fav=MH.isFav(v.id);
+    const prem=v.r>=4.9;
+    return `
+    <div class="v-card" onclick="MH.go('venue.html')">
+      <div class="v-thumb">
+        ${vIll(v.h,v.s)}
+        <div class="v-badges">
+          <div class="v-badge">${v.type}</div>
+          ${prem?'<div class="v-badge premium">Premium</div>':''}
+        </div>
+        <div class="v-tr">
+          <button class="v-tr-cmp${cmpSet.has(v.id)?' on':''}" onclick="event.stopPropagation();toggleCmp(${v.id},this)" title="Сравнить">${ICO_CMP}</button>
+          <button class="v-tr-fav${fav?' on':''}" onclick="event.stopPropagation();toggleFavBtn(${v.id},this)" title="В избранное">${fav?ICO_FAV_ON:ICO_FAV_OFF}</button>
+        </div>
+      </div>
+      <div class="v-body">
+        <div class="v-name">${v.n}</div>
+        <div class="v-loc">${IC.pin} ${v.loc}${v.metro?` · ${v.metro}`:''}</div>
+        <div class="v-meta">
+          <div class="v-meta-item">${IC.cap} до ${v.cap} гостей</div>
+          <div class="v-meta-item">${IC.area} ${v.area} м²</div>
+          <div class="v-meta-item">${IC.star} <strong>${v.r}</strong> (${v.rv})</div>
+        </div>
+        <div class="v-foot">
+          <div class="v-price">от <strong>${v.p} ₽</strong></div>
+          <div class="v-btn-pair">
+            <button class="v-btn" onclick="event.stopPropagation();toggleCmp(${v.id},document.querySelector('.v-tr-cmp[data-id=\\'${v.id}\\']'))">Сравнить</button>
+            <button class="v-btn" onclick="event.stopPropagation();window.open('venue-presentation.html?ids=${v.id}','_blank')">Презентация</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const n=list.length;
+  const fake=n<12?Math.round(n*32+15):n*32;
+  document.getElementById('countLabel').textContent=fake;
+  document.getElementById('countBtn').textContent=fake;
+}
+
+function filterCat(btn,cat){
+  document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat=cat;
+  applyFilters();
+}
+
+function applyFilters(){
+  const filtered=activeCat==='all'?VENUES:VENUES.filter(v=>v.tags.includes(activeCat));
+  renderCards(filtered);
+}
+
+function resetFilters(){
+  document.querySelectorAll('.fd-check input').forEach(i=>{i.checked=false;});
+  document.querySelectorAll('.fd-check input')[0].checked=true;
+  document.querySelectorAll('.fd-check input')[1].checked=true;
+  document.getElementById('priceVal').textContent='до 100 000 ₽';
+  document.getElementById('capVal').textContent='до 300 чел.';
+  activeCat='all';
+  document.querySelectorAll('.cat-chip').forEach((b,i)=>b.classList.toggle('active',i===0));
+  applyFilters();
+}
+
+function updatePrice(v){
+  const n=parseInt(v);
+  document.getElementById('priceVal').textContent='до '+(n>=200000?'200 000+':n.toLocaleString('ru'))+' ₽';
+}
+function updateCap(v){
+  const n=parseInt(v);
+  document.getElementById('capVal').textContent='до '+(n>=1000?'1000+':n)+' чел.';
+}
+
+let sortAsc=false;
+function toggleSort(btn){
+  sortAsc=!sortAsc;
+  btn.firstChild.textContent=sortAsc?'По цене ↑':'По рейтингу';
+}
+
+/* ── INIT ── */
+applyFilters();
+</script>
+<script src="shared.js"></script>
+<script>MH.init('catalog');</script>
+</body>
+</html>

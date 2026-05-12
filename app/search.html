@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Площадки · Москва — поиск площадок на карте</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Aqua Coral Slate
+   ══════════════════════════════════════════════ */
+:root {
+  /* Coral */
+  --coral: #E98667;
+  --coral-hover: #D97757;
+  --coral-soft: #F6DDD3;
+  --coral-glow: rgba(233,134,103,.18);
+  /* Aqua */
+  --aqua-1: #D9ECEB;
+  --aqua-2: #C5E3E1;
+  --aqua-3: #A8D4D8;
+  --aqua-pale: #EDF6F5;
+  /* Slate */
+  --slate: #46627A;
+  --slate-mid: #3E596F;
+  --slate-deep: #354E63;
+  --slate-muted: #7A919F;
+  --slate-pale: #B4C3CC;
+  /* Warm */
+  --peach: #F6E6DE;
+  --bg: #F8F5F2;
+  --white: #FFFFFF;
+  /* Shadows & Radii */
+  --sh-sm: 0 1px 4px rgba(53,78,99,.05);
+  --sh-md: 0 4px 20px rgba(53,78,99,.07);
+  --sh-lg: 0 8px 40px rgba(53,78,99,.09);
+  --sh-coral: 0 4px 18px rgba(233,134,103,.22);
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 50px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { height:100%; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--slate);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body.has-mh-nav { padding-top: 0 !important; }
+body.has-mh-nav .page-wrap { padding-top: 64px; }
+a { text-decoration:none; color:inherit; }
+button { font-family:inherit; cursor:pointer; }
+
+/* ══════════════════════════════════════════════
+   PAGE ENTRY ANIMATION
+   ══════════════════════════════════════════════ */
+@keyframes pageIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.page-wrap { animation: pageIn .5s ease both; display:flex; flex-direction:column; height:100%; }
+
+/* ══════════════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════════════ */
+.header {
+  height: 64px;
+  padding: 0 28px;
+  display: flex; align-items:center; gap:32px;
+  background: var(--white);
+  border-bottom: 1px solid rgba(197,227,225,.35);
+  flex-shrink: 0;
+  z-index: 50;
+}
+.logo {
+  font-family:'DM Serif Display',serif;
+  font-size:24px; color:var(--slate-deep);
+  letter-spacing:-.4px; white-space:nowrap;
+}
+.logo i { font-style:normal; color:var(--coral); }
+
+.header-nav { display:flex; gap:6px; margin-left:16px; }
+.header-nav a {
+  font-size:13.5px; font-weight:500; color:var(--slate-muted);
+  padding:7px 16px; border-radius:var(--r-full);
+  transition: color .2s, background .2s;
+}
+.header-nav a:hover { color:var(--slate); background:var(--aqua-pale); }
+.header-nav a.active {
+  color:var(--coral); background:var(--coral-soft);
+  font-weight:600;
+}
+
+/* header search capsule */
+.header-search {
+  display:flex; align-items:center; gap:1px;
+  margin-left:auto;
+  background:var(--bg); border:1px solid rgba(197,227,225,.5);
+  border-radius:var(--r-full); padding:3px;
+}
+.hs-field {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 16px; font-size:13px; font-weight:500;
+  color:var(--slate); white-space:nowrap;
+  border-right:1px solid rgba(197,227,225,.4);
+  cursor:pointer; transition:background .15s;
+  border-radius:var(--r-full);
+}
+.hs-field:last-of-type { border-right:none; }
+.hs-field:hover { background:rgba(197,227,225,.25); }
+.hs-field svg { color:var(--slate-pale); flex-shrink:0; }
+.hs-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--coral); color:#fff; border:none;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s, box-shadow .2s;
+  box-shadow: var(--sh-coral);
+  flex-shrink:0;
+}
+.hs-btn:hover { background:var(--coral-hover); }
+
+/* ══════════════════════════════════════════════
+   CONTROL BAR
+   ══════════════════════════════════════════════ */
+.control-bar {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 28px;
+  background:var(--white);
+  border-bottom:1px solid rgba(197,227,225,.3);
+  flex-shrink:0; flex-wrap:wrap;
+  z-index:40;
+}
+
+.filter-toggle {
+  display:flex; align-items:center; gap:7px;
+  padding:9px 20px; border-radius:var(--r-full);
+  font-size:13.5px; font-weight:600;
+  border:1.5px solid var(--slate-pale);
+  background:var(--white); color:var(--slate);
+  transition:all .2s;
+}
+.filter-toggle:hover { border-color:var(--coral); color:var(--coral); }
+.filter-toggle.open { background:var(--slate-deep); color:#fff; border-color:var(--slate-deep); }
+.filter-toggle .ft-count {
+  width:20px; height:20px; border-radius:50%;
+  background:var(--coral); color:#fff;
+  font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.cb-sep { width:1px; height:24px; background:var(--slate-pale); opacity:.35; margin:0 4px; }
+
+/* quick search fields in bar */
+.bar-field {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:var(--r-full);
+  font-size:13px; font-weight:500;
+  border:1.5px solid rgba(197,227,225,.45);
+  background:var(--white); color:var(--slate);
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.bar-field:hover { border-color:var(--aqua-3); background:var(--aqua-pale); }
+.bar-field.active { border-color:var(--slate); background:var(--aqua-pale); font-weight:600; }
+.bar-field svg { color:var(--slate-pale); }
+
+/* chips */
+.chip-scroll {
+  display:flex; gap:7px; overflow-x:auto; scrollbar-width:none;
+  padding:2px 0; margin-left:6px;
+}
+.chip-scroll::-webkit-scrollbar { display:none; }
+.chip {
+  padding:7px 16px; border-radius:var(--r-full);
+  font-size:12.5px; font-weight:500;
+  background:var(--aqua-pale); color:var(--slate-mid);
+  border:1.5px solid transparent;
+  white-space:nowrap; cursor:pointer;
+  transition:all .2s;
+}
+.chip:hover { background:var(--aqua-2); color:var(--slate-deep); }
+.chip.active { background:var(--coral-soft); color:var(--coral); border-color:var(--coral-soft); font-weight:600; }
+
+.bar-right {
+  margin-left:auto; display:flex; align-items:center; gap:12px;
+  white-space:nowrap;
+}
+.result-count {
+  font-size:13px; color:var(--slate-muted); font-weight:500;
+}
+.result-count b { color:var(--slate); font-weight:700; }
+
+.sort-btn {
+  display:flex; align-items:center; gap:5px;
+  padding:8px 14px; border-radius:var(--r-full);
+  font-size:12.5px; font-weight:500;
+  background:var(--bg); color:var(--slate-muted);
+  border:1px solid rgba(197,227,225,.4);
+  transition:all .2s;
+}
+.sort-btn:hover { color:var(--slate); border-color:var(--slate-pale); }
+
+/* ══════════════════════════════════════════════
+   MAIN SPLIT: LIST + MAP
+   ══════════════════════════════════════════════ */
+.main { display:flex; flex:1; overflow:hidden; position:relative; }
+
+/* ── FILTER DRAWER ── */
+.filter-drawer {
+  width:0; overflow:hidden; flex-shrink:0;
+  background:var(--white); border-right:1px solid rgba(197,227,225,.25);
+  transition:width .4s cubic-bezier(.22,1,.36,1);
+  display:flex; flex-direction:column;
+}
+.filter-drawer.open { width:290px; }
+.fd-inner { width:290px; padding:24px 22px; overflow-y:auto; flex:1; }
+.fd-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.fd-title { font-family:'DM Serif Display',serif; font-size:20px; color:var(--slate-deep); }
+.fd-close {
+  width:30px; height:30px; border-radius:50%;
+  border:1.5px solid var(--slate-pale); background:var(--white);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--slate-muted); transition:all .2s; cursor:pointer;
+}
+.fd-close:hover { border-color:var(--coral); color:var(--coral); }
+
+.fd-section { margin-bottom:26px; }
+.fd-label { font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-muted); margin-bottom:12px; }
+.fd-checks { display:flex; flex-direction:column; gap:6px; }
+.fd-check {
+  display:flex; align-items:center; gap:10px;
+  font-size:13.5px; color:var(--slate-mid);
+  padding:8px 12px; border-radius:var(--r-sm);
+  cursor:pointer; transition:background .15s;
+}
+.fd-check:hover { background:var(--aqua-pale); }
+.fd-check input { display:none; }
+.fd-box {
+  width:20px; height:20px; border-radius:6px;
+  border:1.5px solid var(--slate-pale);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s; flex-shrink:0;
+}
+.fd-check input:checked ~ .fd-box { background:var(--coral); border-color:var(--coral); }
+.fd-check input:checked ~ .fd-box svg { opacity:1; }
+.fd-box svg { opacity:0; transition:opacity .15s; }
+
+.fd-range { margin-top:6px; }
+.fd-range input[type=range] {
+  width:100%; -webkit-appearance:none; height:4px;
+  border-radius:2px; background:var(--aqua-2); outline:none;
+}
+.fd-range input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:18px; height:18px;
+  border-radius:50%; background:var(--coral); cursor:pointer;
+  box-shadow:0 2px 8px rgba(233,134,103,.3);
+}
+.fd-range-row { display:flex; justify-content:space-between; font-size:12px; color:var(--slate-muted); margin-top:6px; }
+
+.fd-apply {
+  width:100%; padding:14px; border-radius:var(--r-md);
+  background:var(--coral); color:#fff; border:none;
+  font-size:14.5px; font-weight:600;
+  transition:background .25s; box-shadow:var(--sh-coral);
+}
+.fd-apply:hover { background:var(--coral-hover); }
+.fd-reset {
+  width:100%; padding:10px; border-radius:var(--r-md);
+  background:none; color:var(--slate-muted); border:none;
+  font-size:13px; font-weight:500; margin-top:8px;
+  transition:color .2s;
+}
+.fd-reset:hover { color:var(--coral); }
+
+/* ── VENUE LIST ── */
+.list-panel {
+  width:52%; min-width:420px;
+  overflow-y:auto; padding:24px 24px 40px;
+  scrollbar-width:thin; scrollbar-color:var(--slate-pale) transparent;
+  transition:width .4s;
+}
+.filter-drawer.open ~ .list-panel { width:calc(52% - 145px); min-width:320px; }
+
+.list-grid {
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:18px;
+}
+
+/* Venue card */
+.v-card {
+  border-radius:var(--r-lg); overflow:hidden;
+  background:var(--white);
+  border:1px solid rgba(197,227,225,.18);
+  transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s, border-color .2s;
+  cursor:pointer; position:relative;
+}
+.v-card:hover { transform:translateY(-4px); box-shadow:var(--sh-lg); }
+.v-card.pin-highlight { border-color:var(--coral); box-shadow:0 0 0 2px rgba(232,132,106,.25),var(--sh-lg); transform:translateY(-4px); }
+.map-pin.pin-active { z-index:6; transform:translate(-50%,-100%) scale(1.22); }
+.map-pin.pin-active .pin-body { background:var(--slate-deep); }
+.map-pin.pin-active .pin-body::after { border-top-color:var(--slate-deep); }
+.map-pin.pin-active .pin-label { opacity:1; }
+
+.v-img { width:100%; height:160px; position:relative; overflow:hidden; }
+.v-img svg { width:100%; height:100%; transition:transform .5s cubic-bezier(.22,1,.36,1); }
+.v-card:hover .v-img svg { transform:scale(1.05); }
+
+.v-tags { position:absolute; top:10px; left:10px; display:flex; gap:5px; z-index:1; }
+.v-tag {
+  padding:4px 10px; border-radius:var(--r-full);
+  font-size:10.5px; font-weight:600;
+  backdrop-filter:blur(10px);
+}
+.v-tag.cat { background:rgba(255,255,255,.88); color:var(--slate); }
+.v-tag.prem { background:rgba(233,134,103,.9); color:#fff; }
+
+.v-actions { position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:1; }
+.v-act-cmp {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--slate-deep); backdrop-filter:blur(8px);
+  border:none; display:flex; align-items:center; justify-content:center;
+  color:#fff; transition:all .2s;
+}
+.v-act-cmp:hover { background:var(--slate-mid); transform:scale(1.08); }
+.v-act-cmp.cmp-on { background:var(--coral)!important; }
+.v-act-fav {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+  border:none; display:flex; align-items:center; justify-content:center;
+  color:var(--slate-pale); transition:all .2s;
+}
+.v-act-fav:hover { background:#fff; color:var(--coral); transform:scale(1.08); }
+.v-act-fav.fav-on { color:var(--coral); }
+
+.v-body { padding:14px 16px 16px; }
+.v-name { font-size:15px; font-weight:700; color:var(--slate-deep); margin-bottom:4px; letter-spacing:-.15px; }
+.v-loc { font-size:12.5px; color:var(--slate-muted); display:flex; align-items:center; gap:4px; margin-bottom:12px; }
+.v-loc svg { opacity:.45; flex-shrink:0; }
+
+.v-meta { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.v-meta-item { font-size:12.5px; color:var(--slate-muted); display:flex; align-items:center; gap:4px; }
+.v-meta-item svg { color:var(--aqua-3); }
+.v-rating { display:flex; align-items:center; gap:3px; }
+.v-rating svg { color:#F0B95A; }
+.v-rating b { font-size:12.5px; font-weight:700; color:var(--slate-deep); }
+.v-rating span { font-size:11.5px; color:var(--slate-muted); }
+
+.v-foot { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid rgba(197,227,225,.22); gap:8px; }
+.v-price { font-size:12px; color:var(--slate-muted); white-space:nowrap; }
+.v-price strong { font-size:16px; font-weight:800; color:var(--slate-deep); }
+.v-btn-pair { display:flex; gap:6px; }
+.v-cta {
+  padding:8px 14px; border-radius:var(--r-full);
+  font-size:12.5px; font-weight:600;
+  background:var(--aqua-pale); color:var(--slate);
+  border:none; transition:all .2s; white-space:nowrap;
+}
+.v-cta:hover { background:var(--aqua-1); color:var(--slate-deep); }
+.v-cta:hover { background:var(--coral); color:#fff; border-color:var(--coral); }
+
+/* ── MAP ── */
+.map-panel {
+  flex:1; position:relative;
+  background:var(--aqua-pale);
+  border-left:1px solid rgba(197,227,225,.25);
+  overflow:hidden;
+  transition:flex .4s;
+}
+.map-panel.expanded { flex:3; }
+
+.map-canvas { width:100%; height:100%; position:relative; }
+.map-bg { width:100%; height:100%; }
+
+.map-pin {
+  position:absolute; transform:translate(-50%,-100%);
+  cursor:pointer; transition:all .3s; z-index:3;
+}
+.map-pin:hover { z-index:5; transform:translate(-50%,-100%) scale(1.18); }
+.pin-body {
+  display:flex; align-items:center; gap:0;
+  background:var(--coral); color:#fff;
+  padding:6px 12px 6px 10px; border-radius:var(--r-full);
+  font-size:11.5px; font-weight:700;
+  box-shadow:var(--sh-coral);
+  white-space:nowrap;
+  position:relative;
+}
+.pin-body::after {
+  content:''; position:absolute;
+  bottom:-6px; left:50%; transform:translateX(-50%);
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-top:7px solid var(--coral);
+}
+.pin-body svg { margin-right:4px; flex-shrink:0; }
+.pin-label {
+  position:absolute; bottom:calc(100% + 6px); left:50%;
+  transform:translateX(-50%);
+  background:var(--white); padding:5px 12px; border-radius:8px;
+  font-size:11px; font-weight:600; color:var(--slate-deep);
+  white-space:nowrap; box-shadow:var(--sh-md);
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.map-pin:hover .pin-label { opacity:1; }
+
+/* map controls */
+.map-ctrls {
+  position:absolute; bottom:20px; right:20px; z-index:5;
+  display:flex; gap:8px;
+}
+.map-ctrl {
+  padding:10px 18px; border-radius:var(--r-full);
+  font-size:12.5px; font-weight:600;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
+  color:var(--slate); border:1.5px solid rgba(255,255,255,.8);
+  box-shadow:var(--sh-md);
+  display:flex; align-items:center; gap:7px;
+  transition:all .25s;
+}
+.map-ctrl:hover { background:#fff; box-shadow:var(--sh-lg); }
+
+.map-zoom {
+  position:absolute; bottom:20px; left:20px; z-index:5;
+  display:flex; flex-direction:column; gap:2px;
+  border-radius:12px; overflow:hidden; box-shadow:var(--sh-md);
+}
+.map-zoom button {
+  width:40px; height:40px; border:none;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+  color:var(--slate); font-size:18px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.map-zoom button:hover { background:#fff; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════ */
+@media(max-width:1100px) {
+  .list-panel { width:100%; min-width:0; }
+  .map-panel { display:none; }
+  .header-search { display:none; }
+}
+@media(max-width:768px) {
+  .header { padding:0 16px; gap:16px; }
+  .header-nav { gap:2px; }
+  .control-bar { padding:10px 16px; }
+  .list-panel { padding:16px; }
+  .list-grid { grid-template-columns:1fr; }
+  .filter-drawer.open { width:100%; position:absolute; z-index:60; height:100%; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ══════ HEADER ══════ -->
+<div id="mh-nav"></div>
+<header class="header" style="display:none">
+  <a class="logo" href="homepage.html">Площадки<i>.</i></a>
+  <nav class="header-nav">
+    <a href="list-venue.html">Каталог</a>
+    <a href="#" class="active">Карта</a>
+    <a href="for-organizers.html">Для бизнеса</a>
+  </nav>
+  <div class="header-search">
+    <div class="hs-field">
+      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 1a4.5 4.5 0 014.5 4.5c0 3.5-4.5 8-4.5 8S2.5 9 2.5 5.5A4.5 4.5 0 017 1z" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="5.5" r="1.3" stroke="currentColor" stroke-width="1.1"/></svg>
+      Москва
+    </div>
+    <div class="hs-field">
+      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="4" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V2.5a2 2 0 014 0V4" stroke="currentColor" stroke-width="1.2"/></svg>
+      Конференция
+    </div>
+    <div class="hs-field">
+      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      20–50
+    </div>
+    <button class="hs-btn">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="6.5" cy="6.5" r="4.5" stroke="#fff" stroke-width="1.8"/><path d="M10 10l3.5 3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ══════ CONTROL BAR ══════ -->
+<div class="control-bar">
+  <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">
+    <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3.5h11M4 7.5h7M5.5 11.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Фильтр
+    <span class="ft-count">3</span>
+  </button>
+
+  <div class="cb-sep"></div>
+
+  <button class="bar-field active">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M6.5 1a3.8 3.8 0 013.8 3.8c0 3-3.8 7-3.8 7S2.7 7.8 2.7 4.8A3.8 3.8 0 016.5 1z" stroke="currentColor" stroke-width="1.1"/></svg>
+    Москва
+  </button>
+  <button class="bar-field">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><rect x="1.5" y="1.5" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.1"/><path d="M1.5 5h10" stroke="currentColor" stroke-width="1.1"/><circle cx="4" cy="8" r=".7" fill="currentColor"/><circle cx="6.5" cy="8" r=".7" fill="currentColor"/></svg>
+    Дата
+  </button>
+  <button class="bar-field">
+    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="6.5" cy="5" r="2.2" stroke="currentColor" stroke-width="1.1"/><path d="M2.5 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.1"/></svg>
+    20–50 чел.
+  </button>
+  <button class="bar-field">💰 Цена</button>
+
+  <div class="cb-sep"></div>
+
+  <div class="chip-scroll">
+    <div class="chip active">Конференция</div>
+    <div class="chip">Недорого</div>
+    <div class="chip">С кейтерингом</div>
+    <div class="chip">В центре</div>
+    <div class="chip">Для корпоратива</div>
+    <div class="chip">Лофт</div>
+    <div class="chip">С панорамой</div>
+    <div class="chip">Парковка</div>
+  </div>
+
+  <div class="bar-right">
+    <span class="result-count"><b>380</b> площадок найдено</span>
+    <button class="sort-btn">
+      <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M2 4h9M2 6.5h6M2 9h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      По рейтингу
+    </button>
+  </div>
+</div>
+
+<!-- ══════ MAIN SPLIT ══════ -->
+<div class="main">
+
+  <!-- FILTER DRAWER -->
+  <aside class="filter-drawer" id="filterDrawer">
+    <div class="fd-inner">
+      <div class="fd-head">
+        <div class="fd-title">Фильтры</div>
+        <button class="fd-close" onclick="toggleFilter()">
+          <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="fd-section">
+        <div class="fd-label">Тип площадки</div>
+        <div class="fd-checks">
+          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Конференц-зал</label>
+          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Лофт</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ресторан</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Банкетный зал</label>
+          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Коворкинг</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Галерея</label>
+        </div>
+      </div>
+
+      <div class="fd-section">
+        <div class="fd-label">Цена за день</div>
+        <div class="fd-range">
+          <input type="range" min="5000" max="250000" value="90000">
+          <div class="fd-range-row"><span>5 000 ₽</span><span>250 000 ₽</span></div>
+        </div>
+      </div>
+
+      <div class="fd-section">
+        <div class="fd-label">Вместимость</div>
+        <div class="fd-range">
+          <input type="range" min="5" max="500" value="120">
+          <div class="fd-range-row"><span>5 чел.</span><span>500 чел.</span></div>
+        </div>
+      </div>
+
+      <div class="fd-section">
+        <div class="fd-label">Удобства</div>
+        <div class="fd-checks">
+          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Wi-Fi</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Проектор</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Парковка</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Кейтеринг</label>
+          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Звук и свет</label>
+        </div>
+      </div>
+
+      <button class="fd-apply" onclick="toggleFilter()">Показать 380 площадок</button>
+      <button class="fd-reset">Сбросить фильтры</button>
+    </div>
+  </aside>
+
+  <!-- VENUE LIST -->
+  <div class="list-panel" id="listPanel">
+    <div class="list-grid" id="listGrid"></div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-panel" id="mapPanel">
+    <div class="map-canvas" id="mapCanvas"></div>
+    <div class="map-zoom"><button>+</button><button>−</button></div>
+    <div class="map-ctrls">
+      <button class="map-ctrl" onclick="toggleMapExpand()">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M1.5 5V1.5H5M9 1.5h3.5V5M12.5 9v3.5H9M5 12.5H1.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="expandLabel">Развернуть</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page-wrap -->
+
+<!-- Compare bar -->
+<div id="cmpBar" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;background:#354E63;color:#fff;border-radius:50px;padding:12px 20px 12px 16px;display:none;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(53,78,99,.25);font-family:'Outfit',sans-serif;">
+  <span style="font-size:13px;font-weight:600;"><span id="cmpBarCount">0</span> площадки выбраны</span>
+  <button onclick="openCompare()" style="padding:8px 20px;border-radius:50px;background:#E8846A;border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Сравнить</button>
+  <button onclick="cmpSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('cmpBar').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;">✕</button>
+</div>
+
+<script>
+/* ══════ SVG GENERATORS ══════ */
+function venueIll(h,s){
+  return `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="200" fill="hsl(${h},20%,89%)"/>
+    <defs><linearGradient id="vg${s}" x1="0" y1="0" x2="400" y2="200">
+      <stop stop-color="hsl(${h},28%,85%)" offset="0"/>
+      <stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/>
+    </linearGradient></defs>
+    <rect width="400" height="200" fill="url(#vg${s})"/>
+    <rect x="25" y="55" width="350" height="110" rx="8" fill="hsl(${h},16%,93%)" opacity=".55"/>
+    <rect x="50" y="25" width="100" height="140" rx="5" fill="hsl(${h},22%,80%)" opacity=".5"/>
+    <rect x="170" y="40" width="80" height="125" rx="5" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/>
+    <rect x="270" y="50" width="70" height="115" rx="5" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/>
+    <circle cx="${85+(s*7%60)}" cy="145" r="20" fill="hsl(${h},28%,74%)" opacity=".3"/>
+    <circle cx="${200+(s*11%50)}" cy="140" r="15" fill="hsl(${(h+35)%360},22%,77%)" opacity=".25"/>
+    <rect x="35" y="170" width="330" height="30" rx="4" fill="hsl(${h},12%,85%)" opacity=".25"/>
+  </svg>`;
+}
+
+/* ══════ DATA ══════ */
+const venues = [
+  {n:'Конференц-зал «Панорама»',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,b:'Конференц-зал',pr:1,h:195,s:10,px:52,py:38},
+  {n:'Бизнес-лофт Level Up',c:'Москва, Арбат',g:80,a:150,p:'18 000 ₽',r:4.7,rv:84,b:'Лофт',h:205,s:11,px:45,py:42},
+  {n:'Коворкинг Space One',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,b:'Коворкинг',h:180,s:12,px:58,py:35},
+  {n:'Зал «Империя»',c:'Москва, Тверская',g:400,a:600,p:'65 000 ₽',r:4.6,rv:52,b:'Конференц-зал',pr:1,h:215,s:13,px:50,py:30},
+  {n:'Meeting Point Arena',c:'Москва, Павелецкая',g:120,a:200,p:'22 000 ₽',r:4.8,rv:91,b:'Выставка',h:190,s:14,px:55,py:52},
+  {n:'Центр «Высота»',c:'Москва, ВДНХ',g:180,a:320,p:'32 000 ₽',r:4.7,rv:38,b:'Конференц-зал',h:200,s:15,px:62,py:25},
+  {n:'Усадьба «Белые ночи»',c:'Москва, Рублёвка',g:150,a:450,p:'95 000 ₽',r:4.9,rv:203,b:'Банкетный',pr:1,h:25,s:20,px:28,py:40},
+  {n:'Ресторан «Терракота»',c:'Москва, Патриаршие',g:60,a:120,p:'35 000 ₽',r:4.8,rv:156,b:'Ресторан',h:15,s:21,px:47,py:44},
+  {n:'Лофт «Кирпич»',c:'Москва, Курская',g:100,a:280,p:'28 000 ₽',r:4.6,rv:112,b:'Лофт',h:20,s:23,px:57,py:46},
+  {n:'Галерея «Арт-холл»',c:'Москва, Винзавод',g:120,a:300,p:'50 000 ₽',r:4.8,rv:74,b:'Галерея',h:280,s:30,px:56,py:48},
+  {n:'Шеф-стол Blanc',c:'Москва, Тверская',g:12,a:40,p:'120 000 ₽',r:5.0,rv:34,b:'Частный ужин',pr:1,h:35,s:40,px:49,py:33},
+  {n:'Зал «Тишина»',c:'Москва, Якиманка',g:16,a:45,p:'25 000 ₽',r:4.9,rv:61,b:'Ресторан',h:25,s:42,px:52,py:55},
+  {n:'Terrasa Rooftop',c:'Москва, Красный Октябрь',g:90,a:180,p:'42 000 ₽',r:4.7,rv:88,b:'Лофт',h:170,s:50,px:48,py:48},
+  {n:'Студия «Формат»',c:'Москва, Бауманская',g:50,a:110,p:'12 000 ₽',r:4.5,rv:42,b:'Коворкинг',h:195,s:51,px:60,py:43},
+];
+
+const ic = {
+  pin:'<svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M5.5 1a3 3 0 013 3c0 2.5-3 6-3 6S2.5 6.5 2.5 4a3 3 0 013-3z" stroke="currentColor" stroke-width="1.1"/><circle cx="5.5" cy="4" r=".8" stroke="currentColor" stroke-width=".9"/></svg>',
+  usr:'<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M3.5 9a2.5 2.5 0 015 0M6 5.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" stroke="currentColor" stroke-width="1"/></svg>',
+  area:'<svg width="12" height="12" fill="none" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1"/></svg>',
+  star:'<svg width="11" height="11" fill="currentColor" viewBox="0 0 11 11"><path d="M5.5 0l1.7 3.45 3.8.55-2.75 2.68.65 3.79L5.5 8.75l-3.4 1.72.65-3.79L0 3.99l3.8-.54z"/></svg>',
+  heart:'<svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 12.5l-5.3-5a3 3 0 015.3-3.8 3 3 0 015.3 3.8L7 12.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  heartOn:'<svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 12.5l-5.3-5a3 3 0 015.3-3.8 3 3 0 015.3 3.8L7 12.5z"/></svg>',
+  cmp:'<svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1" y="3.5" width="12" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 3.5V2a2 2 0 014 0v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M4 8h3M4 10.5h5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>',
+  mapPin:'<svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M5 1a3 3 0 013 3c0 2-3 5-3 5S2 6 2 4a3 3 0 013-3z" fill="#fff" opacity=".9"/></svg>',
+};
+
+/* ══════ RENDER CARDS ══════ */
+const grid = document.getElementById('listGrid');
+venues.forEach(v => {
+  grid.innerHTML += `
+  <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()">
+    <div class="v-img">
+      ${venueIll(v.h,v.s)}
+      <div class="v-tags">
+        <span class="v-tag cat">${v.b}</span>
+        ${v.pr ? '<span class="v-tag prem">Premium</span>' : ''}
+      </div>
+      <div class="v-actions">
+        <button class="v-act-cmp${cmpSet.has(v.s)?' cmp-on':''}" title="Сравнить" onclick="toggleCmp(${v.s},this)">${ic.cmp}</button>
+        <button class="v-act-fav${MH.isFav(v.s)?' fav-on':''}" title="В избранное" onclick="toggleFavCard(${v.s},this)">${MH.isFav(v.s)?ic.heartOn:ic.heart}</button>
+      </div>
+    </div>
+    <div class="v-body">
+      <div class="v-name">${v.n}</div>
+      <div class="v-loc">${ic.pin} ${v.c}</div>
+      <div class="v-meta">
+        <span class="v-meta-item">${ic.usr} до ${v.g} гостей</span>
+        <span class="v-meta-item">${ic.area} ${v.a} м²</span>
+        <span class="v-rating">${ic.star} <b>${v.r}</b> <span>(${v.rv})</span></span>
+      </div>
+      <div class="v-foot">
+        <div class="v-price">от <strong>${v.p}</strong></div>
+        <div class="v-btn-pair">
+          <button class="v-cta" onclick="event.stopPropagation();toggleCmp(${v.s},this.closest('.v-card').querySelector('.v-act-cmp'))">Сравнить</button>
+          <button class="v-cta" onclick="event.stopPropagation();window.open('venue-presentation.html?ids=${v.s}','_blank')">Презентация</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+});
+
+/* ══════ RENDER MAP ══════ */
+const canvas = document.getElementById('mapCanvas');
+// Background SVG map
+canvas.innerHTML = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+  <rect width="100" height="100" fill="#EDF6F5"/>
+  <defs>
+    <linearGradient id="mg" x1="0" y1="0" x2="100" y2="100">
+      <stop stop-color="#E8F2F1" offset="0"/>
+      <stop stop-color="#D9ECEB" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" fill="url(#mg)"/>
+  <!-- Roads -->
+  <path d="M5 35 Q25 20 50 32 T95 28" stroke="#C5E3E1" stroke-width=".6" fill="none"/>
+  <path d="M10 55 Q30 45 50 52 T90 48" stroke="#C5E3E1" stroke-width=".5" fill="none"/>
+  <path d="M15 70 Q35 62 55 68 T85 65" stroke="#C5E3E1" stroke-width=".4" fill="none"/>
+  <path d="M35 5 Q40 30 38 55 T42 95" stroke="#C5E3E1" stroke-width=".5" fill="none"/>
+  <path d="M60 5 Q58 25 62 50 T58 95" stroke="#C5E3E1" stroke-width=".4" fill="none"/>
+  <!-- Parks -->
+  <ellipse cx="25" cy="60" rx="8" ry="6" fill="#C5E3E1" opacity=".35"/>
+  <ellipse cx="72" cy="35" rx="6" ry="5" fill="#C5E3E1" opacity=".3"/>
+  <ellipse cx="50" cy="75" rx="10" ry="4" fill="#C5E3E1" opacity=".25"/>
+  <!-- River -->
+  <path d="M0 45 Q20 42 40 48 T70 44 T100 50" stroke="#A8D4D8" stroke-width="1.2" fill="none" opacity=".5"/>
+  <!-- Blocks -->
+  ${Array.from({length:20},(_, i) => {
+    const x = 10 + (i*4.5 + (i*7)%15);
+    const y = 15 + ((i*11 + 3) % 65);
+    const w = 2 + (i%3);
+    const h = 1.5 + (i%2);
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".3" fill="#B4C3CC" opacity=".12"/>`;
+  }).join('')}
+</svg>`;
+
+// Pins
+venues.forEach((v, i) => {
+  const pin = document.createElement('div');
+  pin.className = 'map-pin';
+  pin.dataset.vid = v.s;
+  pin.style.left = v.px + '%';
+  pin.style.top = v.py + '%';
+  pin.innerHTML = `
+    <div class="pin-label">${v.n} · ${v.p}</div>
+    <div class="pin-body">${ic.mapPin}${v.p.replace('₽','').trim()}</div>
+  `;
+  pin.addEventListener('click', () => focusCard(v.s));
+  canvas.appendChild(pin);
+});
+
+/* ══════ INTERACTIONS ══════ */
+function toggleFilter() {
+  const d = document.getElementById('filterDrawer');
+  const t = document.getElementById('filterToggle');
+  d.classList.toggle('open');
+  t.classList.toggle('open');
+}
+
+let mapExpanded = false;
+function toggleMapExpand() {
+  mapExpanded = !mapExpanded;
+  document.getElementById('mapPanel').classList.toggle('expanded', mapExpanded);
+  document.getElementById('listPanel').style.display = mapExpanded ? 'none' : '';
+  document.getElementById('expandLabel').textContent = mapExpanded ? 'Список' : 'Развернуть';
+}
+
+// Chip toggle
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('active'));
+});
+
+// Favorites
+function toggleFavCard(id, btn) {
+  const added = MH.toggleFav(id);
+  btn.classList.toggle('fav-on', added);
+  btn.innerHTML = added ? ic.heartOn : ic.heart;
+}
+
+// Compare set
+const cmpSet = new Set();
+function toggleCmp(id, btn) {
+  if (cmpSet.has(id)) { cmpSet.delete(id); btn.classList.remove('cmp-on'); }
+  else if (cmpSet.size < 4) { cmpSet.add(id); btn.classList.add('cmp-on'); }
+  const bar = document.getElementById('cmpBar');
+  bar.style.display = cmpSet.size > 0 ? 'flex' : 'none';
+  document.getElementById('cmpBarCount').textContent = cmpSet.size;
+}
+function openCompare() { window.location.href = 'compare.html?ids=' + [...cmpSet].join(','); }
+
+// Pin ↔ card interaction
+function focusCard(vid) {
+  document.querySelectorAll('.v-card').forEach(c => c.classList.remove('pin-highlight'));
+  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
+  const card = document.querySelector(`.v-card[data-vid="${vid}"]`);
+  const pin = document.querySelector(`.map-pin[data-vid="${vid}"]`);
+  if (card) { card.classList.add('pin-highlight'); card.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  if (pin) pin.classList.add('pin-active');
+  setTimeout(() => {
+    if (card) card.classList.remove('pin-highlight');
+    if (pin) pin.classList.remove('pin-active');
+  }, 2000);
+}
+function highlightPin(vid) {
+  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
+  const pin = document.querySelector(`.map-pin[data-vid="${vid}"]`);
+  if (pin) pin.classList.add('pin-active');
+}
+function clearPinHighlight() {
+  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
+}
+
+// Read URL params and update bar fields
+(function() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('city')) {
+    const el = document.querySelector('.bar-field.active');
+    if (el) el.innerHTML = el.innerHTML.replace('Москва', p.get('city'));
+  }
+  if (p.get('type')) {
+    const chips = document.querySelectorAll('.chip');
+    chips.forEach(c => c.classList.remove('active'));
+    chips[0] && (chips[0].textContent = p.get('type')) && chips[0].classList.add('active');
+  }
+})();
+</script>
+<script src="shared.js"></script>
+<script>MH.init('map');</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сравнение площадок — Площадки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;--pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;--sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);--r:10px;--rm:14px;--rl:20px;--rf:50px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;color:var(--s);-webkit-font-smoothing:antialiased;background:var(--w);height:100vh;overflow:hidden;}
+button{font-family:inherit;cursor:pointer;}
+
+/* Overlay */
+.overlay{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;background:var(--w);animation:slideUp .45s cubic-bezier(.22,1,.36,1);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* Header */
+.cmp-header{height:68px;padding:0 32px;display:flex;align-items:center;gap:16px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);flex-shrink:0;z-index:10;}
+.cmp-close{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--sp);background:var(--w);display:flex;align-items:center;justify-content:center;color:var(--sx);transition:all .2s;flex-shrink:0;}
+.cmp-close:hover{border-color:var(--c);color:var(--c);}
+.cmp-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);flex:1;}
+.cmp-count{font-size:14px;color:var(--sx);font-weight:500;}
+.cmp-count b{color:var(--c);font-weight:700;}
+.cmp-actions{display:flex;gap:10px;}
+.cmp-btn{padding:10px 22px;border-radius:var(--rf);font-size:13.5px;font-weight:600;border:none;transition:all .25s;display:flex;align-items:center;gap:7px;}
+.cmp-btn.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}
+.cmp-btn.primary:hover{background:var(--c6);}
+.cmp-btn.outline{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}
+.cmp-btn.outline:hover{border-color:var(--c);color:var(--c);}
+.cmp-btn.danger{background:none;color:var(--sx);border:none;font-weight:500;}
+.cmp-btn.danger:hover{color:var(--c);}
+
+/* Body */
+.cmp-body{flex:1;overflow:auto;padding:0;}
+
+/* Sticky column header row */
+.cmp-table{display:grid;min-width:max-content;}
+
+/* Venue header cards — horizontal strip */
+.venue-strip{display:flex;position:sticky;top:0;z-index:5;background:var(--w);border-bottom:1px solid rgba(197,227,225,.25);padding:0;}
+.param-label-header{width:220px;min-width:220px;padding:20px 24px;display:flex;align-items:flex-end;font-size:13px;font-weight:600;color:var(--sx);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;background:var(--w);}
+.venue-header{width:240px;min-width:240px;padding:16px;border-right:1px solid rgba(197,227,225,.15);position:relative;flex-shrink:0;background:var(--w);transition:background .2s;}
+.venue-header:hover{background:var(--aq-p);}
+.venue-header.best{background:var(--cs);}
+.vh-img{width:100%;height:100px;border-radius:var(--rm);overflow:hidden;margin-bottom:12px;position:relative;}
+.vh-img svg{width:100%;height:100%;}
+.vh-badge{position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:var(--rf);font-size:10px;font-weight:600;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);color:var(--s);}
+.vh-best{position:absolute;top:8px;right:8px;padding:3px 10px;border-radius:var(--rf);font-size:10px;font-weight:700;background:var(--c);color:#fff;}
+.vh-name{font-size:14.5px;font-weight:600;color:var(--sd);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vh-loc{font-size:12px;color:var(--sx);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vh-price{font-size:12px;color:var(--sx);margin-bottom:10px;}
+.vh-price strong{font-size:16px;font-weight:700;color:var(--sd);}
+.vh-actions{display:flex;gap:6px;}
+.vh-act{flex:1;padding:7px;border-radius:8px;font-size:11.5px;font-weight:600;text-align:center;border:none;transition:all .2s;}
+.vh-act.pdf{background:var(--cs);color:var(--c);}
+.vh-act.pdf:hover{background:var(--c);color:#fff;}
+.vh-act.open{background:var(--aq-p);color:var(--sm);}
+.vh-act.open:hover{background:var(--aq);color:#fff;}
+.vh-remove{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.8);backdrop-filter:blur(6px);border:none;display:flex;align-items:center;justify-content:center;color:var(--sp);font-size:12px;transition:all .2s;z-index:2;}
+.vh-remove:hover{background:var(--c);color:#fff;}
+.venue-header.best .vh-remove{right:auto;left:8px;}
+
+/* Param rows */
+.param-rows{display:flex;flex-direction:column;}
+.param-group-title{width:100%;padding:14px 24px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c);background:var(--cs);border-bottom:1px solid rgba(235,116,84,.08);}
+.param-row{display:flex;border-bottom:1px solid rgba(197,227,225,.12);transition:background .15s;}
+.param-row:hover{background:rgba(237,246,245,.5);}
+.param-label{width:220px;min-width:220px;padding:14px 24px;font-size:13.5px;font-weight:500;color:var(--sd);flex-shrink:0;display:flex;align-items:center;gap:8px;background:var(--w);border-right:1px solid rgba(197,227,225,.12);}
+.param-label svg{color:var(--sp);opacity:.5;flex-shrink:0;}
+.param-val{width:240px;min-width:240px;padding:14px 16px;font-size:14px;color:var(--sm);border-right:1px solid rgba(197,227,225,.08);display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.param-val.best-col{background:rgba(252,234,228,.15);}
+.val-check{color:var(--c);font-weight:700;}
+.val-dash{color:var(--sp);}
+.val-highlight{font-weight:700;color:var(--c);}
+.val-best{background:var(--cs);color:var(--c);font-weight:700;padding:3px 10px;border-radius:var(--rf);font-size:12px;}
+
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px;}
+.empty-icon{font-size:64px;margin-bottom:20px;opacity:.5;}
+.empty-title{font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);margin-bottom:8px;}
+.empty-text{font-size:15px;color:var(--sx);max-width:400px;margin-bottom:24px;line-height:1.6;}
+
+/* Scroll shadow */
+.cmp-scroll-wrap{flex:1;overflow:auto;position:relative;}
+
+/* PDF download toast */
+.toast{position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);background:var(--sd);color:#fff;padding:14px 28px;border-radius:var(--rf);font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:var(--shl);z-index:100;transition:bottom .4s cubic-bezier(.22,1,.36,1);}
+.toast.show{bottom:28px;}
+.toast svg{flex-shrink:0;}
+
+/* Mobile */
+@media(max-width:768px){
+  .cmp-header{padding:0 16px;gap:10px;}
+  .cmp-title{font-size:18px;}
+  .cmp-actions{gap:6px;}
+  .cmp-btn{padding:8px 14px;font-size:12px;}
+  .cmp-btn span.desk{display:none;}
+  .param-label-header{width:140px;min-width:140px;padding:14px 12px;font-size:11px;}
+  .param-label{width:140px;min-width:140px;padding:10px 12px;font-size:12px;}
+  .venue-header{width:180px;min-width:180px;padding:12px;}
+  .param-val{width:180px;min-width:180px;padding:10px 12px;font-size:13px;}
+  .vh-img{height:70px;}
+  .vh-name{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <!-- Header -->
+  <div class="cmp-header">
+    <button class="cmp-close" onclick="closeCmp()" title="Закрыть">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="cmp-title">Сравнение площадок</div>
+    <div class="cmp-count" id="cmpCount"></div>
+    <div class="cmp-actions">
+      <button class="cmp-btn outline" onclick="downloadAll()">
+        <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M7.5 2v8M4 7.5l3.5 3.5 3.5-3.5M2 12.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="desk">Скачать всё PDF</span><span style="display:none">PDF</span>
+      </button>
+      <button class="cmp-btn danger" onclick="clearAll()">Очистить</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="cmp-scroll-wrap" id="cmpBody"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 9.5l4 4 8-8.5" stroke="#4CAF78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText">PDF готов к скачиванию</span>
+</div>
+
+<script>
+/* ═══ SVG ═══ */
+function vIll(h,s){return `<div style="width:100%;height:100%;background:hsl(${h},22%,88%);display:flex;align-items:center;justify-content:center"><svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="4" y="8" width="20" height="15" rx="3" stroke="hsl(${h},18%,72%)" stroke-width="1.5" fill="none"/><path d="M8 8V5.5a4 4 0 018 0V8" stroke="hsl(${h},18%,72%)" stroke-width="1.5" fill="none"/></svg></div>`;}
+
+const CHK='<svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const DSH='<svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M4 7.5h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+/* ═══ VENUE DATA ═══ */
+let venues = [
+  {id:1,n:'Конференц-зал «Панорама»',loc:'Москва, Пресня',type:'Конференц-зал',p:'45 000',cap:250,area:380,halls:3,rooms:0,r:4.9,rv:127,h:195,s:1,
+   formats:{theatre:250,banquet:120,reception:200,class:80,cabaret:100,board:20},
+   amenities:['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель','Техподдержка'],
+   catering:'Свой + внешний',alcohol:'Есть',access:'Полная',hours:'8:00–23:00',cancel:'7 дней — 100%',deposit:'20 000 ₽'},
+  {id:2,n:'Лофт «Кирпич»',loc:'Москва, Курская',type:'Лофт',p:'28 000',cap:100,area:280,halls:1,rooms:0,r:4.6,rv:112,h:20,s:2,
+   formats:{theatre:100,banquet:60,reception:80,class:40,cabaret:50,board:15},
+   amenities:['Wi-Fi','Проектор','Звук','Кондиционер','Мебель','Парковка'],
+   catering:'Внешний',alcohol:'Свой',access:'Частичная',hours:'10:00–22:00',cancel:'5 дней — 100%',deposit:'15 000 ₽'},
+  {id:3,n:'Усадьба «Белые ночи»',loc:'Москва, Рублёвка',type:'Банкетный',p:'95 000',cap:150,area:450,halls:2,rooms:8,r:4.9,rv:203,h:25,s:3,
+   formats:{theatre:150,banquet:120,reception:180,class:0,cabaret:80,board:0},
+   amenities:['Wi-Fi','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель'],
+   catering:'Свой',alcohol:'Есть',access:'Частичная',hours:'9:00–01:00',cancel:'14 дней — 100%',deposit:'50 000 ₽'},
+  {id:4,n:'Коворкинг Space One',loc:'Москва, Сити',type:'Коворкинг',p:'8 000',cap:40,area:90,halls:1,rooms:0,r:4.8,rv:63,h:180,s:4,
+   formats:{theatre:40,banquet:0,reception:30,class:25,cabaret:0,board:12},
+   amenities:['Wi-Fi','Проектор','Звук','Кондиционер','Мебель','Техподдержка'],
+   catering:'Нет',alcohol:'Нет',access:'Полная',hours:'8:00–22:00',cancel:'3 дня — 100%',deposit:'5 000 ₽'},
+  {id:5,n:'Ресторан «Терракота»',loc:'Москва, Патриаршие',type:'Ресторан',p:'35 000',cap:60,area:120,halls:1,rooms:0,r:4.8,rv:156,h:15,s:5,
+   formats:{theatre:0,banquet:60,reception:80,class:0,cabaret:40,board:0},
+   amenities:['Wi-Fi','Звук','Кондиционер','Гардероб','Кейтеринг','Бар','Мебель'],
+   catering:'Свой',alcohol:'Есть',access:'Частичная',hours:'11:00–00:00',cancel:'7 дней — 100%',deposit:'20 000 ₽'},
+];
+
+/* ═══ PARAM DEFINITIONS ═══ */
+const PARAMS = [
+  {group:'Основные параметры', rows:[
+    {label:'Тип площадки',icon:'🏢',key:'type'},
+    {label:'Цена за день',icon:'💰',key:'p',suffix:' ₽',highlight:'min'},
+    {label:'Рейтинг',icon:'⭐',key:'r',highlight:'max'},
+    {label:'Отзывы',icon:'💬',key:'rv',highlight:'max'},
+    {label:'Город / район',icon:'📍',key:'loc'},
+  ]},
+  {group:'Вместимость и пространство', rows:[
+    {label:'Макс. вместимость',icon:'👥',key:'cap',suffix:' чел.',highlight:'max'},
+    {label:'Площадь',icon:'📐',key:'area',suffix:' м²',highlight:'max'},
+    {label:'Количество залов',icon:'🚪',key:'halls',highlight:'max'},
+    {label:'Номерной фонд',icon:'🛏',key:'rooms'},
+    {label:'Театр',icon:'🎭',key:'formats.theatre',suffix:' чел.',highlight:'max'},
+    {label:'Банкет',icon:'🍽',key:'formats.banquet',suffix:' чел.',highlight:'max'},
+    {label:'Фуршет',icon:'🥂',key:'formats.reception',suffix:' чел.',highlight:'max'},
+    {label:'Класс',icon:'📚',key:'formats.class',suffix:' чел.'},
+    {label:'Кабаре',icon:'🎤',key:'formats.cabaret',suffix:' чел.'},
+    {label:'Переговорная',icon:'💼',key:'formats.board',suffix:' чел.'},
+  ]},
+  {group:'Услуги', rows:[
+    {label:'Кейтеринг',icon:'👨‍🍳',key:'catering'},
+    {label:'Алкоголь',icon:'🍷',key:'alcohol'},
+    {label:'Доступность',icon:'♿',key:'access'},
+    {label:'Часы работы',icon:'🕐',key:'hours'},
+    {label:'Отмена',icon:'📋',key:'cancel'},
+    {label:'Депозит',icon:'💳',key:'deposit'},
+  ]},
+  {group:'Оборудование и удобства', rows:[
+    {label:'Wi-Fi',icon:'📶',key:'_amenity',check:'Wi-Fi'},
+    {label:'Проектор',icon:'📽',key:'_amenity',check:'Проектор'},
+    {label:'Звук',icon:'🔊',key:'_amenity',check:'Звук'},
+    {label:'Свет',icon:'💡',key:'_amenity',check:'Свет'},
+    {label:'Сцена',icon:'🎤',key:'_amenity',check:'Сцена'},
+    {label:'Кондиционер',icon:'❄️',key:'_amenity',check:'Кондиционер'},
+    {label:'Гардероб',icon:'🧥',key:'_amenity',check:'Гардероб'},
+    {label:'Парковка',icon:'🅿️',key:'_amenity',check:'Парковка'},
+    {label:'Кейтеринг',icon:'🍽',key:'_amenity',check:'Кейтеринг'},
+    {label:'Бар',icon:'🍸',key:'_amenity',check:'Бар'},
+    {label:'Техподдержка',icon:'🔧',key:'_amenity',check:'Техподдержка'},
+  ]},
+];
+
+/* ═══ HELPERS ═══ */
+function getVal(venue, key){
+  if(key.includes('.')){const [a,b]=key.split('.');return venue[a]?.[b];}
+  return venue[key];
+}
+
+function findBest(key, dir, vList){
+  const vals = vList.map(v=>{const val=getVal(v,key);return typeof val==='number'?val:parseInt(String(val).replace(/\s/g,''))||0;});
+  if(dir==='max') return Math.max(...vals);
+  if(dir==='min') return Math.min(...vals.filter(v=>v>0));
+  return null;
+}
+
+/* ═══ RENDER ═══ */
+function render(){
+  const body = document.getElementById('cmpBody');
+  document.getElementById('cmpCount').innerHTML = `<b>${venues.length}</b> из 10 площадок`;
+
+  if(venues.length === 0){
+    body.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Нет площадок для сравнения</div><div class="empty-text">Добавьте площадки в сравнение на странице поиска или в карточке площадки</div><button class="cmp-btn primary" onclick="history.back()">К поиску площадок</button></div>`;
+    return;
+  }
+
+  let html = '';
+
+  // Venue header strip
+  html += '<div class="venue-strip"><div class="param-label-header">Параметры</div>';
+  const bestPrice = findBest('p','min',venues);
+  const bestRating = findBest('r','max',venues);
+
+  venues.forEach(v => {
+    const isBest = v.r === bestRating;
+    html += `<div class="venue-header${isBest?' best':''}">
+      ${!isBest?`<button class="vh-remove" onclick="removeVenue(${v.id})" title="Убрать">✕</button>`:''}
+      <div class="vh-img">${vIll(v.h,v.s)}
+        <div class="vh-badge">${v.type}</div>
+        ${isBest?'<div class="vh-best">Лучший выбор</div>':''}
+      </div>
+      <div class="vh-name" title="${v.n}">${v.n}</div>
+      <div class="vh-loc">${v.loc}</div>
+      <div class="vh-price">от <strong>${v.p} ₽</strong> / день</div>
+      <div class="vh-actions">
+        <button class="vh-act pdf" onclick="downloadPdf(${v.id})">📄 PDF</button>
+        <button class="vh-act open">Открыть</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Param rows
+  html += '<div class="param-rows">';
+  PARAMS.forEach(group => {
+    html += `<div class="param-group-title">${group.group}</div>`;
+    group.rows.forEach(param => {
+      html += '<div class="param-row">';
+      html += `<div class="param-label"><span style="flex-shrink:0">${param.icon}</span>${param.label}</div>`;
+
+      const best = param.highlight ? findBest(param.key, param.highlight, venues) : null;
+
+      venues.forEach(v => {
+        let val;
+        const isBestCol = v.r === bestRating;
+
+        if(param.key === '_amenity'){
+          const has = v.amenities.includes(param.check);
+          val = has ? `<span class="val-check">${CHK}</span>` : `<span class="val-dash">${DSH}</span>`;
+        } else {
+          const raw = getVal(v, param.key);
+          if(raw === 0 || raw === '0' || raw === undefined || raw === null){
+            val = `<span class="val-dash">${DSH}</span>`;
+          } else {
+            const numRaw = typeof raw === 'number' ? raw : parseInt(String(raw).replace(/\s/g,''));
+            const isBestVal = best !== null && !isNaN(numRaw) && numRaw === best;
+            const display = raw + (param.suffix || '');
+            val = isBestVal ? `<span class="val-best">${display}</span>` : display;
+          }
+        }
+
+        html += `<div class="param-val${isBestCol?' best-col':''}">${val}</div>`;
+      });
+
+      html += '</div>';
+    });
+  });
+  html += '</div>';
+
+  body.innerHTML = html;
+}
+
+/* ═══ ACTIONS ═══ */
+function removeVenue(id){
+  venues = venues.filter(v => v.id !== id);
+  render();
+}
+
+function clearAll(){
+  if(confirm('Очистить все площадки из сравнения?')){
+    venues = [];
+    render();
+  }
+}
+
+function downloadPdf(id){
+  const v = venues.find(x => x.id === id);
+  showToast(`PDF для «${v?.n || 'площадки'}» готов к скачиванию`);
+}
+
+function downloadAll(){
+  showToast(`PDF презентация для ${venues.length} площадок готова`);
+}
+
+function showToast(text){
+  const t = document.getElementById('toast');
+  document.getElementById('toastText').textContent = text;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+/* ═══ INIT ═══ */
+(function(){
+  const ids = new URLSearchParams(location.search).get('ids');
+  if(ids){
+    const set = new Set(ids.split(',').map(Number));
+    venues = venues.filter(v => set.has(v.id));
+  }
+  render();
+})();
+
+function closeCmp() {
+  const ov = document.getElementById('overlay');
+  ov.style.transition = 'opacity .18s ease, transform .18s ease';
+  ov.style.opacity = '0';
+  ov.style.transform = 'translateY(20px)';
+  setTimeout(() => history.back(), 180);
+}
+</script>
+</body>
+</html>

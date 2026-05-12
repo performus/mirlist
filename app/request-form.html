@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подбор площадки — Площадки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;--pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;--sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);--r:10px;--rm:14px;--rl:20px;--rf:50px;}
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}a{text-decoration:none;color:inherit;}button{font-family:inherit;cursor:pointer;}
+
+.nav{height:68px;padding:0 48px;display:flex;align-items:center;gap:28px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);flex-shrink:0;}
+.logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);}.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}.nav-links a:hover{color:var(--s);background:var(--aq-p);}
+
+.page{flex:1;display:flex;gap:36px;padding:40px 48px;max-width:1200px;margin:0 auto;width:100%;}
+.form-col{flex:1;max-width:700px;}
+.side-col{width:320px;flex-shrink:0;}
+
+.form-title{font-family:'DM Serif Display',serif;font-size:30px;color:var(--sd);margin-bottom:6px;}
+.form-sub{font-size:15px;color:var(--sx);margin-bottom:28px;line-height:1.6;}
+
+.card{background:var(--w);border:1px solid rgba(197,227,225,.2);border-radius:var(--rl);padding:32px;box-shadow:var(--sh);}
+
+/* Fields */
+.fg{margin-bottom:22px;}
+.fl{font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sx);margin-bottom:8px;display:block;}
+.fl .req{color:var(--c);}
+.fi{width:100%;padding:13px 16px;border-radius:var(--rm);border:1.5px solid rgba(197,227,225,.4);background:var(--w);font-family:inherit;font-size:14px;color:var(--sd);outline:none;transition:border-color .2s;}
+.fi:focus{border-color:var(--c);box-shadow:0 0 0 3px var(--cg);}
+.fi::placeholder{color:var(--sp);}
+textarea.fi{resize:vertical;min-height:80px;line-height:1.6;}
+select.fi{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23B4C3CC' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;cursor:pointer;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.ch{padding:9px 18px;border-radius:var(--rf);font-size:13.5px;font-weight:500;border:1.5px solid rgba(197,227,225,.4);background:var(--w);color:var(--sx);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.ch:hover{border-color:var(--c);color:var(--c);}
+.ch.on{background:var(--cs);border-color:var(--c);color:var(--c);font-weight:600;}
+
+/* Divider */
+.divider{height:1px;background:rgba(197,227,225,.25);margin:28px 0;}
+.divider-label{font-family:'DM Serif Display',serif;font-size:18px;color:var(--sd);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.divider-label::before{content:'';width:4px;height:20px;border-radius:2px;background:var(--c);}
+
+/* Submit */
+.submit-btn{width:100%;padding:16px;border-radius:var(--rm);font-size:16px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;margin-top:8px;}
+.submit-btn:hover{background:var(--c6);transform:translateY(-1px);}
+.submit-note{text-align:center;font-size:12.5px;color:var(--sp);margin-top:12px;line-height:1.5;}
+
+/* Sidebar */
+.side-sticky{position:sticky;top:40px;display:flex;flex-direction:column;gap:16px;}
+.side-card{background:var(--w);border:1px solid rgba(197,227,225,.2);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);}
+.side-title{font-family:'DM Serif Display',serif;font-size:17px;color:var(--sd);margin-bottom:14px;}
+.ben-list{display:flex;flex-direction:column;gap:12px;}
+.ben-item{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--sx);line-height:1.5;}
+.ben-item svg{color:var(--c);flex-shrink:0;margin-top:2px;}
+.trust-row{display:flex;gap:16px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--sx);}
+.trust-item svg{color:var(--c);}
+.manager{display:flex;align-items:center;gap:14px;}
+.manager-av{width:48px;height:48px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--c);flex-shrink:0;}
+.manager-name{font-size:14px;font-weight:600;color:var(--sd);}
+.manager-role{font-size:12.5px;color:var(--sx);}
+.manager-time{font-size:12px;color:var(--sp);margin-top:2px;display:flex;align-items:center;gap:4px;}
+
+/* Success overlay */
+.success-overlay{position:fixed;inset:0;background:rgba(53,78,99,.2);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;}
+.success-overlay.show{display:flex;}
+.success-modal{background:var(--w);border-radius:var(--rl);padding:48px 40px;max-width:480px;width:90%;text-align:center;box-shadow:var(--shl);animation:popIn .4s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.success-icon{font-size:56px;margin-bottom:16px;}
+.success-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--sd);margin-bottom:8px;}
+.success-text{font-size:15px;color:var(--sx);line-height:1.65;margin-bottom:24px;}
+.success-btn{padding:14px 32px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .25s;}
+.success-btn:hover{background:var(--c6);}
+
+.footer{padding:28px 48px;border-top:1px solid rgba(197,227,225,.2);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--sp);margin-top:auto;}
+.footer a{color:var(--sx);margin-left:20px;transition:color .2s;}.footer a:hover{color:var(--c);}
+
+@media(max-width:1024px){.side-col{display:none;}.form-col{max-width:100%;}}
+@media(max-width:768px){.nav{padding:0 20px;}.page{padding:24px 20px;}.card{padding:24px;}.fr,.fr3{grid-template-columns:1fr;}.footer{padding:20px;flex-direction:column;gap:8px;text-align:center;}}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<div class="page">
+  <div class="form-col">
+    <h1 class="form-title">Подбор площадки</h1>
+    <p class="form-sub">Заполните форму — мы подберём лучшие варианты и свяжемся с вами в течение 2 часов</p>
+
+    <div class="card">
+      <!-- Event type -->
+      <div class="divider-label">Мероприятие</div>
+
+      <div class="fg">
+        <label class="fl">Тип мероприятия <span class="req">*</span></label>
+        <div class="chips" id="eventChips">
+          <div class="ch" data-v="Конференция">🎤 Конференция</div>
+          <div class="ch" data-v="Корпоратив">🥂 Корпоратив</div>
+          <div class="ch" data-v="Свадьба">💐 Свадьба</div>
+          <div class="ch" data-v="День рождения">🎂 День рождения</div>
+          <div class="ch" data-v="Бизнес-встреча">💼 Бизнес-встреча</div>
+          <div class="ch" data-v="Семинар">📚 Семинар</div>
+          <div class="ch" data-v="Выставка">🖼 Выставка</div>
+          <div class="ch" data-v="Тимбилдинг">🏔 Тимбилдинг</div>
+        </div>
+      </div>
+
+      <div class="fr">
+        <div class="fg"><label class="fl">Количество гостей <span class="req">*</span></label><select class="fi"><option value="">Выберите</option><option>до 20</option><option>20–50</option><option>50–100</option><option>100–200</option><option>200–500</option><option>500+</option></select></div>
+        <div class="fg"><label class="fl">Бюджет за день</label><select class="fi"><option value="">Выберите</option><option>до 20 000 ₽</option><option>20–50 000 ₽</option><option>50–100 000 ₽</option><option>100–200 000 ₽</option><option>200 000+ ₽</option></select></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="divider-label">Где и когда</div>
+
+      <div class="fr">
+        <div class="fg"><label class="fl">Город <span class="req">*</span></label><select class="fi"><option value="">Выберите город</option><option>Москва</option><option>Санкт-Петербург</option><option>Казань</option><option>Сочи</option><option>Екатеринбург</option><option>Новосибирск</option><option>Краснодар</option><option>Нижний Новгород</option><option>Другой</option></select></div>
+        <div class="fg"><label class="fl">Район / метро</label><input class="fi" placeholder="Центр, Пресня, м. Выставочная"></div>
+      </div>
+
+      <div class="fr">
+        <div class="fg"><label class="fl">Дата начала <span class="req">*</span></label><input class="fi" type="date"></div>
+        <div class="fg"><label class="fl">Дата окончания</label><input class="fi" type="date"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="divider-label">Пожелания</div>
+
+      <div class="fg">
+        <label class="fl">Тип площадки</label>
+        <div class="chips" id="venueChips">
+          <div class="ch" data-v="Конференц-зал">Конференц-зал</div>
+          <div class="ch" data-v="Лофт">Лофт</div>
+          <div class="ch" data-v="Ресторан">Ресторан</div>
+          <div class="ch" data-v="Банкетный зал">Банкетный зал</div>
+          <div class="ch" data-v="Отель">Отель</div>
+          <div class="ch" data-v="Коворкинг">Коворкинг</div>
+          <div class="ch" data-v="Любой">Любой</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Что важно</label>
+        <div class="chips" id="needsChips">
+          <div class="ch" data-v="Проектор">📽 Проектор</div>
+          <div class="ch" data-v="Звук">🔊 Звук</div>
+          <div class="ch" data-v="Парковка">🅿️ Парковка</div>
+          <div class="ch" data-v="Кейтеринг">🍽 Кейтеринг</div>
+          <div class="ch" data-v="Wi-Fi">📶 Wi-Fi</div>
+          <div class="ch" data-v="Сцена">🎤 Сцена</div>
+          <div class="ch" data-v="Вид">🌇 Вид</div>
+          <div class="ch" data-v="Декор">🎨 Декор</div>
+        </div>
+      </div>
+
+      <div class="fg"><label class="fl">Комментарий</label><textarea class="fi" placeholder="Любые дополнительные пожелания к площадке..."></textarea></div>
+
+      <div class="divider"></div>
+      <div class="divider-label">Контакты</div>
+
+      <div class="fr">
+        <div class="fg"><label class="fl">Имя <span class="req">*</span></label><input class="fi" placeholder="Ваше имя"></div>
+        <div class="fg"><label class="fl">Компания</label><input class="fi" placeholder="Название компании"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Email <span class="req">*</span></label><input class="fi" type="email" placeholder="email@example.com"></div>
+        <div class="fg"><label class="fl">Телефон <span class="req">*</span></label><input class="fi" type="tel" placeholder="+7 (999) 123-45-67"></div>
+      </div>
+
+      <button class="submit-btn" onclick="document.getElementById('successOverlay').classList.add('show')">Отправить заявку</button>
+      <div class="submit-note">Нажимая кнопку, вы соглашаетесь с <a href="#" style="color:var(--sx);text-decoration:underline">условиями</a> и <a href="#" style="color:var(--sx);text-decoration:underline">политикой конфиденциальности</a></div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="side-col">
+    <div class="side-sticky">
+      <div class="side-card">
+        <div class="side-title">Что вы получите</div>
+        <div class="ben-list">
+          <div class="ben-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Подборку 3–5 подходящих площадок</div>
+          <div class="ben-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF презентацию с ценами и фото</div>
+          <div class="ben-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Сравнительную таблицу вариантов</div>
+          <div class="ben-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Прямые контакты площадок</div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+</div>
+
+<!-- Success -->
+<div class="success-overlay" id="successOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="success-modal">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Заявка отправлена!</div>
+    <div class="success-text">Мы подберём лучшие площадки и свяжемся с вами в течение 2 часов. Подборка с PDF придёт на указанный email.</div>
+    <button class="success-btn" onclick="document.getElementById('successOverlay').classList.remove('show')">Отлично</button>
+  </div>
+</div>
+
+<div id="mh-footer"></div>
+
+<script>
+// Single-select chips (event type)
+document.getElementById('eventChips').addEventListener('click',e=>{
+  const ch=e.target.closest('.ch');if(!ch)return;
+  document.querySelectorAll('#eventChips .ch').forEach(c=>c.classList.remove('on'));
+  ch.classList.add('on');
+});
+// Multi-select chips (venue type, needs)
+['venueChips','needsChips'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    const ch=e.target.closest('.ch');if(!ch)return;
+    ch.classList.toggle('on');
+  });
+});
+</script>
+<script src="shared.js"></script>
+<script>MH.init('request');</script>
+</body>
+</html>

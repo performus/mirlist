@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Для организаторов — Площадки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;--pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;--sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);--r:10px;--rm:14px;--rl:20px;--rf:50px;}
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}a{text-decoration:none;color:inherit;}button{font-family:inherit;cursor:pointer;}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(197,227,225,.25);transition:background .3s;}
+.logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);}.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}.nav-links a:hover{color:var(--s);background:var(--aq-p);}.nav-links a.active{color:var(--c);background:var(--cs);font-weight:600;}.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;box-shadow:var(--shc);}
+
+/* HERO */
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;padding:120px 48px 80px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.06) 0%,rgba(248,245,242,.6) 30%,rgba(237,246,245,.35) 60%,rgba(246,221,211,.25) 100%);}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.25;}
+.orb-1{width:550px;height:550px;background:var(--c);top:-12%;left:-8%;animation:fl 22s ease-in-out infinite;}
+.orb-2{width:400px;height:400px;background:var(--aq);bottom:-8%;right:-5%;animation:fl 18s ease-in-out infinite reverse;}
+.orb-3{width:300px;height:300px;background:var(--pc);top:35%;right:30%;animation:fl 20s ease-in-out infinite 4s;}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(25px,-20px) scale(1.04)}66%{transform:translate(-18px,15px) scale(.97)}}
+.hero-grid{position:absolute;inset:0;opacity:.02;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
+
+.hero-content{position:relative;z-index:1;max-width:640px;}
+.hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:28px;backdrop-filter:blur(8px);}
+.hero-h1{font-family:'DM Serif Display',serif;font-size:clamp(36px,5vw,58px);line-height:1.1;color:var(--sd);letter-spacing:-1px;margin-bottom:18px;}
+.hero-h1 em{font-style:italic;color:var(--c);}
+.hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:500px;margin-bottom:36px;}
+.hero-actions{display:flex;gap:14px;align-items:center;margin-bottom:40px;}
+.btn-h{padding:16px 36px;border-radius:var(--rm);font-size:16px;font-weight:600;border:none;transition:all .3s;}
+.btn-h.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}.btn-h.primary:hover{background:var(--c6);transform:translateY(-2px);}
+.btn-h.secondary{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}.btn-h.secondary:hover{border-color:var(--c);color:var(--c);}
+.hero-trust{display:flex;gap:28px;}
+.trust-i{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--sx);}
+.trust-n{font-size:20px;font-weight:700;color:var(--c);}
+
+/* Hero right — feature preview cards */
+.hero-right{position:absolute;right:48px;top:50%;transform:translateY(-50%);z-index:1;width:400px;}
+.preview-stack{position:relative;height:360px;}
+.pv{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:24px;width:320px;}
+.pv-1{top:0;right:0;z-index:3;animation:cf 5s ease-in-out infinite;}
+.pv-2{top:80px;right:60px;z-index:2;opacity:.6;animation:cf 5s ease-in-out 1.5s infinite;}
+.pv-3{top:150px;right:110px;z-index:1;opacity:.35;animation:cf 5s ease-in-out 3s infinite;}
+@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pv-icon{width:44px;height:44px;border-radius:12px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+.pv-title{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.pv-text{font-size:13px;color:var(--sx);line-height:1.5;}
+.pv-bar{height:6px;border-radius:3px;background:var(--bg);margin-top:12px;overflow:hidden;}
+.pv-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--c),var(--c6));}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}.reveal.vis{opacity:1;transform:translateY(0);}
+
+/* SECTIONS */
+.section{padding:100px 48px;}.section.alt{background:var(--w);}
+.container{max-width:1200px;margin:0 auto;}
+.section-center{text-align:center;max-width:640px;margin:0 auto 56px;}
+.section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c);margin-bottom:14px;}
+.section-label::before{content:'';width:20px;height:2px;background:var(--c);border-radius:2px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.5px;line-height:1.15;margin-bottom:12px;}
+.section-desc{font-size:16px;color:var(--sx);line-height:1.65;max-width:520px;margin:0 auto;}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.step{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
+.step:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.step-n{position:absolute;top:14px;left:18px;font-size:40px;font-weight:800;color:var(--cg);font-family:'DM Serif Display',serif;}
+.step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;}
+.step-t{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.step-d{font-size:13.5px;color:var(--sx);line-height:1.55;}
+
+/* KEY FEATURES — large cards */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.feat{padding:40px 36px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);transition:all .35s;position:relative;overflow:hidden;}
+.feat:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .35s;}.feat:hover::before{transform:scaleX(1);}
+.feat-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;}
+.feat-icon.coral{background:var(--cs);}
+.feat-icon.aqua{background:var(--aq-p);}
+.feat-icon.peach{background:var(--pc);}
+.feat-t{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);margin-bottom:8px;}
+.feat-d{font-size:14.5px;color:var(--sx);line-height:1.65;margin-bottom:16px;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.feat-list li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--sm);}
+.feat-list li svg{color:var(--c);flex-shrink:0;}
+
+/* COMPARISON PREVIEW */
+.cmp-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.cmp-visual{background:var(--w);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);border:1px solid rgba(197,227,225,.15);}
+.cmp-row{display:flex;align-items:center;border-bottom:1px solid rgba(197,227,225,.12);padding:12px 0;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-param{width:120px;font-size:13px;font-weight:500;color:var(--sx);flex-shrink:0;}
+.cmp-bars{flex:1;display:flex;gap:8px;}
+.cmp-bar{height:24px;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:600;color:#fff;}
+.cmp-bar.a{background:var(--c);}.cmp-bar.b{background:var(--aq);}.cmp-bar.c{background:var(--sp);}
+.cmp-text h3{font-family:'DM Serif Display',serif;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.cmp-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+.cmp-text .feat-list{margin-bottom:24px;}
+.cmp-btn{padding:14px 32px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;display:inline-flex;align-items:center;gap:8px;}
+.cmp-btn:hover{background:var(--c6);transform:translateY(-2px);}
+
+/* PDF SECTION */
+.pdf-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.pdf-visual{position:relative;}
+.pdf-page{background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:32px;position:relative;max-width:340px;}
+.pdf-page-2{position:absolute;top:20px;left:30px;right:-30px;bottom:-20px;background:var(--w);border-radius:var(--rl);box-shadow:var(--sh);z-index:-1;opacity:.5;}
+.pdf-page-3{position:absolute;top:40px;left:60px;right:-60px;bottom:-40px;background:var(--w);border-radius:var(--rl);box-shadow:0 2px 10px rgba(53,78,99,.04);z-index:-2;opacity:.25;}
+.pdf-mock-header{height:12px;width:60%;border-radius:6px;background:var(--sd);margin-bottom:16px;}
+.pdf-mock-sub{height:8px;width:40%;border-radius:4px;background:var(--sp);margin-bottom:24px;}
+.pdf-mock-img{height:100px;border-radius:var(--rm);background:var(--aq-p);margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--aq);}
+.pdf-mock-row{display:flex;gap:12px;margin-bottom:10px;}
+.pdf-mock-line{height:7px;border-radius:4px;background:var(--bg);flex:1;}
+.pdf-mock-line.short{flex:.6;}
+.pdf-mock-price{height:10px;width:30%;border-radius:5px;background:var(--cs);margin-top:16px;}
+.pdf-badge{position:absolute;top:-12px;right:-12px;padding:8px 18px;border-radius:var(--rf);background:var(--c);color:#fff;font-size:12px;font-weight:700;box-shadow:var(--shc);}
+.pdf-text h3{font-family:'DM Serif Display',serif;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.pdf-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+
+/* BENEFITS GRID */
+.ben-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.ben{padding:32px 28px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.12);text-align:center;transition:all .3s;}
+.ben:hover{background:var(--cs);border-color:rgba(235,116,84,.1);transform:translateY(-3px);}
+.ben-icon{font-size:32px;margin-bottom:14px;}
+.ben-t{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.ben-d{font-size:13px;color:var(--sx);line-height:1.55;}
+
+/* TESTIMONIALS */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.test{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
+.test-q{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
+.test-q::before{content:'«';font-family:'DM Serif Display',serif;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
+.test-author{display:flex;align-items:center;gap:12px;}
+.test-av{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
+.test-name{font-size:14px;font-weight:600;color:var(--sd);}
+.test-role{font-size:12px;color:var(--sx);}
+
+/* FINAL CTA */
+.cta-block{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
+.cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
+.cta-inner{position:relative;z-index:1;}
+.cta-h{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,42px);color:var(--sd);margin-bottom:12px;}
+.cta-p{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
+.cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
+.cta-btn:hover{background:var(--c6);transform:translateY(-2px);}
+.cta-note{font-size:13px;color:var(--sx);margin-top:16px;}
+
+/* FOOTER */
+.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:64px 48px 32px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
+.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
+
+@media(max-width:1100px){.hero-right{display:none;}.features,.cmp-preview,.pdf-preview{grid-template-columns:1fr;}}
+@media(max-width:900px){.steps,.ben-grid,.test-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.nav{padding:0 20px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-h{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps,.ben-grid,.test-grid,.features{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"><div class="hero-grad"></div><div class="hero-orb orb-1"></div><div class="hero-orb orb-2"></div><div class="hero-orb orb-3"></div><div class="hero-grid"></div></div>
+  <div class="hero-content">
+    <div class="hero-label">🎯 Для организаторов мероприятий</div>
+    <h1 class="hero-h1">Найдите <em>идеальную</em> площадку быстрее</h1>
+    <p class="hero-sub">Сравнивайте площадки, скачивайте презентации и связывайтесь с владельцами напрямую — без посредников и переплат</p>
+    <div class="hero-actions">
+      <button class="btn-h primary" onclick="MH.go('search.html')">Начать поиск</button>
+      <button class="btn-h secondary" onclick="document.getElementById('howSection').scrollIntoView({behavior:'smooth'})">Как это работает</button>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-i"><span class="trust-n">12 000+</span> площадок</div>
+      <div class="trust-i"><span class="trust-n">120</span> городов</div>
+      <div class="trust-i"><span class="trust-n">бесплатно</span> для старта</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="preview-stack">
+      <div class="pv pv-1"><div class="pv-icon">📊</div><div class="pv-title">Сравнение 5 площадок</div><div class="pv-text">Вместимость, цены, услуги — всё рядом</div><div class="pv-bar"><div class="pv-bar-fill" style="width:85%"></div></div></div>
+      <div class="pv pv-2"><div class="pv-icon">📄</div><div class="pv-title">PDF презентация</div><div class="pv-text">Скачайте и отправьте руководству</div></div>
+      <div class="pv pv-3"><div class="pv-icon">💬</div><div class="pv-title">Прямая связь</div><div class="pv-text">Чат с площадкой без посредников</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section alt" id="howSection">
+  <div class="section-center reveal"><div class="section-label">Процесс</div><h2 class="section-title">Как найти площадку</h2><p class="section-desc">Четыре шага от идеи до забронированного пространства</p></div>
+  <div class="container">
+    <div class="steps">
+      <div class="step reveal"><div class="step-n">1</div><div class="step-icon">🔍</div><div class="step-t">Задайте параметры</div><div class="step-d">Город, тип мероприятия, вместимость, бюджет — укажите всё что важно</div></div>
+      <div class="step reveal"><div class="step-n">2</div><div class="step-icon">📊</div><div class="step-t">Сравните варианты</div><div class="step-d">Добавляйте площадки в сравнение и выбирайте лучшую по параметрам</div></div>
+      <div class="step reveal"><div class="step-n">3</div><div class="step-icon">📄</div><div class="step-t">Скачайте PDF</div><div class="step-d">Сформируйте презентацию для руководства или коллег</div></div>
+      <div class="step reveal"><div class="step-n">4</div><div class="step-icon">💬</div><div class="step-t">Свяжитесь напрямую</div><div class="step-d">Отправьте заявку и общайтесь с площадкой в чате платформы</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- KEY FEATURES -->
+<section class="section">
+  <div class="section-center reveal"><div class="section-label">Возможности</div><h2 class="section-title">Всё для быстрого выбора площадки</h2><p class="section-desc">Инструменты, которые экономят часы работы</p></div>
+  <div class="container">
+    <div class="features">
+      <div class="feat reveal"><div class="feat-icon coral">📊</div><div class="feat-t">Сравнение площадок</div><div class="feat-d">Добавьте до 10 площадок и сравните все параметры в одной таблице: вместимость, цены, оборудование, кейтеринг, форматы рассадки.</div><ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>До 10 площадок одновременно</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>30+ параметров сравнения</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Автоматическое выделение лучших</li></ul></div>
+      <div class="feat reveal"><div class="feat-icon coral">📄</div><div class="feat-t">PDF презентации</div><div class="feat-d">Скачайте готовую презентацию площадки с фото, параметрами и ценами. Идеально для согласования с руководством или клиентом.</div><ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Для одной или нескольких площадок</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Фото, цены, параметры</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Профессиональный формат</li></ul></div>
+      <div class="feat reveal"><div class="feat-icon aqua">💬</div><div class="feat-t">Прямая связь с площадкой</div><div class="feat-d">Никаких посредников. Отправьте заявку, получите ответ в течение часа и обсудите все детали в чате платформы.</div><ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Ответ до 1 часа</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Чат с историей</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Без комиссий</li></ul></div>
+      <div class="feat reveal"><div class="feat-icon peach">✅</div><div class="feat-t">Чеклист выбора площадки</div><div class="feat-d">Интерактивный список критериев: отмечайте что важно, применяйте к площадкам и принимайте решение на основе фактов.</div><ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>8 ключевых критериев</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Прогресс по каждой площадке</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Сохранение в аккаунте</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON PREVIEW -->
+<section class="section alt">
+  <div class="container">
+    <div class="cmp-preview reveal">
+      <div class="cmp-visual">
+        <div style="font-size:13px;font-weight:600;color:var(--sx);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">Сравнение вместимости</div>
+        <div class="cmp-row"><div class="cmp-param">Театр</div><div class="cmp-bars"><div class="cmp-bar a" style="width:70%">250</div><div class="cmp-bar b" style="width:40%">100</div><div class="cmp-bar c" style="width:55%">150</div></div></div>
+        <div class="cmp-row"><div class="cmp-param">Банкет</div><div class="cmp-bars"><div class="cmp-bar a" style="width:50%">120</div><div class="cmp-bar b" style="width:25%">60</div><div class="cmp-bar c" style="width:50%">120</div></div></div>
+        <div class="cmp-row"><div class="cmp-param">Фуршет</div><div class="cmp-bars"><div class="cmp-bar a" style="width:65%">200</div><div class="cmp-bar b" style="width:30%">80</div><div class="cmp-bar c" style="width:58%">180</div></div></div>
+        <div class="cmp-row"><div class="cmp-param">Цена / день</div><div class="cmp-bars"><div class="cmp-bar a" style="width:45%">45к</div><div class="cmp-bar b" style="width:28%">28к</div><div class="cmp-bar c" style="width:80%">95к</div></div></div>
+        <div style="display:flex;gap:16px;margin-top:16px;font-size:12px;color:var(--sx)"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--c)"></span>Панорама</span><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--aq)"></span>Кирпич</span><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--sp)"></span>Белые ночи</span></div>
+      </div>
+      <div class="cmp-text">
+        <h3>Сравните всё за 30 секунд</h3>
+        <p>Не нужно открывать десять вкладок и копировать данные в Excel. Добавьте площадки в сравнение и увидьте все параметры рядом — от вместимости до кейтеринга.</p>
+        <ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Визуальные графики</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Автоматический «Лучший выбор»</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Экспорт сравнения в PDF</li></ul>
+        <button class="cmp-btn">Попробовать сравнение</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PDF PREVIEW -->
+<section class="section">
+  <div class="container">
+    <div class="pdf-preview reveal">
+      <div class="pdf-text">
+        <div class="section-label">PDF презентации</div>
+        <h3>Покажите руководству профессионально</h3>
+        <p>Скачайте готовую презентацию с фотографиями, параметрами, ценами и картой. Для одной площадки или для всех из сравнения — в один клик.</p>
+        <ul class="feat-list" style="margin-bottom:24px"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Фото и описание площадки</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Вместимость, цены, оборудование</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Карта и контакты</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Сравнительная таблица (для нескольких)</li></ul>
+        <button class="cmp-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v8M5 7.5L8 10.5 11 7.5M3 13h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Скачать пример PDF</button>
+      </div>
+      <div class="pdf-visual">
+        <div class="pdf-page">
+          <div class="pdf-badge">PDF</div>
+          <div class="pdf-mock-header"></div>
+          <div class="pdf-mock-sub"></div>
+          <div class="pdf-mock-img">🏢</div>
+          <div class="pdf-mock-row"><div class="pdf-mock-line"></div><div class="pdf-mock-line short"></div></div>
+          <div class="pdf-mock-row"><div class="pdf-mock-line short"></div><div class="pdf-mock-line"></div></div>
+          <div class="pdf-mock-row"><div class="pdf-mock-line"></div><div class="pdf-mock-line"></div></div>
+          <div class="pdf-mock-price"></div>
+        </div>
+        <div class="pdf-page-2"></div>
+        <div class="pdf-page-3"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MORE BENEFITS -->
+<section class="section alt">
+  <div class="section-center reveal"><div class="section-label">Преимущества</div><h2 class="section-title">Почему организаторы выбирают нас</h2></div>
+  <div class="container">
+    <div class="ben-grid">
+      <div class="ben reveal"><div class="ben-icon">🎯</div><div class="ben-t">Точный поиск</div><div class="ben-d">Фильтры по городу, вместимости, цене, типу, оборудованию и кейтерингу</div></div>
+      <div class="ben reveal"><div class="ben-icon">⚡</div><div class="ben-t">Быстрые ответы</div><div class="ben-d">Площадки отвечают в течение часа. Приоритет для Premium-аккаунтов</div></div>
+      <div class="ben reveal"><div class="ben-icon">🔒</div><div class="ben-t">Без посредников</div><div class="ben-d">Общайтесь с площадкой напрямую. Никаких скрытых комиссий</div></div>
+      <div class="ben reveal"><div class="ben-icon">📋</div><div class="ben-t">Чеклист решений</div><div class="ben-d">Структурируйте выбор по критериям и принимайте решение объективно</div></div>
+      <div class="ben reveal"><div class="ben-icon">❤️</div><div class="ben-t">Избранное</div><div class="ben-d">Сохраняйте понравившиеся площадки и возвращайтесь к ним</div></div>
+      <div class="ben reveal"><div class="ben-icon">🗺</div><div class="ben-t">Поиск на карте</div><div class="ben-d">Находите площадки рядом с нужной локацией с визуализацией на карте</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="section-center reveal"><div class="section-label">Отзывы</div><h2 class="section-title">Организаторы о платформе</h2></div>
+  <div class="container">
+    <div class="test-grid">
+      <div class="test reveal"><div class="test-q">Раньше тратила 2 дня на поиск и сравнение площадок. Теперь укладываюсь в час — сравнение и PDF презентация для директора готовы.</div><div class="test-author"><div class="test-av">ЕП</div><div><div class="test-name">Елена Петрова</div><div class="test-role">Event-менеджер, Москва</div></div></div></div>
+      <div class="test reveal"><div class="test-q">Удобно, что можно сразу написать площадке в чат. Не нужно искать контакты и звонить — ответ приходит в течение получаса.</div><div class="test-author"><div class="test-av">АС</div><div><div class="test-name">Алексей Соколов</div><div class="test-role">HR-директор, Казань</div></div></div></div>
+      <div class="test reveal"><div class="test-q">Чеклист — находка! Теперь решение о площадке принимается структурированно. Руководство оценило PDF с тремя вариантами.</div><div class="test-author"><div class="test-av">НВ</div><div><div class="test-name">Наталья Волкова</div><div class="test-role">Организатор конференций</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-block">
+  <div class="cta-bg"></div>
+  <div class="cta-inner reveal">
+    <h2 class="cta-h">Начните подбирать площадку прямо сейчас</h2>
+    <p class="cta-p">Бесплатная регистрация. Сравнение, PDF и чат с площадками — всё включено.</p>
+    <button class="cta-btn" onclick="MH.go('search.html')">Найти площадку</button>
+    <div class="cta-note">Бесплатно · Без обязательств · Результат за минуты</div>
+  </div>
+</section>
+
+<div id="mh-footer"></div>
+
+<script>
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+<script src="shared.js"></script>
+<script>MH.init('agencies');</script>
+</body>
+</html>

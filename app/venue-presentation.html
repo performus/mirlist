@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сравнение площадок — Презентация</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--sd:#354E63;--sm:#3E596F;--sx:#7A919F;--sp:#B4C3CC;--bg:#F8F5F2;--w:#FFF;--gold:#F0B95A;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:#1a1a1a;color:var(--sd);overflow:hidden;height:100vh;}
+.deck{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.slide{position:absolute;width:min(95vw,960px);aspect-ratio:16/10;background:var(--w);border-radius:16px;box-shadow:0 20px 80px rgba(0,0,0,.3);overflow:hidden;opacity:0;transform:scale(.95);transition:all .5s cubic-bezier(.22,1,.36,1);pointer-events:none;display:flex;flex-direction:column;}
+.slide.active{opacity:1;transform:scale(1);pointer-events:auto;}
+.slide-inner{flex:1;padding:40px 48px;position:relative;overflow:hidden;}
+
+/* Nav */
+.slide-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);padding:10px 20px;border-radius:50px;z-index:100;}
+.slide-nav button{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:16px;}
+.slide-nav button:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);}
+.slide-nav button:disabled{opacity:.3;pointer-events:none;}
+.slide-counter{color:rgba(255,255,255,.6);font-size:13px;font-weight:600;min-width:60px;text-align:center;}
+.slide-dots{display:flex;gap:4px;}
+.slide-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s;cursor:pointer;}
+.slide-dot.active{background:var(--c);width:24px;border-radius:4px;}
+
+/* Slide components */
+.s-accent{position:absolute;top:0;left:0;right:0;height:4px;}
+.s-logo{font-family:'DM Serif Display',serif;font-size:16px;color:var(--sd);position:absolute;top:16px;left:24px;}
+.s-logo i{color:var(--c);font-style:normal;}
+.s-page{position:absolute;top:16px;right:24px;font-size:11px;color:var(--sp);font-weight:500;}
+.s-footer{height:28px;background:var(--bg);display:flex;align-items:center;padding:0 24px;font-size:9px;color:var(--sp);justify-content:space-between;flex-shrink:0;}
+
+/* Typography */
+.s-badge{display:inline-block;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:600;color:#fff;margin-bottom:12px;}
+.s-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:8px;line-height:1.2;}
+.s-subtitle{font-size:14px;color:var(--sx);margin-bottom:24px;line-height:1.5;}
+.s-section{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.s-section::before{content:'';width:4px;height:20px;border-radius:2px;background:var(--c);}
+
+/* Cards grid */
+.s-grid{display:grid;gap:12px;}
+.s-grid-2{grid-template-columns:1fr 1fr;}
+.s-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.s-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.s-grid-6{grid-template-columns:repeat(6,1fr);}
+.s-card{background:var(--bg);border-radius:12px;padding:16px;text-align:center;}
+.s-card.featured{background:var(--cs);border:1.5px solid var(--c);}
+.s-card-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sx);margin-bottom:6px;}
+.s-card-val{font-size:22px;font-weight:700;color:var(--sd);}
+.s-card-val.coral{color:var(--c);}
+.s-card-note{font-size:10px;color:var(--sp);margin-top:4px;line-height:1.4;}
+
+/* Amenity chips */
+.s-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.s-chip{padding:6px 14px;border-radius:50px;font-size:11px;font-weight:500;background:var(--bg);color:var(--sx);}
+.s-chip.on{background:var(--cs);color:var(--c);font-weight:600;}
+
+/* Stars */
+.s-stars{color:var(--gold);font-size:14px;letter-spacing:2px;}
+
+/* Table */
+.s-table{width:100%;border-collapse:collapse;font-size:12px;}
+.s-table th{background:var(--sd);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:11px;}
+.s-table td{padding:9px 14px;border-bottom:1px solid rgba(197,227,225,.15);color:var(--sm);}
+.s-table tr:nth-child(even){background:var(--bg);}
+.s-table .hl{font-weight:700;color:var(--c);}
+
+/* Bar chart */
+.s-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.s-bar-label{width:80px;font-size:11px;color:var(--sx);text-align:right;flex-shrink:0;}
+.s-bar{height:22px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:600;color:#fff;min-width:24px;}
+
+/* Split layout */
+.s-split{display:flex;gap:32px;height:100%;}
+.s-split-left{flex:0 0 42%;display:flex;align-items:center;justify-content:center;border-radius:12px;position:relative;overflow:hidden;}
+.s-split-right{flex:1;display:flex;flex-direction:column;justify-content:center;}
+
+/* Contact card */
+.s-contact{display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg);border-radius:12px;}
+.s-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+
+/* CTA block */
+.s-cta{padding:20px;border-radius:12px;text-align:center;}
+.s-cta-title{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;margin-bottom:6px;}
+.s-cta-sub{font-size:12px;color:rgba(255,255,255,.7);}
+
+/* Print */
+@media print{
+  body{background:#fff;overflow:visible;height:auto;}
+  .slide-nav{display:none;}
+  .slide{position:relative;opacity:1;transform:none;pointer-events:auto;page-break-after:always;margin:0;border-radius:0;box-shadow:none;width:100%;height:auto;aspect-ratio:16/10;}
+  .deck{display:block;height:auto;}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck"></div>
+
+<div class="slide-nav">
+  <button onclick="go(-1)" id="prevBtn">‹</button>
+  <div class="slide-dots" id="dots"></div>
+  <span class="slide-counter" id="counter">1/15</span>
+  <button onclick="go(1)" id="nextBtn">›</button>
+  <button onclick="window.print()" title="Скачать PDF" style="width:auto;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.03em;border-radius:50px;">PDF</button>
+</div>
+
+<script>
+const V=[
+  {id:1,name:'Конференц-зал «Панорама»',type:'Конференц-зал',loc:'Москва, Пресня',addr:'Пресненская наб., 12',metro:'м. Выставочная, 7 мин',ph:'12 000',pd:'45 000',dep:'20 000',pkg:'85 000',r:4.9,rv:127,cap:250,area:380,halls:3,
+   fmt:{Театр:250,Банкет:120,Фуршет:200,Класс:80,Кабаре:100,Переговорная:20},
+   am:['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Техподдержка'],
+   cat:'Свой + внешний',hrs:'8:00–23:00',cancel:'7 дн.—100%, 3 дн.—50%',
+   desc:'Современный зал на 18-м этаже с панорамным видом на Москву-реку. Профессиональное оборудование, мобильные перегородки, 3 независимые зоны.',
+   color:'#EB7454',bg:'#FCEAE4'},
+  {id:2,name:'Лофт «Кирпич»',type:'Лофт',loc:'Москва, Курская',addr:'ул. Земляной Вал, 28',metro:'м. Курская, 5 мин',ph:'8 000',pd:'28 000',dep:'15 000',pkg:'50 000',r:4.6,rv:112,cap:100,area:280,halls:1,
+   fmt:{Театр:100,Банкет:60,Фуршет:80,Класс:40,Кабаре:50,Переговорная:15},
+   am:['Wi-Fi','Проектор','Звук','Кондиционер','Мебель','Парковка'],
+   cat:'Внешний',hrs:'10:00–22:00',cancel:'5 дн.—100%, 2 дн.—50%',
+   desc:'Кирпичные стены, высокие потолки, индустриальная эстетика. Идеален для корпоративов, фотосъёмок и неформальных мероприятий.',
+   color:'#79B9C3',bg:'#D9ECEB'},
+  {id:3,name:'Усадьба «Белые ночи»',type:'Банкетный зал',loc:'Москва, Рублёвка',addr:'Рублёво-Успенское ш., 5',metro:'Загородная площадка',ph:'—',pd:'95 000',dep:'50 000',pkg:'180 000',r:4.9,rv:203,cap:150,area:450,halls:2,
+   fmt:{Театр:150,Банкет:120,Фуршет:180,Класс:0,Кабаре:80,Переговорная:0},
+   am:['Wi-Fi','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель'],
+   cat:'Свой',hrs:'9:00–01:00',cancel:'14 дн.—100%, 7 дн.—50%',
+   desc:'Элегантная усадьба с ландшафтным парком, два зала, летняя терраса, фонтан. Полный сервис для свадеб и торжеств.',
+   color:'#C4956A',bg:'#F0E4D8'},
+];
+(function(){const p=new URLSearchParams(location.search).get('ids');if(p){const s=new Set(p.split(',').map(Number));const f=V.filter(v=>s.has(v.id));if(f.length)V.length=0,f.forEach(v=>V.push(v));}})();
+const ALL_AM=['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель','Техподдержка'];
+const FMT_E={Театр:'🎭',Банкет:'🍽',Фуршет:'🥂',Класс:'📚',Кабаре:'🎤',Переговорная:'💼'};
+const AM_E={'Wi-Fi':'📶',Проектор:'📽',Звук:'🔊',Свет:'💡',Сцена:'🎤',Кондиционер:'❄️',Гардероб:'🧥',Парковка:'🅿️',Кейтеринг:'🍽',Бар:'🍸',Мебель:'🪑',Техподдержка:'🔧'};
+
+function stars(r){return '★'.repeat(Math.floor(r))+'☆'.repeat(5-Math.floor(r));}
+
+let slides=[];
+
+// COVER
+slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
+  <div style="position:absolute;top:0;left:0;right:0;height:50%;background:var(--cs)"></div>
+  <div style="position:relative;z-index:1">
+    <div class="s-logo" style="position:static;font-size:20px;margin-bottom:24px">Площадки<i>.</i></div>
+    <div class="s-title" style="font-size:36px;margin-bottom:12px">Сравнение площадок</div>
+    <div class="s-subtitle" style="font-size:16px;margin-bottom:32px">Персональная подборка для вашего мероприятия · Май 2026</div>
+    <div style="display:flex;gap:12px;margin-bottom:40px">${V.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 18px;background:var(--w);border-radius:50px;box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="width:10px;height:10px;border-radius:50%;background:${v.color}"></div><span style="font-size:13px;font-weight:600;color:var(--sd)">${v.name}</span></div>`).join('')}</div>
+    <div class="s-grid s-grid-4" style="max-width:700px">
+      <div class="s-card"><div class="s-card-label">Площадки</div><div class="s-card-val coral">${V.length}</div></div>
+      <div class="s-card"><div class="s-card-label">Город</div><div class="s-card-val">Москва</div></div>
+      <div class="s-card"><div class="s-card-label">Макс. вместимость</div><div class="s-card-val">250</div></div>
+      <div class="s-card"><div class="s-card-label">Мин. цена</div><div class="s-card-val">28 000 ₽</div></div>
+    </div>
+  </div>
+</div>`);
+
+// VENUE SLIDES (4 each)
+V.forEach((v,vi)=>{
+  // Slide 1: Overview
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+    <div class="s-split" style="margin-top:24px">
+      <div class="s-split-left" style="background:${v.bg}">
+        <div style="text-align:center"><div style="font-size:64px;opacity:.3;margin-bottom:8px">🏢</div><div style="font-size:12px;color:${v.color};font-weight:600">Фото площадки</div></div>
+      </div>
+      <div class="s-split-right">
+        <div class="s-badge" style="background:${v.color}">${v.type}</div>
+        <div class="s-title">${v.name}</div>
+        <div style="font-size:13px;color:var(--sx);margin-bottom:6px">📍 ${v.loc} · ${v.addr}</div>
+        <div style="font-size:13px;color:var(--sx);margin-bottom:16px">🚇 ${v.metro}</div>
+        <div style="margin-bottom:16px"><span class="s-stars">${stars(v.r)}</span> <b style="color:var(--sd);font-size:15px">${v.r}</b> <span style="font-size:12px;color:var(--sx)">(${v.rv} отзывов)</span></div>
+        <div style="font-size:13px;color:var(--sm);line-height:1.65;margin-bottom:20px">${v.desc}</div>
+        <div class="s-grid s-grid-4" style="gap:8px">
+          <div class="s-card" style="padding:12px"><div class="s-card-label">Вместимость</div><div class="s-card-val" style="font-size:18px;color:${v.color}">${v.cap} чел.</div></div>
+          <div class="s-card" style="padding:12px"><div class="s-card-label">Площадь</div><div class="s-card-val" style="font-size:18px">${v.area} м²</div></div>
+          <div class="s-card" style="padding:12px"><div class="s-card-label">Залов</div><div class="s-card-val" style="font-size:18px">${v.halls}</div></div>
+          <div class="s-card" style="padding:12px"><div class="s-card-label">Цена/день</div><div class="s-card-val" style="font-size:18px;color:${v.color}">${v.pd} ₽</div></div>
+        </div>
+      </div>
+    </div>
+  </div>`);
+
+  // Slide 2: Pricing
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+    <div style="margin-top:24px"><div class="s-section">Цены и условия</div>
+    <div class="s-grid s-grid-4" style="margin-bottom:28px">
+      <div class="s-card"><div class="s-card-label">За час</div><div class="s-card-val" style="font-size:20px">${v.ph} ₽</div><div class="s-card-note">Мин. 3 часа</div></div>
+      <div class="s-card featured"><div class="s-card-label">За день</div><div class="s-card-val coral" style="font-size:20px">${v.pd} ₽</div><div class="s-card-note">8 часов</div></div>
+      <div class="s-card"><div class="s-card-label">Депозит</div><div class="s-card-val" style="font-size:20px">${v.dep} ₽</div><div class="s-card-note">Возвращается</div></div>
+      <div class="s-card"><div class="s-card-label">Под ключ</div><div class="s-card-val" style="font-size:20px">${v.pkg} ₽</div><div class="s-card-note">Зал+кейтеринг</div></div>
+    </div>
+    <div class="s-grid s-grid-2" style="gap:20px">
+      <div><div class="s-section" style="font-size:16px">Включено</div><div class="s-chips">${['Аренда зала','Wi-Fi','Мебель','Уборка','Гардероб','Координатор'].map(x=>`<div class="s-chip on">✓ ${x}</div>`).join('')}</div></div>
+      <div><div class="s-section" style="font-size:16px">Условия</div><div style="font-size:13px;color:var(--sm);line-height:1.8">Часы работы: ${v.hrs}<br>Отмена: ${v.cancel}<br>Кейтеринг: ${v.cat}</div></div>
+    </div>
+    </div>
+  </div>`);
+
+  // Slide 3: Capacity
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+    <div style="margin-top:24px"><div class="s-section">Вместимость и форматы</div>
+    <div class="s-grid s-grid-6" style="margin-bottom:28px">${Object.entries(v.fmt).map(([f,c])=>`<div class="s-card" style="padding:14px;${c===0?'opacity:.35':''}"><div style="font-size:20px;margin-bottom:6px">${FMT_E[f]||''}</div><div style="font-size:11px;color:var(--sx);margin-bottom:4px">${f}</div><div style="font-size:20px;font-weight:700;color:${c>0?v.color:'var(--sp)'}">${c||'—'}</div>${c>0?'<div style="font-size:10px;color:var(--sp)">чел.</div>':''}</div>`).join('')}</div>
+    <div style="max-width:600px">${Object.entries(v.fmt).filter(([,c])=>c>0).map(([f,c])=>`<div class="s-bar-row"><div class="s-bar-label">${f}</div><div class="s-bar" style="width:${c/v.cap*100}%;background:${v.color}">${c}</div></div>`).join('')}</div>
+    </div>
+  </div>`);
+
+  // Slide 4: Amenities
+  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo">Площадки<i>.</i></div><div class="s-page">${v.name}</div>
+    <div style="margin-top:24px"><div class="s-section">Услуги и удобства</div>
+    <div class="s-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px">${ALL_AM.map(a=>{const has=v.am.includes(a);return `<div class="s-chip${has?' on':''}" style="padding:10px 14px;border-radius:10px;text-align:center;font-size:12px;${has?'':'opacity:.35'}">${AM_E[a]||''} ${a}</div>`;}).join('')}</div>
+    <div class="s-grid s-grid-3" style="gap:16px">
+      <div><div class="s-section" style="font-size:14px">Кейтеринг</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Тип: ${v.cat}<br>Кофе-брейк: от 800 ₽/чел.<br>Диетическое меню по запросу</div></div>
+      <div><div class="s-section" style="font-size:14px">Доступность</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Лифт для МГН<br>Пандус у входа<br>Адаптированные санузлы</div></div>
+      <div><div class="s-section" style="font-size:14px">Правила</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Часы: ${v.hrs}<br>Отмена: ${v.cancel}<br>Депозит: ${v.dep} ₽</div></div>
+    </div>
+    </div>
+  </div>`);
+});
+
+// COMPARISON TABLE
+slides.push(`<div class="slide-inner"><div class="s-accent" style="background:var(--c)"></div><div class="s-logo">Площадки<i>.</i></div>
+  <div style="margin-top:24px"><div class="s-section">Сравнительная таблица</div>
+  <table class="s-table"><thead><tr><th>Параметр</th>${V.map(v=>`<th style="background:${v.color}">${v.name.length>20?v.name.slice(0,18)+'...':v.name}</th>`).join('')}</tr></thead><tbody>
+  ${[['Тип',V.map(v=>v.type)],['Вместимость',V.map(v=>v.cap+' чел.')],['Площадь',V.map(v=>v.area+' м²')],['Залов',V.map(v=>v.halls)],['Цена/день',V.map(v=>v.pd+' ₽')],['Цена/час',V.map(v=>v.ph+' ₽')],['Рейтинг',V.map(v=>'★ '+v.r)],['Отзывы',V.map(v=>v.rv)],['Кейтеринг',V.map(v=>v.cat)],['Театр',V.map(v=>v.fmt['Театр']||'—')],['Банкет',V.map(v=>v.fmt['Банкет']||'—')],['Фуршет',V.map(v=>v.fmt['Фуршет']||'—')]].map(([l,vals])=>`<tr><td style="font-weight:600">${l}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div>
+</div>`);
+
+// SUMMARY
+slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
+  <div style="position:absolute;top:0;left:0;right:0;height:45%;background:var(--cs)"></div>
+  <div style="position:relative;z-index:1">
+    <div class="s-logo" style="position:static;font-size:18px;margin-bottom:20px">Площадки<i>.</i></div>
+    <div class="s-title" style="font-size:30px">Свяжитесь с нами</div>
+    <div class="s-subtitle">Мы поможем выбрать идеальную площадку</div>
+    <div class="s-grid s-grid-2" style="gap:20px;max-width:700px">
+      <div class="s-contact">
+        <div class="s-avatar" style="background:var(--c);color:#fff">ЕП</div>
+        <div><div style="font-size:14px;font-weight:600;color:var(--sd)">Елена Петрова</div><div style="font-size:12px;color:var(--sx)">Менеджер подбора</div><div style="font-size:12px;color:var(--sx);margin-top:4px">📧 elena@ploshchadki.ru<br>📱 +7 (999) 123-45-67</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">${V.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg);border-radius:8px"><div style="width:8px;height:8px;border-radius:50%;background:${v.color};flex-shrink:0"></div><span style="font-size:13px;font-weight:600;color:var(--sd);flex:1">${v.name}</span><span style="font-size:12px;color:var(--sx)">от ${v.pd} ₽</span></div>`).join('')}</div>
+    </div>
+    <div class="s-cta" style="background:var(--c);margin-top:24px;max-width:700px">
+      <div class="s-cta-title">Забронируйте на ploshchadki.ru</div>
+      <div class="s-cta-sub">Бесплатный подбор · Ответ за 2 часа · Без комиссий</div>
+    </div>
+  </div>
+</div>`);
+
+// RENDER
+const deck=document.getElementById('deck');
+slides.forEach((html,i)=>{
+  const el=document.createElement('div');
+  el.className='slide'+(i===0?' active':'');
+  el.innerHTML=html+`<div class="s-footer"><span>Площадки. — ploshchadki.ru</span><span>${i+1} / ${slides.length}</span></div>`;
+  deck.appendChild(el);
+});
+
+// Dots
+const dots=document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='slide-dot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dots.appendChild(d);
+});
+
+let cur=0;
+function goTo(n){
+  if(n<0||n>=slides.length)return;
+  document.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.slide-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+  cur=n;
+  document.getElementById('counter').textContent=`${n+1}/${slides.length}`;
+  document.getElementById('prevBtn').disabled=n===0;
+  document.getElementById('nextBtn').disabled=n===slides.length-1;
+}
+function go(d){goTo(cur+d);}
+
+// Keyboard nav
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')go(1);
+  if(e.key==='ArrowLeft')go(-1);
+});
+</script>
+</body>
+</html>

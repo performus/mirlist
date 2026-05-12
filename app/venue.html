@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конференц-зал «Панорама» — Площадки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#E98667;--coral-hover:#D97757;--coral-soft:#F6DDD3;--coral-glow:rgba(233,134,103,.18);
+  --peach:#F6E6DE;--peach-pale:#EFD6CA;
+  --aqua-1:#D9ECEB;--aqua-2:#C5E3E1;--aqua-3:#A8D4D8;--aqua-pale:#EDF6F5;
+  --slate:#46627A;--slate-mid:#3E596F;--slate-deep:#354E63;--slate-muted:#7A919F;--slate-pale:#B4C3CC;
+  --bg:#F8F5F2;--white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05);--sh-md:0 4px 20px rgba(53,78,99,.07);--sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+img{display:block;max-width:100%;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page{animation:pageIn .45s ease both;}
+
+/* ═══ HEADER ═══ */
+.header{position:sticky;top:0;z-index:100;height:64px;padding:0 40px;display:flex;align-items:center;gap:28px;background:var(--white);border-bottom:1px solid rgba(197,227,225,.35);}
+.logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--slate-deep);letter-spacing:-.4px;white-space:nowrap;}
+.logo i{font-style:normal;color:var(--coral);}
+.header-nav{display:flex;gap:6px;}
+.header-nav a{font-size:13.5px;font-weight:500;color:var(--slate-muted);padding:7px 16px;border-radius:var(--r-full);transition:color .2s,background .2s;}
+.header-nav a:hover{color:var(--slate);background:var(--aqua-pale);}
+.header-nav a.active{color:var(--coral);background:var(--coral-soft);font-weight:600;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.h-btn{padding:8px 20px;border-radius:var(--r-full);font-size:13px;font-weight:600;border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;display:flex;align-items:center;gap:6px;}
+.h-btn:hover{border-color:var(--coral);color:var(--coral);}
+.h-btn.primary{background:var(--coral);color:#fff;border-color:var(--coral);box-shadow:var(--sh-coral);}
+.h-btn.primary:hover{background:var(--coral-hover);}
+
+/* ═══ BREADCRUMB ═══ */
+.breadcrumb{padding:16px 40px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate-muted);}
+.breadcrumb a{color:var(--slate-muted);transition:color .2s;}
+.breadcrumb a:hover{color:var(--coral);}
+.breadcrumb svg{opacity:.4;flex-shrink:0;}
+.breadcrumb .current{color:var(--slate);font-weight:500;}
+.back-link{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--coral);margin-right:16px;padding:6px 14px;border-radius:var(--r-full);background:var(--coral-soft);transition:all .2s;}
+.back-link:hover{background:var(--coral);color:#fff;}
+
+/* ═══ GALLERY ═══ */
+.gallery{padding:0 40px 32px;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:440px;overflow:hidden;border-radius:var(--r-lg);}
+.gallery-hero{grid-row:span 2;border-radius:var(--r-lg) 0 0 var(--r-lg);overflow:hidden;position:relative;cursor:pointer;}
+.gallery-hero svg{width:100%;height:100%;}
+.gallery-hero:hover svg{transform:scale(1.02);}
+.gallery-hero svg{transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.gallery-side{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.gallery-thumb{overflow:hidden;cursor:pointer;position:relative;border-radius:4px;}
+.gallery-thumb svg{width:100%;height:100%;transition:transform .5s;}
+.gallery-thumb:hover svg{transform:scale(1.06);}
+.gallery-thumb:last-child::after{content:'Ещё 12 фото';position:absolute;inset:0;background:rgba(53,78,99,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;border-radius:4px;}
+.gallery-side:first-of-type .gallery-thumb:first-child{border-radius:0 var(--r-lg) 0 0;}
+.gallery-side:last-of-type .gallery-thumb:last-child{border-radius:0 0 var(--r-lg) 0;}
+
+/* ═══ CONTENT LAYOUT ═══ */
+.content-wrap{display:flex;gap:32px;padding:0 40px;max-width:1400px;margin:0 auto;}
+.content-main{flex:1;min-width:0;}
+.content-sidebar{width:360px;flex-shrink:0;position:relative;}
+
+/* ═══ VENUE HEADER ═══ */
+.venue-header{margin-bottom:32px;}
+.venue-type{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:var(--r-full);background:var(--coral-soft);color:var(--coral);font-size:12px;font-weight:600;margin-bottom:12px;}
+.venue-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,3.5vw,40px);color:var(--slate-deep);line-height:1.15;letter-spacing:-.5px;margin-bottom:8px;}
+.venue-subtitle{font-size:16px;color:var(--slate-muted);line-height:1.5;margin-bottom:20px;}
+
+.venue-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.venue-chip{padding:6px 14px;border-radius:var(--r-full);font-size:12.5px;font-weight:500;background:var(--peach);color:var(--slate-mid);border:1px solid transparent;}
+.venue-chip.coral{background:var(--coral-soft);color:var(--coral);}
+
+.venue-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;padding:20px 0;border-top:1px solid rgba(197,227,225,.3);border-bottom:1px solid rgba(197,227,225,.3);}
+.stat-item{display:flex;flex-direction:column;gap:4px;}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-muted);}
+.stat-value{font-size:17px;font-weight:700;color:var(--slate-deep);}
+.stat-value.coral{color:var(--coral);}
+
+/* ═══ SIDEBAR CTA ═══ */
+.sidebar-sticky{position:sticky;top:80px;}
+.cta-card{background:var(--white);border:1px solid rgba(233,134,103,.15);border-radius:var(--r-lg);padding:28px;box-shadow:var(--sh-md);margin-bottom:20px;}
+.cta-price{font-size:14px;color:var(--slate-muted);margin-bottom:4px;}
+.cta-price strong{font-size:28px;font-weight:700;color:var(--slate-deep);}
+.cta-price span{font-size:14px;font-weight:400;}
+.cta-divider{height:1px;background:rgba(197,227,225,.3);margin:18px 0;}
+.cta-btn{width:100%;padding:16px;border-radius:var(--r-md);font-size:15px;font-weight:600;border:none;transition:all .25s;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.cta-btn.primary{background:var(--coral);color:#fff;box-shadow:var(--sh-coral);}
+.cta-btn.primary:hover{background:var(--coral-hover);}
+.cta-btn.secondary{background:var(--coral-soft);color:var(--coral);border:1.5px solid rgba(233,134,103,.2);}
+.cta-btn.secondary:hover{background:var(--coral);color:#fff;}
+.cta-btn.outline{background:none;color:var(--slate);border:1.5px solid var(--slate-pale);}
+.cta-btn.outline:hover{border-color:var(--coral);color:var(--coral);}
+.cta-meta{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.cta-meta-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--slate-muted);}
+.cta-meta-item svg{color:var(--coral);flex-shrink:0;}
+.cta-meta-item b{color:var(--slate);font-weight:600;}
+
+/* Contact card */
+.contact-card{background:var(--white);border:1px solid rgba(197,227,225,.2);border-radius:var(--r-lg);padding:22px;box-shadow:var(--sh-sm);}
+.contact-top{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.contact-avatar{width:48px;height:48px;border-radius:50%;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;color:var(--coral);font-size:18px;font-weight:700;}
+.contact-info{flex:1;}
+.contact-name{font-size:14.5px;font-weight:600;color:var(--slate-deep);}
+.contact-role{font-size:12.5px;color:var(--slate-muted);}
+.contact-stats{display:flex;gap:16px;margin-bottom:14px;}
+.contact-stat{font-size:12px;color:var(--slate-muted);display:flex;align-items:center;gap:5px;}
+.contact-stat svg{color:var(--coral);}
+.contact-stat b{color:var(--slate);font-weight:600;}
+
+/* ═══ SECTIONS ═══ */
+.section{margin-bottom:48px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:24px;color:var(--slate-deep);letter-spacing:-.3px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.section-title::before{content:'';width:4px;height:24px;border-radius:2px;background:var(--coral);}
+.section-text{font-size:15px;line-height:1.75;color:var(--slate-mid);}
+.section-text p{margin-bottom:14px;}
+
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.price-card{background:var(--white);border:1px solid rgba(233,134,103,.12);border-radius:var(--r-md);padding:22px;text-align:center;transition:transform .3s,box-shadow .3s;}
+.price-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);}
+.price-card.featured{border-color:var(--coral);background:linear-gradient(to bottom,var(--coral-soft),var(--white));position:relative;}
+.price-card.featured::before{content:'Популярный';position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:3px 14px;border-radius:var(--r-full);background:var(--coral);color:#fff;font-size:11px;font-weight:700;}
+.price-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-muted);margin-bottom:8px;}
+.price-amount{font-size:26px;font-weight:700;color:var(--slate-deep);margin-bottom:4px;}
+.price-note{font-size:12.5px;color:var(--slate-muted);line-height:1.5;}
+
+/* Capacity */
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+.cap-card{background:var(--white);border:1px solid rgba(197,227,225,.2);border-radius:var(--r-md);padding:18px;text-align:center;transition:all .25s;}
+.cap-card:hover{border-color:var(--coral-soft);box-shadow:var(--sh-sm);}
+.cap-icon{font-size:28px;margin-bottom:8px;}
+.cap-format{font-size:13px;font-weight:600;color:var(--slate-deep);margin-bottom:4px;}
+.cap-num{font-size:22px;font-weight:700;color:var(--coral);}
+.cap-num span{font-size:12px;font-weight:400;color:var(--slate-muted);}
+.cap-extra{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+.cap-extra-item{background:var(--peach);border-radius:var(--r-sm);padding:16px;display:flex;align-items:center;gap:12px;}
+.cap-extra-label{font-size:13px;color:var(--slate-mid);}
+.cap-extra-value{font-size:18px;font-weight:700;color:var(--slate-deep);margin-left:auto;white-space:nowrap;}
+
+/* Amenities */
+.amenities-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+.amenity{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r-sm);background:var(--white);border:1px solid rgba(197,227,225,.18);font-size:13.5px;color:var(--slate-mid);transition:all .2s;}
+.amenity:hover{border-color:var(--coral-soft);background:var(--peach);}
+.amenity svg{color:var(--coral);flex-shrink:0;}
+
+/* Catering */
+.catering-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.catering-item{background:var(--white);border:1px solid rgba(197,227,225,.18);border-radius:var(--r-md);padding:18px;display:flex;align-items:flex-start;gap:12px;}
+.catering-icon{width:40px;height:40px;border-radius:10px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.catering-text{flex:1;}
+.catering-name{font-size:14px;font-weight:600;color:var(--slate-deep);margin-bottom:3px;}
+.catering-desc{font-size:12.5px;color:var(--slate-muted);line-height:1.45;}
+
+/* Reviews */
+.review-summary{display:flex;align-items:center;gap:24px;margin-bottom:24px;padding:24px;background:var(--coral-soft);border-radius:var(--r-lg);}
+.review-score{font-size:48px;font-weight:700;color:var(--coral);line-height:1;}
+.review-stars{display:flex;gap:3px;margin-bottom:4px;}
+.review-stars svg{color:var(--coral);}
+.review-count{font-size:14px;color:var(--slate-muted);}
+.reviews-list{display:flex;flex-direction:column;gap:16px;}
+.review-card{background:var(--white);border:1px solid rgba(197,227,225,.18);border-radius:var(--r-md);padding:20px;}
+.review-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:var(--aqua-1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--slate);}
+.review-author{font-size:14px;font-weight:600;color:var(--slate-deep);}
+.review-date{font-size:12px;color:var(--slate-muted);}
+.review-text{font-size:14px;color:var(--slate-mid);line-height:1.65;}
+
+/* Location */
+.location-block{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.location-map{border-radius:var(--r-lg);overflow:hidden;min-height:260px;background:var(--aqua-pale);}
+.location-map svg{width:100%;height:100%;}
+.location-info{display:flex;flex-direction:column;gap:14px;}
+.loc-row{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--slate-mid);}
+.loc-row svg{color:var(--coral);flex-shrink:0;margin-top:2px;}
+.loc-row b{color:var(--slate-deep);font-weight:600;}
+
+/* Rules */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.rule-item{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:var(--r-sm);background:var(--white);border:1px solid rgba(197,227,225,.18);font-size:13.5px;color:var(--slate-mid);line-height:1.5;}
+.rule-item svg{color:var(--coral);flex-shrink:0;margin-top:2px;}
+
+/* Accessibility */
+.access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+.access-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r-sm);background:var(--aqua-pale);font-size:13.5px;color:var(--slate-mid);}
+.access-item svg{color:var(--coral);flex-shrink:0;}
+
+/* Similar venues scroll */
+.similar-scroll{display:flex;gap:18px;overflow-x:auto;padding:4px 0 20px;scrollbar-width:none;}
+.similar-scroll::-webkit-scrollbar{display:none;}
+.sim-card{flex:0 0 280px;border-radius:var(--r-lg);overflow:hidden;background:var(--white);border:1px solid rgba(197,227,225,.15);cursor:pointer;transition:transform .35s,box-shadow .35s;}
+.sim-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);}
+.sim-img{width:100%;height:160px;overflow:hidden;}
+.sim-img svg{width:100%;height:100%;transition:transform .5s;}
+.sim-card:hover .sim-img svg{transform:scale(1.05);}
+.sim-body{padding:14px 16px 16px;}
+.sim-name{font-size:15px;font-weight:600;color:var(--slate-deep);margin-bottom:4px;}
+.sim-loc{font-size:12.5px;color:var(--slate-muted);margin-bottom:8px;}
+.sim-foot{display:flex;align-items:center;justify-content:space-between;}
+.sim-price{font-size:12px;color:var(--slate-muted);}
+.sim-price strong{font-size:15px;font-weight:700;color:var(--slate-deep);}
+.sim-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--slate-deep);}
+.sim-rating svg{color:#F0B95A;}
+
+/* ═══ FOOTER ═══ */
+.footer{background:var(--slate-deep);color:rgba(255,255,255,.6);padding:60px 40px 32px;margin-top:60px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1400px;margin:0 auto 40px;}
+.footer-brand p{font-size:13.5px;line-height:1.7;max-width:280px;margin-top:12px;color:rgba(255,255,255,.4);}
+.footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:16px;}
+.footer-col a{display:block;font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:9px;transition:color .2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1400px;margin:0 auto;padding-top:24px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.25);}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1024px){
+  .content-wrap{flex-direction:column;} .content-sidebar{width:100%;} .sidebar-sticky{position:static;}
+  .gallery{grid-template-columns:1fr;max-height:320px;} .gallery-hero{grid-row:span 1;}
+  .location-block{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  .header,.breadcrumb,.gallery,.content-wrap,.footer{padding-left:20px;padding-right:20px;}
+  .header{gap:12px;} .header-nav a{padding:6px 10px;font-size:12.5px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px;}
+  .gallery-side{display:none;}
+  .cap-extra{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div id="mh-nav"></div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="list-venue.html" class="back-link">
+    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    К результатам
+  </a>
+  <a href="search.html">Москва</a>
+  <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M4.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+  <a href="list-venue.html">Конференц-залы</a>
+  <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M4.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+  <span class="current">Конференц-зал «Панорама»</span>
+</div>
+
+<!-- GALLERY -->
+<div class="gallery">
+  <div class="gallery-hero" id="heroImg"></div>
+  <div class="gallery-side" id="galSide1"></div>
+  <div class="gallery-side" id="galSide2"></div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+  <div class="content-main">
+
+    <!-- Venue Header -->
+    <div class="venue-header">
+      <div class="venue-type">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="4" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V2.5a2 2 0 014 0V4" stroke="currentColor" stroke-width="1.2"/></svg>
+        Конференц-зал
+      </div>
+      <h1 class="venue-title">Конференц-зал «Панорама»</h1>
+      <p class="venue-subtitle">Современный конференц-зал с панорамным остеклением в многофункциональном пространстве на&nbsp;Пресненской набережной, Москва</p>
+
+      <div class="venue-chips">
+        <span class="venue-chip coral">Конференции</span>
+        <span class="venue-chip coral">Семинары</span>
+        <span class="venue-chip">Деловые встречи</span>
+        <span class="venue-chip">Презентации</span>
+        <span class="venue-chip">Корпоративы</span>
+        <span class="venue-chip">Панорамный вид</span>
+      </div>
+
+      <div class="venue-stats">
+        <div class="stat-item"><div class="stat-label">Город</div><div class="stat-value">Москва</div></div>
+        <div class="stat-item"><div class="stat-label">Вместимость</div><div class="stat-value">до 250 чел.</div></div>
+        <div class="stat-item"><div class="stat-label">Номерной фонд</div><div class="stat-value">3 зала</div></div>
+        <div class="stat-item"><div class="stat-label">Рейтинг</div><div class="stat-value coral">★ 4.9</div></div>
+        <div class="stat-item"><div class="stat-label">Цена</div><div class="stat-value coral">от 45 000 ₽</div></div>
+        <div class="stat-item"><div class="stat-label">Тип</div><div class="stat-value">Конференция</div></div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="section">
+      <h2 class="section-title">О площадке</h2>
+      <div class="section-text">
+        <p>Конференц-зал «Панорама» расположен на 18-м этаже делового центра на Пресненской набережной с потрясающим видом на Москву-реку и&nbsp;исторический центр города. Это современное пространство с панорамным остеклением от пола до потолка, которое наполняет зал естественным светом и создаёт вдохновляющую атмосферу для деловых мероприятий.</p>
+        <p>Зал оснащён профессиональным звуковым и световым оборудованием, системой видеоконференцсвязи и высокоскоростным Wi-Fi. Мобильные перегородки позволяют трансформировать пространство: от камерной переговорной на 20 человек до большого конференц-зала на 250 гостей. Доступны три отдельных зоны с независимой системой климат-контроля.</p>
+        <p>Площадка идеально подходит для конференций, семинаров, презентаций, деловых ужинов и корпоративных мероприятий. Собственная команда менеджеров обеспечивает полное сопровождение мероприятия — от технической подготовки до координации кейтеринга.</p>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section">
+      <h2 class="section-title">Цены</h2>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-label">За час</div>
+          <div class="price-amount">12 000 ₽</div>
+          <div class="price-note">Минимум 3 часа<br>Техника включена</div>
+        </div>
+        <div class="price-card featured">
+          <div class="price-label">За день</div>
+          <div class="price-amount">45 000 ₽</div>
+          <div class="price-note">8 часов аренды<br>Всё оборудование + Wi-Fi</div>
+        </div>
+        <div class="price-card">
+          <div class="price-label">Депозит</div>
+          <div class="price-amount">20 000 ₽</div>
+          <div class="price-note">Возвращается после мероприятия</div>
+        </div>
+        <div class="price-card">
+          <div class="price-label">Пакет «Под ключ»</div>
+          <div class="price-amount">85 000 ₽</div>
+          <div class="price-note">Зал + кейтеринг<br>+ координатор</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capacity -->
+    <div class="section">
+      <h2 class="section-title">Вместимость и форматы</h2>
+      <div class="cap-grid">
+        <div class="cap-card"><div class="cap-icon">🎭</div><div class="cap-format">Театр</div><div class="cap-num">250 <span>чел.</span></div></div>
+        <div class="cap-card"><div class="cap-icon">🍽</div><div class="cap-format">Банкет</div><div class="cap-num">120 <span>чел.</span></div></div>
+        <div class="cap-card"><div class="cap-icon">🥂</div><div class="cap-format">Фуршет</div><div class="cap-num">200 <span>чел.</span></div></div>
+        <div class="cap-card"><div class="cap-icon">📚</div><div class="cap-format">Класс</div><div class="cap-num">80 <span>чел.</span></div></div>
+        <div class="cap-card"><div class="cap-icon">🎤</div><div class="cap-format">Кабаре</div><div class="cap-num">100 <span>чел.</span></div></div>
+        <div class="cap-card"><div class="cap-icon">💼</div><div class="cap-format">Переговорная</div><div class="cap-num">20 <span>чел.</span></div></div>
+      </div>
+      <div class="cap-extra">
+        <div class="cap-extra-item"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" rx="3" stroke="var(--coral)" stroke-width="1.5"/><path d="M6 9h6" stroke="var(--coral)" stroke-width="1.5" stroke-linecap="round"/></svg><span class="cap-extra-label">Максимальная вместимость</span><span class="cap-extra-value">250 чел.</span></div>
+        <div class="cap-extra-item"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="3" y="5" width="12" height="9" rx="2" stroke="var(--coral)" stroke-width="1.5"/><path d="M6 5V3.5a2.5 2.5 0 015 0V5" stroke="var(--coral)" stroke-width="1.5"/></svg><span class="cap-extra-label">Количество залов</span><span class="cap-extra-value">3 зала</span></div>
+        <div class="cap-extra-item"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="var(--coral)" stroke-width="1.5"/><path d="M2 7h14" stroke="var(--coral)" stroke-width="1.5"/></svg><span class="cap-extra-label">Номерной фонд</span><span class="cap-extra-value">—</span></div>
+        <div class="cap-extra-item"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 2v14M2 9h14" stroke="var(--coral)" stroke-width="1.5" stroke-linecap="round"/></svg><span class="cap-extra-label">Трансформируемое пространство</span><span class="cap-extra-value">Да</span></div>
+      </div>
+    </div>
+
+    <!-- Amenities -->
+    <div class="section">
+      <h2 class="section-title">Услуги и удобства</h2>
+      <div class="amenities-grid" id="amenitiesGrid"></div>
+    </div>
+
+    <!-- Catering -->
+    <div class="section">
+      <h2 class="section-title">Кейтеринг и напитки</h2>
+      <div class="catering-grid">
+        <div class="catering-item"><div class="catering-icon">👨‍🍳</div><div class="catering-text"><div class="catering-name">Собственный кейтеринг</div><div class="catering-desc">Меню от шеф-повара, возможна дегустация</div></div></div>
+        <div class="catering-item"><div class="catering-icon">🍴</div><div class="catering-text"><div class="catering-name">Внешний кейтеринг</div><div class="catering-desc">Допускается по согласованию</div></div></div>
+        <div class="catering-item"><div class="catering-icon">🥂</div><div class="catering-text"><div class="catering-name">Бар и напитки</div><div class="catering-desc">Полный бар, безалкогольные напитки включены</div></div></div>
+        <div class="catering-item"><div class="catering-icon">☕</div><div class="catering-text"><div class="catering-name">Кофе-брейк</div><div class="catering-desc">Кофе, чай, выпечка — от 800 ₽/чел.</div></div></div>
+        <div class="catering-item"><div class="catering-icon">🥗</div><div class="catering-text"><div class="catering-name">Диетическое меню</div><div class="catering-desc">Веган, безглютеновое, халяль по запросу</div></div></div>
+        <div class="catering-item"><div class="catering-icon">🍷</div><div class="catering-text"><div class="catering-name">Пробковый сбор</div><div class="catering-desc">2 000 ₽ за бутылку своего алкоголя</div></div></div>
+      </div>
+    </div>
+
+    <!-- Accessibility -->
+    <div class="section">
+      <h2 class="section-title">Доступность</h2>
+      <div class="access-grid" id="accessGrid"></div>
+    </div>
+
+    <!-- Rules -->
+    <div class="section">
+      <h2 class="section-title">Правила площадки</h2>
+      <div class="rules-grid" id="rulesGrid"></div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="section">
+      <h2 class="section-title">Рейтинг и отзывы</h2>
+      <div class="review-summary">
+        <div class="review-score">4.9</div>
+        <div>
+          <div class="review-stars"><svg width="18" height="18" fill="currentColor" viewBox="0 0 18 18"><path d="M9 1l2.47 5.01L17 6.76l-4 3.9.94 5.5L9 13.65l-5.94 2.51.94-5.5-4-3.9 5.53-.75z"/></svg><svg width="18" height="18" fill="currentColor" viewBox="0 0 18 18"><path d="M9 1l2.47 5.01L17 6.76l-4 3.9.94 5.5L9 13.65l-5.94 2.51.94-5.5-4-3.9 5.53-.75z"/></svg><svg width="18" height="18" fill="currentColor" viewBox="0 0 18 18"><path d="M9 1l2.47 5.01L17 6.76l-4 3.9.94 5.5L9 13.65l-5.94 2.51.94-5.5-4-3.9 5.53-.75z"/></svg><svg width="18" height="18" fill="currentColor" viewBox="0 0 18 18"><path d="M9 1l2.47 5.01L17 6.76l-4 3.9.94 5.5L9 13.65l-5.94 2.51.94-5.5-4-3.9 5.53-.75z"/></svg><svg width="18" height="18" fill="currentColor" viewBox="0 0 18 18"><path d="M9 1l2.47 5.01L17 6.76l-4 3.9.94 5.5L9 13.65l-5.94 2.51.94-5.5-4-3.9 5.53-.75z"/></svg></div>
+          <div class="review-count">127 отзывов на платформе</div>
+        </div>
+      </div>
+      <div class="reviews-list">
+        <div class="review-card"><div class="review-top"><div class="review-avatar">АК</div><div><div class="review-author">Анна Козлова</div><div class="review-date">Январь 2026 · Конференция</div></div></div><div class="review-text">Потрясающее место для бизнес-мероприятий. Панорамный вид на Москву создаёт незабываемую атмосферу. Техническое оснащение на высшем уровне, менеджеры оперативно решали все вопросы. Рекомендую!</div></div>
+        <div class="review-card"><div class="review-top"><div class="review-avatar">ДМ</div><div><div class="review-author">Дмитрий Морозов</div><div class="review-date">Декабрь 2025 · Корпоратив</div></div></div><div class="review-text">Проводили новогодний корпоратив на 180 человек. Всё было организовано безупречно — от рассадки гостей до кейтеринга. Отдельное спасибо координатору Марии за профессионализм.</div></div>
+        <div class="review-card"><div class="review-top"><div class="review-avatar">ОС</div><div><div class="review-author">Ольга Смирнова</div><div class="review-date">Ноябрь 2025 · Семинар</div></div></div><div class="review-text">Удобная логистика, комфортное пространство с отличным естественным освещением. Единственное замечание — парковка ограничена в часы пик. В остальном всё идеально.</div></div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="section">
+      <h2 class="section-title">Локация</h2>
+      <div class="location-block">
+        <div class="location-map" id="locMap"></div>
+        <div class="location-info">
+          <div class="loc-row"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 1.5a4.5 4.5 0 014.5 4.5c0 3.5-4.5 9-4.5 9S3.5 9.5 3.5 6A4.5 4.5 0 018 1.5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.1"/></svg><div><b>Пресненская набережная, 12</b><br>Москва, Пресненский район</div></div>
+          <div class="loc-row"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 8h5M8 5.5v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><div><b>Метро:</b> Выставочная, Международная<br>7 минут пешком</div></div>
+          <div class="loc-row"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5V3.5a3 3 0 016 0V5" stroke="currentColor" stroke-width="1.3"/></svg><div><b>Парковка:</b> подземная, 200 мест<br>300 ₽/час для гостей</div></div>
+          <div class="loc-row"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><div><b>Ориентиры:</b> Москва-Сити, набережная Тараса Шевченко</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other spaces -->
+    <div class="section">
+      <h2 class="section-title">Другие пространства этой площадки</h2>
+      <div class="similar-scroll" id="otherSpaces"></div>
+    </div>
+
+    <!-- Similar venues -->
+    <div class="section">
+      <h2 class="section-title">Похожие площадки</h2>
+      <div class="similar-scroll" id="similarVenues"></div>
+    </div>
+
+  </div><!-- /content-main -->
+
+  <!-- SIDEBAR -->
+  <aside class="content-sidebar">
+    <div class="sidebar-sticky">
+      <div class="cta-card">
+        <div class="cta-price">от <strong>45 000 ₽</strong> <span>/ день</span></div>
+        <div class="cta-divider"></div>
+        <button class="cta-btn primary" onclick="MH.go('request-form.html')">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 4h12M4 4V2.5a2 2 0 014 0V4m4 0v9a2 2 0 01-2 2H4a2 2 0 01-2-2V4" stroke="#fff" stroke-width="1.3"/></svg>
+          Запросить предложение
+        </button>
+        <button class="cta-btn secondary" onclick="MH.go('request-form.html')">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Связаться с площадкой
+        </button>
+        <button class="cta-btn outline" id="favBtn" onclick="toggleVenueFav(this)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 14l-5.3-5A3 3 0 018 4.5 3 3 0 0113.3 9L8 14z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          <span id="favBtnLabel">Сохранить</span>
+        </button>
+        <button class="cta-btn outline" id="cmpBtn" onclick="toggleVenueCmp(this)">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 2v12M11 2v12M2 5h12M2 11h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span id="cmpBtnLabel">Сравнить</span>
+        </button>
+        <div class="cta-divider"></div>
+        <div class="cta-meta">
+          <div class="cta-meta-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 4.5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Ответ: <b>~30 минут</b></div>
+          <div class="cta-meta-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 7.5l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Отвечает: <b>98% запросов</b></div>
+          <div class="cta-meta-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1.5" y="2.5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6h12" stroke="currentColor" stroke-width="1.2"/></svg>Доступна: <b>Пн–Вс, 8–23</b></div>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-top">
+          <div class="contact-avatar">МА</div>
+          <div class="contact-info">
+            <div class="contact-name">Мария Александрова</div>
+            <div class="contact-role">Менеджер площадки</div>
+          </div>
+        </div>
+        <div class="contact-stats">
+          <div class="contact-stat"><svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M6.5 4v2.5l1.5 1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>Время ответа: <b>30 мин</b></div>
+          <div class="contact-stat"><svg width="13" height="13" fill="currentColor" viewBox="0 0 13 13"><path d="M6.5 0l2 4.06L13 4.7l-3.25 3.17.77 4.47L6.5 10.26 2.48 12.34l.77-4.47L0 4.7l4.5-.64z"/></svg>Рейтинг: <b>4.9</b></div>
+        </div>
+        <button class="cta-btn secondary" style="margin:0">Написать менеджеру</button>
+      </div>
+    </div>
+  </aside>
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<div id="mh-footer"></div>
+</div><!-- /page -->
+
+<script>
+/* SVG generators */
+function vIll(h,s,w,ht){
+  return `<svg viewBox="0 0 ${w} ${ht}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="${w}" height="${ht}" fill="hsl(${h},20%,89%)"/>
+    <defs><linearGradient id="v${s}" x1="0" y1="0" x2="${w}" y2="${ht}">
+      <stop stop-color="hsl(${h},28%,85%)" offset="0"/>
+      <stop stop-color="hsl(${(h+30)%360},22%,80%)" offset="1"/>
+    </linearGradient></defs>
+    <rect width="${w}" height="${ht}" fill="url(#v${s})"/>
+    <rect x="${w*.05}" y="${ht*.3}" width="${w*.9}" height="${ht*.55}" rx="8" fill="hsl(${h},16%,93%)" opacity=".55"/>
+    <rect x="${w*.1}" y="${ht*.12}" width="${w*.25}" height="${ht*.7}" rx="5" fill="hsl(${h},22%,80%)" opacity=".5"/>
+    <rect x="${w*.4}" y="${ht*.2}" width="${w*.2}" height="${ht*.62}" rx="5" fill="hsl(${(h+25)%360},18%,83%)" opacity=".5"/>
+    <rect x="${w*.65}" y="${ht*.25}" width="${w*.2}" height="${ht*.57}" rx="5" fill="hsl(${(h+55)%360},20%,86%)" opacity=".4"/>
+    <circle cx="${w*.22+(s*7%30)}" cy="${ht*.78}" r="${ht*.1}" fill="hsl(${h},28%,74%)" opacity=".3"/>
+    <rect x="${w*.08}" y="${ht*.87}" width="${w*.84}" height="${ht*.13}" rx="4" fill="hsl(${h},12%,85%)" opacity=".25"/>
+  </svg>`;
+}
+
+/* Gallery */
+document.getElementById('heroImg').innerHTML = vIll(195,1,800,440);
+const s1=document.getElementById('galSide1'),s2=document.getElementById('galSide2');
+[[205,2],[180,3]].forEach(([h,s])=>{s1.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
+[[215,4],[25,5]].forEach(([h,s])=>{s2.innerHTML+=`<div class="gallery-thumb">${vIll(h,s,400,216)}</div>`;});
+
+/* Amenities */
+const amenities = [
+  ['📶','Wi-Fi'],['📽','Проектор и экран'],['🔊','Звуковое оборудование'],['💡','Световое оборудование'],
+  ['🎤','Сцена'],['☀️','Естественный свет'],['❄️','Кондиционирование'],['🧥','Гардероб'],
+  ['🅿️','Парковка'],['🍽','Кейтеринг'],['🍸','Бар'],['🪑','Мебель'],['🔧','Техподдержка']
+];
+const ag=document.getElementById('amenitiesGrid');
+amenities.forEach(([e,n])=>{ag.innerHTML+=`<div class="amenity"><span style="font-size:17px">${e}</span>${n}</div>`;});
+
+/* Accessibility */
+const access = ['Лифт для маломобильных','Пандус у входа','Адаптированные туалеты','Подземная парковка','Грузовой лифт для оборудования','Широкие дверные проёмы'];
+const acg=document.getElementById('accessGrid');
+access.forEach(a=>{acg.innerHTML+=`<div class="access-item"><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 7.5l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${a}</div>`;});
+
+/* Rules */
+const rules = [
+  'Музыка до 23:00','Аренда с 8:00 до 23:00','Свои подрядчики по согласованию','Монтаж за 2 часа до начала',
+  'Демонтаж в течение 3 часов','Депозит 20 000 ₽','Отмена за 7 дней — возврат 100%','Отмена за 3 дня — возврат 50%'
+];
+const rg=document.getElementById('rulesGrid');
+rules.forEach(r=>{rg.innerHTML+=`<div class="rule-item"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${r}</div>`;});
+
+/* Location map */
+document.getElementById('locMap').innerHTML = `<svg viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <rect width="500" height="260" fill="#EDF6F5"/>
+  <defs><linearGradient id="lm" x1="0" y1="0" x2="500" y2="260"><stop stop-color="#E8F2F1" offset="0"/><stop stop-color="#D9ECEB" offset="1"/></linearGradient></defs>
+  <rect width="500" height="260" fill="url(#lm)"/>
+  <path d="M0 120Q100 100 200 125T400 110T500 130" stroke="#A8D4D8" stroke-width="3" fill="none" opacity=".4"/>
+  <path d="M50 80Q150 60 250 85T450 70" stroke="#C5E3E1" stroke-width="1" fill="none" opacity=".5"/>
+  <path d="M50 160Q150 140 250 165T450 150" stroke="#C5E3E1" stroke-width="1" fill="none" opacity=".4"/>
+  <ellipse cx="350" cy="100" rx="30" ry="20" fill="#C5E3E1" opacity=".3"/>
+  <ellipse cx="150" cy="180" rx="25" ry="15" fill="#C5E3E1" opacity=".25"/>
+  <circle cx="250" cy="130" r="14" fill="var(--coral)" opacity=".9"/>
+  <circle cx="250" cy="130" r="7" fill="#fff"/>
+  <circle cx="250" cy="130" r="4" fill="var(--coral)"/>
+</svg>`;
+
+/* Other spaces */
+const others=[
+  {n:'Зал «Горизонт»',loc:'Москва, Пресня',p:'35 000 ₽',r:4.7,h:205,s:60},
+  {n:'Переговорная «Бриз»',loc:'Москва, Пресня',p:'8 000 ₽',r:4.8,h:180,s:61},
+  {n:'Банкетный зал «Закат»',loc:'Москва, Пресня',p:'65 000 ₽',r:4.9,h:25,s:62},
+];
+const os=document.getElementById('otherSpaces');
+others.forEach(v=>{os.innerHTML+=simCard(v);});
+
+/* Similar venues */
+const similar=[
+  {n:'Бизнес-лофт Level Up',loc:'Москва, Арбат',p:'18 000 ₽',r:4.7,h:205,s:70},
+  {n:'Коворкинг Space One',loc:'Москва, Сити',p:'8 000 ₽',r:4.8,h:180,s:71},
+  {n:'Зал «Империя»',loc:'Москва, Тверская',p:'65 000 ₽',r:4.6,h:215,s:72},
+  {n:'Meeting Point Arena',loc:'Москва, Павелецкая',p:'22 000 ₽',r:4.8,h:190,s:73},
+  {n:'Центр «Высота»',loc:'Москва, ВДНХ',p:'32 000 ₽',r:4.7,h:200,s:74},
+];
+const sv=document.getElementById('similarVenues');
+similar.forEach(v=>{sv.innerHTML+=simCard(v);});
+
+function simCard(v){
+  return `<div class="sim-card" onclick="MH.go('venue.html')" style="cursor:pointer">
+    <div class="sim-img">${vIll(v.h,v.s,400,200)}</div>
+    <div class="sim-body">
+      <div class="sim-name">${v.n}</div>
+      <div class="sim-loc">${v.loc}</div>
+      <div class="sim-foot">
+        <div class="sim-price">от <strong>${v.p}</strong></div>
+        <div class="sim-rating"><svg width="11" height="11" fill="currentColor" viewBox="0 0 11 11"><path d="M5.5 0l1.7 3.45 3.8.55-2.75 2.68.65 3.79L5.5 8.75l-3.4 1.72.65-3.79L0 3.99l3.8-.54z"/></svg>${v.r}</div>
+      </div>
+    </div>
+  </div>`;
+}
+</script>
+<script src="shared.js"></script>
+<script>
+MH.init();
+const _VENUE_ID = 1; // this page represents venue id 1
+function toggleVenueFav(btn) {
+  const added = MH.toggleFav(_VENUE_ID);
+  btn.style.background = added ? 'var(--coral-soft,#FCEAE4)' : '';
+  btn.style.borderColor = added ? 'var(--coral,#E8846A)' : '';
+  btn.style.color = added ? 'var(--coral,#E8846A)' : '';
+  document.getElementById('favBtnLabel').textContent = added ? 'В избранном' : 'Сохранить';
+}
+if (MH.isFav(_VENUE_ID)) {
+  const btn = document.getElementById('favBtn');
+  if (btn) { btn.style.background='var(--coral-soft,#FCEAE4)';btn.style.borderColor='var(--coral,#E8846A)';btn.style.color='var(--coral,#E8846A)';document.getElementById('favBtnLabel').textContent='В избранном'; }
+}
+
+const CMP_KEY = 'mh_compare';
+function getCmpSet() { try { return new Set(JSON.parse(localStorage.getItem(CMP_KEY)) || []); } catch { return new Set(); } }
+function saveCmpSet(s) { localStorage.setItem(CMP_KEY, JSON.stringify([...s])); }
+function toggleVenueCmp(btn) {
+  const s = getCmpSet();
+  const added = !s.has(_VENUE_ID);
+  if (added) { if (s.size >= 4) { MH.toast && MH.toast('Можно сравнить не более 4 площадок', 'error'); return; } s.add(_VENUE_ID); } else { s.delete(_VENUE_ID); }
+  saveCmpSet(s);
+  const label = document.getElementById('cmpBtnLabel');
+  if (added) {
+    btn.style.background='var(--aqua-1,#D9ECEB)';btn.style.borderColor='var(--aqua-3,#A8D4D8)';btn.style.color='var(--slate-mid,#3E596F)';
+    label.textContent='В сравнении ✓';
+    MH.toast && MH.toast('Добавлено к сравнению', 'success');
+  } else {
+    btn.style.background='';btn.style.borderColor='';btn.style.color='';
+    label.textContent='Сравнить';
+    MH.toast && MH.toast('Удалено из сравнения', 'info');
+  }
+}
+if (getCmpSet().has(_VENUE_ID)) {
+  const btn = document.getElementById('cmpBtn');
+  if (btn) { btn.style.background='var(--aqua-1,#D9ECEB)';btn.style.borderColor='var(--aqua-3,#A8D4D8)';btn.style.color='var(--slate-mid,#3E596F)';document.getElementById('cmpBtnLabel').textContent='В сравнении ✓'; }
+}
+</script>
+</body>
+</html>
