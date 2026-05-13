@@ -158,9 +158,11 @@ button{font-family:inherit;cursor:pointer;}
 .chat-overlay{position:fixed;inset:0;background:rgba(53,78,99,.15);z-index:199;display:none;}
 .chat-overlay.open{display:block;}
 
+body.chat-open .main{overflow:hidden;}
 @media(max-width:600px){
   .req-grid{grid-template-columns:1fr;}
   .chat-panel{width:100%;right:-100%;}
+  .chat-input-wrap{padding-bottom:calc(14px + env(safe-area-inset-bottom));}
 }
 .chat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--rm);cursor:pointer;transition:background .2s;border:1px solid transparent;}
 .chat-item:hover{background:var(--aq-p);border-color:rgba(197,227,225,.3);}
@@ -285,17 +287,20 @@ button{font-family:inherit;cursor:pointer;}
 
 /* Mobile */
 @media(max-width:600px){
-  .sb{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%!important;height:auto;flex-direction:row;border-right:none;border-top:1px solid rgba(197,227,225,.35);z-index:100;padding:0;background:var(--w);}
+  .sb{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%!important;height:auto;flex-direction:row;border-right:none;border-top:1px solid rgba(197,227,225,.35);z-index:100;padding:0;background:rgba(255,255,255,.93);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);}
   .sb-top,.sb-bottom,.sb-section-label{display:none!important;}
-  .sb-nav{display:flex;flex-direction:row;padding:6px 4px;overflow-x:auto;gap:2px;scrollbar-width:none;flex:1;}
-  .sb-nav::-webkit-scrollbar{display:none;}
-  .sb-item{flex:0 0 auto;padding:10px 14px;flex-direction:column;gap:4px;font-size:0;min-width:56px;align-items:center;justify-content:center;}
-  .sb-item svg{width:20px;height:20px;}
-  .sb-item span:not(.sb-badge){display:block!important;font-size:10px;white-space:nowrap;}
-  .sb-badge{position:absolute;top:2px;right:2px;width:14px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .sb-nav{display:flex;flex-direction:row;padding:4px 0;overflow:visible;gap:0;scrollbar-width:none;flex:1;}
+  .sb-item{flex:1;padding:10px 4px 12px;flex-direction:column;gap:4px;align-items:center;justify-content:center;border-radius:0;margin-bottom:0;background:none!important;position:relative;min-height:52px;}
+  .sb-item svg{width:22px;height:22px;}
+  .sb-item span:not(.sb-badge){display:block!important;font-size:10px;white-space:nowrap;color:var(--sx);}
+  .sb-item.active span:not(.sb-badge){color:var(--c);}
+  .sb-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--c);}
+  .sb-badge{position:absolute;top:8px;left:calc(50% + 5px);width:14px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;}
 
   body{flex-direction:column;}
-  .main{height:100%;padding:16px 14px 80px;}
+  .main{height:100%;padding:16px 14px calc(110px + env(safe-area-inset-bottom));}
+  #stepNav{flex-wrap:wrap;gap:8px;}
+  #stepNav .btn{flex:1;justify-content:center;min-width:120px;}
 
   .page-title{font-size:20px;line-height:1.2;}
   .page-sub{font-size:13px;margin-bottom:16px;}
@@ -463,7 +468,7 @@ function renderNav(){
   const prem=s&&s.premium;
   const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
   if(currentRole==='guest'){bot.innerHTML=`<a href="auth" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
-  else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?'<div class="sb-premium">⭐ Premium</div>':''}</div></div>${logoutBtn}`;}
+  else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?`<div class="sb-premium">${IC.star} Premium</div>`:''}</div></div>${logoutBtn}`;}
   else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Владелец площадки</div></div></div>${logoutBtn}`;}
 }
 
@@ -752,7 +757,7 @@ profile:()=>`
     <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="anna@example.com"></div>
     <div class="divider"></div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:18px;border-radius:var(--rm);background:linear-gradient(135deg,var(--cs),var(--pc))">
-      <div style="font-size:28px">⭐</div>
+      <div style="color:var(--c)"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
       <div><div style="font-size:15px;font-weight:700;color:var(--c)">Premium подписка</div><div style="font-size:13px;color:var(--sx)">Приоритетные ответы · Расширенные фильтры · Скрытые предложения</div></div>
       <div class="chip coral" style="margin-left:auto">Активна</div>
     </div>
@@ -790,10 +795,10 @@ odash:()=>{
   <!-- Quick actions -->
   <div class="section-head"><div class="section-label">Быстрые действия</div></div>
   <div class="grid-4" style="margin-bottom:28px">
-    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ocreate';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">➕</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Добавить площадку</div></div>
-    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">📩</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--c);font-weight:600;margin-top:2px">8 новых</div></div>
-    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">💬</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">2 активных</div></div>
-    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ovenues';renderNav();renderPage()"><div style="font-size:26px;margin-bottom:6px">🏢</div><div style="font-size:13px;font-weight:600;color:var(--sd)">Мои площадки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">${ov.length} объекта</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ocreate';renderNav();renderPage()"><div style="margin-bottom:6px;color:var(--c)"><svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></div><div style="font-size:13px;font-weight:600;color:var(--sd)">Добавить площадку</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="margin-bottom:6px;color:var(--c)"><svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--c);font-weight:600;margin-top:2px">8 новых</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='oreqs';renderNav();renderPage()"><div style="margin-bottom:6px;color:var(--c)"><svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div style="font-size:13px;font-weight:600;color:var(--sd)">Заявки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">2 активных</div></div>
+    <div class="card" style="text-align:center;cursor:pointer;padding:18px" onclick="currentPage='ovenues';renderNav();renderPage()"><div style="margin-bottom:6px;color:var(--c)"><svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div><div style="font-size:13px;font-weight:600;color:var(--sd)">Мои площадки</div><div style="font-size:11px;color:var(--sx);margin-top:2px">${ov.length} объекта</div></div>
   </div>
 
   <!-- Two cols: Venues + Requests -->
@@ -805,7 +810,7 @@ odash:()=>{
           <div class="v-thumb">${vIll(v.h,v.s)}<div class="v-status ${v.st==='active'?'active':'pending'}">${v.st==='active'?'Активна':'На модерации'}</div></div>
           <div class="v-body">
             <div class="v-name">${v.n}</div>
-            <div class="v-loc" style="display:flex;gap:10px"><span>👁 ${v.views}</span><span>📩 ${v.reqs}</span></div>
+            <div class="v-loc" style="display:flex;gap:10px"><span style="display:flex;align-items:center;gap:3px"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${v.views}</span><span style="display:flex;align-items:center;gap:3px"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>${v.reqs}</span></div>
             <div class="v-actions-row"><button class="v-act-btn" onclick="event.stopPropagation();currentPage='ovenues';renderNav();renderPage()">Подробнее</button></div>
           </div>
         </div>`).join('')}
@@ -870,7 +875,7 @@ ovenues:()=>{
   ];
   return `<h1 class="page-title">Мои площадки</h1><p class="page-sub">${ov.length} площадки</p>
   <div style="margin-bottom:20px"><button class="btn btn-c" onclick="currentPage='ocreate';renderNav();renderPage()">+ Добавить площадку</button></div>
-  <div class="grid-3">${ov.map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-status ${v.st==='active'?'active':'pending'}">${v.st==='active'?'Активна':'На модерации'}</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc" style="display:flex;gap:12px"><span>👁 ${v.views} просмотров</span></div><div class="v-actions-row"><button class="v-act-btn">Редактировать</button><button class="v-act-btn">Архивировать</button></div></div></div>`).join('')}</div>`;
+  <div class="grid-3">${ov.map(v=>`<div class="v-card"><div class="v-thumb">${vIll(v.h,v.s)}<div class="v-status ${v.st==='active'?'active':'pending'}">${v.st==='active'?'Активна':'На модерации'}</div></div><div class="v-body"><div class="v-name">${v.n}</div><div class="v-loc" style="display:flex;gap:12px"><span style="display:flex;align-items:center;gap:3px"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${v.views} просмотров</span></div><div class="v-actions-row"><button class="v-act-btn">Редактировать</button><button class="v-act-btn">Архивировать</button></div></div></div>`).join('')}</div>`;
 },
 
 /* ── OWNER CREATE (stepper) ── */
@@ -896,7 +901,7 @@ ocreate:()=>{
     </div>
     <div class="form-group"><label class="form-label">Карта</label>
       <div style="height:200px;border-radius:var(--rm);overflow:hidden;background:var(--aq-p);display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--sp)">
-        <div style="text-align:center;color:var(--sx)"><div style="font-size:28px;margin-bottom:8px">📍</div><div style="font-size:13px">Укажите точку на карте или введите адрес выше</div></div>
+        <div style="text-align:center;color:var(--sx)"><div style="margin-bottom:8px"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div style="font-size:13px">Укажите точку на карте или введите адрес выше</div></div>
       </div>
     </div>
     <div class="form-group"><label class="form-label">Информация о парковке</label><input class="form-input" placeholder="Подземная, 200 мест, 300 ₽/час"></div>`,
@@ -910,9 +915,8 @@ ocreate:()=>{
     <div class="form-group"><label class="form-label">Номерной фонд (если есть)</label><input class="form-input" type="number" placeholder="0"></div>
     <div class="form-group"><label class="form-label">Форматы рассадки</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        ${[{f:'Театр',e:'🎭'},{f:'Банкет',e:'🍽'},{f:'Фуршет',e:'🥂'},{f:'Класс',e:'📚'},{f:'Кабаре',e:'🎤'},{f:'Переговорная',e:'💼'}].map(x=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.35);background:var(--w)">
-          <span style="font-size:20px">${x.e}</span>
-          <span style="font-size:13px;color:var(--sd);font-weight:500;flex:1">${x.f}</span>
+        ${['Театр','Банкет','Фуршет','Класс','Кабаре','Переговорная'].map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.35);background:var(--w)">
+          <span style="font-size:13px;color:var(--sd);font-weight:500;flex:1">${f}</span>
           <input class="form-input" style="width:80px;padding:8px 10px;text-align:center;font-size:13px" type="number" placeholder="0">
           <span style="font-size:11px;color:var(--sx)">чел.</span>
         </div>`).join('')}
@@ -945,12 +949,12 @@ ocreate:()=>{
         </div>
         <div class="form-group"><label class="form-label">Форматы рассадки</label>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🎭</span>Театр<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🍽</span>Банкет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🥂</span>Фуршет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>📚</span>Класс<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>🎤</span>Кабаре<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>💼</span>П-образ.<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">Театр<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">Банкет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">Фуршет<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">Класс<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">Кабаре<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">П-образ.<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>
           </div>
         </div>
         <div class="form-group"><label class="form-label">Особенности зала</label>
@@ -1001,18 +1005,18 @@ ocreate:()=>{
     /* 4: Услуги */
     `<div class="form-group"><label class="form-label">Оборудование и техника</label>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${['📽 Проектор','🔊 Звук','💡 Свет','🎤 Микрофоны','📺 Экран','📹 Видеозапись','💻 Видеоконференция','🖨 Принтер'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+        ${['Проектор','Звук','Свет','Микрофоны','Экран','Видеозапись','Видеоконференция','Принтер'].map((x,i)=>`<div class="chip${i<4?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
       </div>
     </div>
     <div class="form-group"><label class="form-label">Комфорт</label>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${['📶 Wi-Fi','❄️ Кондиционер','☀️ Естественный свет','🧥 Гардероб','🪑 Мебель','🅿️ Парковка','♿ Доступность','🔧 Техподдержка'].map((x,i)=>`<div class="chip${i<3?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+        ${['Wi-Fi','Кондиционер','Естественный свет','Гардероб','Мебель','Парковка','Доступность','Техподдержка'].map((x,i)=>`<div class="chip${i<3?' coral':''}" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
       </div>
     </div>
     <div class="form-group"><label class="form-label">Кейтеринг</label>
       <div class="form-toggle" style="margin-bottom:12px"><button class="active">Свой кейтеринг</button><button>Внешний допускается</button><button>Нет кейтеринга</button></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${['☕ Кофе-брейк','🍽 Банкет','🥂 Фуршет','🍸 Бар','🥗 Диетическое меню','🍷 Пробковый сбор'].map(x=>`<div class="chip" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
+        ${['Кофе-брейк','Банкет','Фуршет','Бар','Диетическое меню','Пробковый сбор'].map(x=>`<div class="chip" style="cursor:pointer" data-select="multi">${x}</div>`).join('')}
       </div>
     </div>
     <div class="form-group"><label class="form-label">Сцена</label>
@@ -1022,7 +1026,7 @@ ocreate:()=>{
     /* 5: Фото */
     `<div class="form-group"><label class="form-label">Главное фото</label>
       <div style="height:200px;border-radius:var(--rm);border:2px dashed var(--sp);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;background:var(--bg)" onmouseover="this.style.borderColor='var(--c)'" onmouseout="this.style.borderColor='var(--sp)'">
-        <div style="text-align:center;color:var(--sx)"><div style="font-size:36px;margin-bottom:8px">📷</div><div style="font-size:14px;font-weight:600;color:var(--sd)">Загрузите главное фото</div><div style="font-size:12px;margin-top:4px">JPG, PNG · до 10 МБ · рекомендуется 1600×900</div></div>
+        <div style="text-align:center;color:var(--sx)"><div style="margin-bottom:8px"><svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div style="font-size:14px;font-weight:600;color:var(--sd)">Загрузите главное фото</div><div style="font-size:12px;margin-top:4px">JPG, PNG · до 10 МБ · рекомендуется 1600×900</div></div>
       </div>
     </div>
     <div class="form-group"><label class="form-label">Галерея (до 20 фото)</label>
@@ -1059,7 +1063,7 @@ ocreate:()=>{
 
     /* 7: Публикация */
     `<div style="text-align:center;padding:20px 0 10px">
-      <div style="font-size:48px;margin-bottom:16px">🎉</div>
+      <div style="margin-bottom:16px;color:var(--c)"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
       <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);margin-bottom:8px">Всё готово к публикации!</div>
       <div style="font-size:14px;color:var(--sx);max-width:400px;margin:0 auto 28px;line-height:1.6">Проверьте информацию перед отправкой. После модерации (обычно 1–2 рабочих дня) ваша площадка появится на платформе.</div>
     </div>
@@ -1067,7 +1071,7 @@ ocreate:()=>{
       ${[{l:'Название',v:'Конференц-зал «Панорама»'},{l:'Город',v:'Москва, Пресня'},{l:'Вместимость',v:'до 250 чел.'},{l:'Цена',v:'от 45 000 ₽/день'},{l:'Тип',v:'Конференц-зал'},{l:'Залов',v:'3'},{l:'Фото',v:'3 загружено'},{l:'Кейтеринг',v:'Свой + внешний'}].map(x=>`<div style="padding:14px 16px;border-radius:var(--r);background:var(--bg);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:var(--sx);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${x.l}</span><span style="font-size:14px;font-weight:600;color:var(--sd)">${x.v}</span></div>`).join('')}
     </div>
     <div style="padding:16px;border-radius:var(--rm);background:var(--cs);display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <span style="font-size:20px">📋</span>
+      <span style="color:var(--c6);flex-shrink:0"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>
       <span style="font-size:13px;color:var(--c6);line-height:1.5">После публикации площадка будет отправлена на модерацию. Вы получите уведомление о результате.</span>
     </div>`,
   ];
@@ -1171,21 +1175,21 @@ guest:()=>`
 
   <div class="section-head"><div class="section-label">Преимущества регистрации</div></div>
   <div class="grid-3" style="margin-bottom:32px">
-    <div class="benefit"><div class="benefit-icon">❤️</div><div class="benefit-title">Сохраняйте площадки</div><div class="benefit-desc">Добавляйте понравившиеся площадки в избранное и сравнивайте</div></div>
-    <div class="benefit"><div class="benefit-icon">🕐</div><div class="benefit-title">История поиска</div><div class="benefit-desc">Возвращайтесь к прошлым запросам и повторяйте поиск в один клик</div></div>
-    <div class="benefit"><div class="benefit-icon">⚡</div><div class="benefit-title">Быстрые отклики</div><div class="benefit-desc">Получайте ответы от площадок напрямую в личном кабинете</div></div>
+    <div class="benefit"><div class="benefit-icon"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="benefit-title">Сохраняйте площадки</div><div class="benefit-desc">Добавляйте понравившиеся площадки в избранное и сравнивайте</div></div>
+    <div class="benefit"><div class="benefit-icon"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="benefit-title">История поиска</div><div class="benefit-desc">Возвращайтесь к прошлым запросам и повторяйте поиск в один клик</div></div>
+    <div class="benefit"><div class="benefit-icon"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="benefit-title">Быстрые отклики</div><div class="benefit-desc">Получайте ответы от площадок напрямую в личном кабинете</div></div>
   </div>
 
   <div class="section-head"><div class="section-label">Как это работает</div></div>
   <div class="grid-4" style="margin-bottom:32px">
     ${[
-      {e:'🔍',t:'Найдите',d:'Используйте фильтры и карту'},
-      {e:'📋',t:'Сравните',d:'Чеклист поможет выбрать'},
-      {e:'📩',t:'Свяжитесь',d:'Запросите предложение'},
-      {e:'🎉',t:'Забронируйте',d:'Проведите мероприятие'},
+      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,t:'Найдите',d:'Используйте фильтры и карту'},
+      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,t:'Сравните',d:'Чеклист поможет выбрать'},
+      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,t:'Свяжитесь',d:'Запросите предложение'},
+      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,t:'Забронируйте',d:'Проведите мероприятие'},
     ].map((s,i)=>`<div class="card" style="text-align:center;padding:24px;position:relative">
       <div style="position:absolute;top:12px;left:16px;font-size:11px;font-weight:700;color:var(--sp)">${i+1}</div>
-      <div style="font-size:32px;margin-bottom:10px">${s.e}</div>
+      <div style="margin-bottom:10px;color:var(--c)">${s.e}</div>
       <div style="font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px">${s.t}</div>
       <div style="font-size:12.5px;color:var(--sx);line-height:1.5">${s.d}</div>
     </div>`).join('')}
@@ -1201,14 +1205,14 @@ guest:()=>`
   </div>
 
   <div class="card" style="text-align:center;padding:36px;background:linear-gradient(135deg,var(--aq-p),var(--pc))">
-    <div style="font-size:32px;margin-bottom:12px">🏢</div>
+    <div style="margin-bottom:12px;color:var(--c)"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);margin-bottom:8px">Вы владелец площадки?</div>
     <div style="font-size:14px;color:var(--sx);margin-bottom:18px;max-width:400px;margin-left:auto;margin-right:auto">Разместите вашу площадку на маркетплейсе и получайте заявки от организаторов мероприятий</div>
     <button class="btn btn-c">Разместить площадку</button>
   </div>
 
   <div style="display:flex;align-items:center;justify-content:center;gap:40px;padding:32px 0;opacity:.4">
-    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px">⭐ 4.8 рейтинг</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.8 рейтинг</div>
     <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">12 000+ площадок</div>
     <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em">120 городов</div>
   </div>
@@ -1244,7 +1248,7 @@ function addHall(){
     </div>
     <div class="form-group"><label class="form-label">Форматы рассадки</label>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        ${[['🎭','Театр'],['🍽','Банкет'],['🥂','Фуршет'],['📚','Класс'],['🎤','Кабаре'],['💼','П-образ.']].map(([e,f])=>`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)"><span>${e}</span>${f}<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>`).join('')}
+        ${['Театр','Банкет','Фуршет','Класс','Кабаре','П-образ.'].map(f=>`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(197,227,225,.3);background:var(--w);font-size:12px;color:var(--sx)">${f}<input class="form-input" style="width:50px;padding:5px;text-align:center;font-size:12px;margin-left:auto" type="number" placeholder="0"></div>`).join('')}
       </div>
     </div>
     <div class="form-group"><label class="form-label">Особенности</label>
@@ -1362,10 +1366,12 @@ function openChat(id,name,ini,role){
   msgs.scrollTop=msgs.scrollHeight;
   panel.classList.add('open');
   overlay.classList.add('open');
+  document.body.classList.add('chat-open');
 }
 function closeChat(){
   document.getElementById('chatPanel').classList.remove('open');
   document.getElementById('chatOverlay').classList.remove('open');
+  document.body.classList.remove('chat-open');
 }
 
 // Toggle form buttons
