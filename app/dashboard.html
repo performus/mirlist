@@ -1394,11 +1394,15 @@ document.addEventListener('click',e=>{
   if(!sess){window.location.href='auth?next=dashboard';return;}
   window._mhSess=sess;
   MH.renderNav(document.getElementById('mh-nav'));
-  if(sess.role==='venue'){
+  const _sp=new URLSearchParams(location.search);
+  const _role=_sp.get('role');
+  const _page=_sp.get('page');
+  if(sess.role==='venue'||_role==='owner'){
     currentRole='owner';
     currentPage='odash';
     document.querySelectorAll('.sb-role button').forEach(b=>b.classList.toggle('active',b.dataset.role==='owner'));
   }
+  if(_page&&NAVS[currentRole].some(x=>x.id===_page)) currentPage=_page;
   renderNav();renderPage();
 })();
 </script>
