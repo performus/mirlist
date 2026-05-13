@@ -18,16 +18,16 @@
   --r:10px;--rm:14px;--rl:20px;--rf:50px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+.db-layout{display:flex;flex:1;overflow:hidden;min-height:0;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-thumb{background:var(--sp);border-radius:3px;}
 
 /* SIDEBAR */
-.sb{width:256px;height:100vh;background:var(--w);border-right:1px solid rgba(197,227,225,.3);display:flex;flex-direction:column;flex-shrink:0;}
-.sb-top{padding:22px 22px 16px;}
-.sb-logo{margin-bottom:18px;}
+.sb{width:256px;height:100%;background:var(--w);border-right:1px solid rgba(197,227,225,.3);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-top{padding:16px 22px 16px;}
 .sb-role{display:flex;background:var(--bg);border-radius:var(--r);padding:3px;margin-bottom:6px;}
 .sb-role button{flex:1;padding:8px 0;border-radius:8px;border:none;font-size:12px;font-weight:600;color:var(--sx);background:none;transition:all .25s;}
 .sb-role button.active{background:var(--w);color:var(--c);box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -52,7 +52,7 @@ button{font-family:inherit;cursor:pointer;}
 .sb-premium{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--rf);background:linear-gradient(135deg,var(--c),var(--c6));color:#fff;font-size:10px;font-weight:700;margin-top:2px;}
 
 /* MAIN */
-.main{flex:1;height:100vh;overflow-y:auto;padding:28px 36px 60px;}
+.main{flex:1;height:100%;overflow-y:auto;padding:28px 36px 60px;}
 .page{display:none;animation:fadeIn .35s ease;}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -259,8 +259,7 @@ button{font-family:inherit;cursor:pointer;}
 /* Sidebar collapse + layout shifts */
 @media(max-width:900px){
   .sb{width:64px;overflow:visible;}
-  .sb-top{padding:16px 10px 10px;}
-  .sb-logo{text-align:center;margin-bottom:10px;}
+  .sb-top{padding:10px 10px 10px;}
   .sb-role,.sb-section-label,.sb-uname,.sb-urole,.sb-premium{display:none;}
   .sb-nav{padding:4px 8px;}
   .sb-item{justify-content:center;padding:12px 8px;border-radius:8px;}
@@ -296,7 +295,7 @@ button{font-family:inherit;cursor:pointer;}
   .sb-badge{position:absolute;top:2px;right:2px;width:14px;height:14px;font-size:8px;}
 
   body{flex-direction:column;}
-  .main{height:calc(100vh - 64px);padding:16px 14px 80px;}
+  .main{height:100%;padding:16px 14px 80px;}
 
   .page-title{font-size:20px;line-height:1.2;}
   .page-sub{font-size:13px;margin-bottom:16px;}
@@ -358,10 +357,11 @@ button{font-family:inherit;cursor:pointer;}
 </style>
 </head>
 <body>
+<div id="mh-nav"></div>
+<div class="db-layout">
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-top">
-    <a class="sb-logo" href="homepage" style="text-decoration:none;display:block;margin-bottom:18px;"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></a>
     <div class="sb-role" id="roleSwitch">
       <button class="active" data-role="user">Пользователь</button>
       <button data-role="owner">Площадка</button>
@@ -374,6 +374,7 @@ button{font-family:inherit;cursor:pointer;}
 
 <!-- MAIN -->
 <div class="main" id="mainContent"></div>
+</div><!-- /.db-layout -->
 
 <!-- CHAT PANEL -->
 <div class="chat-overlay" id="chatOverlay" onclick="closeChat()"></div>
@@ -1386,6 +1387,7 @@ document.addEventListener('click',e=>{
   const sess=MH.getSession();
   if(!sess){window.location.href='auth?next=dashboard';return;}
   window._mhSess=sess;
+  MH.renderNav(document.getElementById('mh-nav'));
   if(sess.role==='venue'){
     currentRole='owner';
     currentPage='odash';
