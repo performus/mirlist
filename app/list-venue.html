@@ -50,7 +50,7 @@ button{font-family:inherit;cursor:pointer;}
 @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-25px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.96)}}
 .hero-grid{position:absolute;inset:0;opacity:.025;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
 
-.hero-content{position:relative;z-index:1;max-width:680px;}
+.hero-content{position:relative;z-index:1;max-width:680px;flex:1;}
 .hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:28px;backdrop-filter:blur(8px);animation:fadeUp .7s ease both;}
 .hero-h1{font-family:'DM Serif Display',serif;font-size:clamp(38px,5vw,62px);line-height:1.1;color:var(--sd);letter-spacing:-1px;margin-bottom:18px;animation:fadeUp .7s ease .1s both;}
 .hero-h1 em{font-style:italic;color:var(--c);position:relative;}
@@ -66,7 +66,7 @@ button{font-family:inherit;cursor:pointer;}
 .trust-num{font-size:22px;font-weight:700;color:var(--c);}
 
 /* Hero right illustration */
-.hero-right{position:absolute;right:48px;top:50%;transform:translateY(-50%);z-index:1;width:540px;animation:fadeUp .8s ease .3s both;}
+.hero-right{flex:0 0 40%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;animation:fadeUp .8s ease .3s both;}
 .hero-card-stack{position:relative;}
 .hc{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);overflow:hidden;}
 .hc-1{width:430px;top:0;right:0;z-index:3;animation:cardFloat 6s ease-in-out infinite;}
@@ -221,7 +221,7 @@ button{font-family:inherit;cursor:pointer;}
   </div>
 
   <div class="hero-right">
-    <div class="hero-card-stack" style="height:400px">
+    <div class="hero-card-stack" style="height:400px;width:100%;position:relative;">
       <div class="hc hc-1">
         <div class="hc-img"><img src="../assets/photos/v1.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"><div class="hc-badge">Конференц-зал</div></div>
         <div class="hc-body"><div class="hc-name">Конференц-зал «Панорама»</div><div class="hc-meta"><span>до 250 чел.</span><span>от 45 000 ₽</span></div></div>

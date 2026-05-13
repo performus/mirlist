@@ -41,7 +41,7 @@ button{font-family:inherit;cursor:pointer;}
 .cmp-table{display:grid;min-width:max-content;}
 
 /* Venue header cards — horizontal strip */
-.venue-strip{display:flex;position:sticky;top:0;z-index:5;background:var(--w);border-bottom:1px solid rgba(197,227,225,.25);padding:0;}
+.venue-strip{display:flex;position:sticky;top:0;z-index:5;background:var(--w);border-bottom:1px solid rgba(197,227,225,.25);padding:0;box-shadow:0 4px 16px rgba(53,78,99,.07);}
 .param-label-header{width:220px;min-width:220px;padding:20px 24px;display:flex;align-items:flex-end;font-size:13px;font-weight:600;color:var(--sx);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;background:var(--w);}
 .venue-header{width:240px;min-width:240px;padding:16px;border-right:1px solid rgba(197,227,225,.15);position:relative;flex-shrink:0;background:var(--w);transition:background .2s;}
 .venue-header:hover{background:var(--aq-p);}
@@ -267,7 +267,7 @@ function render(){
   document.getElementById('cmpCount').innerHTML = `<b>${venues.length}</b> из 10 площадок`;
 
   if(venues.length === 0){
-    body.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Нет площадок для сравнения</div><div class="empty-text">Добавьте площадки в сравнение на странице поиска или в карточке площадки</div><button class="cmp-btn primary" onclick="history.back()">К поиску площадок</button></div>`;
+    body.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="empty-title">Нет площадок для сравнения</div><div class="empty-text">Добавьте площадки в сравнение на странице поиска или в карточке площадки</div><button class="cmp-btn primary" onclick="history.back()">К поиску площадок</button></div>`;
     return;
   }
 
@@ -291,7 +291,7 @@ function render(){
       <div class="vh-loc">${v.loc}</div>
       <div class="vh-price">от <strong>${v.p} ₽</strong> / день</div>
       <div class="vh-actions">
-        <button class="vh-act pdf" onclick="downloadPdf(${v.id})">📄 PDF</button>
+        <button class="vh-act pdf" onclick="downloadPdf(${v.id})"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
         <button class="vh-act open">Открыть</button>
       </div>
     </div>`;

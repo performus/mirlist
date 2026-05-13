@@ -212,13 +212,17 @@ button{font-family:inherit;cursor:pointer;}
   position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);z-index:300;
   background:var(--sd);color:#fff;padding:14px 28px;border-radius:var(--rf);
   display:flex;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(53,78,99,.3);
-  transition:bottom .4s cubic-bezier(.22,1,.36,1);font-size:14px;font-weight:500;white-space:nowrap;
+  transition:bottom .4s cubic-bezier(.22,1,.36,1);font-size:14px;font-weight:500;
+  white-space:nowrap;max-width:calc(100vw - 32px);
 }
 .compare-bar.show{bottom:28px;}
-.cb-count{background:var(--c);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
-.compare-bar button{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:var(--rf);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.compare-bar button{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:var(--rf);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .compare-bar button:hover{background:rgba(255,255,255,.25);}
 .cb-clear{background:none!important;border:none!important;color:rgba(255,255,255,.55)!important;padding:7px 8px!important;}
+@media(max-width:560px){
+  .compare-bar{padding:12px 18px;gap:10px;font-size:13px;}
+  .compare-bar button{padding:7px 14px;font-size:12px;}
+}
 
 /* ── FOOTER ── */
 .footer{background:var(--sd);color:rgba(255,255,255,.45);padding:40px 48px 24px;}
@@ -342,8 +346,7 @@ button{font-family:inherit;cursor:pointer;}
 
 <!-- COMPARE BAR -->
 <div class="compare-bar" id="compareBar">
-  <div class="cb-count" id="cbCount">0</div>
-  <span>Сравнить площадки</span>
+  <span id="cbLabel" style="white-space:nowrap"></span>
   <button onclick="openCompare()">Сравнить</button>
   <button class="cb-clear" onclick="clearCompare()">✕</button>
 </div>
@@ -375,14 +378,15 @@ const IC={
 
 /* ── COMPARE ── */
 let cmpSet=new Set();
+function cmpLabel(n){return n===1?'1 площадка выбрана':n<5?n+' площадки выбраны':n+' площадок выбрано';}
 function toggleCmp(id,btn){
   if(cmpSet.has(id)){cmpSet.delete(id);btn.classList.remove('on');}
   else if(cmpSet.size<4){cmpSet.add(id);btn.classList.add('on');}
-  document.getElementById('cbCount').textContent=cmpSet.size;
+  document.getElementById('cbLabel').textContent=cmpLabel(cmpSet.size);
   document.getElementById('compareBar').classList.toggle('show',cmpSet.size>0);
 }
 function openCompare(){MH.go('compare?ids='+[...cmpSet].join(','));}
-function clearCompare(){cmpSet.clear();document.querySelectorAll('.v-cmp.on').forEach(b=>b.classList.remove('on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
+function clearCompare(){cmpSet.clear();document.querySelectorAll('.v-cmp.on').forEach(b=>b.classList.remove('on'));document.getElementById('compareBar').classList.remove('show');}
 
 /* ── FAVORITES ── */
 function toggleFavBtn(id,btn){
