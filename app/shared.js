@@ -168,6 +168,7 @@ const MH = (() => {
         .mh-divider { display: none !important; }
         .mh-right { display: none !important; }
         .mh-burger { display: flex !important; }
+        .mh-header { padding: 0 14px; }
       }
     `;
     document.head.appendChild(s);
