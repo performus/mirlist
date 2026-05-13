@@ -217,7 +217,7 @@ a.route-card:hover h3{color:var(--accent)}
 <script>
 (function(){
   var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.07});
-  document.querySelectorAll('.hero,.section').forEach(function(el){el.classList.add('fade-in');obs.observe(el);});
+  document.querySelectorAll('.hero,.anchor-nav,.section').forEach(function(el){el.classList.add('fade-in');obs.observe(el);});
 
   var lb=document.getElementById('lightbox');
   var lbImg=document.getElementById('lightbox-img');
