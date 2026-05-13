@@ -126,7 +126,7 @@ const MH = (() => {
       }
       .mh-burger:hover { background: rgba(232,132,106,.08); }
       .mh-burger span {
-        display: block; height: 2px; border-radius: 2px; background: #3D5A6E;
+        display: block; width: 100%; height: 2px; border-radius: 2px; background: #3D5A6E;
         transition: transform .25s, opacity .25s, width .25s;
       }
       .mh-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
