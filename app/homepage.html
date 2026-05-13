@@ -149,7 +149,7 @@ a{text-decoration:none;color:inherit;}
 .scroll-arrow.disabled{opacity:.3;pointer-events:none;}
 
 .city-scroll-wrap{position:relative;z-index:1;margin-bottom:96px;}
-.city-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px 48px 24px;scrollbar-width:none;}
+.city-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px 20px 24px 32px;scroll-padding-left:32px;scrollbar-width:none;}
 .city-scroll::-webkit-scrollbar{display:none;}
 .city-card{flex:0 0 310px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:var(--surface-white);border:1px solid rgba(184,224,224,.15);transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;will-change:transform;}
 .city-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-elevated);}
@@ -178,7 +178,7 @@ a{text-decoration:none;color:inherit;}
 .event-group-link{font-size:14px;font-weight:600;color:var(--coral);display:flex;align-items:center;gap:6px;transition:gap .25s;flex-shrink:0;}
 .event-group-link:hover{gap:10px;}
 
-.venue-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 48px 40px;scrollbar-width:none;}
+.venue-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 20px 40px 32px;scroll-padding-left:32px;scrollbar-width:none;}
 .venue-scroll::-webkit-scrollbar{display:none;}
 .venue-card{flex:0 0 300px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-white);border:1px solid rgba(184,224,224,.12);cursor:pointer;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;will-change:transform;}
 .venue-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-elevated);}
