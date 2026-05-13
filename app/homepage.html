@@ -163,9 +163,7 @@ a{text-decoration:none;color:inherit;}
 .city-count{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--teal-deep);background:var(--aqua-ultra-light);padding:7px 16px;border-radius:50px;}
 .city-link{width:36px;height:36px;border-radius:50%;background:var(--peach-ultra-light);display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,transform .3s;color:var(--coral);}
 .city-card:hover .city-link{background:var(--coral);color:#fff;transform:rotate(-45deg);}
-.city-scroll-fade{position:absolute;top:0;bottom:0;width:60px;pointer-events:none;z-index:2;}
-.city-scroll-fade.right{right:0;background:linear-gradient(to left,var(--surface-white),transparent);}
-.city-scroll-fade.left{left:0;background:linear-gradient(to right,var(--surface-white),transparent);opacity:0;transition:opacity .3s;}
+
 
 .event-section{position:relative;z-index:1;}
 .event-tabs{display:flex;gap:8px;padding:0 48px;margin-bottom:40px;flex-wrap:wrap;}
@@ -358,7 +356,7 @@ a{text-decoration:none;color:inherit;}
 
 <section class="discovery">
   <div class="section-header reveal"><div class="section-header-row"><div><div class="section-label">География</div><h2 class="section-title">Площадки в главных городах</h2><p class="section-desc">Откройте лучшие площадки — от лофтов до конференц-залов</p></div><div class="scroll-arrows" id="city-arrows"><button class="scroll-arrow disabled" data-dir="left"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="scroll-arrow" data-dir="right"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div></div>
-  <div class="city-scroll-wrap"><div class="city-scroll" id="cityScroll"></div><div class="city-scroll-fade right"></div><div class="city-scroll-fade left" id="cityFadeL"></div></div>
+  <div class="city-scroll-wrap"><div class="city-scroll" id="cityScroll"></div></div>
   <div class="event-section"><div class="section-header reveal"><div class="section-label">Типы мероприятий</div><h2 class="section-title">Подберите площадку под ваш формат</h2><p class="section-desc">Коллекции площадок для самых популярных типов событий</p></div><div class="event-tabs reveal" id="eTabs"></div><div id="eGroups"></div></div>
 </section>
 
@@ -439,9 +437,9 @@ document.addEventListener('click',e=>{if(!e.target.closest('.sf')&&!e.target.clo
 document.querySelectorAll('.sf-option').forEach(o=>{o.addEventListener('click',()=>{const dd=o.closest('.sf-dropdown');const field=dd.dataset.field;const sf=document.querySelector('.sf[data-field="'+field+'"]');dd.querySelectorAll('.sf-option').forEach(x=>x.classList.remove('selected'));o.classList.add('selected');sf.querySelector('.sf-value').textContent=o.dataset.v;closeAllDrops();});});
 
 // City arrows
-const cScr=document.getElementById('cityScroll'),arrs=document.querySelectorAll('#city-arrows .scroll-arrow'),fadeL=document.getElementById('cityFadeL');
+const cScr=document.getElementById('cityScroll'),arrs=document.querySelectorAll('#city-arrows .scroll-arrow');
 arrs.forEach(b=>b.addEventListener('click',()=>{cScr.scrollBy({left:(b.dataset.dir==='right'?1:-1)*280,behavior:'smooth'});}));
-cScr.addEventListener('scroll',()=>{arrs[0].classList.toggle('disabled',cScr.scrollLeft<10);arrs[1].classList.toggle('disabled',cScr.scrollLeft+cScr.clientWidth>=cScr.scrollWidth-10);fadeL.style.opacity=cScr.scrollLeft<10?'0':'1';});
+cScr.addEventListener('scroll',()=>{arrs[0].classList.toggle('disabled',cScr.scrollLeft<10);arrs[1].classList.toggle('disabled',cScr.scrollLeft+cScr.clientWidth>=cScr.scrollWidth-10);});
 
 // Navigate to search.html with params
 function goSearch(cityO) {
