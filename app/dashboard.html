@@ -163,7 +163,7 @@ body.chat-open .main{overflow:hidden;}
 @media(max-width:600px){
   .req-grid{grid-template-columns:1fr;}
   .chat-panel{width:100%;right:-100%;}
-  .chat-input-wrap{padding-bottom:calc(14px + env(safe-area-inset-bottom));}
+  .chat-input-wrap{padding-bottom:calc(14px + 60px + env(safe-area-inset-bottom));}
 }
 .chat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--rm);cursor:pointer;transition:background .2s;border:1px solid transparent;}
 .chat-item:hover{background:var(--aq-p);border-color:rgba(197,227,225,.3);}
@@ -329,7 +329,7 @@ body.chat-open .main{overflow:hidden;}
   .check-item{padding:12px 14px;}
   .check-text{font-size:13px;}
 
-  .chat-panel{top:64px;height:calc(100vh - 64px);}
+  .chat-panel{top:64px;height:calc(100dvh - 64px);}
 
   .chat-item{padding:12px 14px;}
   .chat-name{font-size:13px;}
