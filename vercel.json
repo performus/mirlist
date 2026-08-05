@@ -1,5 +1,5 @@
 {
-  "cleanUrls": true,
+  "cleanUrls": false,
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -15,8 +15,8 @@
     }
   ],
   "redirects": [
-    { "source": "/home", "destination": "/app/homepage", "permanent": false },
-    { "source": "/login", "destination": "/app/auth", "permanent": false },
-    { "source": "/dashboard", "destination": "/app/dashboard", "permanent": false }
+    { "source": "/home", "destination": "/app/homepage.html", "permanent": false },
+    { "source": "/login", "destination": "/app/auth.html", "permanent": false },
+    { "source": "/dashboard", "destination": "/app/dashboard.html", "permanent": false }
   ]
 }

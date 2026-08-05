@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Каталог поставщиков услуг для мероприятий: артисты, кейтеринг, аренда, персонал, транспорт.">
+<meta property="og:title" content="Каталог поставщиков — МирХАБ">
+<meta property="og:description" content="Каталог поставщиков услуг для мероприятий: артисты, кейтеринг, аренда, персонал, транспорт.">
+<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Каталог поставщиков — МирХАБ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Aqua Coral Slate
+   ══════════════════════════════════════════════ */
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3; --coral-glow:rgba(233,134,103,.18);
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+  --top-nav:64px; --top-bar:62px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.page-wrap{animation:pageIn .5s ease both;}
+
+/* ══════════════════════════════════════════════
+   CONTROL BAR
+   ══════════════════════════════════════════════ */
+.control-bar{
+  position:sticky; top:var(--top-nav); z-index:40;
+  display:flex; align-items:center; gap:12px;
+  padding:14px 28px;
+  background:var(--white);
+  border-bottom:1px solid rgba(197,227,225,.35);
+  flex-wrap:wrap;
+}
+.cb-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--slate-deep);}
+.filter-toggle{
+  display:none; align-items:center; gap:7px;
+  padding:9px 20px; border-radius:var(--r-full);
+  font-size:13.5px; font-weight:600;
+  border:1.5px solid var(--slate-pale);
+  background:var(--white); color:var(--slate);
+  transition:all .2s;
+}
+.filter-toggle:hover{border-color:var(--coral);color:var(--coral);}
+.filter-toggle.open{background:var(--slate-deep);color:#fff;border-color:var(--slate-deep);}
+.filter-toggle .ft-count{
+  min-width:20px;height:20px;padding:0 6px;border-radius:var(--r-full);
+  background:var(--coral);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.cb-right{margin-left:auto;font-size:12.5px;color:var(--slate-muted);}
+
+/* ══════════════════════════════════════════════
+   TWO-COLUMN GRID
+   ══════════════════════════════════════════════ */
+.grid2{
+  display:grid; grid-template-columns:300px minmax(0,1fr);
+  gap:18px; align-items:start;
+  padding:20px 28px 48px; max-width:1600px; margin:0 auto;
+}
+.grid2>*{min-width:0;}
+
+/* ══════════════════════════════════════════════
+   FILTER PANEL
+   ══════════════════════════════════════════════ */
+.fd-panel{
+  position:sticky; top:calc(var(--top-nav) + var(--top-bar));
+  background:var(--white);
+  border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);
+  overflow:hidden;
+}
+.fd-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(197,227,225,.3);}
+.fd-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--slate-deep);flex:1;}
+.fd-reset{border:none;background:none;padding:0;font-size:12.5px;font-weight:600;color:var(--slate-muted);transition:color .2s;}
+.fd-reset:hover{color:var(--coral);}
+.fd-close{
+  display:none;width:30px;height:30px;border-radius:50%;
+  border:1.5px solid var(--slate-pale);background:var(--white);
+  align-items:center;justify-content:center;color:var(--slate-muted);transition:all .2s;flex-shrink:0;
+}
+.fd-close:hover{border-color:var(--coral);color:var(--coral);}
+.fd-body{
+  max-height:calc(100vh - var(--top-nav) - var(--top-bar) - 120px);
+  overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--slate-pale) transparent;
+}
+.fd-body::-webkit-scrollbar{width:6px;}
+.fd-body::-webkit-scrollbar-thumb{background:var(--aqua-2);border-radius:3px;}
+
+.fd-group{border-bottom:1px solid rgba(197,227,225,.28);}
+.fd-group:last-child{border-bottom:none;}
+.fd-group>summary{
+  list-style:none;cursor:pointer;padding:13px 18px;
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--slate-deep);transition:background .15s;
+}
+.fd-group>summary::-webkit-details-marker{display:none;}
+.fd-group>summary:hover{background:var(--aqua-pale);}
+.fd-gcount{
+  min-width:18px;height:18px;padding:0 6px;border-radius:var(--r-full);
+  background:var(--coral);color:#fff;font-size:10.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.fd-chev{margin-left:auto;color:var(--slate-pale);font-size:10px;transition:transform .2s;}
+.fd-group[open] .fd-chev{transform:rotate(90deg);}
+.fd-gbody{padding:2px 18px 16px;}
+
+/* чекбоксы */
+.fd-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--slate-mid);padding:6px 0;cursor:pointer;transition:opacity .2s;}
+.fd-check input{display:none;}
+.fd-box{
+  width:18px;height:18px;border-radius:5px;border:1.5px solid var(--slate-pale);
+  display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;
+}
+.fd-check input:checked ~ .fd-box{background:var(--coral);border-color:var(--coral);}
+.fd-check input:checked ~ .fd-box svg{opacity:1;}
+.fd-box svg{opacity:0;transition:opacity .15s;}
+.fd-check.half .fd-box{background:var(--coral-soft);border-color:var(--coral);}
+.fd-check.half .fd-box::after{content:'';width:9px;height:2px;border-radius:1px;background:var(--coral);position:absolute;}
+.fd-lbl{flex:1;}
+.fd-cnt{font-size:11.5px;color:var(--slate-pale);font-weight:600;flex:none;}
+.fd-check.off{opacity:.38;cursor:not-allowed;}
+.fd-check:not(.off):hover .fd-lbl{color:var(--slate-deep);}
+
+/* дерево категорий */
+.fd-parent{font-weight:700;color:var(--slate-deep);margin-top:6px;}
+.fd-parent:first-child{margin-top:0;}
+.fd-kids{padding-left:28px;border-left:1.5px solid rgba(197,227,225,.45);margin-left:8px;margin-bottom:8px;}
+.fd-kids .fd-check{font-size:12.5px;padding:5px 0;}
+
+/* слайдеры */
+.fd-seatrow{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--slate-mid);padding-top:4px;}
+.fd-seatrow .v{font-weight:700;color:var(--slate-deep);}
+.fd-range input[type=range]{
+  width:100%;-webkit-appearance:none;height:4px;margin-top:8px;
+  border-radius:2px;background:var(--aqua-2);outline:none;
+}
+.fd-range input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--aqua-3);cursor:pointer;border:2.5px solid #fff;
+  box-shadow:0 2px 8px rgba(168,212,216,.45);transition:transform .15s,box-shadow .15s;
+}
+.fd-range input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 2px 14px rgba(168,212,216,.6);}
+.fd-range input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;background:var(--aqua-3);
+  cursor:pointer;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(168,212,216,.45);
+}
+
+/* двойной слайдер */
+.fd-dual .fd-vals{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--slate-deep);margin-bottom:2px;}
+.fd-dual .fd-track{position:relative;height:26px;}
+.fd-dual .fd-rail{position:absolute;top:11px;left:0;right:0;height:4px;background:var(--aqua-2);border-radius:2px;}
+.fd-dual .fd-fill{position:absolute;top:11px;height:4px;background:var(--coral);border-radius:2px;}
+.fd-dual input[type=range]{
+  position:absolute;top:0;left:0;width:100%;margin:0;
+  -webkit-appearance:none;appearance:none;background:none;pointer-events:none;height:26px;
+}
+.fd-dual input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;pointer-events:auto;width:16px;height:16px;border-radius:50%;
+  background:#fff;border:2.5px solid var(--coral);cursor:pointer;box-shadow:var(--sh-sm);
+}
+.fd-dual input[type=range]::-moz-range-thumb{
+  pointer-events:auto;width:16px;height:16px;border-radius:50%;
+  background:#fff;border:2.5px solid var(--coral);cursor:pointer;
+}
+
+.fd-note{
+  margin:14px 18px 16px;padding:12px 14px;
+  background:var(--aqua-pale);border-radius:var(--r-sm);
+  font-size:11.5px;line-height:1.55;color:var(--slate-mid);
+}
+.fd-note b{color:var(--slate-deep);}
+
+/* ══════════════════════════════════════════════
+   RESULTS
+   ══════════════════════════════════════════════ */
+.res-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.res-count{font-family:'DM Serif Display',serif;font-size:22px;color:var(--slate-deep);}
+.res-count b{font-weight:400;color:var(--coral);}
+
+.f-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.f-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 8px 6px 14px;border-radius:var(--r-full);
+  font-size:12.5px;font-weight:500;
+  background:var(--coral-soft);color:var(--coral);
+}
+.f-chip button{
+  width:18px;height:18px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.75);color:inherit;font-size:11px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:background .2s;
+}
+.f-chip button:hover{background:#fff;}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;}
+.tile{
+  display:block;background:var(--white);
+  border:1px solid rgba(197,227,225,.3);border-radius:var(--r-md);
+  overflow:hidden;box-shadow:var(--sh-sm);
+  transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s,border-color .25s;
+}
+.tile:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:var(--aqua-3);}
+.tile-img{height:132px;position:relative;overflow:hidden;background:var(--aqua-pale);}
+.tile-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1);}
+.tile:hover .tile-img img{transform:scale(1.06);}
+.tile-parent{
+  position:absolute;top:9px;left:9px;
+  padding:4px 11px;border-radius:var(--r-full);
+  font-size:10.5px;font-weight:600;
+  background:rgba(255,255,255,.9);color:var(--slate);backdrop-filter:blur(8px);
+}
+.tile-body{padding:12px 14px 14px;}
+.tile-name{font-size:14.5px;font-weight:700;color:var(--slate-deep);line-height:1.3;margin-bottom:5px;}
+.tile-sub{font-size:12px;color:var(--slate-muted);margin-bottom:9px;}
+.tile-price{font-size:15px;font-weight:800;color:var(--slate-deep);margin-bottom:10px;}
+.tile-badges{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:var(--r-full);font-size:10.5px;font-weight:600;background:var(--aqua-pale);color:var(--slate-mid);}
+.tag.solid{background:var(--coral-soft);color:var(--coral);}
+
+.res-empty{
+  background:var(--white);border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-lg);box-shadow:var(--sh-md);
+  padding:48px 24px;text-align:center;
+}
+.res-empty h3{font-family:'DM Serif Display',serif;font-size:21px;font-weight:400;color:var(--slate-deep);margin-bottom:8px;}
+.res-empty p{font-size:13.5px;color:var(--slate-muted);margin-bottom:18px;}
+.res-empty button{
+  padding:11px 26px;border-radius:var(--r-full);
+  background:var(--coral);color:#fff;border:none;
+  font-size:14px;font-weight:600;box-shadow:var(--sh-coral);transition:background .2s;
+}
+.res-empty button:hover{background:var(--coral-hover);}
+
+.res-note{
+  margin-top:16px;padding:13px 16px;
+  background:var(--white);border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-md);font-size:11.5px;line-height:1.6;color:var(--slate-muted);
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════ */
+@media(max-width:900px){
+  .grid2{grid-template-columns:minmax(0,1fr);padding:16px 18px 40px;}
+  .filter-toggle{display:flex;}
+  .fd-close{display:flex;}
+  .fd-panel{
+    position:fixed;top:0;left:0;bottom:0;
+    width:min(340px,88vw);border-radius:0;z-index:600;
+    transform:translateX(-100%);
+    transition:transform .35s cubic-bezier(.22,1,.36,1);
+    box-shadow:0 8px 40px rgba(53,78,99,.18);
+  }
+  .fd-panel.open{transform:translateX(0);}
+  .fd-body{max-height:calc(100vh - 62px);}
+  .fd-backdrop{
+    position:fixed;inset:0;z-index:599;
+    background:rgba(53,78,99,.35);backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .fd-backdrop.open{opacity:1;pointer-events:auto;}
+  .control-bar{padding:12px 18px;}
+}
+@media(max-width:560px){
+  .res-count{font-size:18px;}
+  .cb-title{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<div id="mh-nav"></div>
+
+<div class="page-wrap">
+
+  <div class="control-bar">
+    <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3.5h11M4 7.5h7M5.5 11.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Фильтр
+      <span class="ft-count" id="ftCount">0</span>
+    </button>
+    <div class="cb-title">Каталог поставщиков</div>
+    <div class="cb-right">Артисты, питание, аренда, персонал, транспорт</div>
+  </div>
+
+  <div class="grid2">
+
+    <aside class="fd-panel" id="filterDrawer">
+      <div class="fd-head">
+        <div class="fd-title">Фильтры</div>
+        <button class="fd-reset" onclick="resetAll()">Сбросить всё</button>
+        <button class="fd-close" onclick="toggleFilter()" aria-label="Закрыть">
+          <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="fd-body" id="fdBody"></div>
+      <div class="fd-note">
+        Групповой запрос отправляется <b>только внутри одной категории</b> — поставщиков
+        из разных разделов в один запрос собрать нельзя. Поэтому категории здесь деревом,
+        а не плоским списком.
+      </div>
+    </aside>
+
+    <div class="res-col">
+      <div class="res-head">
+        <div class="res-count" id="resCount">—</div>
+      </div>
+      <div class="f-chips" id="fChips"></div>
+      <div id="tiles"></div>
+      <div class="res-note">
+        Счётчик у пункта категории — сколько поставщиков останется, если выбрать это условие.
+        Пункты с (0) отключаются. Категории считаются по «ИЛИ»: отмеченные подкатегории
+        складываются. Чекбокс раздела выбирает все его подкатегории разом.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="fd-backdrop" id="fdBackdrop" onclick="toggleFilter()"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>
+MH.init('suppliers');
+
+/* ══════════════════════════════════════════════
+   СОСТОЯНИЕ
+   Отбор и фасетные счётчики — из модели: ML.emptySupplierFilters(),
+   ML.filterSuppliers(F, excludeGroup), ML.supplierFacet(F, kind, value).
+   Своей копии этой логики страница не держит.
+   ══════════════════════════════════════════════ */
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const jt  = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+let F = ML.loadSupplierFilters();   // выборка переживает переходы
+const MAX_PRICE = F._maxPrice;
+const MAX_EXP   = F._maxExp;
+const OPEN = new Set(['cats', 'price']);
+
+const IC = {
+  check:'<svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+/* ══════════════════════════════════════════════
+   ПАНЕЛЬ ФИЛЬТРОВ
+   ══════════════════════════════════════════════ */
+function fgroup(k, title, body, n) {
+  return `<details class="fd-group" data-k="${k}" ${OPEN.has(k) ? 'open' : ''} ontoggle="OPEN[this.open?'add':'delete']('${k}')">
+    <summary>${title}${n ? `<span class="fd-gcount">${n}</span>` : ''}<span class="fd-chev">▶</span></summary>
+    <div class="fd-gbody">${body}</div>
+  </details>`;
+}
+
+function renderFilters() {
+  let tree = '';
+  for (const parent in ML.SUPPLIER_TREE) {
+    const kids = ML.SUPPLIER_TREE[parent];
+    const chosen = kids.filter(k2 => F.cats.has(parent + '·' + k2)).length;
+    const all = chosen === kids.length && kids.length > 0;
+    const some = chosen > 0 && !all;
+    const pn = ML.supplierFacet(F, 'parent', parent);
+
+    tree += `<label class="fd-check fd-parent${some ? ' half' : ''}">
+      <input type="checkbox" ${all ? 'checked' : ''} onchange="togParent('${jt(parent)}',this.checked)">
+      <span class="fd-box" style="position:relative">${IC.check}</span>
+      <span class="fd-lbl">${esc(parent)}</span><span class="fd-cnt">(${pn})</span></label>
+      <div class="fd-kids">${kids.map(k2 => {
+        const kk = parent + '·' + k2;
+        const c = ML.supplierFacet(F, 'child', kk);
+        const on = F.cats.has(kk);
+        const dead = c === 0 && !on;
+        return `<label class="fd-check${dead ? ' off' : ''}">
+          <input type="checkbox" ${on ? 'checked' : ''} ${dead ? 'disabled' : ''} onchange="togCat('${jt(kk)}')">
+          <span class="fd-box">${IC.check}</span>
+          <span class="fd-lbl">${esc(k2)}</span><span class="fd-cnt">(${c})</span></label>`;
+      }).join('')}</div>`;
+  }
+
+  const extraN = (F.video ? 1 : 0) + (F.reviews ? 1 : 0) + (F.loyalty ? 1 : 0);
+
+  document.getElementById('fdBody').innerHTML =
+    fgroup('price', 'Стоимость услуги, ₽', dualPrice(), (F.price[0] > 0 || F.price[1] < MAX_PRICE) ? 1 : 0) +
+    fgroup('exp', 'Опыт, лет',
+      `<div class="fd-seatrow"><span>Не менее</span><span class="v" id="expVal">${F.expMin || '—'}</span></div>
+       <div class="fd-range"><input type="range" min="0" max="${MAX_EXP}" step="1" value="${F.expMin}"
+         oninput="document.getElementById('expVal').textContent=(+this.value||'—')"
+         onchange="F.expMin=+this.value;render()"></div>`, F.expMin ? 1 : 0) +
+    fgroup('extra', 'Дополнительно',
+      [['video','Есть видео'],['reviews','Есть отзывы'],['loyalty','Принимает баллы лояльности']]
+        .map(([k2, l]) => `<label class="fd-check">
+          <input type="checkbox" ${F[k2] ? 'checked' : ''} onchange="F['${k2}']=this.checked;render()">
+          <span class="fd-box">${IC.check}</span><span class="fd-lbl">${l}</span></label>`).join(''),
+      extraN) +
+    fgroup('cats', 'Категории услуг', tree, F.cats.size);
+
+  bindDual();
+}
+
+function dualPrice() {
+  const [a, b] = F.price;
+  return `<div class="fd-dual" id="priceDual" data-min="0" data-max="${MAX_PRICE}">
+    <div class="fd-vals"><span class="lo">${a.toLocaleString('ru')} ₽</span><span class="hi">${b.toLocaleString('ru')} ₽</span></div>
+    <div class="fd-track">
+      <div class="fd-rail"></div><div class="fd-fill"></div>
+      <input type="range" class="lo" min="0" max="${MAX_PRICE}" step="2500" value="${a}">
+      <input type="range" class="hi" min="0" max="${MAX_PRICE}" step="2500" value="${b}">
+    </div></div>`;
+}
+function bindDual() {
+  const d = document.getElementById('priceDual');
+  if (!d) return;
+  const lo = d.querySelector('input.lo'), hi = d.querySelector('input.hi');
+  const fill = d.querySelector('.fd-fill'), lv = d.querySelector('.fd-vals .lo'), hv = d.querySelector('.fd-vals .hi');
+  const mn = +d.dataset.min, mx = +d.dataset.max;
+  const upd = commit => {
+    let a = +lo.value, b = +hi.value;
+    if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
+    F.price = [a, b];
+    fill.style.left = ((a - mn) / (mx - mn) * 100) + '%';
+    fill.style.right = (100 - (b - mn) / (mx - mn) * 100) + '%';
+    lv.textContent = a.toLocaleString('ru') + ' ₽';
+    hv.textContent = b.toLocaleString('ru') + ' ₽';
+    if (commit) render();
+  };
+  lo.oninput = () => upd(false); hi.oninput = () => upd(false);
+  lo.onchange = () => upd(true); hi.onchange = () => upd(true);
+  upd(false);
+}
+
+/* Чекбокс раздела выбирает/снимает все подкатегории разом. */
+function togParent(parent, on) {
+  ML.SUPPLIER_TREE[parent].forEach(k2 => {
+    const kk = parent + '·' + k2;
+    on ? F.cats.add(kk) : F.cats.delete(kk);
+  });
+  render();
+}
+function togCat(kk) { F.cats.has(kk) ? F.cats.delete(kk) : F.cats.add(kk); render(); }
+
+/* ══════════════════════════════════════════════
+   ЧИПЫ
+   ══════════════════════════════════════════════ */
+function renderChips() {
+  const c = [];
+  if (F.price[0] > 0 || F.price[1] < MAX_PRICE)
+    c.push([`${F.price[0].toLocaleString('ru')}–${F.price[1].toLocaleString('ru')} ₽`, () => F.price = [0, MAX_PRICE]]);
+  if (F.expMin) c.push([`опыт от ${F.expMin} ${ML.plural(F.expMin, ['года','лет','лет'])}`, () => F.expMin = 0]);
+  if (F.video) c.push(['есть видео', () => F.video = false]);
+  if (F.reviews) c.push(['есть отзывы', () => F.reviews = false]);
+  if (F.loyalty) c.push(['принимает баллы', () => F.loyalty = false]);
+  [...F.cats].forEach(kk => c.push([kk.split('·')[1], () => F.cats.delete(kk)]));
+
+  window._chips = c;
+  document.getElementById('fChips').innerHTML = c.map((x, i) =>
+    `<span class="f-chip">${esc(x[0])}<button onclick="_chips[${i}][1]();render()" aria-label="Убрать">✕</button></span>`).join('');
+  document.getElementById('ftCount').textContent = c.length;
+}
+
+/* ══════════════════════════════════════════════
+   ВЫДАЧА
+   ══════════════════════════════════════════════ */
+function tile(s) {
+  return `<a class="tile" href="supplier.html?id=${s.id}">
+    <div class="tile-img">
+      <img src="${ML.photoUrl(s.photo)}" alt="" loading="lazy">
+      <span class="tile-parent">${esc(s.parent)}</span>
+    </div>
+    <div class="tile-body">
+      <div class="tile-name">${esc(s.name)}</div>
+      <div class="tile-sub">${esc(s.city)} · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
+      <div class="tile-price">от ${ML.money(s.price)}</div>
+      <div class="tile-badges">
+        ${s.loyalty ? '<span class="tag solid">Баллы</span>' : ''}
+        ${s.video ? '<span class="tag">Видео</span>' : ''}
+        ${s.reviews ? '<span class="tag">Отзывы</span>' : ''}
+      </div>
+    </div>
+  </a>`;
+}
+
+let currentList = [];
+
+function render() {
+  ML.saveSupplierFilters(F);           // любое изменение проходит через render()
+  const list = ML.filterSuppliers(F, null);
+  currentList = list;
+
+  document.getElementById('resCount').innerHTML = list.length
+    ? `Найдено <b>${list.length}</b> ${ML.plural(list.length, ['поставщик','поставщика','поставщиков'])}`
+    : 'Ничего не найдено';
+
+  document.getElementById('tiles').innerHTML = list.length
+    ? `<div class="tiles">${list.map(tile).join('')}</div>`
+    : `<div class="res-empty">
+         <h3>Под эти условия поставщиков нет</h3>
+         <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>
+         <button onclick="resetAll()">Сбросить фильтры</button>
+       </div>`;
+
+  renderChips();
+  renderFilters();
+  paintHalf();
+}
+
+/* Раздел с частичным выбором — промежуточное состояние чекбокса. */
+function paintHalf() {
+  document.querySelectorAll('.fd-check.fd-parent').forEach(lb => {
+    const inp = lb.querySelector('input');
+    if (inp) inp.indeterminate = lb.classList.contains('half');
+  });
+}
+
+function resetAll() { F = ML.resetSupplierFilters(); render(); }
+
+function toggleFilter() {
+  const d = document.getElementById('filterDrawer');
+  const t = document.getElementById('filterToggle');
+  const b = document.getElementById('fdBackdrop');
+  const open = d.classList.toggle('open');
+  t.classList.toggle('open', open);
+  b.classList.toggle('open', open);
+}
+
+/* ── старт ── */
+(function init() {
+  // ?cat=Артисты — предвыбор раздела из внешней ссылки
+  const p = new URLSearchParams(location.search).get('cat');
+  if (p && ML.SUPPLIER_TREE[p]) ML.SUPPLIER_TREE[p].forEach(k2 => F.cats.add(p + '·' + k2));
+  render();
+})();
+</script>
+</body>
+</html>

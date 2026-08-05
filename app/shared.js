@@ -90,6 +90,14 @@ const MH = (() => {
         font-size: 12px; font-weight: 800; color: #E8846A; flex-shrink: 0;
       }
       .mh-uname { font-size: 13.5px; font-weight: 600; color: #354E63; }
+      .mh-points {
+        display: inline-flex; align-items: center;
+        padding: 6px 14px; border-radius: 50px;
+        background: #FCEAE4; color: #E8846A;
+        font-size: 13px; font-weight: 700; text-decoration: none;
+        white-space: nowrap; transition: background .18s;
+      }
+      .mh-points:hover { background: #F6DDD3; }
       .mh-prem-badge {
         display: inline-flex; align-items: center; gap: 3px;
         padding: 2px 9px; border-radius: 50px;
@@ -176,27 +184,35 @@ const MH = (() => {
 
   function buildRight(session) {
     if (session) {
-      return `<a class="mh-avatar-wrap" href="dashboard">
+      // Баллы рядом с кабинетом — из модели, если она подключена на странице
+      const pts = (typeof ML !== 'undefined' && ML.state && ML.state.points)
+        ? ML.state.points.free : null;
+      return `${pts !== null
+        ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}
+      <a class="mh-avatar-wrap" href="dashboard.html">
         <div class="mh-avatar">${session.initials || 'АК'}</div>
         <span class="mh-uname">${session.name || 'Профиль'}</span>
         ${session.premium ? '<span class="mh-prem-badge">★ Premium</span>' : ''}
       </a>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing"><span class="star">⭐</span> Премиум</a>
-      <a class="mh-login" href="auth?next=${_next}">Войти</a>
-      <a class="mh-cta" href="auth?mode=venue">Разместить площадку</a>`;
+    return `<a class="mh-prem" href="pricing.html"><span class="star">⭐</span> Премиум</a>
+      <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
+      <a class="mh-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
   }
 
   function renderNav(targetEl, active) {
     injectNavCSS();
     const session = getSession();
+    /* Состав меню — по документам. Ссылки пишутся с расширением .html:
+       cleanUrls в vercel.json выключен, прототип должен кликаться и локально. */
     const links = [
-      { label: 'КАРТА',      href: 'search',         key: 'map' },
-      { label: 'КАТАЛОГ',    href: 'catalog',        key: 'catalog' },
-      { label: 'АГЕНТСТВАМ', href: 'for-organizers', key: 'agencies' },
-      { label: 'ПЛОЩАДКАМ',  href: 'list-venue',     key: 'venues' },
-      { label: 'ПОДБОР',     href: 'request-form',   key: 'request' },
+      { label: 'ПЛОЩАДКИ',        href: 'search.html',    key: 'map' },
+      { label: 'ПОСТАВЩИКИ',      href: 'suppliers.html', key: 'suppliers' },
+      { label: 'БОНУСЫ',          href: 'bonus.html',     key: 'bonus' },
+      { label: 'FAQ',             href: 'faq.html',       key: 'faq' },
+      { label: 'О ПРОЕКТЕ',       href: 'about.html',     key: 'about' },
+      { label: 'КАК ЭТО РАБОТАЕТ', href: 'how.html',      key: 'how' },
     ];
     const navLinks = links.map(l =>
       `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
@@ -207,15 +223,15 @@ const MH = (() => {
     ).join('');
     const drawerRight = session
       ? `<div class="mh-drawer-sep"></div>
-         <a href="dashboard" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
+         <a href="dashboard.html" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
       : `<div class="mh-drawer-sep"></div>
-         <a href="pricing" style="text-transform:none;letter-spacing:0;font-size:14px;">⭐ Премиум</a>
-         <a href="${'auth?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
-         <a class="mh-drawer-cta" href="auth?mode=venue">Разместить площадку</a>`;
+         <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">⭐ Премиум</a>
+         <a href="${'auth.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
+         <a class="mh-drawer-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
 
     targetEl.innerHTML = `
       <header class="mh-header">
-        <a class="mh-logo" href="homepage"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
+        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
@@ -336,25 +352,26 @@ const MH = (() => {
           </div>
           <div class="mh-ft-col">
             <h4>Платформа</h4>
-            <a href="catalog">Площадки</a>
-            <a href="#">Как это работает</a>
-            <a href="pricing">Тарифы</a>
+            <a href="search.html">Подбор площадок</a>
+            <a href="suppliers.html">Поставщики</a>
+            <a href="bonus.html">Бонусная программа</a>
+            <a href="pricing.html">Тарифы</a>
           </div>
           <div class="mh-ft-col">
-            <h4>Для площадок</h4>
-            <a href="list-venue">Разместить площадку</a>
-            <a href="pricing">Тарифы</a>
-            <a href="#" onclick="event.preventDefault();MH.feedback()">Поддержка</a>
+            <h4>Размещение</h4>
+            <a href="list-venue.html">Разместить площадку</a>
+            <a href="for-organizers.html">Агентствам</a>
+            <a href="support.html" class="bold">Поддержка и арбитраж</a>
           </div>
           <div class="mh-ft-col">
-            <h4>Компания</h4>
-            <a href="#">О нас</a>
-            <a href="#" onclick="event.preventDefault();MH.feedback()">Связаться с нами</a>
-            <a href="request-form" class="bold">Подбор площадки</a>
+            <h4>Поддержка</h4>
+            <a href="support.html">Написать в поддержку</a>
+            <a href="mailto:info@mirhub.ru">Контакты</a>
+            <a href="../index.html">Карта сайта</a>
           </div>
           <div class="mh-ft-col">
             <h4>Документы</h4>
-            <a href="privacy">Политика конфиденциальности</a>
+            <a href="privacy.html">Политика конфиденциальности</a>
             <a href="#">Условия использования</a>
             <a href="#">Оферта</a>
           </div>
@@ -366,32 +383,12 @@ const MH = (() => {
         <div class="mh-ft-bottom">
           <span>© 2026 Мирхаб. Рынок открыт.</span>
           <div>
-            <a href="privacy">Политика конфиденциальности</a>
+            <a href="privacy.html">Политика конфиденциальности</a>
             <a href="#">Условия</a>
           </div>
         </div>
       </footer>`;
   }
-
-  const VENUES = [
-    {id:1, n:'Конференц-зал «Панорама»',      loc:'Москва, Пресня',           metro:'Выставочная',       type:'Конференц-зал', area:380, cap:250, r:4.9, rv:127, p:'45 000',  h:195, s:1,  tags:['all','center','view'],             pr:1, px:52, py:38},
-    {id:2, n:'Лофт «Кирпич»',                loc:'Москва, Курская',           metro:'Курская',            type:'Лофт',          area:280, cap:100, r:4.6, rv:112, p:'28 000',  h:20,  s:2,  tags:['all','loft','catering'],                 px:57, py:46},
-    {id:3, n:'Усадьба «Белые ночи»',         loc:'Москва, Рублёвка',          metro:null,                 type:'Банкетный зал', area:450, cap:150, r:4.9, rv:203, p:'95 000',  h:25,  s:3,  tags:['all','outdoor','catering'],        pr:1, px:28, py:40},
-    {id:4, n:'Ресторан «Терракота»',         loc:'Москва, Патриаршие',        metro:'Маяковская',         type:'Ресторан',      area:120, cap:60,  r:4.8, rv:156, p:'35 000',  h:15,  s:4,  tags:['all','center','catering'],               px:47, py:44},
-    {id:5, n:'Коворкинг Space One',          loc:'Москва, Сити',              metro:'Деловой центр',      type:'Коворкинг',     area:90,  cap:40,  r:4.8, rv:63,  p:'8 000',   h:180, s:5,  tags:['all','center','corporate'],              px:58, py:35},
-    {id:6, n:'Галерея «Арт-холл»',          loc:'Москва, Винзавод',          metro:'Курская',            type:'Галерея',       area:320, cap:120, r:4.7, rv:88,  p:'50 000',  h:280, s:6,  tags:['all','loft','view'],                     px:56, py:48},
-    {id:7, n:'Бизнес-лофт Level Up',        loc:'Москва, Нижегородская',     metro:'Авиамоторная',       type:'Лофт',          area:200, cap:80,  r:4.5, rv:74,  p:'18 000',  h:42,  s:7,  tags:['all','loft','corporate'],                px:45, py:42},
-    {id:8, n:'Зал «Меридиан»',              loc:'Москва, Калужская',         metro:'Калужская',          type:'Конференц-зал', area:500, cap:350, r:4.8, rv:196, p:'65 000',  h:220, s:8,  tags:['all','center','parking'],                px:42, py:68},
-    {id:9, n:'Meeting Point Arena',         loc:'Москва, Сокольники',        metro:'Сокольники',         type:'Конференц-зал', area:600, cap:400, r:4.6, rv:142, p:'80 000',  h:165, s:9,  tags:['all','corporate','parking'],             px:55, py:52},
-    {id:10,n:'Центр «Высота»',              loc:'Москва, Павелецкая',        metro:'Павелецкая',         type:'Лофт',          area:240, cap:90,  r:4.7, rv:91,  p:'32 000',  h:58,  s:10, tags:['all','view','loft'],                     px:62, py:25},
-    {id:11,n:'Ресторан La Terrasse',        loc:'Москва, Остоженка',         metro:'Кропоткинская',      type:'Ресторан',      area:140, cap:70,  r:4.9, rv:211, p:'55 000',  h:8,   s:11, tags:['all','center','catering','view'],  pr:1, px:44, py:50},
-    {id:12,n:'Клуб «Бункер»',              loc:'Москва, Электрозаводская',  metro:'Электрозаводская',   type:'Лофт',          area:350, cap:200, r:4.4, rv:55,  p:'22 000',  h:300, s:12, tags:['all','loft','parking'],                  px:64, py:38},
-    {id:13,n:'Зал «Империя»',              loc:'Москва, Тверская',          metro:'Тверская',           type:'Конференц-зал', area:600, cap:400, r:4.6, rv:52,  p:'65 000',  h:215, s:13, tags:['all','center'],                    pr:1, px:50, py:30},
-    {id:14,n:'Шеф-стол Blanc',             loc:'Москва, Тверская',          metro:'Тверская',           type:'Частный ужин',  area:40,  cap:12,  r:5.0, rv:34,  p:'120 000', h:35,  s:14, tags:['all','center','catering'],         pr:1, px:49, py:33},
-    {id:15,n:'Зал «Тишина»',               loc:'Москва, Якиманка',          metro:'Октябрьская',        type:'Ресторан',      area:45,  cap:16,  r:4.9, rv:61,  p:'25 000',  h:25,  s:15, tags:['all','center','catering'],         pr:1, px:52, py:55},
-    {id:16,n:'Terrasa Rooftop',            loc:'Москва, Красный Октябрь',   metro:'Кропоткинская',      type:'Лофт',          area:180, cap:90,  r:4.7, rv:88,  p:'42 000',  h:170, s:16, tags:['all','view','loft'],                     px:48, py:48},
-    {id:17,n:'Студия «Формат»',            loc:'Москва, Бауманская',        metro:'Бауманская',         type:'Коворкинг',     area:110, cap:50,  r:4.5, rv:42,  p:'12 000',  h:195, s:17, tags:['all','corporate'],                       px:60, py:43},
-  ];
 
   function go(url) {
     document.body.style.transition = 'opacity .15s ease';
@@ -622,5 +619,5 @@ const MH = (() => {
     });
   }
 
-  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback, VENUES };
+  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback };
 })();

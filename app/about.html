@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="О проекте: инструмент подбора залов и поставщиков для MICE и Event. Что есть здесь и чего ресурс намеренно не делает.">
+<meta property="og:title" content="О проекте — МирХАБ">
+<meta property="og:description" content="Инструмент подбора залов и поставщиков для MICE и Event. Что есть здесь и чего ресурс намеренно не делает.">
+<meta property="og:image" content="https://mirhub.vercel.app/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mirhub.vercel.app/assets/og-image.png">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>О проекте — МирХАБ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3;
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:900px;margin:0 auto;padding:28px 28px 72px;animation:pageIn .5s ease both;}
+
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;color:var(--slate-muted);margin-bottom:18px;}
+.crumbs a:hover{color:var(--coral);}
+.crumbs .sep{opacity:.5;}
+.crumbs .cur{color:var(--slate-deep);font-weight:600;}
+
+.eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+h1{font-family:'DM Serif Display',serif;font-size:36px;font-weight:400;color:var(--slate-deep);
+  line-height:1.15;margin-top:10px;letter-spacing:-.3px;}
+.lead{font-size:16px;line-height:1.7;color:var(--slate-mid);margin-top:14px;}
+
+.panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:26px 28px;margin-top:24px;}
+.panel p{font-size:14.5px;line-height:1.75;color:var(--slate-mid);}
+.panel p + p{margin-top:14px;}
+
+h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:var(--slate-deep);
+  margin:38px 0 14px;line-height:1.2;}
+
+/* что есть здесь */
+.feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+.feat{background:var(--white);border:1px solid rgba(197,227,225,.32);border-radius:var(--r-md);
+  padding:18px 20px;box-shadow:var(--sh-sm);}
+.feat b{display:block;font-size:14.5px;font-weight:700;color:var(--slate-deep);margin-bottom:6px;}
+.feat span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
+
+/* чего не делаем */
+.nots{display:flex;flex-direction:column;gap:10px;}
+.not{display:flex;align-items:flex-start;gap:12px;background:var(--white);
+  border:1px solid rgba(197,227,225,.32);border-left:3px solid var(--coral);
+  border-radius:var(--r-md);padding:15px 18px;box-shadow:var(--sh-sm);}
+.not-x{width:22px;height:22px;border-radius:50%;background:var(--coral-soft);color:var(--coral);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.not b{display:block;font-size:14px;font-weight:700;color:var(--slate-deep);margin-bottom:4px;}
+.not span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
+
+/* дальнейшие этапы */
+.next{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+.next div{border:1px solid rgba(197,227,225,.4);border-radius:var(--r-sm);background:var(--white);
+  padding:13px 15px;font-size:13.5px;color:var(--slate-mid);}
+
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px;}
+.btn{display:inline-block;padding:12px 26px;border-radius:var(--r-full);font-size:14px;font-weight:600;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;}
+.btn:hover{border-color:var(--coral);color:var(--coral);}
+.btn.pri{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:var(--sh-coral);}
+.btn.pri:hover{background:var(--coral-hover);border-color:var(--coral-hover);color:#fff;}
+
+@media(max-width:700px){ h1{font-size:27px;} .wrap{padding:20px 16px 56px;} }
+</style>
+</head>
+<body>
+
+<div id="mh-nav"></div>
+
+<div class="wrap">
+  <div class="crumbs"><a href="homepage.html">Главная</a><span class="sep">→</span><span class="cur">О проекте</span></div>
+
+  <span class="eyebrow">О проекте</span>
+  <h1>Инструмент подбора, а не система бронирования</h1>
+  <p class="lead">МАЙСЛИСТ — профессиональный инструмент подбора залов и поставщиков для рынка
+  MICE и Event. Он сокращает время менеджера на сбор информации и подготовку предложения —
+  и на этом останавливается: дальше стороны работают напрямую.</p>
+
+  <h2>Чего нет у существующих поисковых систем</h2>
+  <div class="feats">
+    <div class="feat"><b>Единая форма информации</b>
+      <span>Каждый объект описан по одной схеме: залы, площади, схемы рассадки, оснащение, условия.
+      Не нужно вычитывать сайты и сводить разнородные презентации.</span></div>
+    <div class="feat"><b>Сравнение залов между собой</b>
+      <span>Залы ищутся независимо от объектов и сравниваются в одной таблице по значимым параметрам.</span></div>
+    <div class="feat"><b>Групповой запрос в отделы продаж</b>
+      <span>Один запрос уходит сразу во все выбранные объекты — не нужно писать каждому отдельно.</span></div>
+    <div class="feat"><b>Презентация под ТЗ мероприятия</b>
+      <span>По отобранным залам собирается документ, который можно отдать заказчику.</span></div>
+    <div class="feat"><b>Баллы по программе лояльности</b>
+      <span>Часть агентского вознаграждения возвращается баллами за состоявшиеся мероприятия и отзывы.</span></div>
+  </div>
+
+  <h2>Чего ресурс не делает</h2>
+  <div class="nots">
+    <div class="not"><span class="not-x">✕</span><div>
+      <b>Не бронирует</b>
+      <span>Бронирование и договор идут напрямую между вами и объектом. Ресурс не участвует
+      в переписке и не выступает стороной сделки.</span></div></div>
+    <div class="not"><span class="not-x">✕</span><div>
+      <b>Не считает сметы</b>
+      <span>Калькулятора услуг и смет не предусмотрено. Подтверждающих документов и смет
+      ресурс не получает ни от пользователя, ни от объектов.</span></div></div>
+    <div class="not"><span class="not-x">✕</span><div>
+      <b>Не передаёт контакты пользователей</b>
+      <span>Объектам и поставщикам уходит только запрос. Персональные данные не раскрываются.</span></div></div>
+  </div>
+
+  <h2>На дальнейших этапах</h2>
+  <div class="next">
+    <div>Вакансии и резюме</div>
+    <div>Календарь поставщиков</div>
+    <div>Горящие предложения</div>
+    <div>Пробковый сбор</div>
+    <div>Бронирование номеров — партнёрство</div>
+    <div>Организация выставок и воркшопов</div>
+    <div>Новости отрасли</div>
+    <div>Калькулятор услуг</div>
+    <div>Шахматка доступности залов</div>
+    <div>Мобильное приложение</div>
+  </div>
+
+  <div class="cta">
+    <a class="btn pri" href="search.html">Перейти к подбору</a>
+    <a class="btn" href="how.html">Как это работает</a>
+    <a class="btn" href="faq.html">FAQ</a>
+  </div>
+</div>
+
+<div id="mh-footer"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>MH.init('about');</script>
+</body>
+</html>

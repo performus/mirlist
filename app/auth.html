@@ -3,394 +3,325 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Вход и регистрация: пользователь, площадка или поставщик услуг.">
+<meta name="robots" content="noindex">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Вход — МирХАБ</title>
+<title>Вход и регистрация — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.14);
-  --aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;
-  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
-  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
-  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.2);
-  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3;
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
-/* Header */
-.header{height:64px;padding:0 40px;display:flex;align-items:center;gap:28px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.35);}
-.logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);letter-spacing:-.4px;}
-.logo i{font-style:normal;color:var(--c);}
-.header-nav{display:flex;gap:6px;margin-left:16px;}
-.header-nav a{font-size:13.5px;font-weight:500;color:var(--sx);padding:7px 16px;border-radius:var(--rf);transition:color .2s,background .2s;}
-.header-nav a:hover{color:var(--s);background:var(--aq-p);}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
-.h-btn{padding:8px 20px;border-radius:var(--rf);font-size:13px;font-weight:600;border:1.5px solid var(--sp);background:var(--w);color:var(--s);transition:all .2s;display:flex;align-items:center;gap:6px;}
-.h-btn:hover{border-color:var(--c);color:var(--c);}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:520px;margin:0 auto;padding:36px 24px 72px;animation:pageIn .5s ease both;}
 
-/* Main */
-.auth-main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.head{text-align:center;margin-bottom:24px;}
+.head .eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.head h1{font-family:'DM Serif Display',serif;font-size:30px;font-weight:400;color:var(--slate-deep);
+  line-height:1.15;margin-top:10px;}
+.head p{font-size:13.5px;line-height:1.65;color:var(--slate-muted);margin-top:9px;}
 
-/* Page views */
-.auth-view{display:none;animation:fadeIn .4s ease;}
-.auth-view.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* вкладки вход / регистрация */
+.tabs{display:flex;gap:4px;background:var(--white);border:1px solid rgba(197,227,225,.4);
+  border-radius:var(--r-full);padding:4px;margin-bottom:18px;box-shadow:var(--sh-sm);}
+.tabs button{flex:1;padding:10px;border-radius:var(--r-full);border:none;background:none;
+  font-size:13.5px;font-weight:600;color:var(--slate-muted);transition:all .2s;}
+.tabs button.on{background:var(--coral);color:#fff;box-shadow:var(--sh-coral);}
 
-/* ═══ LOGIN PAGE ═══ */
-.login-title{font-family:'DM Serif Display',serif;font-size:36px;color:var(--sd);text-align:center;margin-bottom:40px;letter-spacing:-.5px;}
+/* переключатель роли */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+.role{background:var(--white);border:1.5px solid rgba(197,227,225,.45);border-radius:var(--r-md);
+  padding:14px 10px;text-align:center;transition:all .2s;}
+.role:hover{border-color:var(--aqua-3);}
+.role.on{border-color:var(--coral);background:var(--coral-soft);}
+.role-ic{font-size:19px;line-height:1;}
+.role-t{font-size:12.5px;font-weight:700;color:var(--slate-deep);margin-top:7px;}
+.role.on .role-t{color:var(--coral);}
+.role-s{font-size:11px;color:var(--slate-muted);margin-top:3px;line-height:1.4;}
 
-.login-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:820px;width:100%;}
-.login-card{background:var(--w);border:1.5px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:48px 40px;text-align:center;transition:all .35s;cursor:pointer;position:relative;}
-.login-card:hover{border-color:rgba(233,134,103,.25);box-shadow:var(--shl);transform:translateY(-4px);}
-.login-card.selected{border-color:var(--c);box-shadow:0 0 0 3px var(--cg),var(--sh);}
+.card{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:24px;}
+.fg{margin-bottom:15px;}
+.fg label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--slate-muted);margin-bottom:6px;}
+.fi{width:100%;padding:12px 15px;border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
+  font-family:inherit;font-size:14px;color:var(--slate-deep);outline:none;transition:border-color .2s,background .2s;}
+.fi:focus{border-color:var(--coral);background:var(--white);}
+.fi.bad{border-color:#B14A32;background:#FDF3F0;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-.login-icon{width:80px;height:80px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;}
-.login-card:nth-child(1) .login-icon{background:var(--cs);}
-.login-card:nth-child(2) .login-icon{background:var(--aq-p);}
+.check{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.55;
+  color:var(--slate-muted);margin-bottom:16px;cursor:pointer;}
+.check input{margin-top:2px;accent-color:var(--coral);flex-shrink:0;}
+.check a{color:var(--coral);font-weight:600;}
 
-.login-role{font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);margin-bottom:8px;}
-.login-desc{font-size:14px;color:var(--sx);line-height:1.6;margin-bottom:28px;max-width:260px;margin-left:auto;margin-right:auto;}
+.btn{width:100%;padding:13px;border-radius:var(--r-full);font-size:14.5px;font-weight:600;
+  background:var(--coral);border:none;color:#fff;box-shadow:var(--sh-coral);transition:background .2s;}
+.btn:hover{background:var(--coral-hover);}
+.alt{text-align:center;font-size:13px;color:var(--slate-muted);margin-top:16px;}
+.alt button{background:none;border:none;color:var(--coral);font-weight:600;font-size:13px;padding:0;}
+.alt button:hover{text-decoration:underline;text-underline-offset:3px;}
+.forgot{display:block;text-align:right;font-size:12.5px;color:var(--slate-muted);
+  background:none;border:none;padding:0;margin:-6px 0 16px auto;}
+.forgot:hover{color:var(--coral);}
 
-.login-cta{width:100%;padding:14px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;transition:all .25s;}
-.login-card:nth-child(1) .login-cta{background:var(--c);color:#fff;box-shadow:var(--shc);}
-.login-card:nth-child(1) .login-cta:hover{background:var(--c6);}
-.login-card:nth-child(2) .login-cta{background:var(--aq);color:#fff;box-shadow:0 4px 18px rgba(121,185,195,.22);}
-.login-card:nth-child(2) .login-cta:hover{background:#6AABB6;}
+.hint{font-size:12px;line-height:1.6;color:var(--slate-muted);background:var(--aqua-pale);
+  border-radius:var(--r-sm);padding:12px 14px;margin-top:16px;}
+.hint b{color:var(--slate-deep);}
 
-.login-divider{height:1px;background:rgba(197,227,225,.3);margin:20px 0;}
-.login-alt{font-size:13.5px;color:var(--sx);}
-.login-alt a{color:var(--c);font-weight:600;transition:color .2s;}
-.login-alt a:hover{color:var(--c6);}
+/* модалка-заглушка */
+.ovl{position:fixed;inset:0;z-index:900;background:rgba(53,78,99,.35);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:var(--r-lg);width:100%;max-width:440px;
+  box-shadow:var(--sh-lg);overflow:hidden;}
+.modal-h{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.modal-t{font-family:'DM Serif Display',serif;font-size:20px;color:var(--slate-deep);}
+.modal-b{padding:14px 24px 20px;font-size:13.5px;line-height:1.7;color:var(--slate-mid);}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;padding:0 24px 22px;}
+.x{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--slate-pale);background:var(--white);
+  color:var(--slate-muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.x:hover{border-color:var(--coral);color:var(--coral);}
+.btn-o{padding:10px 20px;border-radius:var(--r-full);font-size:13.5px;font-weight:600;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;width:auto;box-shadow:none;}
+.btn-o:hover{border-color:var(--coral);color:var(--coral);background:var(--white);}
 
-/* ═══ SIGNUP / SIGNIN FORM ═══ */
-.form-wrap{max-width:480px;width:100%;}
-.form-card{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:40px;box-shadow:var(--sh);}
-
-.form-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);text-align:center;margin-bottom:6px;}
-.form-subtitle{font-size:14px;color:var(--sx);text-align:center;margin-bottom:28px;}
-
-/* Social buttons */
-.social-btn{width:100%;padding:13px 20px;border-radius:var(--rm);font-size:14px;font-weight:600;border:1.5px solid rgba(197,227,225,.4);background:var(--w);color:var(--sd);display:flex;align-items:center;gap:12px;transition:all .2s;margin-bottom:10px;cursor:pointer;}
-.social-btn:hover{border-color:var(--sp);box-shadow:var(--sh);}
-.social-btn .social-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.social-btn.vk .social-icon{background:#0077FF;color:#fff;}
-.social-btn.ya .social-icon{background:#FC3F1D;color:#fff;}
-
-/* Divider */
-.or-divider{display:flex;align-items:center;gap:16px;margin:22px 0;color:var(--sp);font-size:13px;font-weight:500;}
-.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:rgba(197,227,225,.35);}
-
-/* Form fields */
-.field{margin-bottom:16px;position:relative;}
-.field-input{width:100%;padding:13px 16px 13px 46px;border-radius:var(--rm);border:1.5px solid rgba(197,227,225,.4);background:var(--w);font-family:inherit;font-size:14px;color:var(--sd);outline:none;transition:border-color .2s;}
-.field-input:focus{border-color:var(--c);}
-.field-input::placeholder{color:var(--sp);}
-.field-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--sp);pointer-events:none;}
-
-.field-checkbox{display:flex;align-items:flex-start;gap:10px;margin:20px 0;cursor:pointer;}
-.field-checkbox input{display:none;}
-.checkbox-box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--sp);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;}
-.field-checkbox input:checked~.checkbox-box{background:var(--c);border-color:var(--c);}
-.field-checkbox input:checked~.checkbox-box svg{opacity:1;}
-.checkbox-box svg{opacity:0;transition:opacity .15s;}
-.checkbox-text{font-size:13px;color:var(--sx);line-height:1.5;}
-
-.submit-btn{width:100%;padding:15px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .25s;margin-top:4px;}
-.submit-btn:hover{background:var(--c6);}
-
-.form-legal{font-size:12px;color:var(--sp);text-align:center;line-height:1.6;margin-top:18px;}
-.form-legal a{color:var(--sx);text-decoration:underline;}
-
-.form-bottom{text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(197,227,225,.25);font-size:14px;color:var(--sx);}
-.form-bottom a{color:var(--c);font-weight:600;transition:color .2s;}
-.form-bottom a:hover{color:var(--c6);}
-
-/* Back button */
-.back-to-login{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--c);margin-bottom:24px;padding:6px 14px;border-radius:var(--rf);background:var(--cs);transition:all .2s;cursor:pointer;border:none;}
-.back-to-login:hover{background:var(--c);color:#fff;}
-
-/* ═══ FOOTER ═══ */
-.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:48px 40px 28px;margin-top:auto;}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 32px;}
-.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
-.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
-.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}
-.footer-col a:hover{color:#fff;}
-.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
-
-@media(max-width:768px){
-  .header{padding:0 20px;gap:12px;}
-  .header-nav{display:none;}
-  .auth-main{padding:24px 16px;}
-  .login-grid{grid-template-columns:1fr;gap:16px;max-width:400px;}
-  .login-card{padding:32px 28px;}
-  .form-card{padding:28px 24px;}
-  .footer{padding:32px 20px 20px;}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:20px;}
-}
+@media(max-width:520px){ .roles{grid-template-columns:1fr;} .row2{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
 
 <div id="mh-nav"></div>
 
-<!-- AUTH MAIN -->
-<main class="auth-main">
-
-  <!-- ═══ VIEW 1: LOGIN (role select) ═══ -->
-  <div class="auth-view active" id="viewLogin">
-    <h1 class="login-title">Вход</h1>
-    <div class="login-grid">
-
-      <!-- User card -->
-      <div class="login-card" onclick="showView('viewUserLogin')">
-        <div class="login-icon">
-          <svg width="44" height="44" fill="none" viewBox="0 0 44 44"><circle cx="22" cy="16" r="9" stroke="var(--c)" stroke-width="2.5" fill="none"/><path d="M6 40c0-8.8 7.2-16 16-16s16 7.2 16 16" stroke="var(--c)" stroke-width="2.5" fill="none"/></svg>
-        </div>
-        <div class="login-role">Пользователь</div>
-        <div class="login-desc">Найдите идеальную площадку для вашего мероприятия</div>
-        <button class="login-cta">Войти как пользователь</button>
-        <div class="login-divider"></div>
-        <div class="login-alt">Нет аккаунта? <a href="#" onclick="event.stopPropagation();showView('viewUserSignup')">Зарегистрироваться</a></div>
-      </div>
-
-      <!-- Venue card -->
-      <div class="login-card" onclick="showView('viewVenueLogin')">
-        <div class="login-icon">
-          <svg width="44" height="44" fill="none" viewBox="0 0 44 44"><rect x="8" y="14" width="28" height="22" rx="3" stroke="var(--aq)" stroke-width="2.5" fill="none"/><path d="M14 14V10a8 8 0 0116 0v4" stroke="var(--aq)" stroke-width="2.5" fill="none"/><path d="M18 24h8M18 30h8" stroke="var(--aq)" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="login-role">Площадка</div>
-        <div class="login-desc">Управляйте заявками и размещайте ваши пространства</div>
-        <button class="login-cta">Войти как площадка</button>
-        <div class="login-divider"></div>
-        <div class="login-alt">Нет аккаунта? <a href="#" onclick="event.stopPropagation();showView('viewVenueSignup')">Разместить площадку</a></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ═══ VIEW 2: USER LOGIN ═══ -->
-  <div class="auth-view" id="viewUserLogin">
-    <div class="form-wrap">
-      <button class="back-to-login" onclick="showView('viewLogin')">
-        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Назад
-      </button>
-      <div class="form-card">
-        <div class="form-title">Вход для пользователя</div>
-        <div class="form-subtitle">Войдите чтобы найти и забронировать площадку</div>
-
-        <button class="social-btn vk">
-          <div class="social-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M8.46 12.5h.87s.26-.03.4-.18c.12-.14.12-.4.12-.4s-.02-1.2.54-1.38c.56-.18 1.27 1.17 2.03 1.69.57.39 1.01.3 1.01.3l2.02-.03s1.06-.07.56-.9c-.04-.07-.3-.63-1.54-1.78-1.3-1.2-1.12-1.01.44-3.1.95-1.27 1.33-2.04 1.21-2.37-.11-.32-.8-.23-.8-.23l-2.28.01s-.17-.02-.3.05c-.12.07-.2.24-.2.24s-.36.97-.85 1.8c-1.02 1.72-1.43 1.81-1.6 1.7-.39-.25-.29-1.02-.29-1.56 0-1.7.26-2.4-.49-2.58-.25-.06-.43-.1-1.07-.1-.82-.01-1.51 0-1.9.2-.26.12-.46.4-.34.42.15.02.5.09.68.34.24.32.23 1.04.23 1.04s.14 2-.32 2.25c-.31.17-.74-.18-1.66-1.76-.47-.81-.83-1.7-.83-1.7s-.07-.17-.19-.26c-.15-.1-.35-.14-.35-.14l-2.17.01s-.33.01-.45.15c-.1.12-.01.38-.01.38s1.7 3.98 3.63 5.99c1.77 1.84 3.78 1.72 3.78 1.72z"/></svg></div>
-          Войти через ВКонтакте
-        </button>
-        <button class="social-btn ya">
-          <div class="social-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M8.7 13V8.1L11.4 3h-1.6L8 7l-1.8-4H4.6l2.7 5.1V13z"/></svg></div>
-          Войти через Яндекс
-        </button>
-
-        <div class="or-divider">или</div>
-
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 6l7 4.5L16 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="email" placeholder="Email">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 8V5.5a3 3 0 016 0V8" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="password" placeholder="Пароль">
-        </div>
-
-        <button class="submit-btn" onclick="loginUser()">Войти</button>
-
-        <div class="form-bottom">
-          Нет аккаунта? <a href="#" onclick="showView('viewUserSignup')">Зарегистрироваться</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ VIEW 3: USER SIGNUP ═══ -->
-  <div class="auth-view" id="viewUserSignup">
-    <div class="form-wrap">
-      <button class="back-to-login" onclick="showView('viewLogin')">
-        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Назад
-      </button>
-      <div class="form-card">
-        <div class="form-title">Регистрация</div>
-        <div class="form-subtitle">Создайте аккаунт и начните поиск площадок</div>
-
-        <button class="social-btn vk">
-          <div class="social-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M8.46 12.5h.87s.26-.03.4-.18c.12-.14.12-.4.12-.4s-.02-1.2.54-1.38c.56-.18 1.27 1.17 2.03 1.69.57.39 1.01.3 1.01.3l2.02-.03s1.06-.07.56-.9c-.04-.07-.3-.63-1.54-1.78-1.3-1.2-1.12-1.01.44-3.1.95-1.27 1.33-2.04 1.21-2.37-.11-.32-.8-.23-.8-.23l-2.28.01s-.17-.02-.3.05c-.12.07-.2.24-.2.24s-.36.97-.85 1.8c-1.02 1.72-1.43 1.81-1.6 1.7-.39-.25-.29-1.02-.29-1.56 0-1.7.26-2.4-.49-2.58-.25-.06-.43-.1-1.07-.1-.82-.01-1.51 0-1.9.2-.26.12-.46.4-.34.42.15.02.5.09.68.34.24.32.23 1.04.23 1.04s.14 2-.32 2.25c-.31.17-.74-.18-1.66-1.76-.47-.81-.83-1.7-.83-1.7s-.07-.17-.19-.26c-.15-.1-.35-.14-.35-.14l-2.17.01s-.33.01-.45.15c-.1.12-.01.38-.01.38s1.7 3.98 3.63 5.99c1.77 1.84 3.78 1.72 3.78 1.72z"/></svg></div>
-          Зарегистрироваться через ВК
-        </button>
-        <button class="social-btn ya">
-          <div class="social-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M8.7 13V8.1L11.4 3h-1.6L8 7l-1.8-4H4.6l2.7 5.1V13z"/></svg></div>
-          Зарегистрироваться через Яндекс
-        </button>
-
-        <div class="or-divider">или</div>
-
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="text" placeholder="Имя и фамилия">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 6l7 4.5L16 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="email" placeholder="Email — проверьте правильность">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 8V5.5a3 3 0 016 0V8" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="password" placeholder="Придумайте пароль">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input class="field-input" type="tel" placeholder="Телефон (необязательно)">
-        </div>
-
-        <label class="field-checkbox">
-          <input type="checkbox">
-          <span class="checkbox-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="checkbox-text">Хочу получать подборки площадок, акции и вдохновение. Можно отписаться в любой момент.</span>
-        </label>
-
-        <button class="submit-btn" onclick="loginUser()">Зарегистрироваться</button>
-
-        <div class="form-legal">Нажимая «Зарегистрироваться», вы принимаете <a href="#">Условия использования</a>, <a href="privacy">Политику конфиденциальности</a> и <a href="#">Политику отмены и возврата</a>.</div>
-
-        <div class="form-bottom">
-          Уже есть аккаунт? <a href="#" onclick="showView('viewUserLogin')">Войти</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ VIEW 4: VENUE LOGIN ═══ -->
-  <div class="auth-view" id="viewVenueLogin">
-    <div class="form-wrap">
-      <button class="back-to-login" onclick="showView('viewLogin')">
-        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Назад
-      </button>
-      <div class="form-card">
-        <div class="form-title">Вход для площадки</div>
-        <div class="form-subtitle">Управляйте заявками и пространствами</div>
-
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 6l7 4.5L16 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="email" placeholder="Email">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 8V5.5a3 3 0 016 0V8" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="password" placeholder="Пароль">
-        </div>
-
-        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)" onclick="loginVenue()">Войти</button>
-
-        <div class="form-bottom">
-          Нет аккаунта площадки? <a href="#" onclick="showView('viewVenueSignup')">Зарегистрировать площадку</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ VIEW 5: VENUE SIGNUP ═══ -->
-  <div class="auth-view" id="viewVenueSignup">
-    <div class="form-wrap">
-      <button class="back-to-login" onclick="showView('viewLogin')">
-        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Назад
-      </button>
-      <div class="form-card">
-        <div class="form-title">Регистрация площадки</div>
-        <div class="form-subtitle">Разместите пространство и получайте заявки</div>
-
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="3" y="6" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 6V4a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="text" placeholder="Название площадки или организации">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="text" placeholder="Контактное лицо">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 6l7 4.5L16 6" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="email" placeholder="Email">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input class="field-input" type="tel" placeholder="Телефон">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 8V5.5a3 3 0 016 0V8" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input class="field-input" type="password" placeholder="Придумайте пароль">
-        </div>
-        <div class="field">
-          <svg class="field-icon" width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 2a5 5 0 015 5c0 3.5-5 9-5 9S4 10.5 4 7a5 5 0 015-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="7" r="1.5" stroke="currentColor" stroke-width="1.1"/></svg>
-          <input class="field-input" type="text" placeholder="Город">
-        </div>
-
-        <label class="field-checkbox">
-          <input type="checkbox">
-          <span class="checkbox-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="checkbox-text">Согласен с условиями размещения площадки на платформе</span>
-        </label>
-
-        <button class="submit-btn" style="background:var(--aq);box-shadow:0 4px 18px rgba(121,185,195,.22)" onclick="loginVenue()">Зарегистрировать площадку</button>
-
-        <div class="form-legal">Нажимая кнопку, вы принимаете <a href="#">Условия для площадок</a> и <a href="privacy">Политику конфиденциальности</a>.</div>
-
-        <div class="form-bottom">
-          Уже зарегистрированы? <a href="#" onclick="showView('viewVenueLogin')">Войти</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</main>
+<div class="wrap" id="root"></div>
+<div id="modalRoot"></div>
 
 <div id="mh-footer"></div>
 
+<script src="data.js"></script>
 <script src="shared.js"></script>
 <script>
 MH.init();
 
-// Check if arriving in venue mode
-if (new URLSearchParams(location.search).get('mode') === 'venue') {
-  document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
-  document.getElementById('viewVenueLogin').classList.add('active');
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const ROLES = [
+  { k:'user',     ic:'👤', t:'Пользователь', s:'Ищу площадки' },
+  { k:'venue',    ic:'🏛', t:'Площадка',     s:'Размещаю объект' },
+  { k:'supplier', ic:'🎪', t:'Поставщик',    s:'Оказываю услуги' },
+];
+/* Куда уходим после входа — кабинет своей роли. */
+const HOME = { user:'dashboard.html?role=user', venue:'dashboard.html?role=venue', supplier:'dashboard.html?role=supplier' };
+
+let MODE = 'login';      // login | signup
+let ROLE = 'user';
+
+(function init(){
+  const p = new URLSearchParams(location.search);
+  if (p.get('mode') === 'venue') { ROLE = 'venue'; MODE = 'signup'; }
+  if (p.get('mode') === 'supplier') { ROLE = 'supplier'; MODE = 'signup'; }
+  if (p.get('mode') === 'signup') MODE = 'signup';
+  const r = p.get('role');
+  if (r && HOME[r]) ROLE = r;
+})();
+
+function nextUrl(){
+  const n = new URLSearchParams(location.search).get('next');
+  if (n && /^[\w.\-?=&]+$/.test(n)) return n;
+  return HOME[ROLE];
 }
 
-function showView(id) {
-  document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function render(){
+  const isUp = MODE === 'signup';
+  const role = ROLES.find(r => r.k === ROLE);
+
+  const fields = isUp ? signupFields() : `
+    <div class="fg"><label for="fMail">Почта</label>
+      <input class="fi" id="fMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
+    <div class="fg"><label for="fPass">Пароль</label>
+      <input class="fi" id="fPass" type="password" placeholder="Ваш пароль" autocomplete="current-password"></div>
+    <button class="forgot" onclick="forgot()">Забыли пароль?</button>`;
+
+  document.getElementById('root').innerHTML = `
+  <div class="head">
+    <span class="eyebrow">${isUp ? 'Регистрация' : 'Вход'}</span>
+    <h1>${isUp ? 'Создать аккаунт' : 'Вход в кабинет'}</h1>
+    <p>${isUp
+      ? 'Выберите роль — от неё зависит, какой кабинет откроется после регистрации.'
+      : 'Войдите по почте и паролю. Роль определяет, куда вы попадёте.'}</p>
+  </div>
+
+  <div class="tabs">
+    <button class="${MODE==='login'?'on':''}" onclick="setMode('login')">Вход</button>
+    <button class="${MODE==='signup'?'on':''}" onclick="setMode('signup')">Регистрация</button>
+  </div>
+
+  <div class="roles">
+    ${ROLES.map(r => `<button class="role${ROLE===r.k?' on':''}" onclick="setRole('${r.k}')">
+      <div class="role-ic">${r.ic}</div>
+      <div class="role-t">${esc(r.t)}</div>
+      <div class="role-s">${esc(r.s)}</div>
+    </button>`).join('')}
+  </div>
+
+  <div class="card">
+    ${fields}
+    ${isUp ? `<label class="check">
+      <input type="checkbox" id="fAgree" checked>
+      <span>Согласен с <a href="privacy.html">политикой конфиденциальности</a> и условиями использования</span>
+    </label>` : ''}
+    <button class="btn" onclick="submit()">${isUp ? 'Зарегистрироваться' : 'Войти'}</button>
+    <div class="alt">${isUp
+      ? `Уже есть аккаунт? <button onclick="setMode('login')">Войти</button>`
+      : `Нет аккаунта? <button onclick="setMode('signup')">Зарегистрироваться</button>`}</div>
+    ${isUp && ROLE === 'user'
+      ? `<div class="hint">За регистрацию начислим <b>${ML.POINTS_HELLO} ${ML.plural(ML.POINTS_HELLO,['балл','балла','баллов'])} «ПРИВЕТ»</b> —
+         их можно потратить в витрине бонусной программы.</div>` : ''}
+    ${isUp && ROLE === 'venue'
+      ? `<div class="hint">Размещение объекта <b>бесплатное</b>. Объект платит фиксированную сумму
+         только за состоявшееся мероприятие, пришедшее через ресурс.</div>` : ''}
+    ${isUp && ROLE === 'supplier'
+      ? `<div class="hint">Размещение поставщика <b>платное</b>: один тариф по образцу
+         пользовательского «${esc(ML.TARIFFS.prem.name)}».</div>` : ''}
+  </div>`;
 }
 
-function _nextUrl(fallback) {
-  const p = new URLSearchParams(location.search).get('next');
-  return p || fallback;
+function signupFields(){
+  if (ROLE === 'user') return `
+    <div class="fg"><label for="fName">Имя и фамилия</label>
+      <input class="fi" id="fName" type="text" placeholder="Анна Козлова" autocomplete="name"></div>
+    <div class="fg"><label for="fMail">Почта</label>
+      <input class="fi" id="fMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
+    <div class="row2">
+      <div class="fg"><label for="fPass">Пароль</label>
+        <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль" autocomplete="new-password"></div>
+      <div class="fg"><label for="fPhone">Телефон</label>
+        <input class="fi" id="fPhone" type="tel" placeholder="+7 916 000-00-00" autocomplete="tel"></div>
+    </div>
+    <div class="fg"><label for="fOrg">Место работы</label>
+      <input class="fi" id="fOrg" type="text" placeholder="Агентство или компания"></div>`;
+  if (ROLE === 'venue') return `
+    <div class="fg"><label for="fName">Название объекта</label>
+      <input class="fi" id="fName" type="text" placeholder="Отель «Аврора»"></div>
+    <div class="fg"><label for="fPerson">Контактное лицо</label>
+      <input class="fi" id="fPerson" type="text" placeholder="Имя и должность"></div>
+    <div class="row2">
+      <div class="fg"><label for="fMail">Почта отдела продаж</label>
+        <input class="fi" id="fMail" type="email" placeholder="sales@venue.ru"></div>
+      <div class="fg"><label for="fPhone">Телефон</label>
+        <input class="fi" id="fPhone" type="tel" placeholder="+7 495 000-00-00"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label for="fPass">Пароль</label>
+        <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль"></div>
+      <div class="fg"><label for="fCity">Город</label>
+        <input class="fi" id="fCity" type="text" placeholder="Москва"></div>
+    </div>`;
+  return `
+    <div class="fg"><label for="fName">Название или ФИО</label>
+      <input class="fi" id="fName" type="text" placeholder="Ведущий Артём Соколов"></div>
+    <div class="fg"><label for="fCat">Раздел каталога</label>
+      <select class="fi" id="fCat">${Object.keys(ML.SUPPLIER_TREE).map(p => `<option>${esc(p)}</option>`).join('')}</select></div>
+    <div class="row2">
+      <div class="fg"><label for="fMail">Почта</label>
+        <input class="fi" id="fMail" type="email" placeholder="hello@supplier.ru"></div>
+      <div class="fg"><label for="fPhone">Телефон</label>
+        <input class="fi" id="fPhone" type="tel" placeholder="+7 916 000-00-00"></div>
+    </div>
+    <div class="fg"><label for="fPass">Пароль</label>
+      <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль"></div>`;
 }
 
-function loginUser() {
-  MH.setSession({ name: 'Анна Козлова', initials: 'АК', role: 'user', premium: true });
-  window.location.href = _nextUrl('dashboard');
+function setMode(m){ MODE = m; render(); }
+function setRole(r){ ROLE = r; render(); }
+
+const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+function bad(id, msg){
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('bad'); el.focus(); }
+  MH.toast(msg, 'error');
+  return false;
+}
+function initials(name){
+  const p = String(name).trim().split(/\s+/);
+  return (((p[0]||'')[0]||'') + ((p[1]||'')[0]||'')).toUpperCase() || 'МХ';
 }
 
-function loginVenue() {
-  MH.setSession({ name: 'Москва-Сити Холл', initials: 'МС', role: 'venue', premium: false });
-  window.location.href = _nextUrl('dashboard');
+/* Поля читаются и кладутся в сессию — захардкоженных данных больше нет. */
+function submit(){
+  document.querySelectorAll('.fi').forEach(el => el.classList.remove('bad'));
+  const mail = val('fMail'), pass = val('fPass');
+  if (!mail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return bad('fMail', 'Укажите корректную почту');
+  if (!pass) return bad('fPass', 'Введите пароль');
+
+  if (MODE === 'signup') {
+    const name = val('fName');
+    if (!name) return bad('fName', 'Укажите название или имя');
+    const agree = document.getElementById('fAgree');
+    if (agree && !agree.checked) { MH.toast('Нужно принять условия использования', 'error'); return; }
+
+    MH.setSession({
+      name, initials: initials(name), role: ROLE, email: mail,
+      phone: val('fPhone'), org: val('fOrg') || val('fCity') || val('fCat') || '',
+      premium: false,
+    });
+
+    if (ROLE === 'user') {
+      // баллы «ПРИВЕТ» начисляет модель
+      ML.addPoints(ML.POINTS_HELLO, 'free');
+      MH.toast(`Аккаунт создан. Начислено ${ML.POINTS_HELLO} ${ML.plural(ML.POINTS_HELLO,['балл','балла','баллов'])} «ПРИВЕТ»`, 'success');
+    } else {
+      MH.toast('Аккаунт создан', 'success');
+    }
+  } else {
+    // вход: имя выводим из почты, пока профиля на бэкенде нет
+    const guess = mail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    MH.setSession({ name: guess, initials: initials(guess), role: ROLE, email: mail, premium: false });
+    MH.toast('С возвращением', 'success');
+  }
+
+  setTimeout(() => { window.location.href = nextUrl(); }, 600);
 }
 
-// Social login buttons simulate user login
-document.querySelectorAll('.social-btn').forEach(btn => {
-  btn.addEventListener('click', loginUser);
-});
+/* Отдельной страницы восстановления нет — заглушка. */
+function forgot(){
+  document.getElementById('modalRoot').innerHTML = `
+  <div class="ovl" onclick="if(event.target===this)closeModal()">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-h"><div class="modal-t">Восстановление доступа</div>
+        <button class="x" onclick="closeModal()" aria-label="Закрыть">✕</button></div>
+      <div class="modal-b">Введите почту, и мы пришлём ссылку для смены пароля.
+      В прототипе письма не отправляются — экран восстановления появится на разработке.</div>
+      <div class="modal-f">
+        <button class="btn-o" onclick="closeModal()">Закрыть</button>
+        <button class="btn-o" onclick="closeModal();MH.toast('Письмо отправлено на указанную почту','info')"
+          style="border-color:var(--coral);color:var(--coral)">Прислать ссылку</button>
+      </div>
+    </div>
+  </div>`;
+  document.addEventListener('keydown', escClose);
+}
+function escClose(e){ if (e.key === 'Escape') closeModal(); }
+function closeModal(){
+  document.getElementById('modalRoot').innerHTML = '';
+  document.removeEventListener('keydown', escClose);
+}
+
+render();
 </script>
 </body>
 </html>

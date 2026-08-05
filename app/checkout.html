@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Оформление подписки: выбор тарифа и периода, автопродление, оплата по счёту для юридических лиц.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Оплата подписки — МирХАБ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3;
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 28px 72px;animation:pageIn .5s ease both;}
+
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;color:var(--slate-muted);margin-bottom:18px;}
+.crumbs a:hover{color:var(--coral);}
+.crumbs .sep{opacity:.5;}
+.crumbs .cur{color:var(--slate-deep);font-weight:600;}
+
+.eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+h1{font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;color:var(--slate-deep);
+  line-height:1.15;margin-top:10px;letter-spacing:-.3px;}
+.sub{font-size:14px;line-height:1.65;color:var(--slate-muted);margin-top:10px;}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start;margin-top:26px;}
+.panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:22px 24px;}
+.panel + .panel{margin-top:16px;}
+.lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--slate-muted);margin-bottom:12px;}
+
+/* выбор тарифа */
+.opt{display:flex;align-items:flex-start;gap:12px;border:1.5px solid rgba(197,227,225,.45);
+  border-radius:var(--r-md);padding:15px 17px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.opt:hover{border-color:var(--aqua-3);}
+.opt.on{border-color:var(--coral);background:var(--coral-soft);}
+.opt input{margin-top:3px;accent-color:var(--coral);flex-shrink:0;}
+.opt-b{flex:1;min-width:0;}
+.opt-t{font-size:15px;font-weight:700;color:var(--slate-deep);}
+.opt-s{font-size:12.5px;line-height:1.6;color:var(--slate-muted);margin-top:4px;}
+.opt-p{font-size:15px;font-weight:800;color:var(--slate-deep);white-space:nowrap;text-align:right;}
+.opt-p small{display:block;font-size:11.5px;font-weight:500;color:var(--slate-muted);margin-top:3px;}
+.opt-off{display:inline-block;margin-left:7px;padding:3px 9px;border-radius:var(--r-full);
+  background:var(--coral);color:#fff;font-size:10.5px;font-weight:700;vertical-align:middle;}
+
+.check{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.6;
+  color:var(--slate-mid);cursor:pointer;}
+.check input{margin-top:2px;accent-color:var(--coral);flex-shrink:0;}
+.check span b{color:var(--slate-deep);}
+.check-s{display:block;font-size:12px;color:var(--slate-muted);margin-top:3px;}
+
+/* итог */
+.side{position:sticky;top:88px;}
+.total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:14px 0;border-bottom:1px solid rgba(197,227,225,.3);}
+.total:last-of-type{border-bottom:none;}
+.total-k{font-size:13px;color:var(--slate-muted);}
+.total-v{font-size:14px;font-weight:700;color:var(--slate-deep);white-space:nowrap;}
+.total.big .total-k{font-size:14px;font-weight:600;color:var(--slate-deep);}
+.total.big .total-v{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:var(--coral);}
+.old{font-size:12.5px;color:var(--slate-pale);text-decoration:line-through;}
+
+.btn{width:100%;padding:14px;border-radius:var(--r-full);font-size:15px;font-weight:600;
+  background:var(--coral);border:none;color:#fff;box-shadow:var(--sh-coral);transition:background .2s;margin-top:16px;}
+.btn:hover{background:var(--coral-hover);}
+.btn.o{background:var(--white);color:var(--slate);border:1.5px solid var(--slate-pale);box-shadow:none;margin-top:8px;}
+.btn.o:hover{border-color:var(--coral);color:var(--coral);background:var(--white);}
+
+.note{background:var(--aqua-pale);border-radius:var(--r-md);padding:14px 16px;
+  font-size:12.5px;line-height:1.65;color:var(--slate-mid);margin-top:16px;}
+.note b{color:var(--slate-deep);}
+
+.cur-tar{display:inline-block;padding:4px 12px;border-radius:var(--r-full);
+  background:var(--aqua-pale);color:var(--slate-mid);font-size:12px;font-weight:600;margin-top:12px;}
+
+@media(max-width:860px){
+  .two{grid-template-columns:minmax(0,1fr);}
+  .side{position:static;}
+  h1{font-size:26px;}
+  .wrap{padding:20px 16px 56px;}
+}
+</style>
+</head>
+<body>
+
+<div id="mh-nav"></div>
+
+<div class="wrap" id="root"></div>
+
+<div id="mh-footer"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>
+MH.init();
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* Платные тарифы. Периоды и скидки считаются из priceHalf / priceYear. */
+const PLANS = ['biz', 'prem'];
+const PERIODS = [
+  { k:'month', l:'Месяц',      months:1,  total:t => t.price },
+  { k:'half',  l:'6 месяцев',  months:6,  total:t => t.priceHalf },
+  { k:'year',  l:'Год',        months:12, total:t => t.priceYear },
+];
+
+let PLAN = 'biz';
+let PERIOD = 'month';
+let RENEW = true;
+
+(function init(){
+  const p = new URLSearchParams(location.search);
+  if (PLANS.includes(p.get('plan'))) PLAN = p.get('plan');
+  else if (PLANS.includes(ML.tariff().key)) PLAN = ML.tariff().key;
+  if (PERIODS.some(x => x.k === p.get('period'))) PERIOD = p.get('period');
+})();
+
+const periodOf = k => PERIODS.find(x => x.k === k);
+const discount = (t, p) => p.months === 1 ? 0 : Math.round((1 - p.total(t) / (t.price * p.months)) * 100);
+
+function render(){
+  const t = ML.TARIFFS[PLAN];
+  const p = periodOf(PERIOD);
+  const total = p.total(t);
+  const full = t.price * p.months;
+  const off = discount(t, p);
+  const cur = ML.tariff();
+
+  const plans = PLANS.map(k => {
+    const x = ML.TARIFFS[k];
+    return `<label class="opt${PLAN===k?' on':''}">
+      <input type="radio" name="plan" ${PLAN===k?'checked':''} onchange="setPlan('${k}')">
+      <div class="opt-b">
+        <div class="opt-t">${esc(x.name)}</div>
+        <div class="opt-s">${k==='biz'
+          ? `Все фильтры кроме рассадки и TWIN · ${x.compare} залов в сравнении · презентация с рекламным блоком · групповой запрос до ${x.groupRequest} объектов`
+          : `Все фильтры · ${x.compare} залов в сравнении · презентация без рекламы · групповой запрос без ограничения · блэк-лист · баллы ×${x.bonusRate.toLocaleString('ru')}`}</div>
+      </div>
+      <div class="opt-p">${ML.money(x.price)}<small>в месяц</small></div>
+    </label>`;
+  }).join('');
+
+  const periods = PERIODS.map(x => {
+    const sum = x.total(t);
+    const d = discount(t, x);
+    return `<label class="opt${PERIOD===x.k?' on':''}">
+      <input type="radio" name="period" ${PERIOD===x.k?'checked':''} onchange="setPeriod('${x.k}')">
+      <div class="opt-b">
+        <div class="opt-t">${esc(x.l)}${d ? `<span class="opt-off">−${d}%</span>` : ''}</div>
+        <div class="opt-s">${x.months > 1
+          ? `${ML.money(Math.round(sum / x.months))} в месяц при оплате за ${x.months === 6 ? 'полгода' : 'год'}`
+          : 'оплата помесячно, можно отменить в любой момент'}</div>
+      </div>
+      <div class="opt-p">${ML.money(sum)}</div>
+    </label>`;
+  }).join('');
+
+  document.getElementById('root').innerHTML = `
+  <div class="crumbs"><a href="pricing.html">Тарифы</a><span class="sep">→</span><span class="cur">Оплата</span></div>
+
+  <span class="eyebrow">Подписка</span>
+  <h1>Оформление подписки</h1>
+  <p class="sub">Подписку оплачивает тот, кто ищет площадки. Размещение объектов бесплатное.</p>
+  <span class="cur-tar">Сейчас подключён тариф «${esc(cur.name)}»</span>
+
+  <div class="two">
+    <div>
+      <div class="panel">
+        <div class="lbl">Тариф</div>
+        ${plans}
+      </div>
+      <div class="panel">
+        <div class="lbl">Период оплаты</div>
+        ${periods}
+      </div>
+      <div class="panel">
+        <div class="lbl">Продление</div>
+        <label class="check">
+          <input type="checkbox" ${RENEW?'checked':''} onchange="setRenew(this.checked)">
+          <span><b>Автопродление</b>
+            <span class="check-s">Подписка продлится автоматически в конце периода.
+            Отключить можно в кабинете в любой момент.</span></span>
+        </label>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="panel">
+        <div class="lbl">К оплате</div>
+        <div class="total"><span class="total-k">Тариф</span><span class="total-v">${esc(t.name)}</span></div>
+        <div class="total"><span class="total-k">Период</span><span class="total-v">${esc(p.l)}</span></div>
+        <div class="total"><span class="total-k">Цена за месяц</span>
+          <span class="total-v">${ML.money(Math.round(total / p.months))}</span></div>
+        ${off ? `<div class="total"><span class="total-k">Скидка</span>
+          <span class="total-v">−${off}% · <span class="old">${ML.money(full)}</span></span></div>` : ''}
+        <div class="total"><span class="total-k">Автопродление</span>
+          <span class="total-v">${RENEW ? 'включено' : 'выключено'}</span></div>
+        <div class="total big"><span class="total-k">Итого</span>
+          <span class="total-v" id="sum">${ML.money(total)}</span></div>
+
+        <button class="btn" onclick="pay()">Оплатить ${ML.money(total)}</button>
+        <a class="btn o" style="display:block;text-align:center" href="pricing.html">Вернуться к тарифам</a>
+
+        <div class="note">Юридическим лицам доступна <b>оплата по счёту</b>: счёт и закрывающие
+        документы формируются после подтверждения заказа, картой платить не нужно.</div>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function setPlan(k){ PLAN = k; render(); }
+function setPeriod(k){ PERIOD = k; render(); }
+function setRenew(v){ RENEW = v; render(); }
+
+/* Настоящего приёма платежей нет: меняем тариф в модели и показываем уведомление. */
+function pay(){
+  const t = ML.TARIFFS[PLAN];
+  const p = periodOf(PERIOD);
+  ML.setTariff(PLAN);
+  MH.toast(`Тариф «${t.name}» подключён на ${p.l.toLowerCase()} · ${ML.money(p.total(t))}`, 'success');
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

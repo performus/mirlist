@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Поиск площадок на карте — найдите идеальное место для конференции, корпоратива или банкета.">
-<meta property="og:title" content="МирХАБ">
-<meta property="og:description" content="Поиск площадок на карте — найдите идеальное место для конференции, корпоратива или банкета.">
+<meta name="description" content="Подбор площадок и залов для деловых мероприятий, банкетов, свадеб и тимбилдинга.">
+<meta property="og:title" content="МирХАБ — подбор площадок">
+<meta property="og:description" content="Подбор площадок и залов для деловых мероприятий, банкетов, свадеб и тимбилдинга.">
 <meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Площадки · Москва — поиск площадок на карте</title>
+<title>Подбор площадок — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,105 +48,54 @@
   --r-md: 14px;
   --r-lg: 20px;
   --r-full: 50px;
+  /* высота фикс-шапки + панели запроса — для sticky-колонок */
+  --top-nav: 64px;
+  --top-bar: 62px;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { height:100%; }
 body {
   font-family: 'Outfit', sans-serif;
   background: var(--bg);
   color: var(--slate);
-  height: 100%;
-  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
-body.has-mh-nav { padding-top: 0 !important; }
-body.has-mh-nav .page-wrap { padding-top: 64px; }
 a { text-decoration:none; color:inherit; }
 button { font-family:inherit; cursor:pointer; }
+h1,h2,h3 { font-weight:700; }
+
+@keyframes pageIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.page-wrap { animation: pageIn .5s ease both; }
 
 /* ══════════════════════════════════════════════
-   PAGE ENTRY ANIMATION
-   ══════════════════════════════════════════════ */
-@keyframes pageIn {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.page-wrap { animation: pageIn .5s ease both; display:flex; flex-direction:column; height:100%; }
-
-/* ══════════════════════════════════════════════
-   HEADER
-   ══════════════════════════════════════════════ */
-.header {
-  height: 64px;
-  padding: 0 28px;
-  display: flex; align-items:center; gap:32px;
-  background: var(--white);
-  border-bottom: 1px solid rgba(197,227,225,.35);
-  flex-shrink: 0;
-  z-index: 50;
-}
-.logo {
-  font-family:'DM Serif Display',serif;
-  font-size:24px; color:var(--slate-deep);
-  letter-spacing:-.4px; white-space:nowrap;
-}
-.logo i { font-style:normal; color:var(--coral); }
-
-.header-nav { display:flex; gap:6px; margin-left:16px; }
-.header-nav a {
-  font-size:13.5px; font-weight:500; color:var(--slate-muted);
-  padding:7px 16px; border-radius:var(--r-full);
-  transition: color .2s, background .2s;
-}
-.header-nav a:hover { color:var(--slate); background:var(--aqua-pale); }
-.header-nav a.active {
-  color:var(--coral); background:var(--coral-soft);
-  font-weight:600;
-}
-
-/* header search capsule */
-.header-search {
-  display:flex; align-items:center; gap:1px;
-  margin-left:auto;
-  background:var(--bg); border:1px solid rgba(197,227,225,.5);
-  border-radius:var(--r-full); padding:3px;
-}
-.hs-field {
-  display:flex; align-items:center; gap:6px;
-  padding:7px 16px; font-size:13px; font-weight:500;
-  color:var(--slate); white-space:nowrap;
-  border-right:1px solid rgba(197,227,225,.4);
-  cursor:pointer; transition:background .15s;
-  border-radius:var(--r-full);
-}
-.hs-field:last-of-type { border-right:none; }
-.hs-field:hover { background:rgba(197,227,225,.25); }
-.hs-field svg { color:var(--slate-pale); flex-shrink:0; }
-.hs-btn {
-  width:36px; height:36px; border-radius:50%;
-  background:var(--coral); color:#fff; border:none;
-  display:flex; align-items:center; justify-content:center;
-  transition:background .2s, box-shadow .2s;
-  box-shadow: var(--sh-coral);
-  flex-shrink:0;
-}
-.hs-btn:hover { background:var(--coral-hover); }
-
-/* ══════════════════════════════════════════════
-   CONTROL BAR
+   CONTROL BAR — параметры запроса
    ══════════════════════════════════════════════ */
 .control-bar {
-  display:flex; align-items:center; gap:10px;
-  padding:12px 28px;
+  position:sticky; top:var(--top-nav); z-index:40;
+  display:flex; align-items:flex-end; gap:12px;
+  padding:11px 28px;
   background:var(--white);
-  border-bottom:1px solid rgba(197,227,225,.3);
-  flex-shrink:0; flex-wrap:wrap;
-  z-index:40;
+  border-bottom:1px solid rgba(197,227,225,.35);
+  flex-wrap:wrap;
 }
+.cb-field { display:flex; flex-direction:column; gap:3px; }
+.cb-field label {
+  font-size:10.5px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--slate-muted);
+}
+.cb-field input, .cb-field select {
+  padding:8px 14px; border-radius:var(--r-full);
+  font-family:inherit; font-size:13px; font-weight:500;
+  border:1.5px solid rgba(197,227,225,.55);
+  background:var(--white); color:var(--slate);
+  outline:none; transition:border-color .2s, background .2s;
+  min-width:150px;
+}
+.cb-field input:focus, .cb-field select:focus { border-color:var(--coral); }
+.cb-field input:hover, .cb-field select:hover { border-color:var(--aqua-3); }
 
 .filter-toggle {
-  display:flex; align-items:center; gap:7px;
+  display:none; align-items:center; gap:7px;
   padding:9px 20px; border-radius:var(--r-full);
   font-size:13.5px; font-weight:600;
   border:1.5px solid var(--slate-pale);
@@ -156,100 +105,101 @@ button { font-family:inherit; cursor:pointer; }
 .filter-toggle:hover { border-color:var(--coral); color:var(--coral); }
 .filter-toggle.open { background:var(--slate-deep); color:#fff; border-color:var(--slate-deep); }
 .filter-toggle .ft-count {
-  width:20px; height:20px; border-radius:50%;
+  min-width:20px; height:20px; padding:0 6px; border-radius:var(--r-full);
   background:var(--coral); color:#fff;
   font-size:11px; font-weight:700;
   display:flex; align-items:center; justify-content:center;
 }
-
-.cb-sep { width:1px; height:24px; background:var(--slate-pale); opacity:.35; margin:0 4px; }
-
-/* quick search fields in bar */
-.bar-field {
+.cb-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.cb-tariff {
   display:flex; align-items:center; gap:6px;
-  padding:8px 16px; border-radius:var(--r-full);
-  font-size:13px; font-weight:500;
-  border:1.5px solid rgba(197,227,225,.45);
-  background:var(--white); color:var(--slate);
-  cursor:pointer; transition:all .2s; white-space:nowrap;
+  font-size:12px; color:var(--slate-muted);
 }
-.bar-field:hover { border-color:var(--aqua-3); background:var(--aqua-pale); }
-.bar-field.active { border-color:var(--slate); background:var(--aqua-pale); font-weight:600; }
-.bar-field svg { color:var(--slate-pale); }
-
-/* chips */
-.chip-scroll {
-  display:flex; gap:7px; overflow-x:auto; scrollbar-width:none;
-  padding:2px 0; margin-left:6px;
-}
-.chip-scroll::-webkit-scrollbar { display:none; }
-.chip {
-  padding:7px 16px; border-radius:var(--r-full);
-  font-size:12.5px; font-weight:500;
-  background:var(--aqua-pale); color:var(--slate-mid);
-  border:1.5px solid transparent;
-  white-space:nowrap; cursor:pointer;
-  transition:all .2s;
-}
-.chip:hover { background:var(--aqua-2); color:var(--slate-deep); }
-.chip.active { background:var(--coral-soft); color:var(--coral); border-color:var(--coral-soft); font-weight:600; }
-
-.bar-right {
-  margin-left:auto; display:flex; align-items:center; gap:12px;
-  white-space:nowrap;
-}
-.result-count {
-  font-size:13px; color:var(--slate-muted); font-weight:500;
-}
-.result-count b { color:var(--slate); font-weight:700; }
-
-.sort-btn {
-  display:flex; align-items:center; gap:5px;
-  padding:8px 14px; border-radius:var(--r-full);
-  font-size:12.5px; font-weight:500;
-  background:var(--bg); color:var(--slate-muted);
-  border:1px solid rgba(197,227,225,.4);
-  transition:all .2s;
-}
-.sort-btn:hover { color:var(--slate); border-color:var(--slate-pale); }
+.cb-tariff b { color:var(--slate-deep); font-weight:700; }
 
 /* ══════════════════════════════════════════════
-   MAIN SPLIT: LIST + MAP
+   THREE-COLUMN GRID
    ══════════════════════════════════════════════ */
-.main { display:flex; flex:1; overflow:hidden; position:relative; min-height:0; }
-
-/* ── FILTER DRAWER ── */
-.filter-drawer {
-  width:0; overflow:hidden; flex-shrink:0;
-  background:var(--white); border-right:1px solid rgba(197,227,225,.25);
-  transition:width .4s cubic-bezier(.22,1,.36,1);
-  display:flex; flex-direction:column;
+.grid3 {
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr) 340px;
+  gap:18px; align-items:start;
+  padding:20px 28px 48px;
+  max-width:1760px; margin:0 auto;
 }
-.filter-drawer.open { width:290px; }
-.fd-inner { width:290px; padding:24px 22px; overflow-y:auto; flex:1; }
-.fd-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-.fd-title { font-family:'DM Serif Display',serif; font-size:20px; color:var(--slate-deep); }
+.grid3 > * { min-width:0; }
+
+/* ══════════════════════════════════════════════
+   FILTER PANEL
+   ══════════════════════════════════════════════ */
+.fd-panel {
+  position:sticky; top:calc(var(--top-nav) + var(--top-bar));
+  background:var(--white);
+  border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);
+  overflow:hidden;
+}
+.fd-head {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 18px;
+  border-bottom:1px solid rgba(197,227,225,.3);
+}
+.fd-title { font-family:'DM Serif Display',serif; font-size:19px; color:var(--slate-deep); flex:1; }
+.fd-reset {
+  border:none; background:none; padding:0;
+  font-size:12.5px; font-weight:600; color:var(--slate-muted);
+  transition:color .2s;
+}
+.fd-reset:hover { color:var(--coral); }
 .fd-close {
+  display:none;
   width:30px; height:30px; border-radius:50%;
   border:1.5px solid var(--slate-pale); background:var(--white);
-  display:flex; align-items:center; justify-content:center;
-  color:var(--slate-muted); transition:all .2s; cursor:pointer;
+  align-items:center; justify-content:center;
+  color:var(--slate-muted); transition:all .2s; flex-shrink:0;
 }
 .fd-close:hover { border-color:var(--coral); color:var(--coral); }
+.fd-body {
+  max-height:calc(100vh - var(--top-nav) - var(--top-bar) - 120px);
+  overflow-y:auto;
+  scrollbar-width:thin; scrollbar-color:var(--slate-pale) transparent;
+}
+.fd-body::-webkit-scrollbar { width:6px; }
+.fd-body::-webkit-scrollbar-thumb { background:var(--aqua-2); border-radius:3px; }
 
-.fd-section { margin-bottom:26px; }
-.fd-label { font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--slate-muted); margin-bottom:12px; }
-.fd-checks { display:flex; flex-direction:column; gap:6px; }
+/* группа-аккордеон */
+.fd-group { border-bottom:1px solid rgba(197,227,225,.28); }
+.fd-group:last-child { border-bottom:none; }
+.fd-group > summary {
+  list-style:none; cursor:pointer;
+  padding:13px 18px;
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:600; color:var(--slate-deep);
+  transition:background .15s;
+}
+.fd-group > summary::-webkit-details-marker { display:none; }
+.fd-group > summary:hover { background:var(--aqua-pale); }
+.fd-gcount {
+  min-width:18px; height:18px; padding:0 6px; border-radius:var(--r-full);
+  background:var(--coral); color:#fff;
+  font-size:10.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+.fd-chev { margin-left:auto; color:var(--slate-pale); font-size:10px; transition:transform .2s; }
+.fd-group[open] .fd-chev { transform:rotate(90deg); }
+.fd-gbody { padding:2px 18px 16px; }
+
+/* чекбокс с фасетным счётчиком */
 .fd-check {
   display:flex; align-items:center; gap:10px;
-  font-size:13.5px; color:var(--slate-mid);
-  padding:8px 12px; border-radius:var(--r-sm);
-  cursor:pointer; transition:background .15s;
+  font-size:13px; color:var(--slate-mid);
+  padding:6px 0; cursor:pointer;
+  transition:opacity .2s;
 }
-.fd-check:hover { background:var(--aqua-pale); }
 .fd-check input { display:none; }
 .fd-box {
-  width:20px; height:20px; border-radius:6px;
+  width:18px; height:18px; border-radius:5px;
   border:1.5px solid var(--slate-pale);
   display:flex; align-items:center; justify-content:center;
   transition:all .2s; flex-shrink:0;
@@ -257,10 +207,31 @@ button { font-family:inherit; cursor:pointer; }
 .fd-check input:checked ~ .fd-box { background:var(--coral); border-color:var(--coral); }
 .fd-check input:checked ~ .fd-box svg { opacity:1; }
 .fd-box svg { opacity:0; transition:opacity .15s; }
+.fd-lbl { flex:1; }
+.fd-cnt { font-size:11.5px; color:var(--slate-pale); font-weight:600; flex:none; }
+.fd-check.off { opacity:.38; cursor:not-allowed; }
+.fd-check:not(.off):hover .fd-lbl { color:var(--slate-deep); }
 
-.fd-range { margin-top:6px; }
+/* числовые поля и слайдеры */
+.fd-row2 { display:flex; gap:10px; }
+.fd-mini { flex:1; }
+.fd-mini label { display:block; font-size:11.5px; color:var(--slate-muted); margin-bottom:4px; }
+.fd-mini input {
+  width:100%; padding:8px 12px; border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.55); background:var(--white);
+  font-family:inherit; font-size:13px; color:var(--slate); outline:none;
+  transition:border-color .2s;
+}
+.fd-mini input:focus { border-color:var(--coral); }
+.fd-mini input:disabled { background:var(--bg); color:var(--slate-pale); cursor:not-allowed; }
+
+.fd-seatrow {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:13px; color:var(--slate-mid); padding-top:9px;
+}
+.fd-seatrow .v { font-weight:700; color:var(--slate-deep); }
 .fd-range input[type=range] {
-  width:100%; -webkit-appearance:none; height:4px;
+  width:100%; -webkit-appearance:none; height:4px; margin-top:5px;
   border-radius:2px; background:var(--aqua-2); outline:none;
 }
 .fd-range input[type=range]::-webkit-slider-thumb {
@@ -270,431 +241,753 @@ button { font-family:inherit; cursor:pointer; }
   box-shadow:0 2px 8px rgba(168,212,216,.45);
   transition:transform .15s, box-shadow .15s;
 }
-.fd-range input[type=range]::-webkit-slider-thumb:hover {
-  transform:scale(1.2); box-shadow:0 2px 14px rgba(168,212,216,.6);
-}
+.fd-range input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); box-shadow:0 2px 14px rgba(168,212,216,.6); }
 .fd-range input[type=range]::-moz-range-thumb {
   width:16px; height:16px; border-radius:50%;
   background:var(--aqua-3); cursor:pointer;
   border:2.5px solid #fff; box-shadow:0 2px 8px rgba(168,212,216,.45);
 }
-.fd-range-row { display:flex; justify-content:space-between; font-size:12px; color:var(--slate-muted); margin-top:6px; }
+.fd-range input[type=range]:disabled { opacity:.4; }
 
-.fd-apply {
-  width:100%; padding:14px; border-radius:var(--r-md);
+/* двойной слайдер цены */
+.fd-dual .fd-vals {
+  display:flex; justify-content:space-between;
+  font-size:12.5px; font-weight:700; color:var(--slate-deep);
+  margin-bottom:2px;
+}
+.fd-dual .fd-track { position:relative; height:26px; }
+.fd-dual .fd-rail { position:absolute; top:11px; left:0; right:0; height:4px; background:var(--aqua-2); border-radius:2px; }
+.fd-dual .fd-fill { position:absolute; top:11px; height:4px; background:var(--coral); border-radius:2px; }
+.fd-dual input[type=range] {
+  position:absolute; top:0; left:0; width:100%; margin:0;
+  -webkit-appearance:none; appearance:none;
+  background:none; pointer-events:none; height:26px;
+}
+.fd-dual input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; pointer-events:auto;
+  width:16px; height:16px; border-radius:50%;
+  background:#fff; border:2.5px solid var(--coral); cursor:pointer;
+  box-shadow:var(--sh-sm);
+}
+.fd-dual input[type=range]::-moz-range-thumb {
+  pointer-events:auto; width:16px; height:16px; border-radius:50%;
+  background:#fff; border:2.5px solid var(--coral); cursor:pointer;
+}
+
+/* подсказка о тарифе */
+.fd-lock {
+  margin-top:10px; padding-top:9px;
+  border-top:1px dashed rgba(197,227,225,.6);
+  font-size:11.5px; line-height:1.5; color:var(--slate-muted);
+}
+.fd-lock b { color:var(--slate-deep); font-weight:600; }
+.fd-note {
+  margin:14px 18px 16px; padding:12px 14px;
+  background:var(--aqua-pale); border-radius:var(--r-sm);
+  font-size:11.5px; line-height:1.55; color:var(--slate-mid);
+}
+.fd-note .fd-up {
+  display:inline-block; margin-top:8px;
+  padding:7px 16px; border-radius:var(--r-full);
   background:var(--coral); color:#fff; border:none;
-  font-size:14.5px; font-weight:600;
-  transition:background .25s; box-shadow:var(--sh-coral);
+  font-size:12px; font-weight:600;
+  box-shadow:var(--sh-coral); transition:background .2s;
 }
-.fd-apply:hover { background:var(--coral-hover); }
-.fd-reset {
-  width:100%; padding:10px; border-radius:var(--r-md);
-  background:none; color:var(--slate-muted); border:none;
-  font-size:13px; font-weight:500; margin-top:8px;
-  transition:color .2s;
+.fd-note .fd-up:hover { background:var(--coral-hover); }
+
+/* ══════════════════════════════════════════════
+   RESULTS COLUMN
+   ══════════════════════════════════════════════ */
+.res-head {
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-bottom:12px;
 }
-.fd-reset:hover { color:var(--coral); }
-
-/* ── VENUE LIST ── */
-.list-panel {
-  width:52%; min-width:420px;
-  overflow-y:auto; padding:24px 24px 40px;
-  scrollbar-width:thin; scrollbar-color:var(--slate-pale) transparent;
-  transition:width .4s;
+.res-count { font-family:'DM Serif Display',serif; font-size:22px; color:var(--slate-deep); }
+.res-count b { font-weight:400; color:var(--coral); }
+.res-tools { display:flex; align-items:center; gap:8px; }
+.res-sort {
+  padding:8px 14px; border-radius:var(--r-full);
+  font-family:inherit; font-size:12.5px; font-weight:500;
+  background:var(--white); color:var(--slate);
+  border:1.5px solid rgba(197,227,225,.5);
+  outline:none; transition:border-color .2s;
 }
-.filter-drawer.open ~ .list-panel { width:calc(52% - 145px); min-width:320px; }
-
-.list-grid {
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:18px;
-}
-
-/* Venue card */
-.v-card {
-  border-radius:var(--r-lg); overflow:hidden;
-  background:var(--white);
-  border:1px solid rgba(197,227,225,.18);
-  transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s, border-color .2s;
-  cursor:pointer; position:relative;
-}
-.v-card:hover { transform:translateY(-4px); box-shadow:var(--sh-lg); }
-.v-card.pin-highlight { border-color:var(--coral); box-shadow:0 0 0 2px rgba(232,132,106,.25),var(--sh-lg); transform:translateY(-4px); }
-.map-pin.pin-active { z-index:6; transform:translate(-50%,-100%) scale(1.22); }
-.map-pin.pin-active .pin-body { background:var(--slate-deep); }
-.map-pin.pin-active .pin-body::after { border-top-color:var(--slate-deep); }
-.map-pin.pin-active .pin-label { opacity:1; }
-
-.v-img { width:100%; height:160px; position:relative; overflow:hidden; }
-.v-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.22,1,.36,1); }
-.v-card:hover .v-img img { transform:scale(1.05); }
-
-.v-tags { position:absolute; top:10px; left:10px; display:flex; gap:5px; z-index:1; }
-.v-tag {
-  padding:4px 10px; border-radius:var(--r-full);
-  font-size:10.5px; font-weight:600;
-  backdrop-filter:blur(10px);
-}
-.v-tag.cat { background:rgba(255,255,255,.88); color:var(--slate); }
-.v-tag.prem { background:rgba(233,134,103,.9); color:#fff; }
-
-.v-actions { position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:1; }
-.v-act-cmp,.v-act-fav {
-  width:34px; height:34px; border-radius:50%;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
-  border:none; display:flex; align-items:center; justify-content:center;
-  color:#5A7080; transition:all .2s; cursor:pointer;
-}
-.v-act-cmp:hover,.v-act-fav:hover { background:#fff; color:var(--coral); transform:scale(1.08); }
-.v-act-cmp.cmp-on { background:var(--coral-soft,#FCEAE4)!important; color:var(--coral)!important; }
-.v-act-fav.fav-on { color:var(--coral); }
-
-.v-body { padding:14px 16px 16px; }
-.v-name { font-size:15px; font-weight:700; color:var(--slate-deep); margin-bottom:4px; letter-spacing:-.15px; }
-.v-loc { font-size:12.5px; color:var(--slate-muted); display:flex; align-items:center; gap:4px; margin-bottom:12px; }
-.v-loc svg { opacity:.45; flex-shrink:0; }
-
-.v-meta { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
-.v-meta-item { font-size:12.5px; color:var(--slate-muted); display:flex; align-items:center; gap:4px; }
-.v-meta-item svg { color:var(--aqua-3); }
-.v-rating { display:flex; align-items:center; gap:3px; }
-.v-rating svg { color:#F0B95A; }
-.v-rating b { font-size:12.5px; font-weight:700; color:var(--slate-deep); }
-.v-rating span { font-size:11.5px; color:var(--slate-muted); }
-
-.v-foot { display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1px solid rgba(197,227,225,.22); gap:8px; }
-.v-price { font-size:12px; color:var(--slate-muted); white-space:nowrap; }
-.v-price strong { font-size:16px; font-weight:800; color:var(--slate-deep); }
-.v-btn-pair { display:flex; gap:6px; }
-.v-cta {
+.res-sort:hover { border-color:var(--aqua-3); }
+.res-clear {
   padding:8px 14px; border-radius:var(--r-full);
   font-size:12.5px; font-weight:600;
   background:var(--aqua-pale); color:var(--slate);
+  border:none; transition:all .2s;
+}
+.res-clear:hover { background:var(--aqua-1); color:var(--slate-deep); }
+
+/* чипы выбранных фильтров */
+.f-chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+.f-chip {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:6px 8px 6px 14px; border-radius:var(--r-full);
+  font-size:12.5px; font-weight:500;
+  background:var(--coral-soft); color:var(--coral);
+  border:1.5px solid transparent;
+}
+.f-chip.black { background:var(--aqua-pale); color:var(--slate-mid); }
+.f-chip button {
+  width:18px; height:18px; border-radius:50%;
+  border:none; background:rgba(255,255,255,.75);
+  color:inherit; font-size:11px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.f-chip button:hover { background:#fff; }
+
+/* ── блок объекта ── */
+.vlist { display:flex; flex-direction:column; gap:16px; }
+.vb {
+  background:var(--white);
+  border:1px solid rgba(197,227,225,.28);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);
+  padding:18px 18px 12px;
+  transition:border-color .25s, box-shadow .25s;
+}
+.vb.hi { border-color:var(--coral); box-shadow:0 0 0 2px var(--coral-glow), var(--sh-lg); }
+.vb-head {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin-bottom:14px;
+}
+.vb-name {
+  font-size:17px; font-weight:700; color:var(--slate-deep);
+  letter-spacing:-.2px; transition:color .2s;
+}
+.vb-name:hover { color:var(--coral); }
+.vb-meta {
+  display:flex; gap:14px; flex-wrap:wrap; margin-top:5px;
+  font-size:12.5px; color:var(--slate-muted);
+}
+.vb-meta b { color:var(--slate-deep); font-weight:700; }
+.vb-stars { color:#F0B95A; letter-spacing:1px; }
+.vb-rating { display:inline-flex; align-items:center; gap:4px; }
+.vb-rating svg { color:#F0B95A; }
+.vb-black {
+  padding:7px 14px; border-radius:var(--r-full);
+  font-size:12px; font-weight:600;
+  background:var(--white); color:var(--slate-muted);
+  border:1.5px solid rgba(197,227,225,.55);
+  transition:all .2s; white-space:nowrap;
+}
+.vb-black:hover { border-color:var(--coral); color:var(--coral); }
+
+/* ── лента залов ── */
+.rail-wrap { position:relative; }
+.rail {
+  display:flex; gap:12px; overflow-x:auto;
+  scroll-snap-type:x proximity;
+  padding:2px 2px 10px;
+  scrollbar-width:thin; scrollbar-color:var(--aqua-2) transparent;
+}
+.rail::-webkit-scrollbar { height:6px; }
+.rail::-webkit-scrollbar-thumb { background:var(--aqua-2); border-radius:3px; }
+.rail-btn {
+  position:absolute; top:38%; transform:translateY(-50%);
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(255,255,255,.95); backdrop-filter:blur(8px);
+  border:1.5px solid rgba(197,227,225,.6);
+  color:var(--slate); font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh-md); transition:all .2s; z-index:2;
+}
+.rail-btn:hover { background:#fff; color:var(--coral); border-color:var(--coral); }
+.rail-btn.p { left:-10px; }
+.rail-btn.n { right:-10px; }
+
+/* ── карточка зала ── */
+.hc {
+  flex:0 0 208px; scroll-snap-align:start;
+  border:1px solid rgba(197,227,225,.32);
+  border-radius:var(--r-md); overflow:hidden;
+  background:var(--white);
+  transition:border-color .25s, box-shadow .25s, transform .25s;
+}
+.hc:hover { transform:translateY(-3px); box-shadow:var(--sh-lg); }
+.hc.picked { border-color:var(--coral); box-shadow:inset 0 0 0 1px var(--coral); }
+.hc-img { height:104px; position:relative; overflow:hidden; background:var(--aqua-pale); }
+.hc-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.22,1,.36,1); }
+.hc:hover .hc-img img { transform:scale(1.06); }
+.hc-tags { position:absolute; top:8px; left:8px; display:flex; gap:5px; flex-wrap:wrap; }
+.hc-tag {
+  padding:3px 9px; border-radius:var(--r-full);
+  font-size:10px; font-weight:600;
+  background:rgba(255,255,255,.9); color:var(--slate);
+  backdrop-filter:blur(8px);
+}
+.hc-tag.plan { background:rgba(233,134,103,.9); color:#fff; }
+.hc-body { padding:11px 12px 12px; }
+.hc-name { font-size:13.5px; font-weight:700; color:var(--slate-deep); margin-bottom:8px; line-height:1.3; }
+.hc-caps { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:9px; min-height:20px; }
+.hc-cap {
+  font-size:10.5px; font-weight:600;
+  background:var(--aqua-pale); color:var(--slate-mid);
+  border-radius:5px; padding:3px 6px;
+}
+.hc-price { font-size:15px; font-weight:800; color:var(--slate-deep); margin-bottom:10px; }
+.hc-price i { font-style:normal; font-size:11.5px; font-weight:500; color:var(--slate-muted); }
+.hc-foot { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.hc-acts { display:flex; gap:6px; }
+.hc-ic {
+  width:30px; height:30px; border-radius:50%;
+  background:var(--aqua-pale); border:none;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--slate-muted); transition:all .2s;
+}
+.hc-ic:hover:not(:disabled) { background:var(--coral-soft); color:var(--coral); }
+.hc-ic.on { background:var(--coral-soft); color:var(--coral); }
+.hc-ic.on svg { fill:currentColor; }
+.hc-ic:disabled { opacity:.35; cursor:not-allowed; }
+.hc-more {
+  padding:7px 12px; border-radius:var(--r-full);
+  font-size:12px; font-weight:600;
+  background:var(--aqua-pale); color:var(--slate);
   border:none; transition:all .2s; white-space:nowrap;
 }
-.v-cta:hover { background:var(--aqua-1); color:var(--slate-deep); }
-.v-cta:hover { background:var(--coral); color:#fff; border-color:var(--coral); }
+.hc-more:hover { background:var(--coral); color:#fff; }
 
-/* ── MAP ── */
-.map-panel {
-  flex:1; position:relative;
-  background:var(--aqua-pale);
-  border-left:1px solid rgba(197,227,225,.25);
-  overflow:hidden;
-  transition:flex .4s;
+/* пустая выдача */
+.res-empty {
+  background:var(--white); border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-lg); box-shadow:var(--sh-md);
+  padding:48px 24px; text-align:center;
 }
-.map-panel.expanded { flex:3; }
+.res-empty h3 { font-family:'DM Serif Display',serif; font-size:21px; color:var(--slate-deep); margin-bottom:8px; font-weight:400; }
+.res-empty p { font-size:13.5px; color:var(--slate-muted); margin-bottom:18px; }
+.res-empty button {
+  padding:11px 26px; border-radius:var(--r-full);
+  background:var(--coral); color:#fff; border:none;
+  font-size:14px; font-weight:600; box-shadow:var(--sh-coral);
+  transition:background .2s;
+}
+.res-empty button:hover { background:var(--coral-hover); }
 
-.map-canvas { position:absolute; inset:0; }
-.map-bg { width:100%; height:100%; }
+.res-note {
+  margin-top:16px; padding:13px 16px;
+  background:var(--white); border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-md);
+  font-size:11.5px; line-height:1.6; color:var(--slate-muted);
+}
+
+/* ══════════════════════════════════════════════
+   MAP
+   ══════════════════════════════════════════════ */
+.map-col {
+  position:sticky; top:calc(var(--top-nav) + var(--top-bar));
+  background:var(--white);
+  border:1px solid rgba(197,227,225,.3);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);
+  overflow:hidden;
+}
+.map-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px; border-bottom:1px solid rgba(197,227,225,.3);
+}
+.map-head b { font-size:13px; font-weight:700; color:var(--slate-deep); }
+.map-head span { font-size:11px; color:var(--slate-pale); }
+.map-canvas {
+  position:relative; overflow:hidden;
+  height:calc(100vh - var(--top-nav) - var(--top-bar) - 150px);
+  min-height:400px;
+  background:var(--aqua-pale);
+}
+.map-scale {
+  position:absolute; inset:0;
+  transform-origin:center center;
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+.map-bg { width:100%; height:100%; display:block; }
 
 .map-pin {
   position:absolute; transform:translate(-50%,-100%);
-  cursor:pointer; transition:all .3s; z-index:3;
+  cursor:pointer; transition:transform .25s, filter .25s; z-index:3;
+  border:none; background:none; padding:0;
 }
-.map-pin:hover { z-index:5; transform:translate(-50%,-100%) scale(1.18); }
+.map-pin:hover { z-index:5; transform:translate(-50%,-100%) scale(1.14); }
 .pin-body {
-  display:flex; align-items:center; gap:0;
-  background:var(--coral); color:#fff;
-  padding:6px 12px 6px 10px; border-radius:var(--r-full);
+  display:flex; align-items:center; gap:4px;
+  background:var(--white); color:var(--slate-deep);
+  border:1.5px solid var(--coral);
+  padding:5px 11px; border-radius:var(--r-full);
   font-size:11.5px; font-weight:700;
-  box-shadow:var(--sh-coral);
-  white-space:nowrap;
-  position:relative;
+  box-shadow:var(--sh-md);
+  white-space:nowrap; position:relative;
 }
 .pin-body::after {
   content:''; position:absolute;
   bottom:-6px; left:50%; transform:translateX(-50%);
-  border-left:6px solid transparent;
-  border-right:6px solid transparent;
-  border-top:7px solid var(--coral);
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:6px solid var(--coral);
 }
-.pin-body svg { margin-right:4px; flex-shrink:0; }
-.pin-label {
-  position:absolute; bottom:calc(100% + 6px); left:50%;
-  transform:translateX(-50%);
-  background:var(--white); padding:5px 12px; border-radius:8px;
-  font-size:11px; font-weight:600; color:var(--slate-deep);
-  white-space:nowrap; box-shadow:var(--sh-md);
-  opacity:0; pointer-events:none; transition:opacity .2s;
-}
-.map-pin:hover .pin-label { opacity:1; }
+.map-pin.hi { z-index:6; transform:translate(-50%,-100%) scale(1.2); }
+.map-pin.hi .pin-body { background:var(--coral); color:#fff; border-color:var(--coral); }
 
-/* map controls */
-.map-ctrls {
-  position:absolute; bottom:20px; right:20px; z-index:5;
-  display:flex; gap:8px;
+/* всплывашка с фото и названием */
+.pin-pop {
+  position:absolute; transform:translate(-50%,-100%);
+  margin-top:-38px; width:176px; z-index:7;
+  background:var(--white); border:1px solid rgba(197,227,225,.5);
+  border-radius:var(--r-md); overflow:hidden;
+  box-shadow:var(--sh-lg); pointer-events:none;
+  animation:popIn .18s ease both;
 }
-.map-ctrl {
-  padding:10px 18px; border-radius:var(--r-full);
-  font-size:12.5px; font-weight:600;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
-  color:var(--slate); border:1.5px solid rgba(255,255,255,.8);
-  box-shadow:var(--sh-md);
-  display:flex; align-items:center; gap:7px;
-  transition:all .25s;
-}
-.map-ctrl:hover { background:#fff; box-shadow:var(--sh-lg); }
+@keyframes popIn { from { opacity:0; transform:translate(-50%,-96%); } to { opacity:1; transform:translate(-50%,-100%); } }
+.pin-pop-img { height:74px; background:var(--aqua-pale); }
+.pin-pop-img img { width:100%; height:100%; object-fit:cover; }
+.pin-pop-t { padding:8px 10px; font-size:12px; font-weight:700; color:var(--slate-deep); line-height:1.3; }
+.pin-pop-s { padding:0 10px 9px; font-size:11px; color:var(--slate-muted); }
 
 .map-zoom {
-  position:absolute; bottom:20px; left:20px; z-index:5;
+  position:absolute; bottom:16px; left:16px; z-index:8;
   display:flex; flex-direction:column; gap:2px;
-  border-radius:12px; overflow:hidden; box-shadow:var(--sh-md);
+  border-radius:10px; overflow:hidden; box-shadow:var(--sh-md);
 }
 .map-zoom button {
-  width:40px; height:40px; border:none;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
-  color:var(--slate); font-size:18px; font-weight:600;
+  width:36px; height:36px; border:none;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(8px);
+  color:var(--slate); font-size:17px; font-weight:600;
   display:flex; align-items:center; justify-content:center;
   transition:background .2s;
 }
-.map-zoom button:hover { background:#fff; }
+.map-zoom button:hover:not(:disabled) { background:#fff; color:var(--coral); }
+.map-zoom button:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ══════════════════════════════════════════════
+   COMPARE BAR
+   ══════════════════════════════════════════════ */
+.cmp-bar {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(120px);
+  z-index:400; display:flex; align-items:center; gap:14px;
+  background:var(--slate-deep); color:#fff;
+  border-radius:var(--r-full); padding:12px 18px 12px 22px;
+  box-shadow:0 8px 32px rgba(53,78,99,.25);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+}
+.cmp-bar.show { transform:translateX(-50%) translateY(0); }
+.cmp-bar span { font-size:13px; font-weight:600; white-space:nowrap; }
+.cmp-go {
+  padding:8px 20px; border-radius:var(--r-full);
+  background:var(--coral); border:none; color:#fff;
+  font-size:13px; font-weight:600; transition:background .2s;
+}
+.cmp-go:hover { background:var(--coral-hover); }
+.cmp-clear {
+  background:none; border:none; color:rgba(255,255,255,.6);
+  font-size:17px; line-height:1; padding:0 4px; transition:color .2s;
+}
+.cmp-clear:hover { color:#fff; }
 
 /* ══════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════ */
+@media(max-width:1180px) {
+  .grid3 { grid-template-columns:280px minmax(0,1fr); }
+  .map-col { display:none; }
+}
 @media(max-width:900px) {
-  .list-panel { width:100%; min-width:0; }
-  .map-panel { display:none; }
-  .header-search { display:none; }
+  .grid3 { grid-template-columns:minmax(0,1fr); padding:16px 18px 40px; }
+  .filter-toggle { display:flex; }
+  .fd-close { display:flex; }
+  /* фильтры уезжают в выдвижную панель */
+  .fd-panel {
+    position:fixed; top:0; left:0; bottom:0;
+    width:min(340px,88vw); border-radius:0; z-index:600;
+    transform:translateX(-100%);
+    transition:transform .35s cubic-bezier(.22,1,.36,1);
+    box-shadow:0 8px 40px rgba(53,78,99,.18);
+  }
+  .fd-panel.open { transform:translateX(0); }
+  .fd-body { max-height:calc(100vh - 62px); }
+  .fd-backdrop {
+    position:fixed; inset:0; z-index:599;
+    background:rgba(53,78,99,.35); backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none; transition:opacity .3s;
+  }
+  .fd-backdrop.open { opacity:1; pointer-events:auto; }
+  .control-bar { padding:10px 18px; gap:9px; }
+  .cb-field input, .cb-field select { min-width:0; width:100%; }
+  .cb-field { flex:1 1 132px; }
 }
-@media(min-width:901px) and (max-width:1200px) {
-  .list-panel { width:44%; min-width:360px; }
-}
-@media(max-width:768px) {
-  .header { padding:0 16px; gap:16px; }
-  .header-nav { gap:2px; }
-  .control-bar { padding:10px 16px; }
-  .list-panel { padding:16px; }
-  .list-grid { grid-template-columns:1fr; }
-  .filter-drawer.open { width:100%; position:absolute; z-index:60; height:100%; }
+@media(max-width:560px) {
+  .res-count { font-size:18px; }
+  .hc { flex:0 0 178px; }
 }
 </style>
 </head>
 <body>
+
+<div id="mh-nav"></div>
+
 <div class="page-wrap">
 
-<!-- ══════ HEADER ══════ -->
-<div id="mh-nav"></div>
-<header class="header" style="display:none">
-  <a class="logo" href="homepage"><img src="../assets/logo.svg" alt="МирХАБ" height="22" style="display:block"></a>
-  <nav class="header-nav">
-    <a href="list-venue">Каталог</a>
-    <a href="#" class="active">Карта</a>
-    <a href="for-organizers">Для бизнеса</a>
-  </nav>
-  <div class="header-search">
-    <div class="hs-field">
-      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 1a4.5 4.5 0 014.5 4.5c0 3.5-4.5 8-4.5 8S2.5 9 2.5 5.5A4.5 4.5 0 017 1z" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="5.5" r="1.3" stroke="currentColor" stroke-width="1.1"/></svg>
-      Москва
-    </div>
-    <div class="hs-field">
-      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1.5" y="4" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V2.5a2 2 0 014 0V4" stroke="currentColor" stroke-width="1.2"/></svg>
-      Конференция
-    </div>
-    <div class="hs-field">
-      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 13c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/></svg>
-      20–50
-    </div>
-    <button class="hs-btn">
-      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="6.5" cy="6.5" r="4.5" stroke="#fff" stroke-width="1.8"/><path d="M10 10l3.5 3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <!-- ══════ ПАРАМЕТРЫ ЗАПРОСА ══════ -->
+  <div class="control-bar">
+    <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3.5h11M4 7.5h7M5.5 11.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Фильтр
+      <span class="ft-count" id="ftCount">0</span>
     </button>
-  </div>
-</header>
-
-<!-- ══════ CONTROL BAR ══════ -->
-<div class="control-bar">
-  <button class="filter-toggle" id="filterToggle" onclick="toggleFilter()">
-    <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3.5h11M4 7.5h7M5.5 11.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    Фильтр
-    <span class="ft-count">3</span>
-  </button>
-
-  <div class="cb-sep"></div>
-
-  <button class="bar-field active">
-    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M6.5 1a3.8 3.8 0 013.8 3.8c0 3-3.8 7-3.8 7S2.7 7.8 2.7 4.8A3.8 3.8 0 016.5 1z" stroke="currentColor" stroke-width="1.1"/></svg>
-    Москва
-  </button>
-  <button class="bar-field">
-    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><rect x="1.5" y="1.5" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.1"/><path d="M1.5 5h10" stroke="currentColor" stroke-width="1.1"/><circle cx="4" cy="8" r=".7" fill="currentColor"/><circle cx="6.5" cy="8" r=".7" fill="currentColor"/></svg>
-    Дата
-  </button>
-  <button class="bar-field">
-    <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><circle cx="6.5" cy="5" r="2.2" stroke="currentColor" stroke-width="1.1"/><path d="M2.5 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.1"/></svg>
-    20–50 чел.
-  </button>
-  <button class="bar-field">💰 Цена</button>
-
-  <div class="cb-sep"></div>
-
-  <div class="chip-scroll">
-    <div class="chip active">Конференция</div>
-    <div class="chip">Недорого</div>
-    <div class="chip">С кейтерингом</div>
-    <div class="chip">В центре</div>
-    <div class="chip">Для корпоратива</div>
-    <div class="chip">Лофт</div>
-    <div class="chip">С панорамой</div>
-    <div class="chip">Парковка</div>
+    <div class="cb-field">
+      <label for="cbCity">Город</label>
+      <select id="cbCity" onchange="F.city=this.value;render()"></select>
+    </div>
+    <div class="cb-field">
+      <label for="cbPeople">Участников</label>
+      <input id="cbPeople" type="number" min="0" step="10" placeholder="любое" onchange="F.people=+this.value||0;render()">
+    </div>
+    <div class="cb-field">
+      <label for="cbEvent">Тип мероприятия</label>
+      <select id="cbEvent" onchange="F.eventType=this.value;renderFilters();render()"></select>
+    </div>
+    <div class="cb-right">
+      <span class="cb-tariff">Тариф: <b id="cbTariff">—</b></span>
+    </div>
   </div>
 
-  <div class="bar-right">
-    <span class="result-count"><b>380</b> площадок найдено</span>
-    <button class="sort-btn">
-      <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M2 4h9M2 6.5h6M2 9h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      По рейтингу
-    </button>
-  </div>
-</div>
+  <div class="grid3">
 
-<!-- ══════ MAIN SPLIT ══════ -->
-<div class="main">
-
-  <!-- FILTER DRAWER -->
-  <aside class="filter-drawer" id="filterDrawer">
-    <div class="fd-inner">
+    <!-- ══════ ФИЛЬТРЫ ══════ -->
+    <aside class="fd-panel" id="filterDrawer">
       <div class="fd-head">
         <div class="fd-title">Фильтры</div>
-        <button class="fd-close" onclick="toggleFilter()">
+        <button class="fd-reset" onclick="resetAll()">Сбросить всё</button>
+        <button class="fd-close" onclick="toggleFilter()" aria-label="Закрыть">
           <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
       </div>
+      <div class="fd-body" id="fdBody"></div>
+    </aside>
 
-      <div class="fd-section">
-        <div class="fd-label">Тип площадки</div>
-        <div class="fd-checks">
-          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Конференц-зал</label>
-          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Лофт</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ресторан</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Банкетный зал</label>
-          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Коворкинг</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Галерея</label>
+    <!-- ══════ ВЫДАЧА ══════ -->
+    <div class="res-col">
+      <div class="res-head">
+        <div class="res-count" id="resCount">—</div>
+        <div class="res-tools">
+          <button class="res-clear" id="resClear" onclick="clearCompare()" hidden>Очистить сравнение</button>
+          <select class="res-sort" id="resSort" onchange="SORT=this.value;render()">
+            <option value="rel">Сначала релевантные</option>
+            <option value="price">По цене ↑</option>
+            <option value="cap">По вместимости ↓</option>
+            <option value="rating">По рейтингу ↓</option>
+          </select>
         </div>
       </div>
-
-      <div class="fd-section">
-        <div class="fd-label">Цена за день</div>
-        <div class="fd-range">
-          <input type="range" min="5000" max="250000" value="90000">
-          <div class="fd-range-row"><span>5 000 ₽</span><span>250 000 ₽</span></div>
-        </div>
+      <div class="f-chips" id="fChips"></div>
+      <div class="vlist" id="vList"></div>
+      <div class="res-note">
+        Счётчик у пункта фильтра — сколько объектов останется, если добавить это условие к уже выбранным.
+        Пункты с (0) отключаются. Удобства считаются по «И», категории объекта — по «ИЛИ».
+        Залы с ценой «по договорённости» остаются в выдаче всегда.
       </div>
-
-      <div class="fd-section">
-        <div class="fd-label">Вместимость</div>
-        <div class="fd-range">
-          <input type="range" min="5" max="500" value="120">
-          <div class="fd-range-row"><span>5 чел.</span><span>500 чел.</span></div>
-        </div>
-      </div>
-
-      <div class="fd-section">
-        <div class="fd-label">Удобства</div>
-        <div class="fd-checks">
-          <label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Wi-Fi</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Проектор</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Парковка</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Кейтеринг</label>
-          <label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Звук и свет</label>
-        </div>
-      </div>
-
-      <button class="fd-apply" onclick="toggleFilter()">Показать 380 площадок</button>
-      <button class="fd-reset">Сбросить фильтры</button>
     </div>
-  </aside>
 
-  <!-- VENUE LIST -->
-  <div class="list-panel" id="listPanel">
-    <div class="list-grid" id="listGrid"></div>
-  </div>
+    <!-- ══════ КАРТА ══════ -->
+    <aside class="map-col" id="mapCol">
+      <div class="map-head">
+        <b>На карте · <span id="mapCount">0</span></b>
+        <span>2ГИС API — на разработке</span>
+      </div>
+      <div class="map-canvas" id="mapCanvas">
+        <div class="map-scale" id="mapScale"></div>
+        <div class="map-zoom">
+          <button id="zoomIn" onclick="zoom(1)" aria-label="Приблизить">+</button>
+          <button id="zoomOut" onclick="zoom(-1)" aria-label="Отдалить">−</button>
+        </div>
+      </div>
+    </aside>
 
-  <!-- MAP -->
-  <div class="map-panel" id="mapPanel">
-    <div class="map-canvas" id="mapCanvas"></div>
-    <div class="map-zoom"><button>+</button><button>−</button></div>
-    <div class="map-ctrls">
-      <button class="map-ctrl" onclick="toggleMapExpand()">
-        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M1.5 5V1.5H5M9 1.5h3.5V5M12.5 9v3.5H9M5 12.5H1.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="expandLabel">Развернуть</span>
-      </button>
-    </div>
   </div>
 </div>
 
-</div><!-- /page-wrap -->
+<div class="fd-backdrop" id="fdBackdrop" onclick="toggleFilter()"></div>
 
-<!-- Compare bar -->
-<div id="cmpBar" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;background:#354E63;color:#fff;border-radius:50px;padding:12px 20px 12px 16px;display:none;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(53,78,99,.25);font-family:'Outfit',sans-serif;">
-  <span style="font-size:13px;font-weight:600;"><span id="cmpBarCount">0</span> площадки выбраны</span>
-  <button onclick="openCompare()" style="padding:8px 20px;border-radius:50px;background:#E8846A;border:none;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Сравнить</button>
-  <button onclick="cmpSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('cmpBar').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;line-height:1;padding:0 4px;">✕</button>
+<div class="cmp-bar" id="cmpBar">
+  <span><b id="cmpCount">0</b> <span id="cmpWord">залов</span> в сравнении</span>
+  <button class="cmp-go" onclick="openCompare()">Сравнить</button>
+  <button class="cmp-clear" onclick="clearCompare()" aria-label="Очистить">✕</button>
 </div>
 
+<script src="data.js"></script>
 <script src="shared.js"></script>
 <script>
 MH.init('map');
-/* ══════ SVG GENERATORS ══════ */
-function venueIll(h,s){
-  const n=((s-1)%16)+1;
-  return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">`;
-}
 
-/* ══════ DATA ══════ */
-const venues = MH.VENUES;
+/* ══════════════════════════════════════════════
+   СОСТОЯНИЕ
+   ══════════════════════════════════════════════ */
+let F = ML.loadFilters();   // выборка переживает уход на карточку и возврат
+let HOVER = null;                 // id объекта, подсвеченного на карте
+let SORT = 'rel';
+let ZOOM = 1;
+const OPEN = new Set(['cap', 'cats']);   // раскрытые группы фильтров
 
-const ic = {
-  pin:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
-  usr:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-  area:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M8 21H5a2 2 0 0 1-2-2v-3M21 8V5a2 2 0 0 0-2-2h-3M21 16v3a2 2 0 0 1-2 2h-3"/></svg>',
-  star:'<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
-  heart:'<svg width="12" height="12" viewBox="-0.5 -0.5 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.49994 11.7733L10.6225 7.04126C12.4072 5.11857 12.3285 2.70387 11.1252 1.23784C10.5265 0.507833 9.65454 0.0271597 8.64523 0.00115934C7.78324 -0.0215077 6.87726 0.28783 6.00328 0.962506C5.12663 0.28783 4.21798 -0.0215077 3.35467 0.00115934C2.34469 0.0278264 1.47137 0.507833 0.872051 1.23784C-0.331925 2.7052 -0.40459 5.1199 1.38671 7.04193L5.50862 11.7733C5.63529 11.9173 5.81528 12 6.00395 12C6.09792 11.9999 6.19077 11.9796 6.27622 11.9405C6.36167 11.9013 6.43773 11.8444 6.49927 11.7733H6.49994Z" stroke="currentColor" stroke-width="1"/></svg>',
-  heartOn:'<svg width="12" height="12" viewBox="-0.5 -0.5 13 13" fill="#EB7454" xmlns="http://www.w3.org/2000/svg"><path d="M6.49994 11.7733L10.6225 7.04126C12.4072 5.11857 12.3285 2.70387 11.1252 1.23784C10.5265 0.507833 9.65454 0.0271597 8.64523 0.00115934C7.78324 -0.0215077 6.87726 0.28783 6.00328 0.962506C5.12663 0.28783 4.21798 -0.0215077 3.35467 0.00115934C2.34469 0.0278264 1.47137 0.507833 0.872051 1.23784C-0.331925 2.7052 -0.40459 5.1199 1.38671 7.04193L5.50862 11.7733C5.63529 11.9173 5.81528 12 6.00395 12C6.09792 11.9999 6.19077 11.9796 6.27622 11.9405C6.36167 11.9013 6.43773 11.8444 6.49927 11.7733H6.49994Z"/></svg>',
-  cmp:'<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.3095 10.1906C7.13864 10.0198 6.86168 10.0198 6.69082 10.1906L4.64914 12.2323C4.47828 12.4032 4.47828 12.6801 4.64914 12.851C4.81999 13.0219 5.097 13.0219 5.26785 12.851L7.00016 11.1187L8.73249 12.851C8.90334 13.0219 9.18031 13.0219 9.35117 12.851C9.52203 12.6801 9.52203 12.4032 9.35117 12.2323L7.3095 10.1906Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M7 0.729248C7.24162 0.729248 7.4375 0.925126 7.4375 1.16675V2.33341C7.4375 2.57504 7.24162 2.77091 7 2.77091C6.75838 2.77091 6.5625 2.57504 6.5625 2.33341V1.16675C6.5625 0.925126 6.75838 0.729248 7 0.729248Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12.4832 10.9374C12.9181 10.9374 13.2707 10.5849 13.2707 10.1499V2.68325C13.2707 2.24833 12.9181 1.89575 12.4832 1.89575H1.5165C1.08158 1.89575 0.729004 2.24832 0.729004 2.68325V10.1499C0.729004 10.5849 1.08158 10.9374 1.5165 10.9374H12.4832ZM5.68734 6.99992C5.68734 6.7583 5.49146 6.56242 5.24984 6.56242C5.00821 6.56242 4.81234 6.7583 4.81234 6.99992V8.16659C4.81234 8.4082 5.00821 8.60409 5.24984 8.60409C5.49146 8.60409 5.68734 8.4082 5.68734 8.16659V6.99992ZM6.99984 5.39575C7.24145 5.39575 7.43734 5.59163 7.43734 5.83325V8.16659C7.43734 8.4082 7.24145 8.60409 6.99984 8.60409C6.75822 8.60409 6.56234 8.4082 6.56234 8.16659V5.83325C6.56234 5.59163 6.75822 5.39575 6.99984 5.39575ZM9.18734 4.66659C9.18734 4.42496 8.99145 4.22909 8.74984 4.22909C8.50822 4.22909 8.31234 4.42496 8.31234 4.66659V8.16659C8.31234 8.4082 8.50822 8.60409 8.74984 8.60409C8.99145 8.60409 9.18734 8.4082 9.18734 8.16659V4.66659Z"/></svg>',
-  mapPin:'<svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="white" stroke="none"/></svg>',
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const jt  = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+const IC = {
+  check: '<svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  star:  '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  cmp:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"/></svg>',
+  heart: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
 };
 
-/* ══════ RENDER CARDS ══════ */
-const cmpSet = new Set();
-const grid = document.getElementById('listGrid');
-function openVenue(id) { window.location.href = 'venue?id=' + id; }
-venues.forEach(v => {
-  grid.insertAdjacentHTML('beforeend', `
-  <div class="v-card" data-vid="${v.s}" onmouseenter="highlightPin(${v.s})" onmouseleave="clearPinHighlight()" onclick="openVenue(${v.s})">
-    <div class="v-img">
-      ${venueIll(v.h,v.s)}
-      <div class="v-tags">
-        <span class="v-tag cat">${v.type}</span>
-        ${v.pr ? '<span class="v-tag prem">Premium</span>' : ''}
-      </div>
-      <div class="v-actions">
-        <button class="v-act-cmp${cmpSet.has(v.s)?' cmp-on':''}" title="Сравнить" onclick="event.stopPropagation();toggleCmp(${v.s},this)">${ic.cmp}</button>
-        <button class="v-act-fav${MH.isFav(v.s)?' fav-on':''}" title="В избранное" onclick="event.stopPropagation();toggleFavCard(${v.s},this)">${MH.isFav(v.s)?ic.heartOn:ic.heart}</button>
+/* Какие группы фильтров доступны на текущем тарифе.
+   Правила берём из самого тарифа (ML.TARIFFS[...].filters), а не выдумываем. */
+function canUse(group) {
+  const f = ML.tariff().filters;
+  if (f === 'all') return true;
+  if (f === 'all-except-seating-twin') return group !== 'seats' && group !== 'twin';
+  if (Array.isArray(f)) return f.includes(group);
+  return true;
+}
+
+/* ══════════════════════════════════════════════
+   ПАНЕЛЬ ФИЛЬТРОВ
+   ══════════════════════════════════════════════ */
+function fgroup(key, title, body, n) {
+  return `<details class="fd-group" data-k="${key}" ${OPEN.has(key) ? 'open' : ''} ontoggle="OPEN[this.open?'add':'delete']('${key}')">
+    <summary>${title}${n ? `<span class="fd-gcount">${n}</span>` : ''}<span class="fd-chev">▶</span></summary>
+    <div class="fd-gbody">${body}</div>
+  </details>`;
+}
+
+function checks(group, items, locked) {
+  return items.map(x => `<label class="fd-check${locked ? ' off' : ''}" data-g="${group}" data-item="${esc(x)}">
+    <input type="checkbox" ${F[group].has(x) ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="togSet('${group}','${jt(x)}')">
+    <span class="fd-box">${IC.check}</span>
+    <span class="fd-lbl">${esc(x)}</span><span class="fd-cnt"></span></label>`).join('');
+}
+
+function togSet(group, value) { const s = F[group]; s.has(value) ? s.delete(value) : s.add(value); render(); }
+
+function lockNote(group, tariffName) {
+  return canUse(group) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${tariffName}»</b></div>`;
+}
+
+function renderFilters() {
+  const t = ML.tariff();
+  const lockFeat = !canUse('food');     // группы удобств открываются все разом
+  let h = '';
+
+  // Вместимость
+  h += fgroup('cap', 'Вместимость',
+    `<div class="fd-seatrow"><span>Не менее</span><span class="v" id="capVal">${F.people || '—'} чел.</span></div>
+     <div class="fd-range"><input type="range" min="0" max="900" step="10" value="${F.people}"
+       oninput="document.getElementById('capVal').textContent=(+this.value||'—')+' чел.'"
+       onchange="F.people=+this.value;render()"></div>`,
+    F.people ? 1 : 0);
+
+  // Категории объектов — единственная группа с логикой «ИЛИ»
+  h += fgroup('cats', 'Категории объектов', checks('cats', ML.VENUE_CATS, false), F.cats.size);
+
+  // Проживание. TWIN открывается только на «ПРЕМИУМ», SNGL — с «БИЗНЕС».
+  h += fgroup('rooms', 'Проживание',
+    `<div class="fd-row2">
+       <div class="fd-mini"><label>TWIN от</label>
+         <input type="number" min="0" value="${F.twin || ''}" ${canUse('twin') ? '' : 'disabled'}
+           onchange="F.twin=+this.value||0;render()"></div>
+       <div class="fd-mini"><label>SNGL от</label>
+         <input type="number" min="0" value="${F.sngl || ''}" ${canUse('sngl') ? '' : 'disabled'}
+           onchange="F.sngl=+this.value||0;render()"></div>
+     </div>
+     ${canUse('twin') ? '' : `<div class="fd-lock">TWIN доступен с тарифа <b>«ПРЕМИУМ»</b>${canUse('sngl') ? '' : ', SNGL — с <b>«БИЗНЕС»</b>'}</div>`}`,
+    (F.twin ? 1 : 0) + (F.sngl ? 1 : 0));
+
+  // Залы и рассадка
+  const seatBody = canUse('seats')
+    ? ML.SEATING.map(s => `<div class="fd-seatrow"><span>${esc(s.l)}</span><span class="v" id="seat-${s.k}">${F.seats[s.k] || 0}</span></div>
+        <div class="fd-range"><input type="range" min="0" max="800" step="10" value="${F.seats[s.k] || 0}"
+          oninput="document.getElementById('seat-${s.k}').textContent=this.value"
+          onchange="F.seats['${s.k}']=+this.value;render()"></div>`).join('')
+    : `<div class="fd-lock">Фильтр по схемам рассадки доступен с тарифа <b>«ПРЕМИУМ»</b></div>`;
+  h += fgroup('halls', 'Конференц-залы',
+    `<div class="fd-mini" style="margin-bottom:12px"><label>Количество залов от</label>
+       <input type="number" min="0" value="${F.hallsMin || ''}" ${canUse('hallsMin') ? '' : 'disabled'}
+         onchange="F.hallsMin=+this.value||0;render()"></div>
+     ${canUse('hallsMin') ? '' : lockNote('hallsMin', 'БИЗНЕС')}
+     <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin:12px 0 2px">Рассадка · мин. вместимость</div>
+     ${seatBody}`,
+    (F.hallsMin ? 1 : 0) + Object.values(F.seats).filter(Boolean).length);
+
+  // Стоимость
+  h += fgroup('price', 'Стоимость аренды зала',
+    canUse('priceDay')
+      ? dualPrice()
+      : `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b></div>`,
+    (F.priceDay[0] > 0 || F.priceDay[1] < 200000) ? 1 : 0);
+
+  // Группы удобств — список берём из ML.FEATURE_GROUPS / ML.FEATURES
+  ML.FEATURE_GROUPS.forEach(g => {
+    if (g.onlyEvent && g.onlyEvent !== F.eventType) return;
+    h += fgroup(g.k, esc(g.l), checks(g.k, ML.FEATURES[g.k], lockFeat) + lockNote(g.k, 'БИЗНЕС'), F[g.k].size);
+  });
+
+  if (!t.fullInfo) {
+    h += `<div class="fd-note">Тариф <b>«${esc(t.name)}»</b>: доступны только категории объектов, город и количество гостей.
+      Остальные фильтры и полная информация о залах — с тарифа «БИЗНЕС».
+      <button class="fd-up" onclick="MH.go('pricing.html')">Сравнить тарифы</button></div>`;
+  }
+
+  document.getElementById('fdBody').innerHTML = h;
+  bindDual();
+}
+
+/* двойной слайдер цены */
+function dualPrice() {
+  const [a, b] = F.priceDay;
+  return `<div class="fd-dual" id="priceDual" data-min="0" data-max="200000">
+    <div class="fd-vals"><span class="lo">${a.toLocaleString('ru')} ₽</span><span class="hi">${b.toLocaleString('ru')} ₽</span></div>
+    <div class="fd-track">
+      <div class="fd-rail"></div><div class="fd-fill"></div>
+      <input type="range" class="lo" min="0" max="200000" step="5000" value="${a}">
+      <input type="range" class="hi" min="0" max="200000" step="5000" value="${b}">
+    </div></div>`;
+}
+function bindDual() {
+  const d = document.getElementById('priceDual');
+  if (!d) return;
+  const lo = d.querySelector('input.lo'), hi = d.querySelector('input.hi');
+  const fill = d.querySelector('.fd-fill'), lv = d.querySelector('.fd-vals .lo'), hv = d.querySelector('.fd-vals .hi');
+  const mn = +d.dataset.min, mx = +d.dataset.max;
+  const upd = commit => {
+    let a = +lo.value, b = +hi.value;
+    if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
+    F.priceDay = [a, b];
+    fill.style.left = ((a - mn) / (mx - mn) * 100) + '%';
+    fill.style.right = (100 - (b - mn) / (mx - mn) * 100) + '%';
+    lv.textContent = a.toLocaleString('ru') + ' ₽';
+    hv.textContent = b.toLocaleString('ru') + ' ₽';
+    if (commit) render();
+  };
+  lo.oninput = () => upd(false); hi.oninput = () => upd(false);
+  lo.onchange = () => upd(true); hi.onchange = () => upd(true);
+  upd(false);
+}
+
+/* Фасетные счётчики: сколько объектов останется, если добавить условие. */
+function applyFacets() {
+  document.querySelectorAll('#fdBody label.fd-check[data-g]').forEach(lb => {
+    const g = lb.dataset.g, item = lb.dataset.item, inp = lb.querySelector('input');
+    const n = ML.facetCount(F, g, item);
+    lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
+    const lockedByTariff = g !== 'cats' && !canUse(g);
+    const dead = !inp.checked && n === 0;
+    inp.disabled = lockedByTariff || dead;
+    lb.classList.toggle('off', lockedByTariff || dead);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   ЧИПЫ ВЫБРАННЫХ ФИЛЬТРОВ
+   ══════════════════════════════════════════════ */
+function renderChips() {
+  const c = [];
+  if (F.city) c.push(['Город: ' + F.city, () => F.city = '']);
+  if (F.people) c.push(['от ' + F.people + ' чел.', () => F.people = 0]);
+  if (F.hallsMin) c.push(['Залов от ' + F.hallsMin, () => F.hallsMin = 0]);
+  if (F.twin) c.push(['TWIN от ' + F.twin, () => F.twin = 0]);
+  if (F.sngl) c.push(['SNGL от ' + F.sngl, () => F.sngl = 0]);
+  if (F.priceDay[0] > 0 || F.priceDay[1] < 200000)
+    c.push([`${F.priceDay[0].toLocaleString('ru')}–${F.priceDay[1].toLocaleString('ru')} ₽`, () => F.priceDay = [0, 200000]]);
+  ML.SEATING.forEach(s => { if (F.seats[s.k]) c.push([`${s.l} от ${F.seats[s.k]}`, () => F.seats[s.k] = 0]); });
+  ['cats', 'food', 'opts', 'other', 'sport'].forEach(g => F[g].forEach(x => c.push([x, () => F[g].delete(x)])));
+  [...ML.state.blacklist].forEach(id => {
+    const v = ML.venueById(id);
+    if (v) c.push(['Скрыт: ' + v.name, () => ML.removeFromBlacklist(id), true]);
+  });
+
+  window._chips = c;
+  document.getElementById('fChips').innerHTML = c.map((x, i) =>
+    `<span class="f-chip${x[2] ? ' black' : ''}">${esc(x[0])}<button onclick="_chips[${i}][1]();render()" aria-label="Убрать">✕</button></span>`).join('');
+
+  document.getElementById('ftCount').textContent = c.length;
+}
+
+/* ══════════════════════════════════════════════
+   ВЫДАЧА: объекты-контейнеры с лентой залов
+   ══════════════════════════════════════════════ */
+function sortList(list) {
+  const arr = list.slice();
+  if (SORT === 'price') arr.sort((a, b) => (ML.venueMinPrice(a.venue) || 1e9) - (ML.venueMinPrice(b.venue) || 1e9));
+  else if (SORT === 'cap') arr.sort((a, b) => ML.venueCapacity(b.venue) - ML.venueCapacity(a.venue));
+  else if (SORT === 'rating') arr.sort((a, b) => b.venue.rating - a.venue.rating);
+  return arr;
+}
+
+function hallCard(h) {
+  const t = ML.tariff();
+  const inC = ML.inCompare(h.id);
+  const fav = ML.isFav(h.id);
+  // На «СТАРТ» вместо схем рассадки показываем площадь.
+  const caps = t.fullInfo
+    ? ML.SEATING.filter(s => h.seats[s.k]).slice(0, 4)
+        .map(s => `<span class="hc-cap">${esc(s.l)} ${h.seats[s.k]}</span>`).join('')
+    : `<span class="hc-cap">${h.area} м²</span>`;
+  return `<article class="hc${inC ? ' picked' : ''}">
+    <div class="hc-img">
+      <img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy">
+      <div class="hc-tags">
+        <span class="hc-tag">${esc(h.type)}</span>
+        ${h.plan ? '<span class="hc-tag plan">План</span>' : ''}
       </div>
     </div>
-    <div class="v-body">
-      <div class="v-name">${v.n}</div>
-      <div class="v-loc">${ic.pin} ${v.loc}${v.metro ? ' · ' + v.metro : ''}</div>
-      <div class="v-meta">
-        <span class="v-meta-item">${ic.usr} до ${v.cap} гостей</span>
-        <span class="v-meta-item">${ic.area} ${v.area} м²</span>
+    <div class="hc-body">
+      <div class="hc-name">${esc(h.name)}</div>
+      <div class="hc-caps">${caps}</div>
+      <div class="hc-price">${h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>'}</div>
+      <div class="hc-foot">
+        <div class="hc-acts">
+          <button class="hc-ic${inC ? ' on' : ''}" onclick="toggleCmp(${h.id})" title="${inC ? 'Убрать из сравнения' : 'В сравнение'}">${IC.cmp}</button>
+          <button class="hc-ic${fav ? ' on' : ''}" onclick="toggleFavHall(${h.id})" title="${fav ? 'Убрать из избранного' : 'В избранное'}">${IC.heart}</button>
+        </div>
+        <a class="hc-more" href="hall.html?id=${h.id}">Подробнее</a>
       </div>
-      <div class="v-foot">
-        <div class="v-price">от <strong>${v.p} ₽</strong></div>
-        <div class="v-btn-pair">
-          <button class="v-cta" onclick="event.stopPropagation();toggleCmp(${v.s},this.closest('.v-card').querySelector('.v-act-cmp'))">Сравнить</button>
-          <button class="v-cta" onclick="event.stopPropagation();openVenue(${v.s})">Подробнее</button>
+    </div>
+  </article>`;
+}
+
+function venueBlock(x) {
+  const v = x.venue, halls = x.halls, t = ML.tariff();
+  const cap = ML.venueCapacity(v);
+  return `<section class="vb${HOVER === v.id ? ' hi' : ''}" data-vid="${v.id}"
+      onmouseenter="setHover(${v.id})" onmouseleave="setHover(null)">
+    <div class="vb-head">
+      <div>
+        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+        <div class="vb-meta">
+          <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
+          <span>до <b>${cap}</b> чел.</span>
+          <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
+          ${v.stars ? `<span class="vb-stars">${'★'.repeat(v.stars)}</span>` : ''}
+          <span class="vb-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
         </div>
       </div>
+      ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})">В блэк-лист</button>` : ''}
     </div>
-  </div>`);
-});
+    <div class="rail-wrap">
+      <div class="rail" id="rail-${v.id}">${halls.map(hallCard).join('')}</div>
+      ${halls.length > 2 ? `<button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад">‹</button>
+      <button class="rail-btn n" onclick="scrollRail(${v.id},1)" aria-label="Вперёд">›</button>` : ''}
+    </div>
+  </section>`;
+}
 
-/* ══════ RENDER MAP ══════ */
-const canvas = document.getElementById('mapCanvas');
-// Background SVG map
-canvas.innerHTML = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+function scrollRail(id, d) {
+  const el = document.getElementById('rail-' + id);
+  if (el) el.scrollBy({ left: d * 220, behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════════════
+   КАРТА
+   ══════════════════════════════════════════════ */
+const MAP_SVG = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="mg" x1="0" y1="0" x2="100" y2="100">
       <stop stop-color="#E2F0EF" offset="0"/>
@@ -702,121 +995,191 @@ canvas.innerHTML = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRati
     </linearGradient>
   </defs>
   <rect width="100" height="100" fill="url(#mg)"/>
-  <!-- City blocks -->
-  ${Array.from({length:28},(_, i) => {
-    const x = 8 + (i*3.2 + (i*5)%22);
-    const y = 12 + ((i*9 + 5) % 72);
-    const w = 3 + (i%4);
-    const h = 2.5 + (i%3);
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".4" fill="#B8CDD8" opacity="${0.18 + (i%3)*0.07}"/>`;
+  ${Array.from({ length: 28 }, (_, i) => {
+    const x = 8 + (i * 3.2 + (i * 5) % 22);
+    const y = 12 + ((i * 9 + 5) % 72);
+    const w = 3 + (i % 4);
+    const h = 2.5 + (i % 3);
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".4" fill="#B8CDD8" opacity="${0.18 + (i % 3) * 0.07}"/>`;
   }).join('')}
-  <!-- Parks -->
   <ellipse cx="22" cy="58" rx="9" ry="7" fill="#8FC8B8" opacity=".28"/>
   <ellipse cx="70" cy="32" rx="7" ry="6" fill="#8FC8B8" opacity=".24"/>
   <ellipse cx="48" cy="78" rx="11" ry="5" fill="#8FC8B8" opacity=".22"/>
   <ellipse cx="82" cy="68" rx="6" ry="4" fill="#8FC8B8" opacity=".2"/>
-  <!-- Major roads -->
   <path d="M0 38 Q22 28 50 34 T100 30" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"/>
   <path d="M0 55 Q25 48 52 54 T100 50" stroke="#fff" stroke-width="1.1" fill="none" opacity=".6"/>
   <path d="M0 70 Q30 64 55 70 T100 68" stroke="#fff" stroke-width=".9" fill="none" opacity=".5"/>
   <path d="M38 0 Q40 28 38 55 T42 100" stroke="#fff" stroke-width="1.2" fill="none" opacity=".65"/>
   <path d="M62 0 Q60 22 63 50 T60 100" stroke="#fff" stroke-width=".9" fill="none" opacity=".55"/>
-  <!-- Secondary roads -->
   <path d="M0 38 Q22 28 50 34 T100 30" stroke="#9BBFC8" stroke-width=".5" fill="none" opacity=".6"/>
   <path d="M0 55 Q25 48 52 54 T100 50" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"/>
   <path d="M38 0 Q40 28 38 55 T42 100" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"/>
-  <!-- River -->
   <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#7BB8C8" stroke-width="2.2" fill="none" opacity=".45"/>
   <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#A8D4DC" stroke-width="1.2" fill="none" opacity=".6"/>
 </svg>`;
 
-// Pins
-venues.forEach((v, i) => {
-  const pin = document.createElement('div');
-  pin.className = 'map-pin';
-  pin.dataset.vid = v.s;
-  pin.style.left = v.px + '%';
-  pin.style.top = v.py + '%';
-  pin.innerHTML = `
-    <div class="pin-label">${v.n} · ${v.p} ₽</div>
-    <div class="pin-body">${ic.mapPin}${v.p}</div>
-  `;
-  pin.addEventListener('click', () => openVenue(v.s));
-  canvas.appendChild(pin);
-});
+function renderMap(list) {
+  const pins = list.map(x => {
+    const v = x.venue;
+    return `<button class="map-pin${HOVER === v.id ? ' hi' : ''}" data-vid="${v.id}"
+      style="left:${v.px}%;top:${v.py}%"
+      onmouseenter="setHover(${v.id})" onmouseleave="setHover(null)"
+      onclick="focusCard(${v.id})"
+      title="${esc(v.name)}">
+      <span class="pin-body">${x.halls.length} ${ML.plural(x.halls.length, ['зал', 'зала', 'залов'])}</span>
+    </button>`;
+  }).join('');
 
-/* ══════ INTERACTIONS ══════ */
+  // Пустой контейнер всплывашки. Наполняем его в setHover, а не перерисовкой
+  // всей карты: иначе пин под курсором уничтожается и подсветка мерцает.
+  document.getElementById('mapScale').innerHTML = MAP_SVG + pins + '<div class="pin-pop" id="pinPop" hidden></div>';
+  document.getElementById('mapCount').textContent = list.length;
+  paintHover();
+}
+
+/* Подсветка: наведение на блок объекта ↔ пин на карте. Без перерисовки DOM. */
+function setHover(id) {
+  if (HOVER === id) return;
+  HOVER = id;
+  paintHover();
+}
+
+function paintHover() {
+  document.querySelectorAll('.map-pin').forEach(p => p.classList.toggle('hi', +p.dataset.vid === HOVER));
+  document.querySelectorAll('.vb').forEach(b => b.classList.toggle('hi', +b.dataset.vid === HOVER));
+
+  const pop = document.getElementById('pinPop');
+  if (!pop) return;
+  const hovered = currentList.find(x => x.venue.id === HOVER);
+  if (!hovered) { pop.hidden = true; return; }
+  const v = hovered.venue;
+  pop.style.left = v.px + '%';
+  pop.style.top = v.py + '%';
+  pop.innerHTML = `<div class="pin-pop-img"><img src="${ML.photoUrl(v.photo)}" alt="" loading="lazy"></div>
+    <div class="pin-pop-t">${esc(v.name)}</div>
+    <div class="pin-pop-s">${esc(v.city)} · ${hovered.halls.length} ${ML.plural(hovered.halls.length, ['зал', 'зала', 'залов'])}</div>`;
+  pop.hidden = false;
+}
+
+/* Клик по пину — подсветить и подскроллить к блоку объекта. */
+function focusCard(vid) {
+  const card = document.querySelector(`.vb[data-vid="${vid}"]`);
+  if (!card) return;
+  document.querySelectorAll('.vb').forEach(b => b.classList.remove('hi'));
+  card.classList.add('hi');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => { if (HOVER !== vid) card.classList.remove('hi'); }, 2200);
+}
+
+function zoom(dir) {
+  ZOOM = Math.min(2.5, Math.max(1, +(ZOOM + dir * 0.25).toFixed(2)));
+  document.getElementById('mapScale').style.transform = `scale(${ZOOM})`;
+  document.getElementById('zoomIn').disabled = ZOOM >= 2.5;
+  document.getElementById('zoomOut').disabled = ZOOM <= 1;
+}
+
+/* ══════════════════════════════════════════════
+   ДЕЙСТВИЯ
+   ══════════════════════════════════════════════ */
+function toggleCmp(hallId) {
+  const r = ML.toggleCompare(hallId);       // лимит тарифа проверяет сам ML
+  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  render();
+}
+function toggleFavHall(hallId) {
+  const added = ML.toggleFav(hallId);
+  MH.toast(added ? 'Зал добавлен в избранное' : 'Зал удалён из избранного', added ? 'success' : 'info');
+  render();
+}
+function addBlack(venueId) {
+  ML.addToBlacklist(venueId);
+  MH.toast('Объект скрыт из выдачи', 'info');
+  render();
+}
+function clearCompare() { ML.clearCompare(); render(); }
+function openCompare() {
+  // compare.html читает список из состояния модели, параметры в URL не нужны
+  if (!ML.state.compare.size) { MH.toast('Сначала добавьте залы в сравнение', 'error'); return; }
+  MH.go('compare.html');
+}
+function resetAll() {
+  F = ML.resetFilters();
+  [...ML.state.blacklist].forEach(id => ML.removeFromBlacklist(id));
+  syncBar();
+  renderFilters();
+  render();
+}
 function toggleFilter() {
   const d = document.getElementById('filterDrawer');
   const t = document.getElementById('filterToggle');
-  d.classList.toggle('open');
-  t.classList.toggle('open');
+  const b = document.getElementById('fdBackdrop');
+  const open = d.classList.toggle('open');
+  t.classList.toggle('open', open);
+  b.classList.toggle('open', open);
 }
 
-let mapExpanded = false;
-function toggleMapExpand() {
-  mapExpanded = !mapExpanded;
-  document.getElementById('mapPanel').classList.toggle('expanded', mapExpanded);
-  document.getElementById('listPanel').style.display = mapExpanded ? 'none' : '';
-  document.getElementById('expandLabel').textContent = mapExpanded ? 'Список' : 'Развернуть';
-}
+/* ══════════════════════════════════════════════
+   РЕНДЕР
+   ══════════════════════════════════════════════ */
+let currentList = [];
 
-// Chip toggle
-document.querySelectorAll('.chip').forEach(c => {
-  c.addEventListener('click', () => c.classList.toggle('active'));
-});
+function render() {
+  ML.saveFilters(F);                     // любое изменение проходит через render()
+  const list = sortList(ML.filterVenues(F));
+  currentList = list;
 
-// Favorites
-function toggleFavCard(id, btn) {
-  const added = MH.toggleFav(id);
-  btn.classList.toggle('fav-on', added);
-  btn.innerHTML = added ? ic.heartOn : ic.heart;
-}
+  const halls = list.reduce((a, x) => a + x.halls.length, 0);
+  document.getElementById('resCount').innerHTML = list.length
+    ? `Найдено <b>${halls}</b> ${ML.plural(halls, ['зал', 'зала', 'залов'])} в <b>${list.length}</b> ${ML.plural(list.length, ['объекте', 'объектах', 'объектах'])}`
+    : 'Ничего не найдено';
 
-// Compare set
-function toggleCmp(id, btn) {
-  if (cmpSet.has(id)) { cmpSet.delete(id); btn.classList.remove('cmp-on'); }
-  else if (cmpSet.size < 4) { cmpSet.add(id); btn.classList.add('cmp-on'); }
+  document.getElementById('vList').innerHTML = list.length
+    ? list.map(venueBlock).join('')
+    : `<div class="res-empty">
+         <h3>Под эти условия залов нет</h3>
+         <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>
+         <button onclick="resetAll()">Сбросить фильтры</button>
+       </div>`;
+
+  renderChips();
+  renderMap(list);
+  applyFacets();
+
+  // панель сравнения
+  const n = ML.state.compare.size;
   const bar = document.getElementById('cmpBar');
-  bar.style.display = cmpSet.size > 0 ? 'flex' : 'none';
-  document.getElementById('cmpBarCount').textContent = cmpSet.size;
-}
-function openCompare() { window.location.href = 'compare?ids=' + [...cmpSet].join(','); }
-
-// Pin ↔ card interaction
-function focusCard(vid) {
-  document.querySelectorAll('.v-card').forEach(c => c.classList.remove('pin-highlight'));
-  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
-  const card = document.querySelector(`.v-card[data-vid="${vid}"]`);
-  const pin = document.querySelector(`.map-pin[data-vid="${vid}"]`);
-  if (card) { card.classList.add('pin-highlight'); card.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-  if (pin) pin.classList.add('pin-active');
-  setTimeout(() => {
-    if (card) card.classList.remove('pin-highlight');
-    if (pin) pin.classList.remove('pin-active');
-  }, 2000);
-}
-function highlightPin(vid) {
-  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
-  const pin = document.querySelector(`.map-pin[data-vid="${vid}"]`);
-  if (pin) pin.classList.add('pin-active');
-}
-function clearPinHighlight() {
-  document.querySelectorAll('.map-pin').forEach(p => p.classList.remove('pin-active'));
+  bar.classList.toggle('show', n > 0);
+  document.getElementById('cmpCount').textContent = n;
+  document.getElementById('cmpWord').textContent = ML.plural(n, ['зал', 'зала', 'залов']);
+  document.getElementById('resClear').hidden = n === 0;
 }
 
-// Read URL params and update bar fields
-(function() {
+/* Значения в верхней панели — из справочников ML. */
+function syncBar() {
+  const city = document.getElementById('cbCity');
+  city.innerHTML = '<option value="">Любой</option>' +
+    ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
+  const ev = document.getElementById('cbEvent');
+  ev.innerHTML = ML.EVENT_TYPES.map(e =>
+    `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
+  document.getElementById('cbPeople').value = F.people || '';
+  document.getElementById('cbTariff').textContent = ML.tariff().name;
+  document.getElementById('resSort').value = SORT;
+}
+
+/* Параметры из URL: ?city= и ?people= приходят с главной. */
+(function init() {
   const p = new URLSearchParams(location.search);
-  if (p.get('city')) {
-    const el = document.querySelector('.bar-field.active');
-    if (el) el.innerHTML = el.innerHTML.replace('Москва', p.get('city'));
-  }
-  if (p.get('type')) {
-    const chips = document.querySelectorAll('.chip');
-    chips.forEach(c => c.classList.remove('active'));
-    chips[0] && (chips[0].textContent = p.get('type')) && chips[0].classList.add('active');
-  }
+  const city = p.get('city');
+  if (city && ML.CITIES.includes(city)) F.city = city;
+  const people = parseInt(p.get('people') || p.get('guests'), 10);
+  if (people > 0) F.people = people;
+  const ev = p.get('type');
+  if (ev && ML.EVENT_TYPES.some(e => e.k === ev)) F.eventType = ev;
+
+  syncBar();
+  renderFilters();
+  render();
 })();
 </script>
 </body>

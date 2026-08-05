@@ -210,7 +210,7 @@ button{font-family:inherit;cursor:pointer;}
     <h1 class="hero-h1">Привлекайте <em>клиентов</em> на&nbsp;вашу площадку</h1>
     <p class="hero-sub">Получайте заявки на мероприятия напрямую от организаторов. Бесплатная регистрация, простое управление, реальные клиенты.</p>
     <div class="hero-actions">
-      <button class="btn-hero primary" onclick="location.href='auth?mode=venue'">Добавить площадку</button>
+      <button class="btn-hero primary" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
       <button class="btn-hero secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Как это работает</button>
     </div>
     <div class="hero-trust">
@@ -353,7 +353,7 @@ button{font-family:inherit;cursor:pointer;}
   <div class="cta-inner reveal">
     <h2 class="cta-title">Начните получать заявки уже сегодня</h2>
     <p class="cta-desc">Бесплатная регистрация. Быстрая модерация. Реальные клиенты.</p>
-    <button class="cta-btn" onclick="location.href='auth?mode=venue'">Добавить площадку</button>
+    <button class="cta-btn" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
     <div class="cta-note">Регистрация занимает 10 минут · Без комиссий</div>
   </div>
 </section>
@@ -374,13 +374,14 @@ const venues=[
   {n:'Галерея «Арт-холл»',l:'Москва, Винзавод',p:'50 000 ₽',c:120,b:'Галерея',h:280,s:6},
 ];
 const vEl=document.getElementById('venueExamples');
-venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue?id=${v.s}')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> до ${v.c} чел.</div></div></div></div>`;});
+venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue.html?id=${v.s}')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> до ${v.c} чел.</div></div></div></div>`;});
 
 /* Reveal */
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
 </script>
+<script src="data.js"></script>
 <script src="shared.js"></script>
 <script>MH.init('venues');</script>
 </body>

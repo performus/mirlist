@@ -3,284 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Печатная версия сравнения залов: характеристики, рассадка и карточки объектов.">
+<meta name="robots" content="noindex">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Сравнение площадок — Презентация</title>
+<title>Сравнение залов — печатная версия</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--sd:#354E63;--sm:#3E596F;--sx:#7A919F;--sp:#B4C3CC;--bg:#F8F5F2;--w:#FFF;--gold:#F0B95A;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:#1a1a1a;color:var(--sd);overflow:hidden;height:100vh;}
-.deck{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
-.slide{position:absolute;width:min(95vw,960px);aspect-ratio:16/10;background:var(--w);border-radius:16px;box-shadow:0 20px 80px rgba(0,0,0,.3);overflow:hidden;opacity:0;transform:scale(.95);transition:all .5s cubic-bezier(.22,1,.36,1);pointer-events:none;display:flex;flex-direction:column;}
-.slide.active{opacity:1;transform:scale(1);pointer-events:auto;}
-.slide-inner{flex:1;padding:40px 48px;position:relative;overflow:hidden;}
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Aqua Coral Slate
+   ══════════════════════════════════════════════ */
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3;
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
 
-/* Nav */
-.slide-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);padding:10px 20px;border-radius:50px;z-index:100;}
-.slide-nav button{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:16px;}
-.slide-nav button:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);}
-.slide-nav button:disabled{opacity:.3;pointer-events:none;}
-.slide-counter{color:rgba(255,255,255,.6);font-size:13px;font-weight:600;min-width:60px;text-align:center;}
-.slide-dots{display:flex;gap:4px;}
-.slide-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s;cursor:pointer;}
-.slide-dot.active{background:var(--c);width:24px;border-radius:4px;}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 28px 64px;}
 
-/* Slide components */
-.s-accent{position:absolute;top:0;left:0;right:0;height:4px;}
-.s-logo{position:absolute;top:16px;left:24px;}
-.s-page{position:absolute;top:16px;right:24px;font-size:11px;color:var(--sp);font-weight:500;}
-.s-footer{height:28px;background:var(--bg);display:flex;align-items:center;padding:0 24px;font-size:9px;color:var(--sp);justify-content:space-between;flex-shrink:0;}
+/* ── панель действий (не печатается) ── */
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px;}
+.btn{display:inline-block;padding:11px 22px;border-radius:var(--r-full);font-size:13.5px;font-weight:600;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;white-space:nowrap;}
+.btn:hover{border-color:var(--coral);color:var(--coral);}
+.btn.pri{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:var(--sh-coral);}
+.btn.pri:hover{background:var(--coral-hover);border-color:var(--coral-hover);color:#fff;}
 
-/* Typography */
-.s-badge{display:inline-block;padding:4px 14px;border-radius:50px;font-size:11px;font-weight:600;color:#fff;margin-bottom:12px;}
-.s-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:8px;line-height:1.2;}
-.s-subtitle{font-size:14px;color:var(--sx);margin-bottom:24px;line-height:1.5;}
-.s-section{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.s-section::before{content:'';width:4px;height:20px;border-radius:2px;background:var(--c);}
+/* ── титульный блок ── */
+.doc-head{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:28px 30px;margin-bottom:20px;}
+.doc-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.doc-title{font-family:'DM Serif Display',serif;font-size:30px;font-weight:400;color:var(--slate-deep);
+  line-height:1.15;margin-top:8px;letter-spacing:-.3px;}
+.doc-meta{font-size:13px;color:var(--slate-muted);margin-top:10px;}
+.doc-params{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.doc-param{font-size:12px;font-weight:500;background:var(--aqua-pale);color:var(--slate-mid);
+  border-radius:var(--r-sm);padding:5px 11px;}
+.doc-params .none{font-size:12px;color:var(--slate-pale);}
 
-/* Cards grid */
-.s-grid{display:grid;gap:12px;}
-.s-grid-2{grid-template-columns:1fr 1fr;}
-.s-grid-3{grid-template-columns:1fr 1fr 1fr;}
-.s-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
-.s-grid-6{grid-template-columns:repeat(6,1fr);}
-.s-card{background:var(--bg);border-radius:12px;padding:16px;text-align:center;}
-.s-card.featured{background:var(--cs);border:1.5px solid var(--c);}
-.s-card-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sx);margin-bottom:6px;}
-.s-card-val{font-size:22px;font-weight:700;color:var(--sd);}
-.s-card-val.coral{color:var(--c);}
-.s-card-note{font-size:10px;color:var(--sp);margin-top:4px;line-height:1.4;}
+/* ── рекламный блок (только на БИЗНЕС) ── */
+.ads{background:var(--coral-soft);border-radius:var(--r-md);padding:16px 20px;margin-bottom:20px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.ads-t{font-family:'DM Serif Display',serif;font-size:17px;color:var(--slate-deep);}
+.ads-s{font-size:12.5px;line-height:1.6;color:var(--slate-mid);flex:1;min-width:220px;}
 
-/* Amenity chips */
-.s-chips{display:flex;flex-wrap:wrap;gap:6px;}
-.s-chip{padding:6px 14px;border-radius:50px;font-size:11px;font-weight:500;background:var(--bg);color:var(--sx);}
-.s-chip.on{background:var(--cs);color:var(--c);font-weight:600;}
+/* ── карточка зала ── */
+.hall{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);overflow:hidden;margin-bottom:18px;page-break-inside:avoid;break-inside:avoid;}
+.hall-top{display:grid;grid-template-columns:280px minmax(0,1fr);gap:0;}
+.hall-img{background:var(--aqua-pale);min-height:200px;}
+.hall-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.hall-main{padding:22px 24px;}
+.hall-n{font-size:11.5px;font-weight:700;color:var(--coral);letter-spacing:.04em;}
+.hall-name{font-family:'DM Serif Display',serif;font-size:23px;font-weight:400;color:var(--slate-deep);
+  line-height:1.2;margin-top:6px;}
+.hall-sub{font-size:13px;color:var(--slate-muted);margin-top:6px;}
+.hall-price{font-size:20px;font-weight:800;color:var(--slate-deep);margin-top:12px;}
+.hall-price i{font-style:normal;font-size:13px;font-weight:500;color:var(--slate-muted);}
+.hall-price span{font-size:13px;font-weight:500;color:var(--slate-muted);margin-left:8px;}
 
-/* Stars */
-.s-stars{color:var(--gold);font-size:14px;letter-spacing:2px;}
+/* характеристики и рассадка */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(197,227,225,.28);}
+.block{padding:18px 24px;}
+.block + .block{border-left:1px solid rgba(197,227,225,.28);}
+.block h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--slate-muted);margin-bottom:11px;}
+.kv{width:100%;border-collapse:collapse;font-size:13px;}
+.kv th,.kv td{text-align:left;padding:6px 0;vertical-align:top;}
+.kv th{font-weight:500;color:var(--slate-muted);width:52%;}
+.kv td{font-weight:600;color:var(--slate-deep);}
+.kv td.dim{color:var(--slate-pale);font-weight:500;}
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;}
+.seat{background:var(--aqua-pale);border-radius:var(--r-sm);padding:9px 8px;text-align:center;}
+.seat-n{font-family:'DM Serif Display',serif;font-size:19px;color:var(--slate-deep);line-height:1;}
+.seat-l{font-size:10.5px;color:var(--slate-muted);margin-top:4px;}
+.seat.off{background:var(--bg);opacity:.55;}
+.seat.off .seat-n{color:var(--slate-pale);}
 
-/* Table */
-.s-table{width:100%;border-collapse:collapse;font-size:12px;}
-.s-table th{background:var(--sd);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:11px;}
-.s-table td{padding:9px 14px;border-bottom:1px solid rgba(197,227,225,.15);color:var(--sm);}
-.s-table tr:nth-child(even){background:var(--bg);}
-.s-table .hl{font-weight:700;color:var(--c);}
+/* карточка объекта под залом */
+.venue{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:16px 24px;background:var(--bg);border-top:1px solid rgba(197,227,225,.28);}
+.venue-img{width:76px;height:56px;border-radius:var(--r-sm);overflow:hidden;flex:none;background:var(--aqua-pale);}
+.venue-img img{width:100%;height:100%;object-fit:cover;}
+.venue-mid{flex:1;min-width:200px;}
+.venue-name{font-size:14.5px;font-weight:700;color:var(--slate-deep);}
+.venue-sub{font-size:12.5px;color:var(--slate-muted);margin-top:3px;}
+.venue-stars{color:#F0B95A;letter-spacing:1px;}
 
-/* Bar chart */
-.s-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.s-bar-label{width:80px;font-size:11px;color:var(--sx);text-align:right;flex-shrink:0;}
-.s-bar{height:22px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:600;color:#fff;min-width:24px;}
+.empty{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:56px 28px;text-align:center;max-width:520px;margin:0 auto;}
+.empty h2{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:var(--slate-deep);margin-bottom:10px;}
+.empty p{font-size:13.5px;line-height:1.65;color:var(--slate-muted);margin-bottom:20px;}
 
-/* Split layout */
-.s-split{display:flex;gap:32px;height:100%;}
-.s-split-left{flex:0 0 42%;display:flex;align-items:center;justify-content:center;border-radius:12px;position:relative;overflow:hidden;}
-.s-split-right{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.foot-note{font-size:12px;line-height:1.65;color:var(--slate-muted);margin-top:20px;
+  padding-top:16px;border-top:1px solid rgba(197,227,225,.4);}
 
-/* Contact card */
-.s-contact{display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg);border-radius:12px;}
-.s-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
-
-/* CTA block */
-.s-cta{padding:20px;border-radius:12px;text-align:center;}
-.s-cta-title{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;margin-bottom:6px;}
-.s-cta-sub{font-size:12px;color:rgba(255,255,255,.7);}
-
-/* Print */
+/* ══════════════════════════════════════════════
+   ПЕЧАТЬ: без шапки сайта, подвала и кнопок
+   ══════════════════════════════════════════════ */
 @media print{
-  body{background:#fff;overflow:visible;height:auto;}
-  .slide-nav{display:none;}
-  .slide{position:relative;opacity:1;transform:none;pointer-events:auto;page-break-after:always;margin:0;border-radius:0;box-shadow:none;width:100%;height:auto;aspect-ratio:16/10;}
-  .deck{display:block;height:auto;}
+  @page{margin:14mm;}
+  body{background:#fff;}
+  #mh-nav,#mh-footer,.mh-header,.mh-footer,.bar,button,#mh-toasts{display:none!important;}
+  body.has-mh-nav{padding-top:0!important;}
+  .wrap{max-width:none;padding:0;}
+  .doc-head,.hall,.ads{box-shadow:none;border-color:#d8e3e2;}
+  .hall{margin-bottom:12px;}
+  .hall-img{min-height:0;}
+  a{color:inherit;text-decoration:none;}
+}
+
+@media(max-width:860px){
+  .hall-top{grid-template-columns:1fr;}
+  .hall-img{min-height:180px;}
+  .grid2{grid-template-columns:1fr;}
+  .block + .block{border-left:none;border-top:1px solid rgba(197,227,225,.28);}
+  .wrap{padding:18px 16px 48px;}
 }
 </style>
 </head>
 <body>
 
-<div class="deck" id="deck"></div>
+<div id="mh-nav"></div>
 
-<div class="slide-nav">
-  <button onclick="go(-1)" id="prevBtn">‹</button>
-  <div class="slide-dots" id="dots"></div>
-  <span class="slide-counter" id="counter">1/15</span>
-  <button onclick="go(1)" id="nextBtn">›</button>
-  <button onclick="window.print()" title="Скачать PDF" style="width:auto;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.03em;border-radius:50px;">PDF</button>
-</div>
+<div class="wrap" id="root"></div>
 
+<div id="mh-footer"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
 <script>
-const V=[
-  {id:1,name:'Конференц-зал «Панорама»',type:'Конференц-зал',loc:'Москва, Пресня',addr:'Пресненская наб., 12',metro:'м. Выставочная, 7 мин',ph:'12 000',pd:'45 000',dep:'20 000',pkg:'85 000',r:4.9,rv:127,cap:250,area:380,halls:3,
-   fmt:{Театр:250,Банкет:120,Фуршет:200,Класс:80,Кабаре:100,Переговорная:20},
-   am:['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Техподдержка'],
-   cat:'Свой + внешний',hrs:'8:00–23:00',cancel:'7 дн.—100%, 3 дн.—50%',
-   desc:'Современный зал на 18-м этаже с панорамным видом на Москву-реку. Профессиональное оборудование, мобильные перегородки, 3 независимые зоны.',
-   color:'#EB7454',bg:'#FCEAE4'},
-  {id:2,name:'Лофт «Кирпич»',type:'Лофт',loc:'Москва, Курская',addr:'ул. Земляной Вал, 28',metro:'м. Курская, 5 мин',ph:'8 000',pd:'28 000',dep:'15 000',pkg:'50 000',r:4.6,rv:112,cap:100,area:280,halls:1,
-   fmt:{Театр:100,Банкет:60,Фуршет:80,Класс:40,Кабаре:50,Переговорная:15},
-   am:['Wi-Fi','Проектор','Звук','Кондиционер','Мебель','Парковка'],
-   cat:'Внешний',hrs:'10:00–22:00',cancel:'5 дн.—100%, 2 дн.—50%',
-   desc:'Кирпичные стены, высокие потолки, индустриальная эстетика. Идеален для корпоративов, фотосъёмок и неформальных мероприятий.',
-   color:'#79B9C3',bg:'#D9ECEB'},
-  {id:3,name:'Усадьба «Белые ночи»',type:'Банкетный зал',loc:'Москва, Рублёвка',addr:'Рублёво-Успенское ш., 5',metro:'Загородная площадка',ph:'—',pd:'95 000',dep:'50 000',pkg:'180 000',r:4.9,rv:203,cap:150,area:450,halls:2,
-   fmt:{Театр:150,Банкет:120,Фуршет:180,Класс:0,Кабаре:80,Переговорная:0},
-   am:['Wi-Fi','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель'],
-   cat:'Свой',hrs:'9:00–01:00',cancel:'14 дн.—100%, 7 дн.—50%',
-   desc:'Элегантная усадьба с ландшафтным парком, два зала, летняя терраса, фонтан. Полный сервис для свадеб и торжеств.',
-   color:'#C4956A',bg:'#F0E4D8'},
-];
-(function(){const p=new URLSearchParams(location.search).get('ids');if(p){const s=new Set(p.split(',').map(Number));const f=V.filter(v=>s.has(v.id));if(f.length)V.length=0,f.forEach(v=>V.push(v));}})();
-const ALL_AM=['Wi-Fi','Проектор','Звук','Свет','Сцена','Кондиционер','Гардероб','Парковка','Кейтеринг','Бар','Мебель','Техподдержка'];
-const FMT_E={Театр:'🎭',Банкет:'🍽',Фуршет:'🥂',Класс:'📚',Кабаре:'🎤',Переговорная:'💼'};
-const AM_E={'Wi-Fi':'📶',Проектор:'📽',Звук:'🔊',Свет:'💡',Сцена:'🎤',Кондиционер:'❄️',Гардероб:'🧥',Парковка:'🅿️',Кейтеринг:'🍽',Бар:'🍸',Мебель:'🪑',Техподдержка:'🔧'};
+MH.init();
 
-function stars(r){return '★'.repeat(Math.floor(r))+'☆'.repeat(5-Math.floor(r));}
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-let slides=[];
+function render(){
+  const halls = ML.compareHalls();
+  const t = ML.tariff();
+  const root = document.getElementById('root');
 
-// COVER
-slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
-  <div style="position:absolute;top:0;left:0;right:0;height:50%;background:var(--cs)"></div>
-  <div style="position:relative;z-index:1">
-    <div class="s-logo" style="position:static;margin-bottom:24px"><img src="../assets/logo.svg" alt="МирХАБ" height="22" style="display:block"></div>
-    <div class="s-title" style="font-size:36px;margin-bottom:12px">Сравнение площадок</div>
-    <div class="s-subtitle" style="font-size:16px;margin-bottom:32px">Персональная подборка для вашего мероприятия · Май 2026</div>
-    <div style="display:flex;gap:12px;margin-bottom:40px">${V.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 18px;background:var(--w);border-radius:50px;box-shadow:0 2px 12px rgba(0,0,0,.06)"><div style="width:10px;height:10px;border-radius:50%;background:${v.color}"></div><span style="font-size:13px;font-weight:600;color:var(--sd)">${v.name}</span></div>`).join('')}</div>
-    <div class="s-grid s-grid-4" style="max-width:700px">
-      <div class="s-card"><div class="s-card-label">Площадки</div><div class="s-card-val coral">${V.length}</div></div>
-      <div class="s-card"><div class="s-card-label">Город</div><div class="s-card-val">Москва</div></div>
-      <div class="s-card"><div class="s-card-label">Макс. вместимость</div><div class="s-card-val">250</div></div>
-      <div class="s-card"><div class="s-card-label">Мин. цена</div><div class="s-card-val">28 000 ₽</div></div>
-    </div>
-  </div>
-</div>`);
+  if (!halls.length){
+    root.innerHTML = `<div class="empty">
+      <h2>Нечего показывать</h2>
+      <p>В сравнении пока нет залов. Отметьте нужные значком сравнения на подборе —
+      здесь соберётся версия под печать.</p>
+      <a class="btn pri" href="search.html">Перейти к подбору</a>
+    </div>`;
+    return;
+  }
 
-// VENUE SLIDES (4 each)
-V.forEach((v,vi)=>{
-  // Slide 1: Overview
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
-    <div class="s-split" style="margin-top:24px">
-      <div class="s-split-left" style="background:${v.bg}">
-        <div style="text-align:center"><div style="font-size:64px;opacity:.3;margin-bottom:8px">🏢</div><div style="font-size:12px;color:${v.color};font-weight:600">Фото площадки</div></div>
+  const params = ML.filtersSummary(ML.loadFilters());
+  const venues = [...new Set(halls.map(h => h.venueId))];
+
+  // Рекламный блок — только когда тариф отдаёт 'ads'; на 'clean' его нет.
+  const ads = t.presentation === 'ads' ? `<div class="ads">
+      <div>
+        <div class="ads-t">МирХАБ</div>
+        <div class="ads-s">Подбор площадок и залов для деловых мероприятий</div>
       </div>
-      <div class="s-split-right">
-        <div class="s-badge" style="background:${v.color}">${v.type}</div>
-        <div class="s-title">${v.name}</div>
-        <div style="font-size:13px;color:var(--sx);margin-bottom:6px">📍 ${v.loc} · ${v.addr}</div>
-        <div style="font-size:13px;color:var(--sx);margin-bottom:16px">🚇 ${v.metro}</div>
-        <div style="margin-bottom:16px"><span class="s-stars">${stars(v.r)}</span> <b style="color:var(--sd);font-size:15px">${v.r}</b> <span style="font-size:12px;color:var(--sx)">(${v.rv} отзывов)</span></div>
-        <div style="font-size:13px;color:var(--sm);line-height:1.65;margin-bottom:20px">${v.desc}</div>
-        <div class="s-grid s-grid-4" style="gap:8px">
-          <div class="s-card" style="padding:12px"><div class="s-card-label">Вместимость</div><div class="s-card-val" style="font-size:18px;color:${v.color}">${v.cap} чел.</div></div>
-          <div class="s-card" style="padding:12px"><div class="s-card-label">Площадь</div><div class="s-card-val" style="font-size:18px">${v.area} м²</div></div>
-          <div class="s-card" style="padding:12px"><div class="s-card-label">Залов</div><div class="s-card-val" style="font-size:18px">${v.halls}</div></div>
-          <div class="s-card" style="padding:12px"><div class="s-card-label">Цена/день</div><div class="s-card-val" style="font-size:18px;color:${v.color}">${v.pd} ₽</div></div>
+      <div class="ads-s">Файл собран на тарифе «${esc(t.name)}». На «ПРЕМИУМ» презентация
+      выгружается без этого блока — только ваши залы и данные.</div>
+    </div>` : '';
+
+  const cards = halls.map((h, i) => {
+    const v = ML.hallVenue(h);
+    const seats = ML.SEATING.map(s => {
+      const n = h.seats[s.k];
+      return `<div class="seat${n ? '' : ' off'}">
+        <div class="seat-n">${n || '—'}</div><div class="seat-l">${esc(s.l)}</div></div>`;
+    }).join('');
+
+    return `<section class="hall">
+      <div class="hall-top">
+        <div class="hall-img"><img src="${ML.photoUrl(h.photo)}" alt="${esc(h.name)}"></div>
+        <div class="hall-main">
+          <div class="hall-n">Зал ${i + 1} из ${halls.length}</div>
+          <div class="hall-name">${esc(h.name)}</div>
+          <div class="hall-sub">${esc(h.type)} · ${esc(v.name)} · ${esc(v.city)}</div>
+          <div class="hall-price">
+            ${h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>'}
+            <span>${h.priceHour ? ML.money(h.priceHour) + ' в час' : 'почасовой аренды нет'}</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>`);
 
-  // Slide 2: Pricing
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
-    <div style="margin-top:24px"><div class="s-section">Цены и условия</div>
-    <div class="s-grid s-grid-4" style="margin-bottom:28px">
-      <div class="s-card"><div class="s-card-label">За час</div><div class="s-card-val" style="font-size:20px">${v.ph} ₽</div><div class="s-card-note">Мин. 3 часа</div></div>
-      <div class="s-card featured"><div class="s-card-label">За день</div><div class="s-card-val coral" style="font-size:20px">${v.pd} ₽</div><div class="s-card-note">8 часов</div></div>
-      <div class="s-card"><div class="s-card-label">Депозит</div><div class="s-card-val" style="font-size:20px">${v.dep} ₽</div><div class="s-card-note">Возвращается</div></div>
-      <div class="s-card"><div class="s-card-label">Под ключ</div><div class="s-card-val" style="font-size:20px">${v.pkg} ₽</div><div class="s-card-note">Зал+кейтеринг</div></div>
-    </div>
-    <div class="s-grid s-grid-2" style="gap:20px">
-      <div><div class="s-section" style="font-size:16px">Включено</div><div class="s-chips">${['Аренда зала','Wi-Fi','Мебель','Уборка','Гардероб','Координатор'].map(x=>`<div class="s-chip on">✓ ${x}</div>`).join('')}</div></div>
-      <div><div class="s-section" style="font-size:16px">Условия</div><div style="font-size:13px;color:var(--sm);line-height:1.8">Часы работы: ${v.hrs}<br>Отмена: ${v.cancel}<br>Кейтеринг: ${v.cat}</div></div>
-    </div>
-    </div>
-  </div>`);
-
-  // Slide 3: Capacity
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
-    <div style="margin-top:24px"><div class="s-section">Вместимость и форматы</div>
-    <div class="s-grid s-grid-6" style="margin-bottom:28px">${Object.entries(v.fmt).map(([f,c])=>`<div class="s-card" style="padding:14px;${c===0?'opacity:.35':''}"><div style="font-size:20px;margin-bottom:6px">${FMT_E[f]||''}</div><div style="font-size:11px;color:var(--sx);margin-bottom:4px">${f}</div><div style="font-size:20px;font-weight:700;color:${c>0?v.color:'var(--sp)'}">${c||'—'}</div>${c>0?'<div style="font-size:10px;color:var(--sp)">чел.</div>':''}</div>`).join('')}</div>
-    <div style="max-width:600px">${Object.entries(v.fmt).filter(([,c])=>c>0).map(([f,c])=>`<div class="s-bar-row"><div class="s-bar-label">${f}</div><div class="s-bar" style="width:${c/v.cap*100}%;background:${v.color}">${c}</div></div>`).join('')}</div>
-    </div>
-  </div>`);
-
-  // Slide 4: Amenities
-  slides.push(`<div class="slide-inner"><div class="s-accent" style="background:${v.color}"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div><div class="s-page">${v.name}</div>
-    <div style="margin-top:24px"><div class="s-section">Услуги и удобства</div>
-    <div class="s-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px">${ALL_AM.map(a=>{const has=v.am.includes(a);return `<div class="s-chip${has?' on':''}" style="padding:10px 14px;border-radius:10px;text-align:center;font-size:12px;${has?'':'opacity:.35'}">${AM_E[a]||''} ${a}</div>`;}).join('')}</div>
-    <div class="s-grid s-grid-3" style="gap:16px">
-      <div><div class="s-section" style="font-size:14px">Кейтеринг</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Тип: ${v.cat}<br>Кофе-брейк: от 800 ₽/чел.<br>Диетическое меню по запросу</div></div>
-      <div><div class="s-section" style="font-size:14px">Доступность</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Лифт для МГН<br>Пандус у входа<br>Адаптированные санузлы</div></div>
-      <div><div class="s-section" style="font-size:14px">Правила</div><div style="font-size:13px;color:var(--sm);line-height:1.7">Часы: ${v.hrs}<br>Отмена: ${v.cancel}<br>Депозит: ${v.dep} ₽</div></div>
-    </div>
-    </div>
-  </div>`);
-});
-
-// COMPARISON TABLE
-slides.push(`<div class="slide-inner"><div class="s-accent" style="background:var(--c)"></div><div class="s-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="16" style="display:block"></div>
-  <div style="margin-top:24px"><div class="s-section">Сравнительная таблица</div>
-  <table class="s-table"><thead><tr><th>Параметр</th>${V.map(v=>`<th style="background:${v.color}">${v.name.length>20?v.name.slice(0,18)+'...':v.name}</th>`).join('')}</tr></thead><tbody>
-  ${[['Тип',V.map(v=>v.type)],['Вместимость',V.map(v=>v.cap+' чел.')],['Площадь',V.map(v=>v.area+' м²')],['Залов',V.map(v=>v.halls)],['Цена/день',V.map(v=>v.pd+' ₽')],['Цена/час',V.map(v=>v.ph+' ₽')],['Рейтинг',V.map(v=>'★ '+v.r)],['Отзывы',V.map(v=>v.rv)],['Кейтеринг',V.map(v=>v.cat)],['Театр',V.map(v=>v.fmt['Театр']||'—')],['Банкет',V.map(v=>v.fmt['Банкет']||'—')],['Фуршет',V.map(v=>v.fmt['Фуршет']||'—')]].map(([l,vals])=>`<tr><td style="font-weight:600">${l}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}
-  </tbody></table></div>
-</div>`);
-
-// SUMMARY
-slides.push(`<div class="slide-inner" style="display:flex;flex-direction:column;justify-content:center">
-  <div style="position:absolute;top:0;left:0;right:0;height:45%;background:var(--cs)"></div>
-  <div style="position:relative;z-index:1">
-    <div class="s-logo" style="position:static;margin-bottom:20px"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></div>
-    <div class="s-title" style="font-size:30px">Свяжитесь с нами</div>
-    <div class="s-subtitle">Мы поможем выбрать идеальную площадку</div>
-    <div class="s-grid s-grid-2" style="gap:20px;max-width:700px">
-      <div class="s-contact">
-        <div class="s-avatar" style="background:var(--c);color:#fff">ЕП</div>
-        <div><div style="font-size:14px;font-weight:600;color:var(--sd)">Елена Петрова</div><div style="font-size:12px;color:var(--sx)">Менеджер подбора</div><div style="font-size:12px;color:var(--sx);margin-top:4px">📧 elena@ploshchadki.ru<br>📱 +7 (999) 123-45-67</div></div>
+      <div class="grid2">
+        <div class="block">
+          <h4>Характеристики</h4>
+          <table class="kv">
+            <tr><th>Тип зала</th><td>${esc(h.type)}</td></tr>
+            <tr><th>Площадь</th><td>${h.area} м²</td></tr>
+            <tr><th>Высота потолка</th><td>${h.height ? h.height + ' м' : '<span class="dim">—</span>'}</td></tr>
+            <tr><th>Максимальная вместимость</th><td>${ML.hallCapacity(h)} чел.</td></tr>
+            <tr><th>Точный план пространства</th><td class="${h.plan ? '' : 'dim'}">${h.plan ? 'есть' : 'нет'}</td></tr>
+            <tr><th>Номерной фонд объекта</th><td class="${(v.rooms.twin || v.rooms.sngl) ? '' : 'dim'}">${
+              (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'}</td></tr>
+          </table>
+        </div>
+        <div class="block">
+          <h4>Вместимость по схемам рассадки</h4>
+          <div class="seats">${seats}</div>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px">${V.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg);border-radius:8px"><div style="width:8px;height:8px;border-radius:50%;background:${v.color};flex-shrink:0"></div><span style="font-size:13px;font-weight:600;color:var(--sd);flex:1">${v.name}</span><span style="font-size:12px;color:var(--sx)">от ${v.pd} ₽</span></div>`).join('')}</div>
-    </div>
-    <div class="s-cta" style="background:var(--c);margin-top:24px;max-width:700px">
-      <div class="s-cta-title">Забронируйте на ploshchadki.ru</div>
-      <div class="s-cta-sub">Бесплатный подбор · Ответ за 2 часа · Без комиссий</div>
-    </div>
+
+      <div class="venue">
+        <div class="venue-img"><img src="${ML.photoUrl(v.photo)}" alt="" loading="lazy"></div>
+        <div class="venue-mid">
+          <div class="venue-name">${esc(v.name)}</div>
+          <div class="venue-sub">${esc(v.cat)} · ${esc(v.city)}${v.addr ? ', ' + esc(v.addr) : ''}
+            ${v.stars ? ` · <span class="venue-stars">${'★'.repeat(v.stars)}</span>` : ''}</div>
+          <div class="venue-sub">Рейтинг ${v.rating} (${v.reviews}) ·
+            ${v.halls.length} ${ML.plural(v.halls.length, ['зал','зала','залов'])} в объекте ·
+            до ${ML.venueCapacity(v)} чел.</div>
+        </div>
+      </div>
+    </section>`;
+  }).join('');
+
+  root.innerHTML = `
+  <div class="bar">
+    <button class="btn pri" onclick="window.print()">Печать или PDF</button>
+    <a class="btn" href="compare.html">Вернуться в сравнение</a>
+    <a class="btn" href="search.html">К подбору</a>
   </div>
-</div>`);
 
-// RENDER
-const deck=document.getElementById('deck');
-slides.forEach((html,i)=>{
-  const el=document.createElement('div');
-  el.className='slide'+(i===0?' active':'');
-  el.innerHTML=html+`<div class="s-footer"><span>МирХАБ — mirhub.ru</span><span>${i+1} / ${slides.length}</span></div>`;
-  deck.appendChild(el);
-});
+  <div class="doc-head">
+    <span class="doc-eyebrow">Подборка залов</span>
+    <div class="doc-title">Сравнение залов</div>
+    <div class="doc-meta">${halls.length} ${ML.plural(halls.length, ['зал','зала','залов'])}
+      из ${venues.length} ${ML.plural(venues.length, ['объекта','объектов','объектов'])} ·
+      подготовлено ${new Date().toLocaleDateString('ru')}</div>
+    <div class="doc-params">${params.length
+      ? params.map(p => `<span class="doc-param">${esc(p)}</span>`).join('')
+      : '<span class="none">параметры подбора не задавались</span>'}</div>
+  </div>
 
-// Dots
-const dots=document.getElementById('dots');
-slides.forEach((_,i)=>{
-  const d=document.createElement('div');
-  d.className='slide-dot'+(i===0?' active':'');
-  d.onclick=()=>goTo(i);
-  dots.appendChild(d);
-});
+  ${ads}
+  ${cards}
 
-let cur=0;
-function goTo(n){
-  if(n<0||n>=slides.length)return;
-  document.querySelectorAll('.slide').forEach((s,i)=>s.classList.toggle('active',i===n));
-  document.querySelectorAll('.slide-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
-  cur=n;
-  document.getElementById('counter').textContent=`${n+1}/${slides.length}`;
-  document.getElementById('prevBtn').disabled=n===0;
-  document.getElementById('nextBtn').disabled=n===slides.length-1;
+  <div class="foot-note">Стоимость указана по данным объектов на дату подготовки файла и не является офертой.
+  Залы с ценой «по договорённости» обсуждаются напрямую с отделом продаж объекта.</div>`;
 }
-function go(d){goTo(cur+d);}
 
-// Keyboard nav
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key===' ')go(1);
-  if(e.key==='ArrowLeft')go(-1);
-});
+render();
 </script>
 </body>
 </html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" id="metaDesc" content="Карточка зала: вместимость по схемам рассадки, площадь, высота потолка и стоимость аренды.">
+<meta property="og:title" id="ogTitle" content="МирХАБ">
+<meta property="og:description" id="ogDesc" content="Карточка зала: вместимость по схемам рассадки, площадь, высота потолка и стоимость аренды.">
+<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Зал — МирХАБ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Aqua Coral Slate
+   ══════════════════════════════════════════════ */
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3; --coral-glow:rgba(233,134,103,.18);
+  --peach:#F6E6DE; --peach-pale:#EFD6CA;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 28px 64px;animation:pageIn .5s ease both;}
+
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;color:var(--slate-muted);margin-bottom:18px;}
+.crumbs a{transition:color .2s;}
+.crumbs a:hover{color:var(--coral);}
+.crumbs .sep{opacity:.5;}
+.crumbs .cur{color:var(--slate-deep);font-weight:600;}
+
+.dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
+.d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.d-eyebrow a{color:var(--slate-muted);text-transform:none;letter-spacing:0;font-weight:500;}
+.d-eyebrow a:hover{color:var(--coral);}
+.d-title{font-family:'DM Serif Display',serif;font-size:34px;font-weight:400;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.3px;}
+.d-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--slate-muted);align-items:center;}
+.d-meta b{color:var(--slate-deep);font-weight:700;}
+.d-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+.tag{display:inline-flex;align-items:center;padding:4px 11px;border-radius:var(--r-full);font-size:11.5px;font-weight:600;background:var(--aqua-pale);color:var(--slate-mid);}
+.tag.solid{background:var(--coral-soft);color:var(--coral);}
+
+.btn{display:inline-block;padding:11px 22px;border-radius:var(--r-full);font-size:13.5px;font-weight:600;border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;white-space:nowrap;}
+.btn:hover{border-color:var(--coral);color:var(--coral);}
+.btn.pri{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:var(--sh-coral);}
+.btn.pri:hover{background:var(--coral-hover);border-color:var(--coral-hover);color:#fff;}
+.btn.sm{padding:8px 16px;font-size:12.5px;}
+.btn.on{background:var(--coral-soft);border-color:var(--coral-soft);color:var(--coral);}
+
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px;height:300px;}
+.gal.solo{grid-template-columns:1fr;}
+.gal-cell{border-radius:var(--r-md);overflow:hidden;background:var(--aqua-pale);}
+.gal-cell img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
+.gal-cell:hover img{transform:scale(1.05);}
+.gal-stack{display:grid;grid-template-rows:1fr 1fr;gap:10px;}
+.gal-note{font-size:12px;color:var(--slate-muted);margin-bottom:22px;}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 12px;flex-wrap:wrap;}
+.sec-head.first{margin-top:0;}
+.sec-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--slate-deep);}
+.sec-sub{font-size:12.5px;color:var(--slate-muted);}
+.panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);box-shadow:var(--sh-md);}
+
+/* ── плитки схем рассадки ── */
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;}
+.seat{background:var(--white);border:1px solid rgba(197,227,225,.35);border-radius:var(--r-md);
+  padding:16px 12px;text-align:center;box-shadow:var(--sh-sm);transition:border-color .25s,transform .25s;}
+.seat:hover{border-color:var(--aqua-3);transform:translateY(-2px);}
+.seat-n{font-family:'DM Serif Display',serif;font-size:26px;color:var(--slate-deep);line-height:1;}
+.seat-l{font-size:11.5px;color:var(--slate-muted);margin-top:6px;}
+.seat.off{opacity:.42;box-shadow:none;background:var(--bg);}
+.seat.off:hover{transform:none;border-color:rgba(197,227,225,.35);}
+.seat.off .seat-n{color:var(--slate-pale);}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th,.tbl td{text-align:left;padding:12px 16px;border-bottom:1px solid rgba(197,227,225,.3);vertical-align:top;}
+.tbl tr:last-child th,.tbl tr:last-child td{border-bottom:none;}
+.tbl th{font-weight:500;color:var(--slate-muted);width:46%;}
+.tbl td{font-weight:600;color:var(--slate-deep);}
+.tbl.flush th,.tbl.flush td{padding:10px 0;}
+
+/* ── лента других залов ── */
+.rail{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin;scrollbar-color:var(--aqua-2) transparent;}
+.rail::-webkit-scrollbar{height:6px;}
+.rail::-webkit-scrollbar-thumb{background:var(--aqua-2);border-radius:3px;}
+.hc{flex:0 0 208px;border:1px solid rgba(197,227,225,.32);border-radius:var(--r-md);overflow:hidden;background:var(--white);transition:transform .25s,box-shadow .25s,border-color .25s;}
+.hc:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);}
+.hc.picked{border-color:var(--coral);box-shadow:inset 0 0 0 1px var(--coral);}
+.hc-img{height:104px;overflow:hidden;background:var(--aqua-pale);}
+.hc-img img{width:100%;height:100%;object-fit:cover;}
+.hc-body{padding:11px 12px 12px;}
+.hc-name{font-size:13.5px;font-weight:700;color:var(--slate-deep);margin-bottom:5px;line-height:1.3;}
+.hc-sub{font-size:11.5px;color:var(--slate-muted);margin-bottom:8px;}
+.hc-price{font-size:14.5px;font-weight:800;color:var(--slate-deep);margin-bottom:10px;}
+.hc-price i{font-style:normal;font-size:11.5px;font-weight:500;color:var(--slate-muted);}
+.hc-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+
+.ic{width:32px;height:32px;border-radius:50%;background:var(--aqua-pale);border:none;display:flex;align-items:center;justify-content:center;color:var(--slate-muted);transition:all .2s;}
+.ic:hover{background:var(--coral-soft);color:var(--coral);}
+.ic.on{background:var(--coral-soft);color:var(--coral);}
+.ic.on svg{fill:currentColor;}
+
+/* ── врезка объекта ── */
+.side{position:sticky;top:88px;display:flex;flex-direction:column;gap:14px;}
+.vcard{overflow:hidden;}
+.vcard-img{height:120px;background:var(--aqua-pale);}
+.vcard-img img{width:100%;height:100%;object-fit:cover;}
+.vcard-body{padding:14px 16px 16px;}
+.vcard-name{font-size:15px;font-weight:700;color:var(--slate-deep);transition:color .2s;display:inline-block;}
+.vcard-name:hover{color:var(--coral);}
+.vcard-sub{font-size:12.5px;color:var(--slate-muted);margin-top:4px;}
+.vcard-sub b{color:var(--slate-deep);font-weight:700;}
+.side .panel.pad{padding:18px;}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-muted);margin-bottom:10px;}
+.side p{font-size:12.5px;line-height:1.6;color:var(--slate-muted);margin-bottom:12px;}
+
+.note{background:var(--aqua-pale);border-radius:var(--r-md);padding:14px 16px;font-size:12.5px;line-height:1.6;color:var(--slate-mid);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.note b{color:var(--slate-deep);}
+
+.nf{max-width:460px;margin:60px auto;text-align:center;padding:48px 36px;}
+.nf h2{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--slate-deep);margin-bottom:10px;}
+.nf p{font-size:13.5px;color:var(--slate-muted);margin-bottom:22px;line-height:1.6;}
+
+@media(max-width:900px){
+  .two{grid-template-columns:minmax(0,1fr);}
+  .side{position:static;}
+  .gal{grid-template-columns:1fr;height:auto;}
+  .gal-cell{height:220px;}
+  .gal-stack{display:none;}
+  .d-title{font-size:26px;}
+  .wrap{padding:18px 18px 48px;}
+}
+</style>
+</head>
+<body>
+
+<div id="mh-nav"></div>
+
+<div class="wrap" id="root"></div>
+
+<div id="mh-footer"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>
+MH.init();
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const IC = {
+  star:'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  cmp:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"/></svg>',
+  heart:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+};
+
+function notFound(msg) {
+  document.getElementById('root').innerHTML = `<div class="panel nf">
+    <h2>${esc(msg)}</h2>
+    <p>Проверьте ссылку — возможно, зал был удалён или объект скрыт в блэк-листе.</p>
+    <a class="btn pri" href="search.html">К подбору площадок</a>
+  </div>`;
+  document.title = msg + ' — МирХАБ';
+}
+
+/* Галерея зала: своё фото + соседние залы объекта. */
+function gallery(h, v) {
+  const shots = [h.photo, ...v.halls.filter(x => x.id !== h.id).map(x => x.photo), v.photo]
+    .filter((x, i, a) => a.indexOf(x) === i);
+  if (shots.length < 3) {
+    return `<div class="gal solo"><div class="gal-cell"><img src="${ML.photoUrl(shots[0])}" alt="${esc(h.name)}"></div></div>`;
+  }
+  const at = i => ML.photoUrl(shots[i % shots.length]);
+  return `<div class="gal">
+    <div class="gal-cell"><img src="${at(0)}" alt="${esc(h.name)}"></div>
+    <div class="gal-stack">
+      <div class="gal-cell"><img src="${at(1)}" alt="" loading="lazy"></div>
+      <div class="gal-cell"><img src="${at(2)}" alt="" loading="lazy"></div>
+    </div>
+    <div class="gal-stack">
+      <div class="gal-cell"><img src="${at(3)}" alt="" loading="lazy"></div>
+      <div class="gal-cell"><img src="${at(4)}" alt="" loading="lazy"></div>
+    </div>
+  </div>`;
+}
+
+let H = null, V = null;
+
+function render() {
+  const h = H, v = V, t = ML.tariff(), full = t.fullInfo;
+  const inC = ML.inCompare(h.id), fav = ML.isFav(h.id);
+  const others = v.halls.filter(x => x.id !== h.id);
+
+  // ── вместимость по всем семи схемам: чего нет — неактивная плитка ──
+  const seatTiles = ML.SEATING.map(s => {
+    const n = h.seats[s.k];
+    return `<div class="seat${n ? '' : ' off'}">
+      <div class="seat-n">${n || '—'}</div>
+      <div class="seat-l">${esc(s.l)}</div>
+    </div>`;
+  }).join('');
+
+  const otherCards = others.map(x => {
+    const c = ML.inCompare(x.id), f = ML.isFav(x.id);
+    return `<article class="hc${c ? ' picked' : ''}">
+      <div class="hc-img"><img src="${ML.photoUrl(x.photo)}" alt="" loading="lazy"></div>
+      <div class="hc-body">
+        <a class="hc-name" href="hall.html?id=${x.id}">${esc(x.name)}</a>
+        <div class="hc-sub">${esc(x.type)} · ${x.area} м² · до ${ML.hallCapacity(x)} чел.</div>
+        <div class="hc-price">${x.priceDay ? ML.money(x.priceDay) : '<i>по договорённости</i>'}</div>
+        <div class="hc-foot">
+          <div style="display:flex;gap:6px">
+            <button class="ic${c ? ' on' : ''}" onclick="toggleCmp(${x.id})" title="В сравнение">${IC.cmp}</button>
+            <button class="ic${f ? ' on' : ''}" onclick="toggleFavHall(${x.id})" title="В избранное">${IC.heart}</button>
+          </div>
+          <a class="btn sm" href="hall.html?id=${x.id}">Открыть</a>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+
+  document.getElementById('root').innerHTML = `
+  <div class="crumbs">
+    <a href="search.html">Подбор площадок</a><span class="sep">→</span>
+    <a href="venue.html?id=${v.id}">${esc(v.name)}</a><span class="sep">→</span>
+    <span class="cur">${esc(h.name)}</span>
+  </div>
+
+  <div class="dhead">
+    <div>
+      <span class="d-eyebrow">${esc(h.type)} · <a href="venue.html?id=${v.id}">${esc(v.name)}</a></span>
+      <h1 class="d-title">${esc(h.name)}</h1>
+      <div class="d-meta">
+        <span><b>${h.area}</b> м²</span>
+        ${h.height ? `<span>потолок <b>${h.height}</b> м</span>` : ''}
+        <span>до <b>${ML.hallCapacity(h)}</b> чел.</span>
+        <span>${esc(v.city)}</span>
+        ${h.plan ? '<span class="tag solid">Есть точный план</span>' : ''}
+      </div>
+    </div>
+    <div class="d-actions">
+      <button class="btn${fav ? ' on' : ''}" onclick="toggleFavHall(${h.id})">${fav ? 'В избранном' : 'В избранное'}</button>
+      <button class="btn pri" onclick="toggleCmp(${h.id})">${inC ? 'В сравнении' : 'Добавить в сравнение'}</button>
+    </div>
+  </div>
+
+  ${gallery(h, v)}
+  <p class="gal-note">Фото и видео, схемы рассадки и точный план пространства — при наличии на ресурсе.</p>
+
+  <div class="two">
+    <div>
+      <div class="sec-head first">
+        <h2 class="sec-title">Вместимость по схемам рассадки</h2>
+        <span class="sec-sub">${full ? 'Человек по каждой схеме' : ''}</span>
+      </div>
+      ${full
+        ? `<div class="seats">${seatTiles}</div>`
+        : `<div class="note">
+            <span>Схемы рассадки доступны с тарифа <b>«БИЗНЕС»</b>. Сейчас видна только площадь зала — <b>${h.area} м²</b>.</span>
+            <a class="btn sm" href="pricing.html">Тарифы</a></div>`}
+
+      <div class="sec-head"><h2 class="sec-title">Параметры зала</h2></div>
+      <div class="panel">
+        <table class="tbl">
+          <tr><th>Тип зала</th><td>${esc(h.type)}</td></tr>
+          <tr><th>Площадь</th><td>${h.area} м²</td></tr>
+          <tr><th>Высота потолка</th><td>${h.height ? h.height + ' м' : '—'}</td></tr>
+          <tr><th>Аренда за день</th><td>${h.priceDay ? ML.money(h.priceDay) : 'по договорённости'}</td></tr>
+          <tr><th>Аренда за час</th><td>${h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'}</td></tr>
+          <tr><th>Точный план пространства</th><td>${h.plan ? (full ? 'есть, PDF' : 'есть') : 'нет'}</td></tr>
+        </table>
+      </div>
+
+      ${others.length ? `<div class="sec-head"><h2 class="sec-title">Другие залы объекта</h2>
+        <span class="sec-sub">${others.length} ${ML.plural(others.length, ['зал','зала','залов'])}</span></div>
+        <div class="rail">${otherCards}</div>` : ''}
+    </div>
+
+    <aside class="side">
+      <div class="panel vcard">
+        <div class="vcard-img"><img src="${ML.photoUrl(v.photo)}" alt="${esc(v.name)}" loading="lazy"></div>
+        <div class="vcard-body">
+          <div class="eyebrow">Объект</div>
+          <a class="vcard-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+          <div class="vcard-sub">${esc(v.cat)} · ${esc(v.city)}</div>
+          <div class="vcard-sub">${IC.star} <b>${v.rating}</b> (${v.reviews}) · до <b>${ML.venueCapacity(v)}</b> чел. · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
+          <a class="btn sm" style="display:block;text-align:center;margin-top:12px" href="venue.html?id=${v.id}">Карточка объекта</a>
+        </div>
+      </div>
+      <div class="panel pad">
+        <div class="eyebrow">Запрос</div>
+        <p>Бронирования на ресурсе нет. Соберите залы в сравнение и отправьте один запрос сразу во все объекты.</p>
+        <a class="btn pri" style="display:block;text-align:center" href="compare.html">Сравнение (${ML.state.compare.size})</a>
+      </div>
+    </aside>
+  </div>`;
+}
+
+/* ── действия ── */
+function toggleCmp(hallId) {
+  const r = ML.toggleCompare(hallId);
+  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  render();
+}
+function toggleFavHall(hallId) {
+  const added = ML.toggleFav(hallId);
+  MH.toast(added ? 'Зал добавлен в избранное' : 'Зал удалён из избранного', added ? 'success' : 'info');
+  render();
+}
+
+/* ── старт ── */
+(function init() {
+  const id = parseInt(new URLSearchParams(location.search).get('id'), 10);
+  const h = ML.hallById(id);
+  if (!h) { notFound('Зал не найден'); return; }
+  const v = ML.hallVenue(h);
+  if (!v) { notFound('Объект этого зала не найден'); return; }
+  H = h; V = v;
+
+  const title = `${h.name} — ${v.name} — МирХАБ`;
+  const desc = `${h.type}, ${h.area} м², до ${ML.hallCapacity(h)} человек. ${v.name}, ${v.city}.`;
+  document.title = title;
+  document.getElementById('ogTitle').setAttribute('content', title);
+  document.getElementById('ogDesc').setAttribute('content', desc);
+  document.getElementById('metaDesc').setAttribute('content', desc);
+
+  render();
+})();
+</script>
+</body>
+</html>

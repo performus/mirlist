@@ -1,6 +1,21 @@
 node_modules/
+
+# переменные окружения
+.env
+.env.local
 .env*.local
-.vercel
+
+# служебное
+.vercel/
+deploy/
+*.log
+
+# локальные настройки Claude Code
+.claude/
+
+# macOS
 .DS_Store
 app/.DS_Store
-*.log
+
+# справочный прототип, не часть сайта
+mycelist-prototype.html

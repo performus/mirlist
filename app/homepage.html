@@ -3,470 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>МирХАБ — Площадки для любого мероприятия</title>
-<meta name="description" content="Более 12 000 проверенных площадок по всей России. Конференц-залы, лофты, рестораны и банкетные залы. Сравнивайте, скачивайте презентации, бронируйте.">
-<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="МирХАБ">
-<meta property="og:title" content="МирХАБ — Площадки для любого мероприятия">
-<meta property="og:description" content="Более 12 000 проверенных площадок по всей России. Конференц-залы, лофты, рестораны и банкетные залы. Сравнивайте, скачивайте презентации, бронируйте.">
+<meta name="description" content="Поиск залов для деловых мероприятий: подбор по параметрам ТЗ, сравнение залов между собой, один запрос сразу во все объекты и выгрузка презентации.">
+<meta property="og:title" content="МирХАБ — поиск залов для деловых мероприятий">
+<meta property="og:description" content="Поиск залов по параметрам ТЗ, сравнение между собой, один запрос сразу во все объекты и презентация под мероприятие.">
 <meta property="og:image" content="https://mirhub.vercel.app/assets/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="https://mirhub.vercel.app/app/homepage">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="МирХАБ — Площадки для любого мероприятия">
-<meta name="twitter:description" content="Более 12 000 проверенных площадок по всей России.">
 <meta name="twitter:image" content="https://mirhub.vercel.app/assets/og-image.png">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>МирХАБ — поиск залов для деловых мероприятий</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="../assets/photos/hero.jpg">
 <style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Aqua Coral Slate
+   ══════════════════════════════════════════════ */
 :root{
-  --aqua:#B8E0E0;--aqua-light:#D6EFEF;--aqua-ultra-light:#EDF8F8;
-  --teal:#7FC4C4;--teal-deep:#5BAAAB;
-  --coral:#E8846A;--coral-hover:#D9735A;--coral-light:#F2A08E;
-  --peach:#F5C6AC;--peach-light:#FBE0D0;--peach-ultra-light:#FFF0E8;
-  --blush:#FAD4C8;
-  --blue-gray:#3D5A6E;--blue-gray-light:#5A7A8E;--blue-gray-muted:#8A9DAA;--blue-gray-pale:#C4D0D8;
-  --text-primary:#2C3E4A;--text-secondary:#5A7080;--text-muted:#8A9CA8;
-  --surface-white:#FFFFFF;--surface-cream:#FEFBF8;
-  --shadow-soft:0 2px 20px rgba(61,90,110,.06);
-  --shadow-card:0 4px 24px rgba(61,90,110,.08);
-  --shadow-elevated:0 8px 40px rgba(61,90,110,.10);
-  --radius-sm:10px;--radius-md:14px;--radius-lg:20px;--radius-xl:28px;
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3; --coral-glow:rgba(233,134,103,.18);
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;color:var(--text-primary);background:var(--surface-cream);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
 
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px 72px;animation:pageIn .5s ease both;}
 
-.compare-bar{position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);z-index:300;background:var(--blue-gray);color:#fff;padding:14px 32px;border-radius:50px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(44,62,74,.3);transition:bottom .4s cubic-bezier(.22,1,.36,1);font-size:14px;font-weight:500;white-space:nowrap;}
-.compare-bar.show{bottom:28px;}
-.compare-bar .cb-count{background:var(--coral);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
-.compare-bar button{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:8px 20px;border-radius:50px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;}
-.compare-bar button:hover{background:rgba(255,255,255,.25);}
-.compare-bar .cb-clear{background:none;border:none;color:rgba(255,255,255,.6);padding:8px;cursor:pointer;font-size:13px;font-family:'Outfit',sans-serif;}
+/* ══════ 1. ПОИСКОВАЯ СТРОКА ══════ */
+.hero{padding:52px 0 40px;text-align:center;}
+.hero .eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.hero h1{font-family:'DM Serif Display',serif;font-size:42px;font-weight:400;color:var(--slate-deep);
+  line-height:1.12;margin-top:12px;letter-spacing:-.4px;}
+.hero p{font-size:15px;line-height:1.7;color:var(--slate-muted);margin:14px auto 0;max-width:660px;}
 
-#step1{transition:opacity .4s;}
-#step2{display:none;}
-#step2.active{display:flex;}
-.fade-out{opacity:0;pointer-events:none;}
+.sbar{display:grid;grid-template-columns:1.2fr 1fr 1.2fr auto;gap:10px;align-items:end;
+  background:var(--white);border:1px solid rgba(197,227,225,.4);border-radius:var(--r-lg);
+  box-shadow:var(--sh-lg);padding:14px;margin:28px auto 0;max-width:900px;text-align:left;}
+.sf label{display:block;font-size:10.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--slate-muted);margin-bottom:5px;}
+.sf input,.sf select{width:100%;padding:11px 14px;border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
+  font-family:inherit;font-size:14px;color:var(--slate-deep);outline:none;transition:border-color .2s,background .2s;}
+.sf input:focus,.sf select:focus{border-color:var(--coral);background:var(--white);}
+.sbtn{padding:12px 30px;border-radius:var(--r-sm);background:var(--coral);border:none;color:#fff;
+  font-size:14.5px;font-weight:600;box-shadow:var(--sh-coral);transition:background .2s;white-space:nowrap;}
+.sbtn:hover{background:var(--coral-hover);}
 
-.hero{position:relative;min-height:92vh;display:flex;align-items:center;padding:120px 80px 80px;overflow:hidden;gap:60px;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 20% 30%,rgba(184,224,224,.35),transparent 60%),radial-gradient(ellipse 80% 60% at 80% 20%,rgba(245,198,172,.25),transparent 55%),radial-gradient(ellipse 60% 50% at 50% 80%,rgba(214,239,239,.3),transparent 50%),linear-gradient(170deg,var(--surface-cream),var(--aqua-ultra-light) 35%,var(--surface-cream) 55%,var(--peach-ultra-light) 80%,var(--surface-cream));z-index:0;}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;z-index:0;animation:float 20s ease-in-out infinite;}
-.o1{width:500px;height:500px;background:var(--aqua);top:-10%;left:-5%;}
-.o2{width:400px;height:400px;background:var(--peach);top:5%;right:-8%;animation-delay:-7s;}
-.o3{width:350px;height:350px;background:var(--aqua-light);bottom:5%;left:30%;animation-delay:-14s;}
-.o4{width:250px;height:250px;background:var(--blush);bottom:15%;right:10%;animation-delay:-3s;animation-duration:16s;}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(.97)}}
-.hero-grid{position:absolute;inset:0;z-index:0;opacity:.03;background-image:linear-gradient(var(--blue-gray) 1px,transparent 1px),linear-gradient(90deg,var(--blue-gray) 1px,transparent 1px);background-size:80px 80px;}
-@keyframes twkl1{0%,100%{opacity:.15}50%{opacity:.85}}
-@keyframes twkl2{0%,100%{opacity:.7}50%{opacity:.1}}
-.hero-sparks{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.hero-sparks::before{content:'';position:absolute;top:0;left:0;width:3px;height:3px;border-radius:50%;background:rgba(235,116,84,.5);
-  box-shadow:80px 90px 2px rgba(235,116,84,.45),220px 55px 1px rgba(245,185,66,.55),370px 130px 2px rgba(255,255,255,.6),530px 60px 1px rgba(180,224,224,.5),690px 170px 2px rgba(235,116,84,.4),840px 80px 1px rgba(245,185,66,.5),1000px 140px 2px rgba(255,255,255,.55),1150px 90px 1px rgba(180,224,224,.45),140px 360px 2px rgba(235,116,84,.4),310px 430px 1px rgba(245,185,66,.5),490px 310px 2px rgba(255,255,255,.45),660px 400px 1px rgba(235,116,84,.55),830px 340px 2px rgba(245,185,66,.4),1020px 410px 1px rgba(255,255,255,.6);
-  animation:twkl1 4.5s ease-in-out infinite;}
-.hero-sparks::after{content:'';position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;background:rgba(180,224,224,.5);
-  box-shadow:160px 180px 2px rgba(245,185,66,.5),300px 260px 1px rgba(235,116,84,.45),450px 100px 2px rgba(255,255,255,.55),600px 220px 1px rgba(180,224,224,.6),750px 50px 2px rgba(235,116,84,.4),910px 200px 1px rgba(245,185,66,.5),1070px 30px 2px rgba(255,255,255,.5),1200px 170px 1px rgba(235,116,84,.55),200px 460px 2px rgba(245,185,66,.4),400px 510px 1px rgba(255,255,255,.55),580px 470px 2px rgba(180,224,224,.5),760px 490px 1px rgba(235,116,84,.5),950px 450px 2px rgba(245,185,66,.55),1130px 480px 1px rgba(255,255,255,.4);
-  animation:twkl2 6s ease-in-out infinite;}
-@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.06) translate(-1%,.5%)}100%{transform:scale(1.03) translate(.5%,-1%)}}
-.hero-vcard-photo img{animation:kenBurns 18s ease-in-out infinite alternate;}
-.hero-content{position:relative;z-index:1;flex:1;min-width:0;}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.7);border:1px solid rgba(184,224,224,.4);border-radius:50px;font-size:13px;font-weight:500;color:var(--teal-deep);margin-bottom:32px;backdrop-filter:blur(10px);animation:fadeUp .8s ease both;}
-.hero-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:#354E63;letter-spacing:-1.5px;margin-bottom:20px;animation:fadeUp .8s ease .1s both;}
-.hero-h1 em{font-style:italic;color:var(--coral);position:relative;}
-.hero-h1 em::after{content:'';position:absolute;bottom:4px;left:0;right:0;height:3px;background:var(--coral-light);border-radius:2px;opacity:.5;}
-.hero-sub{font-size:18px;line-height:1.65;color:var(--text-secondary);max-width:520px;margin-bottom:40px;font-weight:400;animation:fadeUp .8s ease .2s both;}
+/* ══════ секции ══════ */
+.sec{margin-top:52px;}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
+.sec-eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.sec-title{font-family:'DM Serif Display',serif;font-size:27px;font-weight:400;color:var(--slate-deep);
+  line-height:1.2;margin-top:6px;}
+.sec-sub{font-size:13px;color:var(--slate-muted);margin-top:6px;}
+.btn{display:inline-block;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:600;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;white-space:nowrap;}
+.btn:hover{border-color:var(--coral);color:var(--coral);}
 
-.search-form{background:rgba(255,255,255,.95);border:1px solid rgba(184,224,224,.3);border-radius:var(--radius-xl);padding:8px;display:flex;align-items:stretch;max-width:780px;box-shadow:var(--shadow-elevated),0 0 0 1px rgba(255,255,255,.5) inset;animation:fadeUp .8s ease .35s both;transition:box-shadow .3s;position:relative;z-index:10;}
-.sf{flex:1;min-width:0;}
-.sf+.sf .sf-trigger{border-left:1px solid rgba(196,208,216,.35);}
-.sf-trigger{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;border-radius:var(--radius-lg);transition:background .2s;height:100%;}
-.sf-trigger:hover{background:rgba(184,224,224,.1);}
-.sf-trigger.open{background:rgba(184,224,224,.15);}
-.sf-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sf:nth-child(1) .sf-icon{background:linear-gradient(135deg,var(--peach-ultra-light),var(--peach-light));color:var(--coral);}
-.sf:nth-child(2) .sf-icon{background:linear-gradient(135deg,var(--aqua-ultra-light),var(--aqua-light));color:var(--teal-deep);}
-.sf:nth-child(3) .sf-icon{background:linear-gradient(135deg,var(--peach-ultra-light),var(--blush));color:var(--coral-light);}
-.sf-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.sf-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--blue-gray-muted);white-space:nowrap;}
-.sf-value{font-size:13.5px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sf-chevron{margin-left:auto;flex-shrink:0;color:var(--blue-gray-pale);transition:transform .25s;}
-.sf-trigger.open .sf-chevron{transform:rotate(180deg);color:var(--coral);}
-.sf-dropdown{position:fixed;min-width:240px;background:#fff;border:1px solid rgba(184,224,224,.3);border-radius:var(--radius-md);box-shadow:var(--shadow-elevated);z-index:9999;padding:6px;display:none;animation:dropIn .2s ease;max-height:320px;overflow-y:auto;}
-.sf-dropdown.show{display:block;}
-@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.sf-option{padding:11px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
-.sf-option:hover{background:var(--aqua-ultra-light);color:var(--teal-deep);}
-.sf-option.selected{background:var(--aqua-ultra-light);color:var(--teal-deep);font-weight:600;}
-.sf-option.selected::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal-deep);margin-left:auto;}
-.search-btn{flex-shrink:0;background:var(--coral);color:#fff;border:none;padding:0 36px;border-radius:var(--radius-lg);font-family:'Outfit',sans-serif;font-size:15.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .3s;box-shadow:0 4px 16px rgba(232,132,106,.30);white-space:nowrap;}
-.search-btn:hover{background:var(--coral-hover);transform:translateY(-1px);}
-.search-micro{margin-top:20px;font-size:13.5px;color:var(--text-muted);animation:fadeUp .8s ease .5s both;display:flex;align-items:center;gap:20px;position:relative;z-index:1;}
-.search-micro span{display:flex;align-items:center;gap:6px;}
-.trust-strip{margin-top:36px;display:flex;align-items:center;gap:40px;animation:fadeUp .8s ease .6s both;opacity:.45;position:relative;z-index:1;}
-.trust-item{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-gray-muted);display:flex;align-items:center;gap:8px;}
-.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;animation:fadeUp .8s ease .8s both;}
-.scroll-hint span{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-gray-muted);}
-.scroll-dot{width:24px;height:40px;border-radius:12px;border:2px solid var(--blue-gray-pale);position:relative;opacity:.5;}
-.scroll-dot::after{content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);width:4px;height:8px;border-radius:2px;background:var(--blue-gray-muted);animation:scrollBob 2s ease-in-out infinite;}
-@keyframes scrollBob{0%,100%{top:6px;opacity:1}50%{top:18px;opacity:.3}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes revealUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-.reveal{animation:revealUp .7s ease .15s both;}
-.hero-visual{position:relative;z-index:1;flex:0 0 420px;display:flex;align-items:center;justify-content:flex-end;}
-.hero-vcard{width:100%;max-width:420px;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 24px 80px rgba(53,78,99,.18),0 4px 24px rgba(53,78,99,.08);position:relative;}
-.hero-vcard-photo{width:100%;height:260px;overflow:hidden;display:block;}
-.hero-vcard-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-.hero-vcard-info{padding:18px 20px 20px;}
-.hero-vcard-name{font-size:16px;font-weight:700;color:var(--blue-gray);margin-bottom:5px;}
-.hero-vcard-meta{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:14px;margin-bottom:14px;}
-.hero-vcard-row{display:flex;align-items:center;justify-content:space-between;}
-.hero-vcard-price{font-size:21px;font-weight:700;color:var(--blue-gray);}
-.hero-vcard-price span{font-size:13px;font-weight:400;color:var(--text-muted);}
-.hero-vcard-book{padding:9px 22px;background:var(--coral);color:#fff;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:background .2s;font-family:'Outfit',sans-serif;}
-.hero-vcard-book:hover{background:var(--coral-hover);}
-.hero-float{position:absolute;background:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 8px 28px rgba(53,78,99,.14);display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--blue-gray);white-space:nowrap;z-index:3;animation:floatBob 4s ease-in-out infinite;}
-.hero-float-top{top:-14px;right:20px;animation-delay:-2s;}
-.hero-float-left{bottom:56px;left:-24px;}
-@keyframes floatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* ══════ плитки ══════ */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px;}
+.tile{display:block;text-align:left;background:var(--white);border:1px solid rgba(197,227,225,.32);
+  border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-sm);width:100%;padding:0;
+  transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s,border-color .25s;}
+.tile:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:var(--aqua-3);}
+.tile-img{height:132px;background:var(--aqua-pale);overflow:hidden;}
+.tile-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1);}
+.tile:hover .tile-img img{transform:scale(1.06);}
+.tile-b{padding:13px 15px 15px;}
+.tile-name{font-size:14.5px;font-weight:700;color:var(--slate-deep);line-height:1.3;}
+.tile-sub{font-size:12.5px;color:var(--slate-muted);margin-top:4px;}
+.tile-cnt{font-size:13px;font-weight:700;color:var(--coral);margin-top:7px;}
 
-.discovery{position:relative;padding:100px 0 60px;background:var(--surface-white);}
-.discovery::before{content:'';position:absolute;top:0;left:0;right:0;height:200px;background:linear-gradient(to bottom,var(--surface-cream),var(--surface-white));pointer-events:none;}
-.section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--teal-deep);margin-bottom:14px;}
-.section-label::before{content:'';width:20px;height:2px;background:var(--teal);border-radius:2px;}
-.section-header{position:relative;z-index:1;max-width:1300px;margin:0 auto 40px;padding:0 48px;}
-.section-header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;}
-.section-title{font-family:'DM Serif Display',serif;font-size:clamp(30px,3.5vw,42px);color:var(--blue-gray);letter-spacing:-.8px;line-height:1.15;}
-.section-desc{margin-top:10px;font-size:16px;color:var(--text-secondary);max-width:520px;line-height:1.6;}
-.scroll-arrows{display:flex;gap:8px;flex-shrink:0;}
-.scroll-arrow{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--blue-gray-pale);background:var(--surface-white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;color:var(--blue-gray-light);}
-.scroll-arrow:hover{border-color:var(--coral);color:var(--coral);background:var(--peach-ultra-light);}
-.scroll-arrow.disabled{opacity:.3;pointer-events:none;}
+/* ══════ 3. рекламный слот ══════ */
+.adslot{border:2px dashed var(--slate-pale);border-radius:var(--r-lg);background:var(--white);
+  padding:34px 28px;text-align:center;}
+.adslot-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-pale);}
+.adslot-s{font-size:13.5px;line-height:1.65;color:var(--slate-muted);margin-top:10px;max-width:560px;
+  margin-left:auto;margin-right:auto;}
 
-.city-scroll-wrap{position:relative;z-index:1;margin-bottom:96px;}
-.city-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px 20px 24px 32px;scroll-padding-left:32px;scrollbar-width:none;}
-.city-scroll::-webkit-scrollbar{display:none;}
-.city-card{flex:0 0 310px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;background:var(--surface-white);border:1px solid rgba(184,224,224,.15);transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;will-change:transform;}
-.city-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-elevated);}
-.city-thumb{width:100%;height:240px;overflow:hidden;}
-.city-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.8s cubic-bezier(.22,1,.36,1);will-change:transform;}
-.city-card:hover .city-thumb img{transform:scale(1.05);}
-.city-body{padding:20px 22px 24px;}
-.city-name{font-family:'DM Serif Display',serif;font-size:24px;color:var(--blue-gray);margin-bottom:6px;}
-.city-tagline{font-size:14px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;min-height:42px;}
-.city-footer{display:flex;align-items:center;justify-content:space-between;}
-.city-count{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--teal-deep);background:var(--aqua-ultra-light);padding:7px 16px;border-radius:50px;}
-.city-link{width:36px;height:36px;border-radius:50%;background:var(--peach-ultra-light);display:flex;align-items:center;justify-content:center;transition:background .3s,color .3s,transform .3s;color:var(--coral);}
-.city-card:hover .city-link{background:var(--coral);color:#fff;transform:rotate(-45deg);}
+/* ══════ 6. события отрасли ══════ */
+.events{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:6px 20px;}
+.ev{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:15px 0;
+  border-bottom:1px solid rgba(197,227,225,.25);}
+.ev:last-child{border-bottom:none;}
+.ev-date{font-size:13px;font-weight:700;color:var(--slate-deep);white-space:nowrap;min-width:92px;}
+.ev-kind{font-size:11px;font-weight:600;padding:4px 11px;border-radius:var(--r-full);
+  background:var(--aqua-pale);color:var(--slate-mid);white-space:nowrap;}
+.ev-name{font-size:14px;color:var(--slate-mid);flex:1;min-width:200px;}
 
+/* ══════ 7. отзывы ══════ */
+.revs{display:grid;grid-template-columns:repeat(auto-fit,minmax(292px,1fr));gap:14px;}
+.rev{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-md);
+  box-shadow:var(--sh-sm);padding:20px;display:flex;flex-direction:column;}
+.rev-top{display:flex;align-items:center;gap:11px;margin-bottom:11px;}
+.rev-ava{width:38px;height:38px;border-radius:50%;background:var(--coral-soft);color:var(--coral);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;}
+.rev-who{flex:1;min-width:0;}
+.rev-name{font-size:13.5px;font-weight:700;color:var(--slate-deep);}
+.rev-role{font-size:12px;color:var(--slate-muted);margin-top:2px;}
+.rev-stars{color:#F0B95A;font-size:13px;letter-spacing:1px;white-space:nowrap;}
+.rev-ev{font-size:12px;color:var(--slate-muted);margin-bottom:9px;}
+.rev-text{font-size:13.5px;line-height:1.65;color:var(--slate-mid);flex:1;}
+.rev-target{margin-top:13px;padding-top:12px;border-top:1px solid rgba(197,227,225,.3);
+  font-size:12.5px;color:var(--slate-muted);}
+.rev-target a{font-weight:700;color:var(--slate-deep);transition:color .2s;}
+.rev-target a:hover{color:var(--coral);}
 
-.event-section{position:relative;z-index:1;}
-.event-tabs{display:flex;gap:8px;padding:0 48px;margin-bottom:40px;flex-wrap:wrap;}
-.event-tab{padding:10px 22px;border-radius:50px;font-size:14px;font-weight:500;border:1.5px solid var(--blue-gray-pale);background:var(--surface-white);color:var(--text-secondary);cursor:pointer;transition:all .3s;white-space:nowrap;display:flex;align-items:center;gap:8px;user-select:none;}
-.event-tab:hover{border-color:var(--teal);color:var(--teal-deep);background:var(--aqua-ultra-light);}
-.event-tab.active{background:var(--blue-gray);color:#fff;border-color:var(--blue-gray);}
-.event-group{display:none;animation:fadeIn .45s ease;}
-.event-group.active{display:block;}
-.event-group-header{padding:0 48px;margin-bottom:22px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;}
-.event-group-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--blue-gray);}
-.event-group-count{font-size:13.5px;color:var(--text-muted);margin-top:4px;}
-.event-group-link{font-size:14px;font-weight:600;color:var(--coral);display:flex;align-items:center;gap:6px;transition:gap .25s;flex-shrink:0;}
-.event-group-link:hover{gap:10px;}
-
-.venue-scroll{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 20px 40px 32px;scroll-padding-left:32px;scrollbar-width:none;}
-.venue-scroll::-webkit-scrollbar{display:none;}
-.venue-card{flex:0 0 300px;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-white);border:1px solid rgba(184,224,224,.12);cursor:pointer;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;will-change:transform;}
-.venue-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-elevated);}
-.venue-thumb{width:100%;height:180px;position:relative;overflow:hidden;}
-.venue-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.8s cubic-bezier(.22,1,.36,1);will-change:transform;}
-.venue-card:hover .venue-thumb img{transform:scale(1.04);}
-.venue-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:1;}
-.venue-badge{padding:5px 12px;border-radius:50px;font-size:11.5px;font-weight:600;backdrop-filter:blur(12px);}
-.venue-badge.type{background:rgba(255,255,255,.85);color:var(--blue-gray);}
-.venue-badge.premium{background:rgba(232,132,106,.9);color:#fff;}
-.venue-actions{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:1;}
-.va-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s,transform .2s;color:#5A7080;border:none;cursor:pointer;}
-.va-btn:hover{background:#fff;color:var(--coral);transform:scale(1.08);}
-.va-btn.cmp-on{background:#FCEAE4!important;color:var(--coral)!important;}
-.va-btn.fav-on{background:#FCEAE4!important;color:var(--coral)!important;}
-.va-btn.fav-on svg path{fill:currentColor;}
-.venue-body{padding:18px 20px 20px;}
-.venue-name{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:5px;}
-.venue-loc{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:5px;margin-bottom:14px;}
-.venue-stats{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
-.venue-stat{font-size:12.5px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;}
-.venue-stat svg{color:var(--teal-deep);opacity:.7;}
-.vr{display:flex;align-items:center;gap:4px;}
-.vr svg{color:#F0B95A;}
-.vr b{font-size:13px;font-weight:600;color:var(--text-primary);margin-left:2px;}
-.vr span{font-weight:400;color:var(--text-muted);font-size:12.5px;margin-left:2px;}
-.venue-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid rgba(184,224,224,.2);}
-.venue-price{font-size:13px;color:var(--text-muted);}
-.venue-price strong{font-size:17px;font-weight:700;color:var(--text-primary);}
-.venue-cta{padding:9px 20px;border-radius:50px;font-size:13px;font-weight:600;background:var(--aqua-ultra-light);color:var(--teal-deep);border:1.5px solid var(--aqua);transition:all .25s;cursor:pointer;font-family:'Outfit',sans-serif;}
-.venue-cta:hover{background:var(--teal-deep);color:#fff;border-color:var(--teal-deep);}
-
-/* STEP 2 */
-.map-view{width:100%;height:calc(100vh - 72px);margin-top:72px;flex-direction:row;}
-.map-filters-top{position:absolute;top:0;left:0;right:0;z-index:10;padding:16px 24px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(184,224,224,.2);flex-wrap:wrap;}
-.filter-chip{padding:9px 18px;border-radius:50px;font-size:13px;font-weight:500;border:1.5px solid var(--blue-gray-pale);background:#fff;color:var(--text-secondary);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;font-family:'Outfit',sans-serif;}
-.filter-chip:hover{border-color:var(--teal);color:var(--teal-deep);}
-.filter-chip.active{background:var(--blue-gray);color:#fff;border-color:var(--blue-gray);}
-.filter-more{padding:9px 18px;border-radius:50px;font-size:13px;font-weight:600;border:1.5px solid var(--coral-light);background:var(--peach-ultra-light);color:var(--coral);cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:6px;}
-.filter-more:hover{background:var(--coral);color:#fff;border-color:var(--coral);}
-.map-back{padding:9px 18px;border-radius:50px;font-size:13px;font-weight:600;border:none;background:var(--surface-cream);color:var(--blue-gray);cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;margin-right:8px;transition:background .2s;}
-.map-back:hover{background:var(--aqua-ultra-light);}
-.filter-sep{width:1px;height:24px;background:var(--blue-gray-pale);opacity:.4;margin:0 4px;}
-.map-search-info{margin-left:auto;font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap;}
-
-.map-panel{width:520px;min-width:520px;height:100%;overflow-y:auto;padding:72px 20px 24px;background:var(--surface-white);border-right:1px solid rgba(184,224,224,.15);scrollbar-width:thin;scrollbar-color:var(--blue-gray-pale) transparent;transition:width .4s,min-width .4s,padding .4s;}
-.map-panel.collapsed{width:0;min-width:0;padding:72px 0 24px;overflow:hidden;}
-.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.m-card{border-radius:var(--radius-md);overflow:hidden;background:#fff;border:1px solid rgba(184,224,224,.12);cursor:pointer;transition:transform .3s,box-shadow .3s;will-change:transform;}
-.m-card:hover{box-shadow:var(--shadow-card);transform:translateY(-3px);}
-.m-card .m-thumb{height:120px;overflow:hidden;position:relative;}
-.m-card .m-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 1.6s cubic-bezier(.22,1,.36,1);will-change:transform;}
-.m-card:hover .m-thumb img{transform:scale(1.05);}
-.m-card .m-badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;z-index:1;}
-.m-card .m-badge{padding:3px 9px;border-radius:50px;font-size:10.5px;font-weight:600;backdrop-filter:blur(8px);}
-.m-card .m-badge.type{background:rgba(255,255,255,.85);color:var(--blue-gray);}
-.m-card .m-badge.premium{background:rgba(232,132,106,.9);color:#fff;}
-.m-card .m-acts{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:1;}
-.m-card .m-act{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:#5A7080;transition:all .2s;}
-.m-card .m-act:hover{background:#fff;color:var(--coral);transform:scale(1.08);}
-.m-card .m-act.cmp-on{background:#FCEAE4!important;color:var(--coral)!important;}
-.m-card .m-act.fav-on{background:#FCEAE4!important;color:var(--coral)!important;}
-.m-card .m-act.fav-on svg path{fill:currentColor;}
-.m-card .m-body{padding:12px 14px 14px;}
-.m-card .m-name{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px;}
-.m-card .m-loc{font-size:12px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;}
-.m-card .m-row{display:flex;align-items:center;justify-content:space-between;}
-.m-card .m-price{font-size:12px;color:var(--text-muted);}
-.m-card .m-price strong{font-size:15px;font-weight:700;color:var(--text-primary);}
-.m-card .m-rating{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--text-primary);}
-.m-card .m-rating svg{color:#F0B95A;}
-
-.map-area{flex:1;position:relative;background:var(--aqua-ultra-light);overflow:hidden;}
-.map-svg{width:100%;height:100%;}
-.map-expand{position:absolute;bottom:20px;right:20px;z-index:5;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:600;border:1.5px solid rgba(255,255,255,.8);background:rgba(255,255,255,.9);backdrop-filter:blur(12px);color:var(--blue-gray);cursor:pointer;transition:all .25s;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-card);}
-.map-expand:hover{background:#fff;box-shadow:var(--shadow-elevated);}
-.map-zoom{position:absolute;bottom:20px;left:20px;z-index:5;display:flex;flex-direction:column;gap:2px;border-radius:12px;overflow:hidden;box-shadow:var(--shadow-card);}
-.map-zoom button{width:40px;height:40px;border:none;background:rgba(255,255,255,.92);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--blue-gray);font-size:18px;font-family:'Outfit',sans-serif;font-weight:600;transition:background .2s;}
-.map-zoom button:hover{background:#fff;}
-.map-pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:all .3s;z-index:3;}
-.map-pin:hover{z-index:4;transform:translate(-50%,-100%) scale(1.15);}
-.pin-dot{width:36px;height:36px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 12px rgba(232,132,106,.4);position:relative;}
-.pin-dot::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--coral);}
-.pin-label{position:absolute;top:-8px;left:50%;transform:translateX(-50%) translateY(-100%);background:#fff;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;color:var(--text-primary);white-space:nowrap;box-shadow:var(--shadow-soft);opacity:0;transition:opacity .2s;pointer-events:none;}
-.map-pin:hover .pin-label{opacity:1;}
-
-.filter-drawer{position:absolute;top:0;left:0;bottom:0;width:320px;background:#fff;z-index:20;transform:translateX(-100%);transition:transform .35s cubic-bezier(.22,1,.36,1);box-shadow:4px 0 30px rgba(61,90,110,.1);padding:80px 24px 24px;overflow-y:auto;}
-.filter-drawer.open{transform:translateX(0);}
-.fd-close{position:absolute;top:80px;right:16px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--blue-gray-pale);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--blue-gray-muted);transition:all .2s;}
-.fd-close:hover{color:var(--coral);border-color:var(--coral);}
-.fd-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--blue-gray);margin-bottom:24px;}
-.fd-group{margin-bottom:24px;}
-.fd-group-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-gray-muted);margin-bottom:12px;}
-.fd-checks{display:flex;flex-direction:column;gap:8px;}
-.fd-check{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-secondary);cursor:pointer;padding:8px 12px;border-radius:var(--radius-sm);transition:background .15s;}
-.fd-check:hover{background:var(--aqua-ultra-light);}
-.fd-check input{display:none;}
-.fd-box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--blue-gray-pale);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
-.fd-check input:checked~.fd-box{background:var(--teal-deep);border-color:var(--teal-deep);}
-.fd-check input:checked~.fd-box svg{opacity:1;}
-.fd-box svg{opacity:0;transition:opacity .15s;}
-.fd-range input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--aqua-light);outline:none;margin-top:8px;}
-.fd-range input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--teal-deep);cursor:pointer;}
-.fd-range-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:6px;}
-.fd-apply{width:100%;padding:14px;border-radius:var(--radius-md);background:var(--coral);color:#fff;border:none;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;margin-top:8px;}
-.fd-apply:hover{background:var(--coral-hover);}
-
-.site-footer{background:var(--blue-gray);color:rgba(255,255,255,.7);padding:80px 48px 40px;}
-.footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
-.footer-brand p{font-size:14px;line-height:1.7;max-width:300px;color:rgba(255,255,255,.5);margin-top:16px;}
-.footer-col h4{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:18px;}
-.footer-col a{display:block;font-size:14px;color:rgba(255,255,255,.6);margin-bottom:10px;transition:color .2s;}
-.footer-col a:hover{color:#fff;}
-.footer-bottom{max-width:1240px;margin:0 auto;padding-top:28px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;}
-.footer-bottom span{font-size:13px;color:rgba(255,255,255,.3);}
-.footer-socials{display:flex;gap:12px;}
-.footer-socials a{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);transition:all .25s;}
-.footer-socials a:hover{border-color:var(--coral);color:var(--coral);}
-
-@media(max-width:900px){.map-panel{width:100%;min-width:100%;max-height:50vh;border-right:none;} .map-view{flex-direction:column;}}
-@media(max-width:960px){.hero{flex-direction:column;padding:100px 20px 60px;gap:32px;min-height:auto;} .hero-visual{display:none;} .hero-content{flex:none;width:100%;}}
-@media(max-width:768px){.search-form{flex-direction:column;border-radius:var(--radius-lg);padding:6px;} .sf+.sf .sf-trigger{border-left:none;border-top:1px solid rgba(196,208,216,.25);} .search-btn{width:100%;justify-content:center;padding:16px;border-radius:var(--radius-md);} .section-header,.event-tabs,.event-group-header{padding-left:20px;padding-right:20px;} .city-scroll,.venue-scroll{padding-left:20px;padding-right:20px;} .search-micro{flex-direction:column;gap:8px;} .trust-strip{flex-wrap:wrap;gap:20px;} .scroll-arrows{display:none;} .city-card{flex:0 0 260px;} .footer-grid{grid-template-columns:1fr 1fr;gap:32px;} .site-footer{padding:48px 20px 28px;}}
+@media(max-width:900px){
+  .sbar{grid-template-columns:1fr 1fr;}
+  .hero h1{font-size:31px;}
+  .hero{padding:36px 0 28px;}
+  .wrap{padding:0 16px 56px;}
+  .sec{margin-top:40px;}
+}
+@media(max-width:560px){
+  .sbar{grid-template-columns:1fr;}
+  .hero h1{font-size:26px;}
+}
 </style>
 </head>
 <body>
 
 <div id="mh-nav"></div>
 
-<div class="compare-bar" id="compareBar"><div class="cb-count" id="cbCount">0</div><span>Сравнить площадки</span><button onclick="MH.go('compare?ids='+[...compareSet].join(','))">Сравнить</button><button class="cb-clear" onclick="clearCompare()">✕ Сбросить</button></div>
-
-<div id="step1">
-<section class="hero">
-  <div class="hero-orb o1"></div><div class="hero-orb o2"></div><div class="hero-orb o3"></div><div class="hero-orb o4"></div><div class="hero-grid"></div>
-  <div class="hero-sparks"></div>
-  <div class="hero-content">
-    <div class="hero-badge"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M6 8l1.5 1.5L10 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Более 12 000 проверенных площадок</div>
-    <h1 class="hero-h1">Бронируйте <em>площадки</em><br>для любого мероприятия</h1>
-    <p class="hero-sub">Сравнивайте площадки, скачивайте презентации и планируйте мероприятия эффективно</p>
-    <div class="search-form" id="searchForm">
-      <div class="sf" data-field="type"><div class="sf-trigger" onclick="toggleDrop(this)"><div class="sf-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="2" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 5V3.5a2 2 0 012-2h4a2 2 0 012 2V5" stroke="currentColor" stroke-width="1.5"/></svg></div><div class="sf-text"><span class="sf-label">Тип мероприятия</span><span class="sf-value">Конференция</span></div><svg class="sf-chevron" width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3.5 5.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sf-dropdown"><div class="sf-option selected" data-v="Конференция"><span class="sf-option-icon">🎤</span>Конференция</div><div class="sf-option" data-v="Корпоратив"><span class="sf-option-icon">🥂</span>Корпоратив</div><div class="sf-option" data-v="Свадьба"><span class="sf-option-icon">💐</span>Свадьба</div><div class="sf-option" data-v="День рождения"><span class="sf-option-icon">🎂</span>День рождения</div><div class="sf-option" data-v="Бизнес-встреча"><span class="sf-option-icon">💼</span>Бизнес-встреча</div><div class="sf-option" data-v="Частный ужин"><span class="sf-option-icon">🍷</span>Частный ужин</div></div></div>
-      <div class="sf" data-field="guests"><div class="sf-trigger" onclick="toggleDrop(this)"><div class="sf-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="9" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5"/></svg></div><div class="sf-text"><span class="sf-label">Количество гостей</span><span class="sf-value">20–50 человек</span></div><svg class="sf-chevron" width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3.5 5.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sf-dropdown"><div class="sf-option" data-v="до 20 человек">до 20 человек</div><div class="sf-option selected" data-v="20–50 человек">20–50 человек</div><div class="sf-option" data-v="50–100 человек">50–100 человек</div><div class="sf-option" data-v="100–300 человек">100–300 человек</div><div class="sf-option" data-v="300+ человек">300+ человек</div></div></div>
-      <div class="sf" data-field="city"><div class="sf-trigger" onclick="toggleDrop(this)"><div class="sf-icon"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 1.5a5 5 0 015 5c0 4-5 10-5 10s-5-6-5-10a5 5 0 015-5z" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div><div class="sf-text"><span class="sf-label">Город</span><span class="sf-value">Москва</span></div><svg class="sf-chevron" width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3.5 5.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sf-dropdown"><div class="sf-option selected" data-v="Москва">Москва</div><div class="sf-option" data-v="Санкт-Петербург">Санкт-Петербург</div><div class="sf-option" data-v="Казань">Казань</div><div class="sf-option" data-v="Сочи">Сочи</div><div class="sf-option" data-v="Екатеринбург">Екатеринбург</div><div class="sf-option" data-v="Новосибирск">Новосибирск</div><div class="sf-option" data-v="Краснодар">Краснодар</div><div class="sf-option" data-v="Нижний Новгород">Нижний Новгород</div></div></div>
-      <button class="search-btn" onclick="goSearch()"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><circle cx="7.5" cy="7.5" r="5.5" stroke="#fff" stroke-width="2"/><path d="M12 12l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Найти</button>
-    </div>
-  </div>
-  <div class="hero-visual">
-    <div style="position:relative;width:100%;max-width:360px;">
-      <div class="hero-float hero-float-top">
-        <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M4 2v11M11 2v11M2 5h11M2 10h11" stroke="var(--teal-deep)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        В сравнении 3 площадки
-      </div>
-      <div class="hero-vcard">
-        <div class="hero-vcard-photo">
-          <img src="../assets/photos/hero.jpg" alt="Конференц-зал" fetchpriority="high" style="opacity:0;transition:opacity .4s;" onload="this.style.opacity=1" onerror="this.style.opacity=1">
-        </div>
-        <div class="hero-vcard-info">
-          <div class="hero-vcard-name">Лофт «Белый Зал»</div>
-          <div class="hero-vcard-meta">
-            <span>📍 Центр, Москва</span>
-            <span>👥 до 120 чел.</span>
-          </div>
-          <div class="hero-vcard-row">
-            <div class="hero-vcard-price">45 000 ₽ <span>/ день</span></div>
-            <button class="hero-vcard-book">Запросить</button>
-          </div>
-        </div>
-      </div>
-      <div class="hero-float hero-float-left">
-        <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 8l3.5 3.5L13 4" stroke="#4CAF78" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Ответ за 1 час
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="discovery">
-  <div class="section-header reveal"><div class="section-header-row"><div><div class="section-label">География</div><h2 class="section-title">Площадки в главных городах</h2><p class="section-desc">Откройте лучшие площадки — от лофтов до конференц-залов</p></div><div class="scroll-arrows" id="city-arrows"><button class="scroll-arrow disabled" data-dir="left"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M11 4l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="scroll-arrow" data-dir="right"><svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div></div>
-  <div class="city-scroll-wrap"><div class="city-scroll" id="cityScroll"></div></div>
-  <div class="event-section"><div class="section-header reveal"><div class="section-label">Типы мероприятий</div><h2 class="section-title">Подберите площадку под ваш формат</h2><p class="section-desc">Коллекции площадок для самых популярных типов событий</p></div><div class="event-tabs reveal" id="eTabs"></div><div id="eGroups"></div></div>
-</section>
+<div class="wrap" id="root"></div>
 
 <div id="mh-footer"></div>
-</div>
 
-<div id="step2" class="map-view">
-  <div class="filter-drawer" id="filterDrawer">
-    <button class="fd-close" onclick="document.getElementById('filterDrawer').classList.remove('open')"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-    <div class="fd-title">Фильтры</div>
-    <div class="fd-group"><div class="fd-group-label">Тип площадки</div><div class="fd-checks"><label class="fd-check"><input type="checkbox" checked><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Конференц-зал</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Лофт</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ресторан</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Банкетный зал</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Коворкинг</label></div></div>
-    <div class="fd-group"><div class="fd-group-label">Цена за день</div><div class="fd-range"><input type="range" min="5000" max="200000" value="80000"><div class="fd-range-labels"><span>5 000 ₽</span><span>200 000 ₽</span></div></div></div>
-    <div class="fd-group"><div class="fd-group-label">Удобства</div><div class="fd-checks"><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Проектор</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Wi-Fi</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Парковка</label><label class="fd-check"><input type="checkbox"><span class="fd-box"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M2.5 6l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Кейтеринг</label></div></div>
-    <button class="fd-apply" onclick="document.getElementById('filterDrawer').classList.remove('open')">Применить фильтры</button>
-  </div>
-  <div class="map-filters-top"><button class="map-back" onclick="goHome()"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M10 3l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Назад</button><div class="filter-sep"></div><button class="filter-chip active" id="fcType">🎤 Конференция</button><button class="filter-chip" id="fcGuests">👥 20–50 чел.</button><button class="filter-chip">💰 Цена</button><button class="filter-chip">⭐ Рейтинг 4+</button><button class="filter-more" onclick="document.getElementById('filterDrawer').classList.add('open')"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 4h10M4 7h6M5 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Все фильтры</button><span class="map-search-info" id="mapInfo">Найдено 24 площадки</span></div>
-  <div class="map-panel" id="mapPanel"><div class="panel-grid" id="panelGrid"></div></div>
-  <div class="map-area" id="mapArea"><div class="map-placeholder" id="mapPlaceholder"></div><div class="map-zoom"><button>+</button><button>−</button></div><button class="map-expand" id="mapExpand" onclick="toggleMapExpand()"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Развернуть карту</button></div>
-</div>
-
-<script>
-function cityIll(h,s){const n=((s-1)%8)+1;return '<img src="../assets/photos/c'+n+'.jpg" alt="" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
-function venueIll(h,s){const n=((s-1)%16)+1;return '<img src="../assets/photos/v'+n+'.jpg" alt="" style="opacity:0;transition:opacity .4s;width:100%;height:100%;object-fit:cover;" onload="this.style.opacity=1" onerror="this.style.opacity=1">';}
-
-const cities=[{n:'Москва',t:'Столица событий',cnt:'3 200+',h:185,s:1},{n:'Санкт-Петербург',t:'Дворцы и лофты',cnt:'2 100+',h:195,s:2},{n:'Казань',t:'Столица Поволжья',cnt:'780+',h:18,s:3},{n:'Сочи',t:'Море и горы',cnt:'540+',h:170,s:4},{n:'Екатеринбург',t:'Центр Урала',cnt:'620+',h:15,s:5},{n:'Новосибирск',t:'Сердце Сибири',cnt:'480+',h:210,s:6},{n:'Краснодар',t:'Южный простор',cnt:'410+',h:160,s:7},{n:'Нижний Новгород',t:'Особняки и залы',cnt:'350+',h:200,s:8}];
-
-const V=[{n:'Конференц-зал «Панорама»',c:'Москва, Пресня',g:250,a:380,p:'45 000 ₽',r:4.9,rv:127,b:'Конференция',pr:1,h:195,s:10,px:55,py:42},{n:'Бизнес-лофт Level Up',c:'Москва, Арбат',g:80,a:150,p:'18 000 ₽',r:4.7,rv:84,b:'Лофт',h:205,s:11,px:48,py:38},{n:'Коворкинг Space One',c:'Москва, Сити',g:40,a:90,p:'8 000 ₽',r:4.8,rv:63,b:'Коворкинг',h:180,s:12,px:60,py:50},{n:'Зал «Империя»',c:'Москва, Тверская',g:400,a:600,p:'65 000 ₽',r:4.6,rv:52,b:'Конференция',pr:1,h:215,s:13,px:52,py:35},{n:'Meeting Point',c:'Москва, Павелецкая',g:120,a:200,p:'22 000 ₽',r:4.8,rv:91,b:'Выставка',h:190,s:14,px:56,py:55},{n:'Центр «Высота»',c:'Москва, ВДНХ',g:180,a:320,p:'32 000 ₽',r:4.7,rv:38,b:'Семинар',h:200,s:15,px:62,py:30},{n:'Усадьба «Белые ночи»',c:'Москва, Рублёвка',g:150,a:450,p:'95 000 ₽',r:4.9,rv:203,b:'Банкетный',pr:1,h:25,s:20,px:30,py:40},{n:'Ресторан «Терракота»',c:'Москва, Патриаршие',g:60,a:120,p:'35 000 ₽',r:4.8,rv:156,b:'Ресторан',h:15,s:21,px:47,py:44},{n:'Лофт «Кирпич»',c:'Москва, Курская',g:100,a:280,p:'28 000 ₽',r:4.6,rv:112,b:'Лофт',h:20,s:23,px:58,py:46},{n:'Галерея «Арт-холл»',c:'Москва, Винзавод',g:120,a:300,p:'50 000 ₽',r:4.8,rv:74,b:'Галерея',h:280,s:30,px:57,py:48},{n:'Шеф-стол Blanc',c:'Москва, Тверская',g:12,a:40,p:'120 000 ₽',r:5.0,rv:34,b:'Частный ужин',pr:1,h:35,s:40,px:50,py:37},{n:'Зал «Тишина»',c:'Москва, Якиманка',g:16,a:45,p:'25 000 ₽',r:4.9,rv:61,b:'Частный ужин',h:25,s:42,px:53,py:52}];
-
-const groups=[{id:'business',emoji:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',label:'Деловые',title:'Для бизнеса',total:'4 200+',v:V.slice(0,6)},{id:'celebration',emoji:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H7c-1.5 4-2 6-2 8a5 5 0 0 0 5 5z"/></svg>',label:'Праздники',title:'Для торжеств',total:'3 800+',v:[V[6],V[7],V[8],V[0],V[4],V[5]]},{id:'creative',emoji:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',label:'Креатив',title:'Для творчества',total:'1 600+',v:[V[9],V[2],V[8],V[4],V[5]]},{id:'intimate',emoji:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',label:'Камерные',title:'Для приватных встреч',total:'860+',v:[V[10],V[11],V[7],V[2],V[9]]}];
-
-const ic={pin:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',usr:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',area:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M8 21H5a2 2 0 0 1-2-2v-3M21 8V5a2 2 0 0 0-2-2h-3M21 16v3a2 2 0 0 1-2 2h-3"/></svg>',star:'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',heart:'<svg width="12" height="12" viewBox="-0.5 -0.5 13 13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.49994 11.7733L10.6225 7.04126C12.4072 5.11857 12.3285 2.70387 11.1252 1.23784C10.5265 0.507833 9.65454 0.0271597 8.64523 0.00115934C7.78324 -0.0215077 6.87726 0.28783 6.00328 0.962506C5.12663 0.28783 4.21798 -0.0215077 3.35467 0.00115934C2.34469 0.0278264 1.47137 0.507833 0.872051 1.23784C-0.331925 2.7052 -0.40459 5.1199 1.38671 7.04193L5.50862 11.7733C5.63529 11.9173 5.81528 12 6.00395 12C6.09792 11.9999 6.19077 11.9796 6.27622 11.9405C6.36167 11.9013 6.43773 11.8444 6.49927 11.7733H6.49994Z" stroke="currentColor" stroke-width="1"/></svg>',cmp:'<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.3095 10.1906C7.13864 10.0198 6.86168 10.0198 6.69082 10.1906L4.64914 12.2323C4.47828 12.4032 4.47828 12.6801 4.64914 12.851C4.81999 13.0219 5.097 13.0219 5.26785 12.851L7.00016 11.1187L8.73249 12.851C8.90334 13.0219 9.18031 13.0219 9.35117 12.851C9.52203 12.6801 9.52203 12.4032 9.35117 12.2323L7.3095 10.1906Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M7 0.729248C7.24162 0.729248 7.4375 0.925126 7.4375 1.16675V2.33341C7.4375 2.57504 7.24162 2.77091 7 2.77091C6.75838 2.77091 6.5625 2.57504 6.5625 2.33341V1.16675C6.5625 0.925126 6.75838 0.729248 7 0.729248Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12.4832 10.9374C12.9181 10.9374 13.2707 10.5849 13.2707 10.1499V2.68325C13.2707 2.24833 12.9181 1.89575 12.4832 1.89575H1.5165C1.08158 1.89575 0.729004 2.24832 0.729004 2.68325V10.1499C0.729004 10.5849 1.08158 10.9374 1.5165 10.9374H12.4832ZM5.68734 6.99992C5.68734 6.7583 5.49146 6.56242 5.24984 6.56242C5.00821 6.56242 4.81234 6.7583 4.81234 6.99992V8.16659C4.81234 8.4082 5.00821 8.60409 5.24984 8.60409C5.49146 8.60409 5.68734 8.4082 5.68734 8.16659V6.99992ZM6.99984 5.39575C7.24145 5.39575 7.43734 5.59163 7.43734 5.83325V8.16659C7.43734 8.4082 7.24145 8.60409 6.99984 8.60409C6.75822 8.60409 6.56234 8.4082 6.56234 8.16659V5.83325C6.56234 5.59163 6.75822 5.39575 6.99984 5.39575ZM9.18734 4.66659C9.18734 4.42496 8.99145 4.22909 8.74984 4.22909C8.50822 4.22909 8.31234 4.42496 8.31234 4.66659V8.16659C8.31234 8.4082 8.50822 8.60409 8.74984 8.60409C8.99145 8.60409 9.18734 8.4082 9.18734 8.16659V4.66659Z"/></svg>',chev:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',arrow:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>'};
-
-let compareSet=new Set();
-function toggleCompare(id,btn){if(compareSet.has(id)){compareSet.delete(id);btn.classList.remove('cmp-on');}else if(compareSet.size<4){compareSet.add(id);btn.classList.add('cmp-on');}document.getElementById('cbCount').textContent=compareSet.size;document.getElementById('compareBar').classList.toggle('show',compareSet.size>0);}
-function clearCompare(){compareSet.clear();document.querySelectorAll('.cmp-on').forEach(b=>b.classList.remove('cmp-on'));document.getElementById('compareBar').classList.remove('show');document.getElementById('cbCount').textContent='0';}
-
-function bigCard(v){return '<div class="venue-card" onclick="window.location.href=\'venue?id='+v.s+'\'"><div class="venue-thumb">'+venueIll(v.h,v.s)+'<div class="venue-badges"><span class="venue-badge type">'+v.b+'</span>'+(v.pr?'<span class="venue-badge premium">Premium</span>':'')+'</div><div class="venue-actions"><button class="va-btn" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="va-btn" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="venue-body"><div class="venue-name">'+v.n+'</div><div class="venue-loc">'+ic.pin+v.c+'</div><div class="venue-stats"><div class="venue-stat">'+ic.usr+'до '+v.g+'</div><div class="venue-stat">'+ic.area+v.a+' м²</div></div><div class="venue-bottom"><div class="venue-price">от <strong>'+v.p+'</strong> <span>/ день</span></div><button class="venue-cta" onclick="event.stopPropagation();window.location.href=\'venue?id='+v.s+'\'">Подробнее</button></div></div></div>';}
-function smallCard(v){return '<div class="m-card" onclick="window.location.href=\'venue?id='+v.s+'\'"><div class="m-thumb">'+venueIll(v.h,v.s)+'<div class="m-badges"><span class="m-badge type">'+v.b+'</span>'+(v.pr?'<span class="m-badge premium">Premium</span>':'')+'</div><div class="m-acts"><button class="m-act" onclick="event.stopPropagation();toggleCompare('+v.s+',this)" title="Сравнить">'+ic.cmp+'</button><button class="m-act" data-fav="'+v.s+'" onclick="event.stopPropagation();const a=MH.toggleFav('+v.s+');this.classList.toggle(\'fav-on\',a)" title="Избранное">'+ic.heart+'</button></div></div><div class="m-body"><div class="m-name">'+v.n+'</div><div class="m-loc">'+ic.pin+v.c+'</div><div class="m-row"><div class="m-price">от <strong>'+v.p+'</strong></div></div></div></div>';}
-
-// Render cities
-const cEl=document.getElementById('cityScroll');
-cities.forEach(c=>{const d=document.createElement('div');d.className='city-card';d.innerHTML='<div class="city-thumb">'+cityIll(c.h,c.s)+'</div><div class="city-body"><div class="city-name">'+c.n+'</div><div class="city-tagline">'+c.t+'</div><div class="city-footer"><div class="city-count"><svg width="12" height="12" fill="none" viewBox="0 0 12 12"><rect x="1" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M4 3V2a2 2 0 014 0v1" stroke="currentColor" stroke-width="1.1"/></svg>'+c.cnt+'</div><div class="city-link">'+ic.arrow+'</div></div></div>';d.addEventListener('click',()=>goStep2(c.n));cEl.appendChild(d);});
-
-// Render events
-const tw=document.getElementById('eTabs'),gw=document.getElementById('eGroups');
-groups.forEach((g,i)=>{tw.insertAdjacentHTML('beforeend','<div class="event-tab'+(i===0?' active':'')+'" data-g="'+g.id+'">'+g.emoji+g.label+'</div>');gw.insertAdjacentHTML('beforeend','<div class="event-group'+(i===0?' active':'')+'" data-g="'+g.id+'"><div class="event-group-header"><div><div class="event-group-title">'+g.title+'</div><div class="event-group-count">'+g.total+' площадок</div></div><a href="search?type='+encodeURIComponent(g.id)+'" class="event-group-link">Все '+ic.chev+'</a></div><div class="venue-scroll">'+g.v.map(v=>bigCard(v)).join('')+'</div></div>');});
-document.querySelectorAll('.event-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.event-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.event-group').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelector('.event-group[data-g="'+t.dataset.g+'"]').classList.add('active');});});
-
-// Dropdowns
-// Dropdowns — portal to body for z-index/stacking fix
-document.querySelectorAll('.sf').forEach(sf=>{
-  const dd=sf.querySelector('.sf-dropdown');
-  if(dd){dd.dataset.field=sf.dataset.field;dd._sf=sf;document.body.appendChild(dd);}
-});
-
-function toggleDrop(tr){
-  const wasOpen=tr.classList.contains('open');
-  closeAllDrops();
-  if(!wasOpen){
-    tr.classList.add('open');
-    const sf=tr.closest('.sf');
-    const dd=document.querySelector('.sf-dropdown[data-field="'+sf.dataset.field+'"]');
-    if(!dd) return;
-    positionDrop(tr,dd);
-    dd.classList.add('show');
-  }
-}
-function positionDrop(tr,dd){
-  const rect=tr.getBoundingClientRect();
-  dd.style.top=(rect.bottom+6)+'px';
-  dd.style.left=rect.left+'px';
-  dd.style.width=Math.max(rect.width,240)+'px';
-}
-function closeAllDrops(){document.querySelectorAll('.sf-trigger').forEach(t=>t.classList.remove('open'));document.querySelectorAll('.sf-dropdown').forEach(d=>d.classList.remove('show'));}
-document.addEventListener('click',e=>{if(!e.target.closest('.sf')&&!e.target.closest('.sf-dropdown'))closeAllDrops();});
-['scroll','resize'].forEach(ev=>window.addEventListener(ev,()=>{const openTr=document.querySelector('.sf-trigger.open');if(openTr){const sf=openTr.closest('.sf');const dd=document.querySelector('.sf-dropdown[data-field="'+sf.dataset.field+'"]');if(dd&&dd.classList.contains('show'))positionDrop(openTr,dd);}},true));
-
-document.querySelectorAll('.sf-option').forEach(o=>{o.addEventListener('click',()=>{const dd=o.closest('.sf-dropdown');const field=dd.dataset.field;const sf=document.querySelector('.sf[data-field="'+field+'"]');dd.querySelectorAll('.sf-option').forEach(x=>x.classList.remove('selected'));o.classList.add('selected');sf.querySelector('.sf-value').textContent=o.dataset.v;closeAllDrops();});});
-
-// City arrows
-const cScr=document.getElementById('cityScroll'),arrs=document.querySelectorAll('#city-arrows .scroll-arrow');
-arrs.forEach(b=>b.addEventListener('click',()=>{cScr.scrollBy({left:(b.dataset.dir==='right'?1:-1)*280,behavior:'smooth'});}));
-cScr.addEventListener('scroll',()=>{arrs[0].classList.toggle('disabled',cScr.scrollLeft<10);arrs[1].classList.toggle('disabled',cScr.scrollLeft+cScr.clientWidth>=cScr.scrollWidth-10);});
-
-// Navigate to search.html with params
-function goSearch(cityO) {
-  const city = cityO || document.querySelector('.sf[data-field="city"] .sf-value').textContent;
-  const type = document.querySelector('.sf[data-field="type"] .sf-value').textContent;
-  const guests = document.querySelector('.sf[data-field="guests"] .sf-value').textContent;
-  const p = new URLSearchParams({ city, type, guests });
-  window.location.href = 'search?' + p.toString();
-}
-
-// Keep old step2 for inline map (used by city cards on homepage)
-function goStep2(cityO){
-  const city=cityO||document.querySelector('.sf[data-field="city"] .sf-value').textContent;
-  const type=document.querySelector('.sf[data-field="type"] .sf-value').textContent;
-  const guests=document.querySelector('.sf[data-field="guests"] .sf-value').textContent;
-  goSearch(city);
-}
-function goHome(){document.getElementById('step2').classList.remove('active');document.getElementById('step1').style.display='';setTimeout(()=>document.getElementById('step1').classList.remove('fade-out'),10);window.scrollTo(0,0);}
-
-let mapExp=false;
-function toggleMapExpand(){mapExp=!mapExp;document.getElementById('mapPanel').classList.toggle('collapsed',mapExp);document.getElementById('mapExpand').innerHTML=mapExp?'<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M6 2H2v4M14 6V2h-4M10 14h4v-4M2 10v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Показать список':'<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Развернуть карту';}
-
-// Reveal
-const obs=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);obs.unobserve(e.target);}});},{threshold:0,rootMargin:'0px 0px 200px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-</script>
+<script src="data.js"></script>
 <script src="shared.js"></script>
-<script>MH.init();document.querySelectorAll('[data-fav]').forEach(b=>{if(MH.isFav(+b.dataset.fav))b.classList.add('fav-on');});</script>
+<script>
+MH.init();
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* Отраслевые события: в модели их нет.
+   КОНТЕНТ ПОД НАПОЛНЕНИЕ ЧЕРЕЗ АДМИНКУ — правится редактором, не кодом. */
+const EVENTS = [
+  { date: '12.09.2026', kind: 'Выставка', name: 'MICE Excellence Forum — Москва, Экспоцентр' },
+  { date: '04.10.2026', kind: 'Премия',   name: 'Национальная премия event-индустрии' },
+  { date: '21.11.2026', kind: 'Воркшоп',  name: 'Воркшоп площадок Поволжья — Казань' },
+  { date: '05.12.2026', kind: 'Выставка', name: 'Событийный туризм: регионы России — Сочи' },
+];
+
+/* Сколько залов в городе — считаем по модели, без выдуманных чисел. */
+function hallsInCity(city){
+  return ML.VENUES.filter(v => v.city === city).reduce((a, v) => a + v.halls.length, 0);
+}
+
+function initials(name){
+  const p = String(name).trim().split(/\s+/);
+  return ((p[0] || '')[0] || '') + ((p[1] || '')[0] || '');
+}
+
+function render(){
+  const F = ML.loadFilters();
+
+  /* ── 2. города: только те, где реально есть залы ── */
+  const cities = ML.CITIES
+    .map(c => ({ city: c, halls: hallsInCity(c) }))
+    .filter(x => x.halls > 0)
+    .sort((a, b) => b.halls - a.halls);
+
+  const cityTiles = cities.map((x, i) => `
+    <button class="tile" onclick="goCity('${esc(x.city)}')">
+      <div class="tile-img"><img src="${ML.photoUrl(i + 3)}" alt="" loading="lazy"></div>
+      <div class="tile-b">
+        <div class="tile-name">${esc(x.city)}</div>
+        <div class="tile-cnt">${x.halls} ${ML.plural(x.halls, ['зал','зала','залов'])}</div>
+      </div>
+    </button>`).join('');
+
+  /* ── 4. новые площадки ── */
+  const venueTiles = ML.VENUES.slice(0, 4).map(v => `
+    <a class="tile" href="venue.html?id=${v.id}">
+      <div class="tile-img"><img src="${ML.photoUrl(v.photo)}" alt="" loading="lazy"></div>
+      <div class="tile-b">
+        <div class="tile-name">${esc(v.name)}</div>
+        <div class="tile-sub">${esc(v.cat)} · ${esc(v.city)}</div>
+      </div>
+    </a>`).join('');
+
+  /* ── 5. новые поставщики ── */
+  const supTiles = ML.SUPPLIERS.slice(0, 4).map(s => `
+    <a class="tile" href="supplier.html?id=${s.id}">
+      <div class="tile-img"><img src="${ML.photoUrl(s.photo)}" alt="" loading="lazy"></div>
+      <div class="tile-b">
+        <div class="tile-name">${esc(s.name)}</div>
+        <div class="tile-sub">${esc(s.parent)} · ${esc(s.city)}</div>
+      </div>
+    </a>`).join('');
+
+  /* ── 7. отзывы ── */
+  const revs = ML.reviewsLatest(3).map(r => {
+    const isVenue = r.target === 'venue';
+    const obj = isVenue ? ML.venueById(r.targetId) : ML.SUPPLIERS.find(s => s.id === r.targetId);
+    const href = isVenue ? `venue.html?id=${r.targetId}` : `supplier.html?id=${r.targetId}`;
+    const name = obj ? obj.name : (isVenue ? 'Объект' : 'Поставщик');
+    return `<article class="rev">
+      <div class="rev-top">
+        <div class="rev-ava">${esc(initials(r.author))}</div>
+        <div class="rev-who">
+          <div class="rev-name">${esc(r.author)}</div>
+          <div class="rev-role">${esc(r.role || '')}</div>
+        </div>
+        <div class="rev-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+      </div>
+      ${r.event ? `<div class="rev-ev">${esc(r.event)} · ${esc(r.date)}</div>` : ''}
+      <p class="rev-text">${esc(r.text)}</p>
+      <div class="rev-target">${isVenue ? 'Объект' : 'Поставщик'}:
+        <a href="${href}">${esc(name)}</a></div>
+    </article>`;
+  }).join('');
+
+  document.getElementById('root').innerHTML = `
+
+  <!-- ══════ 1. ПОИСКОВАЯ СТРОКА ══════ -->
+  <section class="hero">
+    <span class="eyebrow">Поисковый инструмент MICE и Event</span>
+    <h1>Поиск залов, а не отелей</h1>
+    <p>Подбирайте залы по параметрам технического задания независимо от объекта,
+    сравнивайте их между собой, отправляйте один запрос сразу во все выбранные объекты
+    и выгружайте презентацию по отобранным залам.</p>
+
+    <div class="sbar">
+      <div class="sf">
+        <label for="sCity">Город</label>
+        <select id="sCity">
+          <option value="">Любой город</option>
+          ${ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="sf">
+        <label for="sPeople">Участников</label>
+        <input id="sPeople" type="number" min="0" step="10" placeholder="любое" value="${F.people || ''}">
+      </div>
+      <div class="sf">
+        <label for="sEvent">Тип мероприятия</label>
+        <select id="sEvent">
+          ${ML.EVENT_TYPES.map(e => `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="sf"><button class="sbtn" onclick="goSearch()">Найти залы</button></div>
+    </div>
+  </section>
+
+  <!-- ══════ 2. ПЛОЩАДКИ ПО НАПРАВЛЕНИЯМ ══════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <span class="sec-eyebrow">География</span>
+        <h2 class="sec-title">Площадки по направлениям</h2>
+        <div class="sec-sub">Счётчик — количество залов в объектах города</div>
+      </div>
+      <a class="btn" href="search.html">Все направления</a>
+    </div>
+    <div class="tiles">${cityTiles}</div>
+  </section>
+
+  <!-- ══════ 3. РЕКЛАМНЫЙ БЛОК ══════ -->
+  <section class="sec">
+    <div class="adslot">
+      <div class="adslot-t">Рекламное место</div>
+      <div class="adslot-s">Баннер объекта или поставщика. Место продаётся на срок —
+      отдельная статья монетизации ресурса, независимая от вознаграждения за мероприятия
+      и подписок.</div>
+    </div>
+  </section>
+
+  <!-- ══════ 4. НОВЫЕ ПЛОЩАДКИ ══════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <span class="sec-eyebrow">Динамическая выдача</span>
+        <h2 class="sec-title">Новые площадки на сайте</h2>
+      </div>
+      <a class="btn" href="search.html">Весь подбор</a>
+    </div>
+    <div class="tiles">${venueTiles}</div>
+  </section>
+
+  <!-- ══════ 5. НОВЫЕ ПОСТАВЩИКИ ══════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <span class="sec-eyebrow">Динамическая выдача</span>
+        <h2 class="sec-title">Новые поставщики на сайте</h2>
+      </div>
+      <a class="btn" href="suppliers.html">Весь каталог</a>
+    </div>
+    <div class="tiles">${supTiles}</div>
+  </section>
+
+  <!-- ══════ 6. СОБЫТИЯ ОТРАСЛИ ══════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <span class="sec-eyebrow">Отрасль</span>
+        <h2 class="sec-title">События MICE и Event</h2>
+        <div class="sec-sub">Календарь выставок, премий и воркшопов</div>
+      </div>
+    </div>
+    <div class="events">
+      ${EVENTS.map(e => `<div class="ev">
+        <span class="ev-date">${esc(e.date)}</span>
+        <span class="ev-kind">${esc(e.kind)}</span>
+        <span class="ev-name">${esc(e.name)}</span>
+      </div>`).join('')}
+    </div>
+  </section>
+
+  <!-- ══════ 7. ОТЗЫВЫ ══════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <div>
+        <span class="sec-eyebrow">Обратная связь</span>
+        <h2 class="sec-title">Отзывы по объектам и поставщикам</h2>
+        <div class="sec-sub">Пишут те, у кого мероприятие состоялось</div>
+      </div>
+    </div>
+    <div class="revs">${revs}</div>
+  </section>`;
+}
+
+/* ── поиск: пишем фильтры в модель и уходим в подбор ── */
+function goSearch(){
+  const F = ML.loadFilters();
+  F.city = document.getElementById('sCity').value || '';
+  F.people = +document.getElementById('sPeople').value || 0;
+  F.eventType = document.getElementById('sEvent').value || F.eventType;
+  ML.saveFilters(F);
+  MH.go('search.html');
+}
+function goCity(city){
+  const F = ML.loadFilters();
+  F.city = city;
+  ML.saveFilters(F);
+  MH.go('search.html');
+}
+
+render();
+</script>
 </body>
 </html>
