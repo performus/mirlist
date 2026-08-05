@@ -33,7 +33,7 @@ const MH = (() => {
         display: flex; align-items: center; padding: 0 36px;
         background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         box-shadow: 0 2px 24px rgba(53,78,99,.07);
-        font-family: 'Outfit', 'Inter', sans-serif;
+        font-family: 'Onest', system-ui, sans-serif;
       }
       .mh-logo {
         text-decoration: none; white-space: nowrap; margin-right: 40px; flex-shrink: 0;
@@ -115,7 +115,7 @@ const MH = (() => {
         display: flex; align-items: center; gap: 10px;
         padding: 12px 18px; border-radius: 12px; min-width: 220px; max-width: 320px;
         background: #354E63; color: #fff;
-        font-family: 'Outfit', 'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 13.5px; font-weight: 500;
         box-shadow: 0 8px 28px rgba(53,78,99,.22);
         opacity: 0; transform: translateY(8px);
         transition: opacity .22s ease, transform .22s ease;
@@ -269,7 +269,7 @@ const MH = (() => {
     s.textContent = `
       .mh-footer {
         background: #F5F2EE; border-top: 1px solid #E5DDD6;
-        font-family: 'Outfit', 'Inter', sans-serif; color: #7A919F;
+        font-family: 'Onest', system-ui, sans-serif; color: #7A919F;
       }
       .mh-ft-main {
         display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -492,7 +492,7 @@ const MH = (() => {
       .mhfb-head {
         padding: 24px 28px 0; display: flex; align-items: flex-start; justify-content: space-between;
       }
-      .mhfb-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #354E63; }
+      .mhfb-title { font-family: 'Literata', Georgia, serif; font-weight: 600; font-size: 22px; color: #354E63; }
       .mhfb-sub { font-size: 13.5px; color: #7A919F; margin-top: 4px; }
       .mhfb-close {
         width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #B4C3CC;
@@ -509,7 +509,7 @@ const MH = (() => {
       .mhfb-input {
         width: 100%; padding: 11px 15px; border-radius: 10px;
         border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
-        font-family: 'Outfit', sans-serif; font-size: 14px; color: #354E63;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 14px; color: #354E63;
         outline: none; transition: border-color .2s;
       }
       .mhfb-input:focus { border-color: #E8846A; background: #fff; }
@@ -518,26 +518,26 @@ const MH = (() => {
       .mhfb-chip {
         padding: 6px 14px; border-radius: 50px; font-size: 12.5px; font-weight: 500;
         background: #F6E6DE; color: #46627A; border: 1.5px solid transparent;
-        cursor: pointer; transition: all .18s; font-family: 'Outfit', sans-serif;
+        cursor: pointer; transition: all .18s; font-family: 'Onest', system-ui, sans-serif;
       }
       .mhfb-chip.sel { background: #FCEAE4; color: #E8846A; border-color: rgba(232,132,106,.3); font-weight: 600; }
       .mhfb-textarea {
         width: 100%; padding: 11px 15px; border-radius: 10px;
         border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
-        font-family: 'Outfit', sans-serif; font-size: 14px; color: #354E63;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 14px; color: #354E63;
         outline: none; resize: vertical; min-height: 110px; transition: border-color .2s;
       }
       .mhfb-textarea:focus { border-color: #E8846A; background: #fff; }
       .mhfb-btn {
         width: 100%; padding: 13px; border-radius: 10px; border: none;
-        background: #E8846A; color: #fff; font-family: 'Outfit', sans-serif;
+        background: #E8846A; color: #fff; font-family: 'Onest', system-ui, sans-serif;
         font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s;
         box-shadow: 0 4px 16px rgba(232,132,106,.28);
       }
       .mhfb-btn:hover { background: #d4704f; transform: translateY(-1px); }
       .mhfb-success { text-align: center; padding: 40px 28px; }
       .mhfb-success-icon { font-size: 48px; margin-bottom: 14px; }
-      .mhfb-success-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #354E63; margin-bottom: 8px; }
+      .mhfb-success-title { font-family: 'Literata', Georgia, serif; font-weight: 600; font-size: 22px; color: #354E63; margin-bottom: 8px; }
       .mhfb-success-text { font-size: 14px; color: #7A919F; line-height: 1.6; }
     `;
     document.head.appendChild(style);

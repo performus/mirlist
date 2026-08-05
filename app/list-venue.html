@@ -6,14 +6,14 @@
 <meta name="description" content="Разместите площадку на МирХАБ и получайте заявки от организаторов мероприятий.">
 <meta property="og:title" content="МирХАБ">
 <meta property="og:description" content="Разместите площадку на МирХАБ и получайте заявки от организаторов мероприятий.">
-<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Разместите площадку — Площадки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
 :root{
   --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
@@ -24,14 +24,14 @@
   --r:10px;--rm:14px;--rl:20px;--rf:50px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
-.serif{font-family:'DM Serif Display',serif;}
+.serif{font-family:'Literata',Georgia,serif;font-weight:600;}
 
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(197,227,225,.25);transition:background .3s;}
-.nav-logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--sd);}
+.nav-logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
 .nav-logo i{font-style:normal;color:var(--c);}
 .nav-links{display:flex;gap:8px;margin-left:auto;}
 .nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
@@ -52,7 +52,7 @@ button{font-family:inherit;cursor:pointer;}
 
 .hero-content{position:relative;z-index:1;max-width:600px;flex:1;}
 .hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:32px;backdrop-filter:blur(8px);animation:fadeUp .7s ease both;}
-.hero-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:var(--sd);letter-spacing:-1.5px;margin-bottom:20px;animation:fadeUp .7s ease .1s both;}
+.hero-h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:var(--sd);letter-spacing:-.005em;margin-bottom:20px;animation:fadeUp .7s ease .1s both;}
 .hero-h1 em{font-style:italic;color:var(--c);position:relative;}
 .hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:520px;margin-bottom:40px;animation:fadeUp .7s ease .2s both;}
 .hero-actions{display:flex;gap:14px;align-items:center;margin-bottom:40px;animation:fadeUp .7s ease .3s both;}
@@ -90,7 +90,7 @@ button{font-family:inherit;cursor:pointer;}
 .section-center{text-align:center;max-width:640px;margin:0 auto 56px;}
 .section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c);margin-bottom:14px;}
 .section-label::before{content:'';width:20px;height:2px;background:var(--c);border-radius:2px;}
-.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.5px;line-height:1.15;margin-bottom:12px;}
+.section-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.005em;line-height:1.15;margin-bottom:12px;}
 .section-desc{font-size:16px;color:var(--sx);line-height:1.65;max-width:520px;margin:0 auto;}
 
 .container{max-width:1200px;margin:0 auto;}
@@ -99,7 +99,7 @@ button{font-family:inherit;cursor:pointer;}
 .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
 .step-card{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
 .step-card:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
-.step-num{position:absolute;top:16px;left:20px;font-size:42px;font-weight:800;color:var(--cg);font-family:'DM Serif Display',serif;line-height:1;}
+.step-num{position:absolute;top:16px;left:20px;font-size:42px;font-weight:700;color:var(--cg);font-family:'Literata',Georgia,serif;line-height:1;}
 .step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:28px;}
 .step-title{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
 .step-text{font-size:13.5px;color:var(--sx);line-height:1.55;}
@@ -152,7 +152,7 @@ button{font-family:inherit;cursor:pointer;}
 .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
 .test-card{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
 .test-quote{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
-.test-quote::before{content:'«';font-family:'DM Serif Display',serif;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
+.test-quote::before{content:'«';font-family:'Literata',Georgia,serif;font-weight:600;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
 .test-author{display:flex;align-items:center;gap:12px;}
 .test-avatar{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
 .test-name{font-size:14px;font-weight:600;color:var(--sd);}
@@ -164,7 +164,7 @@ button{font-family:inherit;cursor:pointer;}
 .cta-section{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
 .cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
 .cta-inner{position:relative;z-index:1;}
-.cta-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);color:var(--sd);margin-bottom:12px;}
+.cta-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,4vw,42px);color:var(--sd);margin-bottom:12px;}
 .cta-desc{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
 .cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
 .cta-btn:hover{background:var(--c6);transform:translateY(-2px);box-shadow:0 8px 32px rgba(235,116,84,.3);}

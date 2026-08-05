@@ -6,14 +6,14 @@
 <meta name="description" content="Сравнение залов: рассадка, площадь, стоимость аренды и групповой запрос в отделы продаж.">
 <meta property="og:title" content="Сравнение залов — МирХАБ">
 <meta property="og:description" content="Сравнение залов: рассадка, площадь, стоимость аренды и групповой запрос в отделы продаж.">
-<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Сравнение залов — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════
    DESIGN TOKENS — Aqua Coral Slate
@@ -29,7 +29,7 @@
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
@@ -44,7 +44,7 @@ button{font-family:inherit;cursor:pointer;}
 
 .dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px;}
 .d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
-.d-title{font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.3px;}
+.d-title{font-family:'Literata',Georgia,serif;font-size:32px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-limit{font-size:13px;color:var(--slate-muted);margin-top:8px;}
 .d-limit b{color:var(--slate-deep);font-weight:700;}
 .d-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;}
@@ -133,7 +133,7 @@ button{font-family:inherit;cursor:pointer;}
   border-radius:var(--r-lg);box-shadow:var(--sh-md);
   padding:60px 28px;text-align:center;max-width:560px;margin:0 auto;
 }
-.empty h2{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--slate-deep);margin-bottom:10px;}
+.empty h2{font-family:'Literata',Georgia,serif;font-size:26px;font-weight:600;color:var(--slate-deep);margin-bottom:10px;}
 .empty p{font-size:13.5px;line-height:1.65;color:var(--slate-muted);margin-bottom:22px;}
 .empty .ic-hint{
   display:inline-flex;align-items:center;justify-content:center;
@@ -158,7 +158,7 @@ button{font-family:inherit;cursor:pointer;}
 }
 @keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-head{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-.modal-title{font-family:'DM Serif Display',serif;font-size:21px;font-weight:400;color:var(--slate-deep);}
+.modal-title{font-family:'Literata',Georgia,serif;font-size:21px;font-weight:600;color:var(--slate-deep);}
 .modal-body{padding:16px 24px 20px;overflow-y:auto;}
 .modal-body p{font-size:13.5px;line-height:1.65;color:var(--slate-mid);margin-bottom:14px;}
 .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:0 24px 22px;flex-wrap:wrap;}
@@ -197,7 +197,7 @@ textarea.fi{min-height:110px;resize:vertical;line-height:1.55;}
   padding:11px 13px;font-size:12px;line-height:1.55;color:var(--slate-mid);margin-top:14px;
 }
 .ok-num{
-  font-family:'DM Serif Display',serif;font-size:26px;color:var(--coral);
+  font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--coral);
   display:block;margin:6px 0 12px;
 }
 

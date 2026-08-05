@@ -6,14 +6,14 @@
 <meta name="description" id="metaDesc" content="Карточка зала: вместимость по схемам рассадки, площадь, высота потолка и стоимость аренды.">
 <meta property="og:title" id="ogTitle" content="МирХАБ">
 <meta property="og:description" id="ogDesc" content="Карточка зала: вместимость по схемам рассадки, площадь, высота потолка и стоимость аренды.">
-<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Зал — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════
    DESIGN TOKENS — Aqua Coral Slate
@@ -29,7 +29,7 @@
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
@@ -46,7 +46,7 @@ button{font-family:inherit;cursor:pointer;}
 .d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
 .d-eyebrow a{color:var(--slate-muted);text-transform:none;letter-spacing:0;font-weight:500;}
 .d-eyebrow a:hover{color:var(--coral);}
-.d-title{font-family:'DM Serif Display',serif;font-size:34px;font-weight:400;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.3px;}
+.d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--slate-muted);align-items:center;}
 .d-meta b{color:var(--slate-deep);font-weight:700;}
 .d-actions{display:flex;gap:8px;flex-wrap:wrap;}
@@ -72,7 +72,7 @@ button{font-family:inherit;cursor:pointer;}
 .two{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
 .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 12px;flex-wrap:wrap;}
 .sec-head.first{margin-top:0;}
-.sec-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:var(--slate-deep);}
+.sec-title{font-family:'Literata',Georgia,serif;font-size:22px;font-weight:600;color:var(--slate-deep);}
 .sec-sub{font-size:12.5px;color:var(--slate-muted);}
 .panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);box-shadow:var(--sh-md);}
 
@@ -81,7 +81,7 @@ button{font-family:inherit;cursor:pointer;}
 .seat{background:var(--white);border:1px solid rgba(197,227,225,.35);border-radius:var(--r-md);
   padding:16px 12px;text-align:center;box-shadow:var(--sh-sm);transition:border-color .25s,transform .25s;}
 .seat:hover{border-color:var(--aqua-3);transform:translateY(-2px);}
-.seat-n{font-family:'DM Serif Display',serif;font-size:26px;color:var(--slate-deep);line-height:1;}
+.seat-n{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--slate-deep);line-height:1;}
 .seat-l{font-size:11.5px;color:var(--slate-muted);margin-top:6px;}
 .seat.off{opacity:.42;box-shadow:none;background:var(--bg);}
 .seat.off:hover{transform:none;border-color:rgba(197,227,225,.35);}
@@ -133,7 +133,7 @@ button{font-family:inherit;cursor:pointer;}
 .note b{color:var(--slate-deep);}
 
 .nf{max-width:460px;margin:60px auto;text-align:center;padding:48px 36px;}
-.nf h2{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--slate-deep);margin-bottom:10px;}
+.nf h2{font-family:'Literata',Georgia,serif;font-size:26px;font-weight:600;color:var(--slate-deep);margin-bottom:10px;}
 .nf p{font-size:13.5px;color:var(--slate-muted);margin-bottom:22px;line-height:1.6;}
 
 @media(max-width:900px){
@@ -143,6 +143,9 @@ button{font-family:inherit;cursor:pointer;}
   .gal-cell{height:220px;}
   .gal-stack{display:none;}
   .d-title{font-size:26px;}
+  /* «Вместимость по схемам рассадки» на Literata дробилась на три строки
+     рядом с подписью в .sec-head — уменьшаем кегль. */
+  .sec-title{font-size:19px;}
   .wrap{padding:18px 18px 48px;}
 }
 </style>

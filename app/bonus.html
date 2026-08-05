@@ -6,14 +6,14 @@
 <meta name="description" content="Бонусная программа: как начисляются баллы за состоявшиеся мероприятия и на что их потратить.">
 <meta property="og:title" content="Бонусная программа — МирХАБ">
 <meta property="og:description" content="Бонусная программа: как начисляются баллы за состоявшиеся мероприятия и на что их потратить.">
-<meta property="og:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mirhub.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <title>Бонусная программа — МирХАБ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════
    DESIGN TOKENS — Aqua Coral Slate
@@ -29,7 +29,7 @@
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
@@ -42,19 +42,19 @@ button{font-family:inherit;cursor:pointer;}
 .crumbs .cur{color:var(--slate-deep);font-weight:600;}
 
 .d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
-.d-title{font-family:'DM Serif Display',serif;font-size:34px;font-weight:400;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.3px;}
+.d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-sub{font-size:14px;line-height:1.65;color:var(--slate-muted);margin-top:10px;max-width:720px;}
 
 /* ── плитки шапки ── */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:26px 0;}
 .tile{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-md);}
 .tile .lbl{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-muted);margin-bottom:8px;}
-.tile .val{font-family:'DM Serif Display',serif;font-size:27px;color:var(--slate-deep);line-height:1.1;}
+.tile .val{font-family:'Literata',Georgia,serif;font-weight:600;font-size:27px;color:var(--slate-deep);line-height:1.1;}
 .tile .val.coral{color:var(--coral);}
 .tile .sub{font-size:12px;color:var(--slate-muted);margin-top:6px;line-height:1.5;}
 
 .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:32px 0 14px;flex-wrap:wrap;}
-.sec-title{font-family:'DM Serif Display',serif;font-size:23px;font-weight:400;color:var(--slate-deep);}
+.sec-title{font-family:'Literata',Georgia,serif;font-size:23px;font-weight:600;color:var(--slate-deep);}
 .sec-sub{font-size:12.5px;color:var(--slate-muted);}
 .panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);box-shadow:var(--sh-md);}
 

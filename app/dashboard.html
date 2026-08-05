@@ -7,7 +7,7 @@
 <title>Личный кабинет — Площадки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
 :root{
   --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.14);
@@ -18,7 +18,7 @@
   --r:10px;--rm:14px;--rl:20px;--rf:50px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 .db-layout{display:flex;flex:1;overflow:hidden;min-height:0;}
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
@@ -59,7 +59,7 @@ button{font-family:inherit;cursor:pointer;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* Common */
-.page-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:6px;}
+.page-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:28px;color:var(--sd);margin-bottom:6px;}
 .page-sub{font-size:15px;color:var(--sx);margin-bottom:28px;}
 .card{background:var(--w);border:1px solid rgba(197,227,225,.18);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);transition:transform .3s,box-shadow .3s;}
 .card[onclick]:hover{transform:translateY(-2px);box-shadow:var(--shl);border-color:rgba(235,116,84,.22);}
@@ -77,7 +77,7 @@ button{font-family:inherit;cursor:pointer;}
 .empty-icon{font-size:48px;margin-bottom:16px;opacity:.5;}
 .empty-text{font-size:15px;color:var(--sx);margin-bottom:20px;}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.section-label{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);}
+.section-label{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--sd);}
 
 /* STAT CARDS */
 .stat-card{background:var(--w);border:1px solid rgba(197,227,225,.15);border-radius:var(--rl);padding:22px;position:relative;overflow:hidden;}
@@ -178,7 +178,7 @@ button{font-family:inherit;cursor:pointer;}
 .hall-card{background:var(--bg);border:1.5px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:24px;margin-bottom:14px;position:relative;transition:border-color .3s;}
 .hall-card:hover{border-color:rgba(235,116,84,.15);}
 .hall-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.hall-num{font-family:'DM Serif Display',serif;font-size:18px;color:var(--sd);display:flex;align-items:center;gap:8px;}
+.hall-num{font-family:'Literata',Georgia,serif;font-weight:600;font-size:18px;color:var(--sd);display:flex;align-items:center;gap:8px;}
 .hall-num::before{content:'';width:4px;height:18px;border-radius:2px;background:var(--c);}
 .hall-remove{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--sp);background:var(--w);display:flex;align-items:center;justify-content:center;color:var(--sp);font-size:14px;cursor:pointer;transition:all .2s;}
 .hall-remove:hover{border-color:var(--c);color:var(--c);background:var(--cs);}
@@ -205,7 +205,7 @@ button{font-family:inherit;cursor:pointer;}
 
 /* GUEST */
 .guest-hero{text-align:center;padding:60px 40px;background:linear-gradient(135deg,var(--cs),var(--pc));border-radius:var(--rl);margin-bottom:24px;}
-.guest-hero h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--sd);margin-bottom:10px;}
+.guest-hero h2{font-family:'Literata',Georgia,serif;font-weight:600;font-size:28px;color:var(--sd);margin-bottom:10px;}
 .guest-hero p{font-size:15px;color:var(--sx);max-width:400px;margin:0 auto 24px;}
 .benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
 .benefit{text-align:center;padding:24px 16px;background:var(--w);border-radius:var(--rl);border:1px solid rgba(197,227,225,.18);}
@@ -328,7 +328,7 @@ button{font-family:inherit;cursor:pointer;}
 .lk-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px;}
 .lk-tile{background:var(--w);border:1px solid rgba(197,227,225,.18);border-radius:var(--rl);padding:20px;box-shadow:var(--sh);}
 .lk-tile .lbl{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sx);margin-bottom:8px;}
-.lk-tile .val{font-family:'DM Serif Display',serif;font-size:27px;color:var(--sd);line-height:1.1;}
+.lk-tile .val{font-family:'Literata',Georgia,serif;font-weight:600;font-size:27px;color:var(--sd);line-height:1.1;}
 .lk-tile .val.coral{color:var(--c);}
 .lk-tile .sub{font-size:12px;color:var(--sx);margin-top:6px;line-height:1.5;}
 
@@ -392,7 +392,7 @@ button{font-family:inherit;cursor:pointer;}
 .dm-ovl{position:fixed;inset:0;z-index:900;background:rgba(53,78,99,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;}
 .dm{background:var(--w);border-radius:var(--rl);width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shl);overflow:hidden;}
 .dm-head{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-.dm-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);}
+.dm-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--sd);}
 .dm-body{padding:16px 24px 20px;overflow-y:auto;}
 .dm-body p{font-size:13.5px;line-height:1.6;color:var(--sm);margin-bottom:14px;}
 .dm-foot{display:flex;gap:8px;justify-content:flex-end;padding:0 24px 22px;flex-wrap:wrap;}
@@ -444,7 +444,7 @@ button{font-family:inherit;cursor:pointer;}
 .wz-ovl{position:fixed;inset:0;z-index:950;background:rgba(53,78,99,.4);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;}
 .wz{background:var(--w);border-radius:var(--rl);width:100%;max-width:840px;max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--shl);overflow:hidden;}
 .wz-head{display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid rgba(197,227,225,.25);}
-.wz-head h2{font-family:'DM Serif Display',serif;font-size:20px;color:var(--sd);font-weight:400;flex:1;}
+.wz-head h2{font-family:'Literata',Georgia,serif;font-size:20px;color:var(--sd);font-weight:600;flex:1;}
 .wz-cnt{font-size:12.5px;color:var(--sx);white-space:nowrap;}
 .wz-body{display:grid;grid-template-columns:212px minmax(0,1fr);flex:1;min-height:0;}
 .wz-steps{border-right:1px solid rgba(197,227,225,.25);padding:14px 10px;overflow-y:auto;background:var(--bg);}
@@ -1576,7 +1576,7 @@ billing:()=>{
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap">
       <div>
         <div class="stat-label">Текущий тариф</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--sd);margin-top:4px">${esc(t.name)}</div>
+        <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">${esc(t.name)}</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
           ${t.price?ML.money(t.price)+' в месяц':'бесплатно'} · действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
         </div>
@@ -1870,7 +1870,7 @@ ssub:()=>{
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap">
       <div>
         <div class="stat-label">Текущий тариф</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--sd);margin-top:4px">Размещение поставщика</div>
+        <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">Размещение поставщика</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
           ${ML.money(t.price)} в месяц · по образцу пользовательского «${esc(t.name)}» ·
           действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
@@ -1984,7 +1984,7 @@ guest:()=>`
 
   <div class="card" style="text-align:center;padding:36px;background:linear-gradient(135deg,var(--aq-p),var(--pc))">
     <div style="margin-bottom:12px;color:var(--c)"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
-    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--sd);margin-bottom:8px">Вы владелец площадки?</div>
+    <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:22px;color:var(--sd);margin-bottom:8px">Вы владелец площадки?</div>
     <div style="font-size:14px;color:var(--sx);margin-bottom:18px;max-width:400px;margin-left:auto;margin-right:auto">Разместите вашу площадку на маркетплейсе и получайте заявки от организаторов мероприятий</div>
     <button class="btn btn-c">Разместить площадку</button>
   </div>
