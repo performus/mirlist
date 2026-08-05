@@ -132,8 +132,10 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const IC_YES = '<svg width="15" height="15" fill="none" viewBox="0 0 16 16"><path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const IC_NO  = '<svg width="15" height="15" fill="none" viewBox="0 0 16 16"><path d="M4 8h8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
 
-/* Порядок колонок; сами данные — из ML.TARIFFS, цифры в разметке не дублируются. */
-const ORDER = ['start','biz','prem'];
+/* Колонки берём из ML.plans() — только покупаемые уровни. Служебный «ГОСТЬ»
+   лежит в TARIFFS рядом с ними, и по Object.values(TARIFFS) он попал бы
+   на страницу тарифов четвёртой колонкой. */
+const ORDER = ML.plans().map(t => t.key);
 const NOTES = {
   start: 'Посмотреть, что есть на площадке',
   biz:   'Рабочий набор для подбора площадок',

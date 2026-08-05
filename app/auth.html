@@ -294,6 +294,10 @@ function submit(){
     MH.toast('С возвращением', 'success');
   }
 
+  /* Регистрация и вход снимают гостевой замок. Поднимаем только с guest:
+     у того, кто уже на БИЗНЕС или ПРЕМИУМ, вход не должен отбирать тариф. */
+  if (ML.isGuest()) ML.setTariff('start');
+
   setTimeout(() => { window.location.href = nextUrl(); }, 600);
 }
 

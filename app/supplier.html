@@ -59,7 +59,12 @@ button{font-family:inherit;cursor:pointer;}
 .btn.pri:hover{background:var(--coral-hover);border-color:var(--coral-hover);color:#fff;}
 .btn.sm{padding:8px 16px;font-size:12.5px;}
 
-.gal{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:22px;height:280px;}
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr;gap:10px;margin-bottom:22px;height:280px;}
+/* Строка 1fr прижимается к высоте контейнера; без неё неявная строка auto
+   росла до натуральной высоты фото и содержимое вываливалось вниз.
+   min-height:0 — у грид-элементов по умолчанию min-height:auto, и они
+   отказываются сжиматься меньше содержимого. */
+.gal > *{min-height:0;}
 .gal-cell{border-radius:var(--r-md);overflow:hidden;background:var(--aqua-pale);}
 .gal-cell img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
 .gal-cell:hover img{transform:scale(1.05);}
@@ -197,7 +202,7 @@ function render() {
       <div class="d-meta">
         <span>${esc(s.city)}</span>
         <span>опыт <b>${s.exp}</b> ${ML.plural(s.exp, ['год','года','лет'])}</span>
-        <span class="d-price">от ${ML.money(s.price)}</span>
+        <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price))}</span>
         ${s.loyalty ? '<span class="tag solid">Принимает баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
         ${s.reviews ? '<span class="tag">Отзывы</span>' : ''}
@@ -227,10 +232,10 @@ function render() {
         <h2 class="sec-title">Услуги в карточке</h2>
         <span class="sec-sub">Курс: 1 балл = ${ML.POINT_RATE.toLocaleString('ru')} ₽</span>
       </div>
-      <div class="panel"><div class="tscroll"><table class="tbl">
+      ${MH.lock(`<div class="panel"><div class="tscroll"><table class="tbl">
         <thead><tr><th>Услуга</th><th>Цена от</th><th>В бонусной программе</th><th>В баллах</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table></div></div>
+      </table></div></div>`, 'Прайс-лист доступен после регистрации')}
       <div class="note">Цена в баллах — розничная цена, делённая на курс балла
         (${ML.POINT_RATE.toLocaleString('ru')} ₽). Ресурс платит партнёру
         ${Math.round((1 - ML.LOYALTY_DISCOUNT) * 100)}% розничной цены — на эту разницу и живёт бонусная программа.</div>

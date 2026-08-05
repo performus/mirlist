@@ -113,8 +113,9 @@ MH.init();
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-/* Платные тарифы. Периоды и скидки считаются из priceHalf / priceYear. */
-const PLANS = ['biz', 'prem'];
+/* Оплачивать можно только покупаемые тарифы с ненулевой ценой: ML.plans()
+   отсекает служебный «ГОСТЬ», условие по цене — бесплатный «СТАРТ». */
+const PLANS = ML.plans().filter(t => t.price > 0).map(t => t.key);
 const PERIODS = [
   { k:'month', l:'Месяц',      months:1,  total:t => t.price },
   { k:'half',  l:'6 месяцев',  months:6,  total:t => t.priceHalf },

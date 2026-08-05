@@ -61,12 +61,17 @@ button{font-family:inherit;cursor:pointer;}
 .btn.sm{padding:8px 16px;font-size:12.5px;}
 .btn.on{background:var(--coral-soft);border-color:var(--coral-soft);color:var(--coral);}
 
-.gal{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px;height:300px;}
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr;gap:10px;margin-bottom:10px;height:300px;}
+/* Строка 1fr прижимается к высоте контейнера; без неё неявная строка auto
+   росла до натуральной высоты фото и содержимое вываливалось вниз.
+   min-height:0 — у грид-элементов по умолчанию min-height:auto, и они
+   отказываются сжиматься меньше содержимого. */
+.gal > *{min-height:0;}
 .gal.solo{grid-template-columns:1fr;}
 .gal-cell{border-radius:var(--r-md);overflow:hidden;background:var(--aqua-pale);}
 .gal-cell img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
 .gal-cell:hover img{transform:scale(1.05);}
-.gal-stack{display:grid;grid-template-rows:1fr 1fr;gap:10px;}
+.gal-stack{display:grid;grid-template-rows:1fr 1fr;gap:10px;min-height:0;}
 .gal-note{font-size:12px;color:var(--slate-muted);margin-bottom:22px;}
 
 .two{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
@@ -139,7 +144,7 @@ button{font-family:inherit;cursor:pointer;}
 @media(max-width:900px){
   .two{grid-template-columns:minmax(0,1fr);}
   .side{position:static;}
-  .gal{grid-template-columns:1fr;height:auto;}
+  .gal{grid-template-columns:1fr;grid-template-rows:auto;height:auto;}
   .gal-cell{height:220px;}
   .gal-stack{display:none;}
   .d-title{font-size:26px;}
@@ -224,7 +229,7 @@ function render() {
       <div class="hc-body">
         <a class="hc-name" href="hall.html?id=${x.id}">${esc(x.name)}</a>
         <div class="hc-sub">${esc(x.type)} · ${x.area} м² · до ${ML.hallCapacity(x)} чел.</div>
-        <div class="hc-price">${x.priceDay ? ML.money(x.priceDay) : '<i>по договорённости</i>'}</div>
+        <div class="hc-price">${MH.blurOnly(x.priceDay ? ML.money(x.priceDay) : '<i>по договорённости</i>')}</div>
         <div class="hc-foot">
           <div style="display:flex;gap:6px">
             <button class="ic${c ? ' on' : ''}" onclick="toggleCmp(${x.id})" title="В сравнение">${IC.cmp}</button>
@@ -250,7 +255,7 @@ function render() {
       <div class="d-meta">
         <span><b>${h.area}</b> м²</span>
         ${h.height ? `<span>потолок <b>${h.height}</b> м</span>` : ''}
-        <span>до <b>${ML.hallCapacity(h)}</b> чел.</span>
+        <span>${MH.blurOnly('до <b>' + ML.hallCapacity(h) + '</b> чел.')}</span>
         <span>${esc(v.city)}</span>
         ${h.plan ? '<span class="tag solid">Есть точный план</span>' : ''}
       </div>
@@ -272,12 +277,14 @@ function render() {
       </div>
       ${full
         ? `<div class="seats">${seatTiles}</div>`
+        : MH.isLocked()
+        ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость по схемам рассадки доступна после регистрации')
         : `<div class="note">
             <span>Схемы рассадки доступны с тарифа <b>«БИЗНЕС»</b>. Сейчас видна только площадь зала — <b>${h.area} м²</b>.</span>
             <a class="btn sm" href="pricing.html">Тарифы</a></div>`}
 
       <div class="sec-head"><h2 class="sec-title">Параметры зала</h2></div>
-      <div class="panel">
+      ${MH.lock(`<div class="panel">
         <table class="tbl">
           <tr><th>Тип зала</th><td>${esc(h.type)}</td></tr>
           <tr><th>Площадь</th><td>${h.area} м²</td></tr>
@@ -286,7 +293,7 @@ function render() {
           <tr><th>Аренда за час</th><td>${h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'}</td></tr>
           <tr><th>Точный план пространства</th><td>${h.plan ? (full ? 'есть, PDF' : 'есть') : 'нет'}</td></tr>
         </table>
-      </div>
+      </div>`, 'Параметры зала и стоимость аренды доступны после регистрации')}
 
       ${others.length ? `<div class="sec-head"><h2 class="sec-title">Другие залы объекта</h2>
         <span class="sec-sub">${others.length} ${ML.plural(others.length, ['зал','зала','залов'])}</span></div>
@@ -300,7 +307,7 @@ function render() {
           <div class="eyebrow">Объект</div>
           <a class="vcard-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
           <div class="vcard-sub">${esc(v.cat)} · ${esc(v.city)}</div>
-          <div class="vcard-sub">${IC.star} <b>${v.rating}</b> (${v.reviews}) · до <b>${ML.venueCapacity(v)}</b> чел. · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
+          <div class="vcard-sub">${IC.star} <b>${v.rating}</b> (${v.reviews}) · ${MH.blurOnly('до <b>' + ML.venueCapacity(v) + '</b> чел.')} · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
           <a class="btn sm" style="display:block;text-align:center;margin-top:12px" href="venue.html?id=${v.id}">Карточка объекта</a>
         </div>
       </div>

@@ -940,8 +940,8 @@ function hallCard(h) {
     </div>
     <div class="hc-body">
       <div class="hc-name">${esc(h.name)}</div>
-      <div class="hc-caps">${caps}</div>
-      <div class="hc-price">${h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>'}</div>
+      <div class="hc-caps">${MH.blurOnly(caps)}</div>
+      <div class="hc-price">${MH.blurOnly(h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>')}</div>
       <div class="hc-foot">
         <div class="hc-acts">
           <button class="hc-ic${inC ? ' on' : ''}" onclick="toggleCmp(${h.id})" title="${inC ? 'Убрать из сравнения' : 'В сравнение'}">${IC.cmp}</button>
@@ -963,7 +963,7 @@ function venueBlock(x) {
         <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
         <div class="vb-meta">
           <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
-          <span>до <b>${cap}</b> чел.</span>
+          <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
           ${v.stars ? `<span class="vb-stars">${'★'.repeat(v.stars)}</span>` : ''}
           <span class="vb-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
@@ -1133,8 +1133,9 @@ function render() {
     ? `Найдено <b>${halls}</b> ${ML.plural(halls, ['зал', 'зала', 'залов'])} в <b>${list.length}</b> ${ML.plural(list.length, ['объекте', 'объектах', 'объектах'])}`
     : 'Ничего не найдено';
 
+  /* Одна полоса на всю выдачу, а не кнопка в каждой карточке. */
   document.getElementById('vList').innerHTML = list.length
-    ? list.map(venueBlock).join('')
+    ? MH.lockBar('Цены и вместимость залов открыты зарегистрированным пользователям.') + list.map(venueBlock).join('')
     : `<div class="res-empty">
          <h3>Под эти условия залов нет</h3>
          <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>

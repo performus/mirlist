@@ -64,12 +64,17 @@ button{font-family:inherit;cursor:pointer;}
 .btn.sm{padding:8px 16px;font-size:12.5px;}
 
 /* ── галерея ── */
-.gal{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:22px;height:300px;}
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr;gap:10px;margin-bottom:22px;height:300px;}
+/* Строка 1fr прижимается к высоте контейнера; без неё неявная строка auto
+   росла до натуральной высоты фото и содержимое вываливалось вниз.
+   min-height:0 — у грид-элементов по умолчанию min-height:auto, и они
+   отказываются сжиматься меньше содержимого. */
+.gal > *{min-height:0;}
 .gal.solo{grid-template-columns:1fr;}
 .gal-cell{border-radius:var(--r-md);overflow:hidden;background:var(--aqua-pale);}
 .gal-cell img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
 .gal-cell:hover img{transform:scale(1.05);}
-.gal-stack{display:grid;grid-template-rows:1fr 1fr;gap:10px;}
+.gal-stack{display:grid;grid-template-rows:1fr 1fr;gap:10px;min-height:0;}
 
 /* ── двухколоночная сетка ── */
 .two{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
@@ -136,7 +141,7 @@ button{font-family:inherit;cursor:pointer;}
 @media(max-width:900px){
   .two{grid-template-columns:minmax(0,1fr);}
   .side{position:static;}
-  .gal{grid-template-columns:1fr;height:auto;}
+  .gal{grid-template-columns:1fr;grid-template-rows:auto;height:auto;}
   .gal-cell{height:220px;}
   .gal-stack{display:none;}
   .d-title{font-size:26px;}
@@ -210,11 +215,11 @@ function render() {
       <div class="hrow-img"><img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy"></div>
       <div class="hrow-mid">
         <a class="hrow-name" href="hall.html?id=${h.id}">${esc(h.name)}</a>
-        <div class="hrow-sub">${esc(h.type)} · ${h.area} м² · до ${ML.hallCapacity(h)} чел.${h.height ? ' · потолок ' + h.height + ' м' : ''}</div>
+        <div class="hrow-sub">${esc(h.type)} · ${h.area} м² · ${MH.blurOnly('до ' + ML.hallCapacity(h) + ' чел.')}${h.height ? ' · потолок ' + h.height + ' м' : ''}</div>
         ${caps ? `<div class="hrow-caps">${caps}</div>` : ''}
       </div>
       <div class="hrow-right">
-        <div class="hrow-price">${h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>'}</div>
+        <div class="hrow-price">${MH.blurOnly(h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>')}</div>
         <div class="hrow-acts">
           <button class="ic${inC ? ' on' : ''}" onclick="toggleCmp(${h.id})" title="${inC ? 'Убрать из сравнения' : 'В сравнение'}">${IC.cmp}</button>
           <button class="ic${fav ? ' on' : ''}" onclick="toggleFavHall(${h.id})" title="${fav ? 'Убрать из избранного' : 'В избранное'}">${IC.heart}</button>
@@ -252,7 +257,7 @@ function render() {
       <h1 class="d-title">${esc(v.name)}</h1>
       <div class="d-meta">
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
-        <span>до <b>${cap}</b> чел.</span>
+        <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
         <span><b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</span>
         ${v.stars ? `<span class="d-stars">${'★'.repeat(v.stars)}</span>` : ''}
         <span class="d-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
@@ -275,12 +280,13 @@ function render() {
   <div class="two">
     <div>
       ${v.desc ? `<div class="sec-head first"><h2 class="sec-title">О площадке</h2></div>
-      <div class="panel about"><p>${esc(v.desc)}</p></div>` : ''}
+      ${MH.lock(`<div class="panel about"><p>${esc(v.desc)}</p></div>`, 'Описание площадки доступно после регистрации')}` : ''}
 
       <div class="sec-head${v.desc ? '' : ' first'}">
         <h2 class="sec-title">Залы объекта</h2>
         <span class="sec-sub">В подбор попадают именно залы</span>
       </div>
+      ${MH.lockBar('Цены и вместимость залов видны зарегистрированным пользователям.')}
       <div class="hrows">${hallRows}</div>
 
       ${full && featureBlocks ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}` : ''}

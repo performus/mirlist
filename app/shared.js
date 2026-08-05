@@ -1,5 +1,10 @@
 /* MirHub shared utilities — auth state + nav injection */
 const MH = (() => {
+  /* ДЕМО-ПАНЕЛЬ, УДАЛИТЬ ПЕРЕД ПРОДАКШЕНОМ — единственный выключатель.
+     false → панель не отрисовывается ни на одной странице и в разметке
+     от неё ничего не остаётся. Правки по файлам для этого не нужны. */
+  const DEMO = true;
+
   const KEY = 'mh_session';
   const FAV_KEY = 'mh_favs';
 
@@ -21,7 +26,11 @@ const MH = (() => {
     try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; }
   }
   function setSession(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
-  function clearSession() { localStorage.removeItem(KEY); }
+  function clearSession() {
+    localStorage.removeItem(KEY);
+    // выход из аккаунта возвращает гостевой уровень доступа
+    if (typeof ML !== 'undefined' && ML.setTariff) ML.setTariff('guest');
+  }
 
   function injectNavCSS() {
     if (document.getElementById('mh-nav-style')) return;
@@ -185,9 +194,14 @@ const MH = (() => {
   function buildRight(session) {
     if (session) {
       // Баллы рядом с кабинетом — из модели, если она подключена на странице
-      const pts = (typeof ML !== 'undefined' && ML.state && ML.state.points)
+      /* У гостя аккаунта нет, показывать баланс нечему: вместо счётчика — вход. */
+      const guest = typeof ML !== 'undefined' && ML.isGuest && ML.isGuest();
+      const pts = (!guest && typeof ML !== 'undefined' && ML.state && ML.state.points)
         ? ML.state.points.free : null;
-      return `${pts !== null
+      const backNext = encodeURIComponent(location.pathname.split('/').pop() + location.search);
+      return `${guest
+        ? `<a class="mh-login" href="auth.html?next=${backNext}">Войти</a>`
+        : pts !== null
         ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}
       <a class="mh-avatar-wrap" href="dashboard.html">
         <div class="mh-avatar">${session.initials || 'АК'}</div>
@@ -241,9 +255,11 @@ const MH = (() => {
       </header>
       <div class="mh-drawer" id="mh-drawer">
         ${drawerLinks}${drawerRight}
-      </div>`;
+      </div>
+      ${mountDemo()}`;
 
     document.body.classList.add('has-mh-nav');
+    bindDemo();
 
     const burger = document.getElementById('mh-burger');
     const drawer = document.getElementById('mh-drawer');
@@ -619,5 +635,296 @@ const MH = (() => {
     });
   }
 
-  return { getSession, setSession, clearSession, renderNav, init, toast, go, getFavs, toggleFav, isFav, feedback };
+  /* ══════════════════════════════════════════════════════════════════
+     ЗАМОК ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ
+
+     Условие ровно одно — ML.tariff().blur. Своих проверок сессии здесь нет:
+     уровень guest живёт в модели, страницы к ней и обращаются.
+
+     Размывать и накрывать плашкой один и тот же узел нельзя: filter
+     применяется ко всему поддереву, и плашка размылась бы вместе с
+     содержимым. Поэтому lock() строит обёртку из двух соседей —
+     размытого содержимого и чистой плашки поверх него.
+     ══════════════════════════════════════════════════════════════════ */
+
+  function isLocked() {
+    return typeof ML !== 'undefined' && !!(ML.tariff && ML.tariff().blur);
+  }
+
+  /* Адрес регистрации с возвратом на текущую страницу: гость, читавший
+     карточку зала, после входа должен вернуться к ней, а не на главную. */
+  function signupHref() {
+    const back = location.pathname.split('/').pop() + location.search;
+    return 'auth.html?mode=signup&next=' + encodeURIComponent(back);
+  }
+
+  function injectLockCSS() {
+    if (document.getElementById('ml-lock-style')) return;
+    const s = document.createElement('style');
+    s.id = 'ml-lock-style';
+    s.textContent = `
+      .ml-lock { position: relative; }
+      .ml-locked {
+        filter: blur(5px);
+        user-select: none; -webkit-user-select: none;
+        pointer-events: none;
+      }
+      .ml-lock-veil {
+        position: absolute; inset: 0; z-index: 2;
+        display: flex; align-items: center; justify-content: center;
+        padding: 10px;
+      }
+      .ml-lock-box {
+        max-width: 100%; box-sizing: border-box; text-align: center;
+        background: rgba(255,255,255,.94);
+        border: 1px solid rgba(197,227,225,.65); border-radius: 14px;
+        box-shadow: 0 6px 24px rgba(53,78,99,.12);
+        padding: 13px 16px;
+      }
+      .ml-lock-t {
+        font-family: 'Onest', system-ui, sans-serif;
+        font-size: 12.5px; line-height: 1.45; font-weight: 600; color: #354E63;
+        margin-bottom: 10px;
+      }
+      .ml-lock-b {
+        display: inline-block; white-space: nowrap;
+        padding: 9px 20px; border-radius: 50px;
+        background: #E98667; color: #fff;
+        font-family: 'Onest', system-ui, sans-serif;
+        font-size: 12.5px; font-weight: 600; text-decoration: none;
+        box-shadow: 0 4px 14px rgba(233,134,103,.28);
+      }
+      .ml-lock-b:hover { background: #D97757; }
+
+      /* Мелкие значения внутри карточек: размываем без плашки, иначе
+         на экране выдачи получится частокол из кнопок. */
+      .ml-blur {
+        display: inline-block;
+        filter: blur(5px);
+        user-select: none; -webkit-user-select: none;
+        pointer-events: none;
+      }
+
+      /* Полоса-объяснение на страницу, где размыты только мелкие значения. */
+      .ml-lock-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 14px; flex-wrap: wrap;
+        padding: 13px 18px; margin-bottom: 14px;
+        background: #FCEAE4; border: 1px solid rgba(233,134,103,.35); border-radius: 14px;
+        font-family: 'Onest', system-ui, sans-serif;
+        font-size: 12.5px; line-height: 1.5; color: #354E63;
+      }
+
+      /* Экран вместо содержимого — для разделов, закрытых гостю целиком. */
+      .ml-lock-screen {
+        max-width: 560px; margin: 40px auto; text-align: center;
+        background: #fff; border: 1px solid rgba(197,227,225,.5); border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(53,78,99,.09);
+        padding: 40px 28px;
+        font-family: 'Onest', system-ui, sans-serif;
+      }
+      .ml-lock-screen h2 {
+        font-family: 'Literata', Georgia, serif; font-weight: 600;
+        font-size: 24px; color: #354E63; margin-bottom: 10px;
+      }
+      .ml-lock-screen p { font-size: 14px; line-height: 1.65; color: #7A919F; margin-bottom: 22px; }
+
+      @media (max-width: 560px) {
+        .ml-lock-box { padding: 10px 12px; }
+        .ml-lock-t { font-size: 11.5px; margin-bottom: 8px; }
+        .ml-lock-b { padding: 8px 15px; font-size: 11.5px; }
+        .ml-lock-screen { padding: 28px 18px; margin: 24px auto; }
+      }`;
+    document.head.appendChild(s);
+  }
+
+  /* Оборачивает разметку блока: размытое содержимое + плашка поверх.
+     Если уровень доступа не гостевой — возвращает разметку как есть. */
+  function lock(html, text) {
+    if (!isLocked()) return html;
+    injectLockCSS();
+    return `<div class="ml-lock">
+      <div class="ml-locked" aria-hidden="true">${html}</div>
+      <div class="ml-lock-veil">
+        <div class="ml-lock-box">
+          <div class="ml-lock-t">${text || 'Доступно после регистрации'}</div>
+          <a class="ml-lock-b" href="${signupHref()}">Зарегистрироваться</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  /* Размытие без плашки — для отдельных значений в карточках. */
+  function blurOnly(html) {
+    if (!isLocked()) return html;
+    injectLockCSS();
+    return `<span class="ml-blur" aria-hidden="true">${html}</span>`;
+  }
+
+  /* Одна полоса с объяснением на страницу. */
+  function lockBar(text) {
+    if (!isLocked()) return '';
+    injectLockCSS();
+    return `<div class="ml-lock-bar">
+      <span>${text}</span>
+      <a class="ml-lock-b" href="${signupHref()}">Зарегистрироваться</a>
+    </div>`;
+  }
+
+  /* Экран вместо содержимого раздела. */
+  function lockScreen(title, text) {
+    injectLockCSS();
+    return `<div class="ml-lock-screen">
+      <h2>${title}</h2>
+      <p>${text}</p>
+      <a class="ml-lock-b" href="${signupHref()}">Зарегистрироваться</a>
+    </div>`;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     ДЕМО-ПАНЕЛЬ, УДАЛИТЬ ПЕРЕД ПРОДАКШЕНОМ
+
+     Полоса под основной шапкой для показа клиенту: мгновенно переключает
+     уровень доступа и роль. Разметка, стили и обработчики держатся здесь
+     вместе, чтобы удаление свелось к вырезанию одного блока и одной
+     константы DEMO наверху файла. Единственная внешняя привязка —
+     вызов mountDemo() в renderNav.
+     ══════════════════════════════════════════════════════════════════ */
+
+  const DEMO_LEVELS = [
+    { k: 'guest', l: 'Гость' },
+    { k: 'start', l: 'Старт' },
+    { k: 'biz',   l: 'Бизнес' },
+    { k: 'prem',  l: 'Премиум' },
+  ];
+  const DEMO_ROLES = [
+    { k: 'user',     l: 'Пользователь' },
+    { k: 'venue',    l: 'Площадка' },
+    { k: 'supplier', l: 'Поставщик' },
+  ];
+
+  function demoCSS() {
+    return `
+      .mh-demo {
+        position: fixed; top: 64px; left: 0; right: 0; z-index: 600;
+        display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px;
+        padding: 7px 36px;
+        background: #22323F; border-bottom: 1px solid #16232C;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 11.5px; color: #9FB4C1;
+      }
+      .mh-demo-g { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .mh-demo-l {
+        text-transform: uppercase; letter-spacing: .09em;
+        font-size: 9.5px; font-weight: 700; color: #5E7688;
+      }
+      .mh-demo button, .mh-demo a.mh-demo-r {
+        border: 1px solid transparent; background: none;
+        padding: 4px 10px; border-radius: 50px;
+        font-family: inherit; font-size: 11.5px; font-weight: 500;
+        color: #C2D2DC; text-decoration: none; cursor: pointer;
+        transition: background .15s, color .15s, border-color .15s;
+      }
+      .mh-demo button:hover, .mh-demo a.mh-demo-r:hover { background: #2E4252; color: #fff; }
+      .mh-demo button.on, .mh-demo a.mh-demo-r.on {
+        background: #E98667; border-color: #E98667; color: #fff; font-weight: 600;
+      }
+      .mh-demo-note { margin-left: auto; font-size: 10.5px; color: #5E7688; }
+      @media (max-width: 900px) {
+        .mh-demo { padding: 6px 14px; gap: 6px 14px; }
+        .mh-demo-note { margin-left: 0; width: 100%; }
+      }`;
+  }
+
+  function demoHTML() {
+    const cur = (typeof ML !== 'undefined' && ML.tariff) ? ML.tariff().key : '';
+    const page = location.pathname.split('/').pop();
+    const role = new URLSearchParams(location.search).get('role');
+    const lv = DEMO_LEVELS.map(x =>
+      `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('');
+    const rl = DEMO_ROLES.map(x =>
+      `<a class="mh-demo-r${page === 'dashboard.html' && role === x.k ? ' on' : ''}" href="dashboard.html?role=${x.k}">${x.l}</a>`).join('');
+    return `<div class="mh-demo" id="mh-demo">
+      <span class="mh-demo-l">Уровень доступа</span>
+      <div class="mh-demo-g">${lv}</div>
+      <span class="mh-demo-l">Роль</span>
+      <div class="mh-demo-g">${rl}</div>
+      <span class="mh-demo-note">Тестовая панель для демонстрации — в рабочей версии её не будет</span>
+    </div>`;
+  }
+
+  /* Шапка фиксированная, поэтому отступ сверху у body считаем по факту:
+     на узком экране полоса переносится и становится выше. */
+  function demoOffset() {
+    const bar = document.getElementById('mh-demo');
+    if (!bar) return;
+    document.body.style.paddingTop = (64 + bar.offsetHeight) + 'px';
+  }
+
+  function mountDemo(targetEl) {
+    if (!DEMO) return '';
+    if (!document.getElementById('mh-demo-style')) {
+      const s = document.createElement('style');
+      s.id = 'mh-demo-style';
+      s.textContent = demoCSS();
+      document.head.appendChild(s);
+    }
+    return demoHTML();
+  }
+
+  /* Перезагрузка теряет позицию прокрутки, и на длинной выдаче экран улетал
+     в начало. Запоминаем её перед перезагрузкой и возвращаем после — человек
+     остаётся на том же месте и видит, как меняется то, на что он смотрит.
+     В кабинете прокручивается не окно, а колонка .main, поэтому сохраняем обе. */
+  const DEMO_SCROLL = 'mh_demo_scroll';
+
+  function saveDemoScroll() {
+    const main = document.querySelector('.main');
+    try {
+      sessionStorage.setItem(DEMO_SCROLL, JSON.stringify({
+        y: window.scrollY || 0,
+        m: main ? main.scrollTop : 0,
+      }));
+    } catch (e) { /* приватный режим — просто не восстановим */ }
+  }
+
+  function restoreDemoScroll() {
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem(DEMO_SCROLL) || 'null'); } catch (e) { saved = null; }
+    if (!saved) return;
+    const apply = () => {
+      if (saved.y) window.scrollTo(0, saved.y);
+      const main = document.querySelector('.main');
+      if (main && saved.m) main.scrollTop = saved.m;
+    };
+    /* Содержимое страниц собирается скриптами, а картинки догружаются позже
+       и двигают раскладку, поэтому возвращаем позицию дважды. */
+    const run = () => { apply(); setTimeout(() => { apply(); sessionStorage.removeItem(DEMO_SCROLL); }, 220); };
+    if (document.readyState === 'complete') requestAnimationFrame(run);
+    else window.addEventListener('load', () => requestAnimationFrame(run));
+  }
+
+  function bindDemo() {
+    if (!DEMO) return;
+    const bar = document.getElementById('mh-demo');
+    if (!bar) return;
+    bar.querySelectorAll('[data-demo-level]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (typeof ML === 'undefined' || !ML.setTariff) return;
+        ML.setTariff(b.dataset.demoLevel);
+        saveDemoScroll();
+        location.reload();     // состояние уже в localStorage, страница перерисовывается целиком
+      });
+    });
+    restoreDemoScroll();
+    demoOffset();
+    window.addEventListener('resize', demoOffset);
+  }
+
+  /* ══════ конец демо-блока ══════ */
+
+  return {
+    getSession, setSession, clearSession, renderNav, init, toast, go,
+    getFavs, toggleFav, isFav, feedback,
+    isLocked, lock, blurOnly, lockBar, lockScreen,
+  };
 })();

@@ -121,6 +121,12 @@ MH.init('bonus');
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function render(){
+  /* Бонусная программа гостю недоступна целиком. */
+  if (MH.isLocked()) {
+    document.getElementById('root').innerHTML = MH.lockScreen('Бонусная программа — после регистрации',
+      'Баллы начисляются за проведённые мероприятия и отзывы, и тратятся на услуги подрядчиков. Зарегистрируйтесь, чтобы открыть счёт и витрину.');
+    return;
+  }
   const P = ML.state.points;
   const rev = ML.POINTS_REVIEW;
 

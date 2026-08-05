@@ -486,7 +486,7 @@ function tile(s) {
     <div class="tile-body">
       <div class="tile-name">${esc(s.name)}</div>
       <div class="tile-sub">${esc(s.city)} · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
-      <div class="tile-price">от ${ML.money(s.price)}</div>
+      <div class="tile-price">${MH.blurOnly('от ' + ML.money(s.price))}</div>
       <div class="tile-badges">
         ${s.loyalty ? '<span class="tag solid">Баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
@@ -507,8 +507,9 @@ function render() {
     ? `Найдено <b>${list.length}</b> ${ML.plural(list.length, ['поставщик','поставщика','поставщиков'])}`
     : 'Ничего не найдено';
 
+  /* Одна полоса на каталог, а не кнопка в каждой плитке. */
   document.getElementById('tiles').innerHTML = list.length
-    ? `<div class="tiles">${list.map(tile).join('')}</div>`
+    ? MH.lockBar('Цены поставщиков открыты зарегистрированным пользователям.') + `<div class="tiles">${list.map(tile).join('')}</div>`
     : `<div class="res-empty">
          <h3>Под эти условия поставщиков нет</h3>
          <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>
