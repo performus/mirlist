@@ -332,7 +332,54 @@ button{font-family:inherit;cursor:pointer;}
 .rq{background:var(--w);border:1px solid rgba(197,227,225,.2);border-radius:var(--rl);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
 .rq-head{padding:18px 20px;border-bottom:1px solid rgba(197,227,225,.22);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;}
 .rq-id{font-size:12px;font-weight:700;color:var(--c);letter-spacing:.04em;}
-.rq-title{font-size:16px;font-weight:700;color:var(--sd);margin-top:5px;}
+.rq-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--sd);
+  margin-top:5px;cursor:pointer;flex-wrap:wrap;}
+.rq-title:hover .rq-pen{opacity:1;}
+.rq-pen{width:26px;height:26px;flex-shrink:0;border:none;background:none;padding:0;border-radius:6px;
+  color:var(--sx);opacity:.45;transition:opacity .2s,color .2s,background .2s;
+  display:flex;align-items:center;justify-content:center;}
+.rq-pen svg{width:15px;height:15px;}
+.rq-pen:hover{color:var(--c);background:var(--cs);opacity:1;}
+.rq-title-inp{flex:1;min-width:200px;padding:7px 11px;border-radius:var(--r);
+  border:1.5px solid var(--c);background:var(--w);font-family:inherit;font-size:15px;
+  font-weight:700;color:var(--sd);outline:none;}
+
+/* ── витрина карточками: как на bonus.html ── */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:14px;}
+.scard{background:var(--w);border:1px solid rgba(197,227,225,.3);border-radius:var(--rl);
+  overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;
+  transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s;}
+.scard:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(53,78,99,.10);}
+.scard-img{height:126px;background:var(--aq-p);overflow:hidden;}
+.scard-img img{width:100%;height:100%;object-fit:cover;}
+.scard-b{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1;}
+.scard-name{font-size:14.5px;font-weight:700;color:var(--sd);line-height:1.35;margin-bottom:5px;}
+.scard-prov{font-size:12px;color:var(--sx);margin-bottom:12px;}
+.scard-pts{font-size:19px;font-weight:800;color:var(--c);margin-bottom:12px;margin-top:auto;}
+.scard-btn{width:100%;}
+.scard-lack{font-size:11.5px;color:var(--sx);margin-top:7px;text-align:center;}
+/* Недоступное приглушаем целиком и не даём кликнуть. */
+.scard.off{opacity:.55;}
+.scard.off:hover{transform:none;box-shadow:var(--sh);}
+.scard.off .scard-img img{filter:grayscale(.6);}
+.scard.off .scard-pts{color:var(--sp);}
+.scard-btn:disabled{opacity:.6;cursor:default;}
+
+/* ── рекламный слот: тот же вид, что на главной ── */
+.adslot{border:2px dashed var(--sp);border-radius:var(--rl);background:var(--w);
+  padding:30px 28px;text-align:center;margin-bottom:26px;}
+.adslot-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sp);}
+
+/* Родной date в Chrome выше обычного поля — выравниваем по соседям. */
+.form-input[type="date"]{line-height:1.2;-webkit-appearance:none;appearance:none;}
+.form-input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.6;}
+.form-input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1;}
+
+/* начисление за мероприятие в строке объекта */
+.acc{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:var(--rf);white-space:nowrap;}
+.acc.pending{background:var(--aq-p);color:var(--sm);}
+.acc.waiting{background:var(--aq-p);color:var(--sp);}
+.acc.done{background:var(--cs);color:var(--c);}
 .rq-date{font-size:12px;color:var(--sx);margin-top:3px;}
 .rq-params{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
 .rq-param{font-size:11.5px;font-weight:500;background:var(--aq-p);color:var(--sm);border-radius:var(--r);padding:4px 9px;}
@@ -660,11 +707,14 @@ function dmy(s){
 /* ── блок одного запроса ── */
 function reqBlock(r){
   const params = Array.isArray(r.params) ? r.params : [];
-  return `<div class="rq">
+  return `<div class="rq" data-rq="${esc(r.id)}">
     <div class="rq-head">
       <div>
         <div class="rq-id">${esc(r.id)}</div>
-        <div class="rq-title">${esc(r.title)}</div>
+        <div class="rq-title" onclick="startRename('${esc(r.id)}')" title="Переименовать">
+          <span>${esc(r.title)}</span>
+          <button class="rq-pen" aria-label="Переименовать запрос">${IC_PEN}</button>
+        </div>
         <div class="rq-date">от ${esc(r.date)} · ${r.objects.length} ${ML.plural(r.objects.length,['объект','объекта','объектов'])}${
           r.updatedAt ? ` · <span class="rq-upd">исправлен ${esc(r.updatedAt)}</span>` : ''}</div>
         <div class="rq-params">${params.length
@@ -702,6 +752,7 @@ function reqObjRow(r, o){
       ${v ? `<img class="rq-thumb" src="${ML.photoUrl(v.photo)}" alt="" loading="lazy">` : ''}
       <a class="rq-obj-name" href="venue.html?id=${o.venueId}">${esc(v ? v.name : 'Объект #' + o.venueId)}</a>
       <span class="st ${o.status}">${esc(flow.label)}</span>
+      ${accrualChip(r, o)}
       ${extra ? `<span class="rq-obj-meta">${extra}</span>` : ''}
     </div>
     <div class="btn-row">
@@ -712,6 +763,47 @@ function reqObjRow(r, o){
       <button class="btn-xs danger" ${canCancel ? '' : 'disabled'} onclick="openCancel('${esc(r.id)}',${o.venueId})">Отмена</button>
     </div>
   </div>`;
+}
+
+const IC_PEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 10-3-3L5 17v3z"/><path d="M14.5 6.5l3 3"/></svg>';
+
+/* Начисление за мероприятие. Считает модель, здесь только формулировка. */
+function accrualChip(r, o){
+  const a = ML.accrualFor(r, o);
+  if (!a) return '';
+  const pts = a.pts.toLocaleString('ru') + ' Б';
+  const text = a.state === 'done' ? 'начислено ' + pts
+    : a.state === 'waiting' ? pts + ' · ожидает подтверждения объекта'
+    : 'будет начислено ' + pts;
+  return `<span class="acc ${a.state}">${esc(text)}</span>`;
+}
+
+/* Переименование запроса — только в кабинете пользователя.
+   Правим прямо в строке: модалка ради одного поля избыточна. */
+function startRename(id){
+  const r = ML.requestById(id);
+  const box = document.querySelector(`[data-rq="${id}"] .rq-title`);
+  if (!r || !box || box.dataset.edit) return;
+  box.dataset.edit = '1';
+  box.removeAttribute('onclick');
+  box.innerHTML = `<input class="rq-title-inp" id="rqTitleInp" maxlength="120" value="${esc(r.title)}">
+    <button class="btn-xs" onclick="saveRename('${esc(id)}')">Сохранить</button>
+    <button class="btn-xs" onclick="renderPage()">Отмена</button>`;
+  const inp = document.getElementById('rqTitleInp');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveRename(id); }
+    if (e.key === 'Escape') { e.preventDefault(); renderPage(); }
+  });
+}
+
+function saveRename(id){
+  const inp = document.getElementById('rqTitleInp');
+  const t = (inp ? inp.value : '').trim();
+  if (!t) { MH.toast('Название не может быть пустым', 'error'); return; }
+  ML.updateRequest(id, { title: t });
+  MH.toast('Название изменено', 'success');
+  renderPage();
 }
 
 function refreshOne(){ MH.toast('Статус актуален — ответ от объекта пока не поступал', 'info'); }
@@ -847,8 +939,8 @@ function openConfirm(reqId, venueId){
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="saveConfirm('${esc(reqId)}',${venueId})">Подтвердить</button>`);
 }
-/* Сколько баллов даёт диапазон на текущем тарифе. Для 501+ в модели
-   баллы не заданы — там сумма согласуется отдельно. */
+/* Сколько баллов даёт диапазон на текущем тарифе. Список ярусов берём
+   из модели: изменится ML.FEE_TIERS — изменится и визард. */
 function tierPoints(t){
   const pts = ML.tariff().key === 'prem' ? t.ptsPrem : t.ptsBiz;
   if (!pts) return 'по согласованию';
@@ -1013,6 +1105,14 @@ function buyShop(id){
   if (!ML.spendPoints(item.pts)) { MH.toast('Не хватает баллов', 'error'); return; }
   MH.toast(`Заявка отправлена, списано ${item.pts.toLocaleString('ru')} Б`, 'success');
   renderPage();
+}
+
+/* Верхняя граница даты рождения — минус 18 лет от сегодня. */
+function maxBirth(){
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
 }
 
 function pickToggle(btn){
@@ -1514,6 +1614,8 @@ dash:()=>{
     </div>
   </div>
 
+  <div class="adslot"><div class="adslot-t">Реклама</div></div>
+
   <div class="section-head" style="margin-bottom:14px">
     <div class="section-label">Последний запрос</div>
     ${ML.state.requests.length?'<button class="btn btn-o" onclick="goPage(\'requests\')">Вся история</button>':''}
@@ -1580,7 +1682,9 @@ favs:()=>{
 points:()=>{
   const P=ML.state.points;
   const rows=pointsLedger();
-  const shop=ML.SHOP.slice(0,3);
+  /* Доступные по балансу — первыми: человек должен сразу видеть, что может взять. */
+  const shop=ML.SHOP.slice().sort((a,b)=>(P.free>=b.pts)-(P.free>=a.pts)||a.pts-b.pts);
+  const affordable=shop.filter(s=>P.free>=s.pts).length;
   return `
   <h1 class="page-title">Мои баллы</h1>
   <p class="page-sub">Тратятся на услуги объектов и поставщиков внутри ресурса и на подписку</p>
@@ -1614,21 +1718,25 @@ points:()=>{
     </table>
   </div>
 
-  <div class="section-head" style="margin-bottom:14px">
+  <div class="section-head" style="margin-bottom:6px">
     <div class="section-label">Витрина</div>
     <a class="btn btn-o" href="bonus.html">Вся витрина</a>
   </div>
-  <div class="card">
+  <p class="page-sub" style="margin-bottom:14px">За ${P.free.toLocaleString('ru')} ${ML.plural(P.free,['балл','балла','баллов'])}
+  доступно ${affordable} ${ML.plural(affordable,['услуга','услуги','услуг'])} из ${shop.length}</p>
+  <div class="shop-grid">
     ${shop.map(s=>{
       const can=P.free>=s.pts;
-      return `<div class="shop-row">
-        <div class="shop-mid">
-          <div class="shop-name">${esc(s.title)}</div>
-          <div class="shop-prov">${esc(s.provider)}</div>
+      return `<article class="scard${can?'':' off'}">
+        <div class="scard-img"><img src="${ML.photoUrl(s.id)}" alt="" loading="lazy"></div>
+        <div class="scard-b">
+          <div class="scard-name">${esc(s.title)}</div>
+          <div class="scard-prov">${esc(s.provider)}</div>
+          <div class="scard-pts">${s.pts.toLocaleString('ru')} Б</div>
+          <button class="btn btn-c scard-btn" ${can?'':'disabled'} onclick="buyShop(${s.id})">Оставить заявку</button>
+          ${can?'':`<div class="scard-lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} ${ML.plural(s.pts-P.free,['балла','баллов','баллов'])}</div>`}
         </div>
-        <div class="shop-pts">${s.pts.toLocaleString('ru')} Б</div>
-        <button class="btn-xs" ${can?'':'disabled title="Не хватает баллов"'} onclick="buyShop(${s.id})">Оставить заявку</button>
-      </div>`;
+      </article>`;
     }).join('')}
   </div>`;
 },
@@ -1653,7 +1761,8 @@ profile:()=>`
       <input class="form-input" value="${esc(SESS_NAME())}" placeholder="Фамилия Имя Отчество"></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Дата рождения</label>
-        <input class="form-input" type="date" value="1990-05-14"></div>
+        <input class="form-input" type="date" value="1990-05-14"
+               min="1940-01-01" max="${maxBirth()}"></div>
       <div class="form-group"><label class="form-label">Пол</label>
         <div class="form-toggle"><button class="active" onclick="pickToggle(this)">Женский</button><button onclick="pickToggle(this)">Мужской</button><button onclick="pickToggle(this)">Не указан</button></div></div>
     </div>
@@ -1689,8 +1798,7 @@ billing:()=>{
         </label>
       </div>
       <div class="btn-row">
-        <a class="btn btn-o" href="checkout.html">Сменить тариф</a>
-        <a class="btn btn-c" href="checkout.html">Продлить</a>
+        <a class="btn btn-c" href="checkout.html">Управление тарифом</a>
       </div>
     </div>
   </div>
@@ -1983,7 +2091,7 @@ ssub:()=>{
           <span>Автопродление</span></label>
       </div>
       <div class="btn-row">
-        <a class="btn btn-c" href="checkout.html">Продлить</a>
+        <a class="btn btn-c" href="checkout.html">Управление тарифом</a>
       </div>
     </div>
   </div>

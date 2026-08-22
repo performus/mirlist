@@ -126,8 +126,11 @@
     { min: 1, max: 100, label: '1–100 чел.', fee: 6000, ptsBiz: 500, ptsPrem: 750 },
     { min: 101, max: 300, label: '101–300 чел.', fee: 21000, ptsBiz: 1500, ptsPrem: 2250 },
     { min: 301, max: 500, label: '301–500 чел.', fee: 45000, ptsBiz: 3000, ptsPrem: 4500 },
-    { min: 501, max: Infinity, label: '501+ чел.', fee: null, ptsBiz: null, ptsPrem: null },
   ];
+  /* Ярус «501 и более» убран: в каркасе проекта он оставлен без суммы,
+     мероприятий такого масштаба через ресурс не проводят. Последствие:
+     feeTier() выше 500 человек вернёт null. Если такие мероприятия
+     появятся — вернуть ярус сюда, а не подставлять ближайший. */
 
   const POINT_RATE = 0.70;          // 1 балл = 0,70 ₽
   const POINTS_HELLO = 100;         // баллы «ПРИВЕТ» за регистрацию
@@ -783,6 +786,22 @@
     const t = feeTier(guests); if (!t) return 0;
     return tariff().key === 'prem' ? (t.ptsPrem || 0) : (t.ptsBiz || 0);
   }
+  /**
+   * Что показать в истории запросов рядом с объектом.
+   * @returns {{pts:number, state:'pending'|'waiting'|'done', label:string}|null}
+   */
+  function accrualFor(req, obj) {
+    const guests = +(obj.guests || req.guests || 0);
+    if (!guests) return null;
+    const pts = eventPoints(guests);
+    if (!pts) return null;
+    if (obj.status === 'cancelled') return null;
+    if (bothConfirmed(obj)) return { pts, state: 'done', label: 'начислено' };
+    if (obj.status === 'done' || obj.status === 'reviewed')
+      return { pts, state: 'waiting', label: 'ожидает подтверждения объекта' };
+    return { pts, state: 'pending', label: 'будет начислено' };
+  }
+
   const reviewPoints = () => tariff().key === 'prem' ? POINTS_REVIEW.prem : tariff().key === 'biz' ? POINTS_REVIEW.biz : 0;
   /* Только для внутренних расчётов. НЕ показывать пользователю: пересчёт
      баланса в рубли создаёт впечатление, что баллы можно вывести или
@@ -1036,7 +1055,7 @@
     addToBlacklist, removeFromBlacklist,
     canGroupRequest, createRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
-    feeTier, eventPoints, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
+    feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
     MODERATION, addMyVenue, addMyService, removeMyVenue, removeMyService,
     addReview, reviewsFor, reviewsLatest, reviewScore,
     bothConfirmed, venueMarkDone, venueFee,
