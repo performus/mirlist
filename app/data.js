@@ -181,6 +181,7 @@
     id, name, cat, city, addr,
     stars: /Отель (\d)\*/.test(cat) ? +RegExp.$1 : 0,
     coords: null, rating: 4.5, reviews: 40,
+    promo: null,   // {highlight:true, top:3|10|null, until:'30.09.2026'}
     rooms: { twin: 0, sngl: 0 },
     eventTypes: ['business', 'banquet'],
     features: [], halls: [], photo: 1, px: 50, py: 50, loyaltyContract: false,
@@ -192,6 +193,7 @@
   const VENUES = [
     V(1, 'Отель «Аврора»', 'Отель 4*', 'Москва', 'Пресненская наб., 12', {
       coords: { lat: 55.7492, lng: 37.5390 }, rating: 4.9, reviews: 127, photo: 1, px: 52, py: 38,
+      promo: { highlight: true, top: 3, until: '30.09.2026' },
       rooms: { twin: 60, sngl: 24 }, loyaltyContract: true,
       eventTypes: ['business', 'banquet', 'wedding'],
       features: ['Свой ресторан / кейтеринг', 'Место для велкома', 'Дегустация меню', 'Wi-Fi',
@@ -208,6 +210,7 @@
     }),
     V(2, 'Лофт «Кирпич»', 'Лофт', 'Москва', 'Нижняя Сыромятническая, 10', {
       coords: { lat: 55.7539, lng: 37.6656 }, rating: 4.6, reviews: 112, photo: 2, px: 57, py: 46,
+      promo: { highlight: false, top: 10, until: '01.11.2026' },
       eventTypes: ['banquet', 'team', 'wedding'],
       features: ['Возможен свой кейтеринг', 'Можно привезти алкоголь', 'Место для велкома', 'Wi-Fi',
         'Звуковое оборудование', 'Световое оборудование', 'Стационарная сцена', 'Возможность подвеса',
@@ -335,6 +338,7 @@
     }),
     V(11, 'Конференц-центр «Высота»', 'Конференц-площадка', 'Москва', 'Павелецкая пл., 2', {
       coords: { lat: 55.7297, lng: 37.6392 }, rating: 4.7, reviews: 88, photo: 11, px: 54, py: 44,
+      promo: { highlight: true, top: null, until: '15.10.2026' },
       eventTypes: ['business'],
       features: ['Свой ресторан / кейтеринг', 'Wi-Fi', 'Звуковое оборудование', 'Световое оборудование',
         'Экран', 'Силовое подключение', 'Грузовой лифт', 'Без колонн', 'Затемнение', 'Кондиционер',
@@ -395,24 +399,24 @@
   /* ─────────── 4. ПОСТАВЩИКИ ─────────── */
 
   const SUPPLIERS = [
-    { id: 1, parent: 'Артисты', child: 'Ведущий', name: 'Ведущий Артём Соколов', city: 'Москва', price: 45000, exp: 12, video: true, reviews: true, loyalty: true, photo: 1 },
-    { id: 2, parent: 'Артисты', child: 'Диджей', name: 'DJ Kuznetsov', city: 'Москва', price: 30000, exp: 8, video: true, reviews: true, loyalty: true, photo: 2 },
-    { id: 3, parent: 'Артисты', child: 'Кавер-группа', name: 'Кавер-группа «Апрель»', city: 'Санкт-Петербург', price: 90000, exp: 6, video: true, reviews: true, loyalty: false, photo: 3 },
-    { id: 4, parent: 'Артисты', child: 'Шоу-программа', name: 'Шоу-балет «Ритм»', city: 'Москва', price: 70000, exp: 10, video: true, reviews: false, loyalty: false, photo: 4 },
-    { id: 5, parent: 'Артисты', child: 'Аниматор', name: 'Студия «Праздник+»', city: 'Казань', price: 15000, exp: 5, video: false, reviews: true, loyalty: true, photo: 5 },
-    { id: 6, parent: 'Питание', child: 'Кейтеринг', name: 'Кейтеринг «Формат»', city: 'Москва', price: 2500, exp: 14, video: false, reviews: true, loyalty: true, photo: 6 },
-    { id: 7, parent: 'Питание', child: 'Бары', name: 'Мобильный бар «Шейкер»', city: 'Москва', price: 40000, exp: 7, video: true, reviews: true, loyalty: true, photo: 7 },
-    { id: 8, parent: 'Фото / видео', child: 'Фотограф', name: 'Фотограф Мария Лебедева', city: 'Москва', price: 35000, exp: 9, video: false, reviews: true, loyalty: true, photo: 8 },
-    { id: 9, parent: 'Фото / видео', child: 'Оператор', name: 'Видеопродакшн Kadr', city: 'Санкт-Петербург', price: 60000, exp: 11, video: true, reviews: true, loyalty: false, photo: 9 },
-    { id: 10, parent: 'Фото / видео', child: 'Онлайн-трансляция', name: 'StreamLab', city: 'Москва', price: 120000, exp: 6, video: true, reviews: false, loyalty: false, photo: 10 },
-    { id: 11, parent: 'Аренда', child: 'Мебель', name: 'Прокат мебели «Лофт-декор»', city: 'Москва', price: 25000, exp: 8, video: false, reviews: true, loyalty: true, photo: 11 },
-    { id: 12, parent: 'Аренда', child: 'Шатёр', name: 'Шатры «Тент-Про»', city: 'Подмосковье', price: 150000, exp: 13, video: false, reviews: true, loyalty: false, photo: 12 },
-    { id: 13, parent: 'Аренда', child: 'Оборудование', name: 'Техпрокат «Сцена»', city: 'Москва', price: 80000, exp: 15, video: true, reviews: true, loyalty: true, photo: 13 },
-    { id: 14, parent: 'Персонал', child: 'Хостес', name: 'Агентство «Хостес-Сервис»', city: 'Москва', price: 5000, exp: 9, video: false, reviews: true, loyalty: false, photo: 14 },
-    { id: 15, parent: 'Персонал', child: 'Технический директор', name: 'Техдиректор Павел Гринёв', city: 'Москва', price: 50000, exp: 16, video: false, reviews: true, loyalty: false, photo: 15 },
-    { id: 16, parent: 'Персонал', child: 'Переводчик', name: 'Бюро «Синхрон»', city: 'Санкт-Петербург', price: 45000, exp: 12, video: false, reviews: true, loyalty: true, photo: 16 },
-    { id: 17, parent: 'Транспорт', child: 'Автобусы', name: 'Трансфер «БасЛайн»', city: 'Москва', price: 18000, exp: 10, video: false, reviews: true, loyalty: false, photo: 1 },
-    { id: 18, parent: 'Прочее', child: 'Тимбилдинг', name: 'Организация тимбилдинга TeamUp', city: 'Москва', price: 95000, exp: 11, video: true, reviews: true, loyalty: true, photo: 2 },
+    { id: 1, parent: 'Артисты', child: 'Ведущий', name: 'Ведущий Артём Соколов', city: 'Москва', price: 45000, exp: 12, video: true, reviews: true, travel: true, loyalty: true, photo: 1 },
+    { id: 2, parent: 'Артисты', child: 'Диджей', name: 'DJ Kuznetsov', city: 'Москва', price: 30000, exp: 8, video: true, reviews: true, travel: true, loyalty: true, photo: 2 },
+    { id: 3, parent: 'Артисты', child: 'Кавер-группа', name: 'Кавер-группа «Апрель»', city: 'Санкт-Петербург', price: 90000, exp: 6, video: true, reviews: true, travel: true, loyalty: false, photo: 3 },
+    { id: 4, parent: 'Артисты', child: 'Шоу-программа', name: 'Шоу-балет «Ритм»', city: 'Москва', price: 70000, exp: 10, video: true, reviews: false, travel: true, loyalty: false, photo: 4 },
+    { id: 5, parent: 'Артисты', child: 'Аниматор', name: 'Студия «Праздник+»', city: 'Казань', price: 15000, exp: 5, video: false, reviews: true, travel: false, loyalty: true, photo: 5 },
+    { id: 6, parent: 'Питание', child: 'Кейтеринг', name: 'Кейтеринг «Формат»', city: 'Москва', price: 2500, exp: 14, video: false, reviews: true, travel: false, loyalty: true, photo: 6 },
+    { id: 7, parent: 'Питание', child: 'Бары', name: 'Мобильный бар «Шейкер»', city: 'Москва', price: 40000, exp: 7, video: true, reviews: true, travel: false, loyalty: true, photo: 7 },
+    { id: 8, parent: 'Фото / видео', child: 'Фотограф', name: 'Фотограф Мария Лебедева', city: 'Москва', price: 35000, exp: 9, video: false, reviews: true, travel: true, loyalty: true, photo: 8 },
+    { id: 9, parent: 'Фото / видео', child: 'Оператор', name: 'Видеопродакшн Kadr', city: 'Санкт-Петербург', price: 60000, exp: 11, video: true, reviews: true, travel: true, loyalty: false, photo: 9 },
+    { id: 10, parent: 'Фото / видео', child: 'Онлайн-трансляция', name: 'StreamLab', city: 'Москва', price: 120000, exp: 6, video: true, reviews: false, travel: true, loyalty: false, photo: 10 },
+    { id: 11, parent: 'Аренда', child: 'Мебель', name: 'Прокат мебели «Лофт-декор»', city: 'Москва', price: 25000, exp: 8, video: false, reviews: true, travel: false, loyalty: true, photo: 11 },
+    { id: 12, parent: 'Аренда', child: 'Шатёр', name: 'Шатры «Тент-Про»', city: 'Подмосковье', price: 150000, exp: 13, video: false, reviews: true, travel: false, loyalty: false, photo: 12 },
+    { id: 13, parent: 'Аренда', child: 'Оборудование', name: 'Техпрокат «Сцена»', city: 'Москва', price: 80000, exp: 15, video: true, reviews: true, travel: false, loyalty: true, photo: 13 },
+    { id: 14, parent: 'Персонал', child: 'Хостес', name: 'Агентство «Хостес-Сервис»', city: 'Москва', price: 5000, exp: 9, video: false, reviews: true, travel: false, loyalty: false, photo: 14 },
+    { id: 15, parent: 'Персонал', child: 'Технический директор', name: 'Техдиректор Павел Гринёв', city: 'Москва', price: 50000, exp: 16, video: false, reviews: true, travel: true, loyalty: false, photo: 15 },
+    { id: 16, parent: 'Персонал', child: 'Переводчик', name: 'Бюро «Синхрон»', city: 'Санкт-Петербург', price: 45000, exp: 12, video: false, reviews: true, travel: true, loyalty: true, photo: 16 },
+    { id: 17, parent: 'Транспорт', child: 'Автобусы', name: 'Трансфер «БасЛайн»', city: 'Москва', price: 18000, exp: 10, video: false, reviews: true, travel: false, loyalty: false, photo: 1 },
+    { id: 18, parent: 'Прочее', child: 'Тимбилдинг', name: 'Организация тимбилдинга TeamUp', city: 'Москва', price: 95000, exp: 11, video: true, reviews: true, travel: true, loyalty: true, photo: 2 },
   ];
 
   /* ─────────── 5. ПРАЙС-ЛИСТЫ ПОСТАВЩИКОВ ─────────── */
@@ -684,7 +688,10 @@
       const halls = reqs.length ? m.used.map(i => pool[i]).filter((h, i, a) => a.indexOf(h) === i) : pool;
       out.push({ venue: v, halls, matched: reqs.length > 0 });
     }
-    return out;
+    /* Платное продвижение: Топ-3 выше Топ-10, остальные в обычном порядке.
+       Выделение рамкой (highlight) на позицию не влияет — это только вид. */
+    const rank = (v) => (v.promo && v.promo.top) ? v.promo.top : 999;
+    return out.sort((a, b) => rank(a.venue) - rank(b.venue));
   }
 
   /** Фасетный счётчик: сколько объектов останется, если добавить это условие. */
@@ -755,6 +762,33 @@
     };
     state.requests.unshift(req); persist.requests();
     clearCompare();
+    return req;
+  }
+
+  /* Быстрый запрос из карточки зала — мимо сравнения.
+     По документам одиночные запросы доступны даже на «СТАРТ»: групповых
+     там нет, а по отдельной площадке написать можно. Гостю — нельзя. */
+  function canDirectRequest() {
+    if (isGuest()) return { ok: false, reason: 'Отправка запросов доступна после регистрации' };
+    return { ok: true };
+  }
+  function createDirectRequest(hallIds, opts) {
+    opts = opts || {};
+    const halls = (hallIds || []).map(hallById).filter(Boolean);
+    if (!halls.length) return null;
+    if (!canDirectRequest().ok) return null;
+    const venueIds = [...new Set(halls.map(h => h.venueId))];
+    const first = venueById(venueIds[0]);
+    const req = {
+      id: newRequestId(), date: new Date().toLocaleDateString('ru'),
+      title: opts.title || `Запрос: ${halls[0].name}, ${first ? first.name : ''}`.trim(),
+      letter: opts.letter || '', dates: opts.dates || '', guests: opts.guests || '',
+      params: filtersSummary(state.filters),
+      hallIds: halls.map(h => h.id),
+      objects: venueIds.map(venueId => ({ venueId, status: 'sent' })),
+      direct: true,
+    };
+    state.requests.unshift(req); persist.requests();
     return req;
   }
 
@@ -877,7 +911,8 @@
     const maxPrice = Math.max(...SUPPLIERS.map(s => s.price));
     const maxExp = Math.max(...SUPPLIERS.map(s => s.exp));
     return {
-      city: '', price: [0, maxPrice], expMin: 0,
+      city: '', travel: false,
+      price: [0, maxPrice], expMin: 0,
       video: false, reviews: false, loyalty: false,
       cats: new Set(),                 // ключи вида 'Артисты·Ведущий'
       _maxPrice: maxPrice, _maxExp: maxExp,
@@ -888,7 +923,13 @@
   /** excludeGroup='cats' — не учитывать дерево категорий (для фасетов по «ИЛИ»). */
   function filterSuppliers(F, excludeGroup) {
     return SUPPLIERS.filter(s => {
-      if (F.city && !s.city.toLowerCase().includes(F.city.toLowerCase())) return false;
+      /* Город: поставщик показывается, если он в этом городе, либо если
+         отмечена галочка «готов к командировкам» и он к ним готов.
+         Без выбранного города галочка работает как самостоятельный фильтр. */
+      if (F.city) {
+        const here = s.city.toLowerCase().includes(F.city.toLowerCase());
+        if (!here && !(F.travel && s.travel)) return false;
+      } else if (F.travel && !s.travel) return false;
       if (s.price < F.price[0] || s.price > F.price[1]) return false;
       if (F.expMin && s.exp < F.expMin) return false;
       if (F.video && !s.video) return false;
@@ -1021,7 +1062,8 @@
     const s = {
       localId: 's' + Date.now(), name: d.name || 'Без названия',
       parent: d.parent || '', child: d.child || '', about: d.about || '',
-      price, exp: +d.exp || 0, geo: d.geo || [],
+      price, exp: +d.exp || 0,
+      city: d.city || '', travel: !!(d.travel || []).length,
       loyalty: !!(d.loy || []).length,
       pts: servicePoints(price), cost: serviceCost(price),
       status: 'review', createdAt: new Date().toLocaleDateString('ru'),
@@ -1102,7 +1144,7 @@
     inCompare, toggleCompare, clearCompare, compareHalls,
     isFav, toggleFav,
     addToBlacklist, removeFromBlacklist,
-    canGroupRequest, createRequest, requestById, requestHalls, requestByVenue,
+    canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
     MODERATION, addMyVenue, addMyService, removeMyVenue, removeMyService,

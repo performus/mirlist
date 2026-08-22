@@ -1220,7 +1220,9 @@ const SERVICE_STEPS=[
  {t:'Описание',f:[
    {k:'name',l:'Название услуги',ty:'text',ph:'Ведение мероприятия',req:1},
    {k:'about',l:'Что входит в услугу',ty:'area',req:1},
-   {k:'geo',l:'География работы',ty:'checks',optFn:()=>ML.CITIES},
+   {k:'city',l:'Город',ty:'select',optFn:()=>ML.CITIES,req:1},
+   {k:'travel',l:'Готов к командировкам в другие города',ty:'flag',
+    hint:'Без галочки вас найдут только по своему городу.'},
  ]},
  {t:'Стоимость и опыт',f:[
    {k:'price',l:'Стоимость от, ₽',ty:'num',req:1},
@@ -1319,6 +1321,10 @@ function wfield(f){
         <option value="">${kids.length?'— выберите —':'сначала выберите раздел'}</option>
         ${kids.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>${H}</div>`;
     }
+    case 'flag':
+      return `<div class="wf"><label class="wcheck wcheck-solo">
+        <input type="checkbox" ${v ? 'checked' : ''} onchange="${S}=this.checked">
+        <span>${esc(f.l)}</span></label>${H}</div>`;
     case 'checks': {
       const a=v||[];
       return `<div class="wf">${L}<div class="wchecks">${opts.map(o=>`<label class="wcheck">
@@ -1424,14 +1430,15 @@ function wizPreview(){
     return `<div class="wf"><label>Так карточка появится в каталоге</label>
       <div class="wprev"><div class="wprev-img"></div><div class="wprev-b">
         <div style="font-size:14px;font-weight:700;color:var(--sd)">${esc(d.name||'Без названия')}</div>
-        <div style="font-size:12px;color:var(--sx);margin-top:3px">${esc(d.child||'—')} · ${esc((d.geo||[])[0]||'город не указан')}</div>
+        <div style="font-size:12px;color:var(--sx);margin-top:3px">${esc(d.child||'—')} · ${esc(d.city||'город не указан')}</div>
         <div style="font-size:14px;font-weight:700;color:var(--sd);margin-top:8px">от ${ML.money(p)}</div>
       </div></div></div>
       <table class="wsum" style="margin-top:16px">
         <tr><th>Раздел</th><td>${esc(d.parent||'—')}</td></tr>
         <tr><th>Категория</th><td>${esc(d.child||'—')}</td></tr>
         <tr><th>Опыт</th><td>${d.exp?d.exp+' '+ML.plural(+d.exp,['год','года','лет']):'—'}</td></tr>
-        <tr><th>География</th><td>${esc((d.geo||[]).join(', ')||'—')}</td></tr>
+        <tr><th>Город</th><td>${esc(d.city||'—')}</td></tr>
+        <tr><th>Командировки</th><td>${d.travel?'готов выехать':'только свой город'}</td></tr>
         <tr><th>Бонусная программа</th><td>${(d.loy||[]).length?'участвует · '+ML.servicePoints(p).toLocaleString('ru')+' Б':'нет'}</td></tr>
       </table>
       <div class="wz-note" style="margin-top:16px">После отправки карточка уходит на модерацию.</div>`;

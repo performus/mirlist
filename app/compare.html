@@ -72,6 +72,7 @@ button{font-family:inherit;cursor:pointer;}
    ══════════════════════════════════════════════ */
 .tscroll{
   overflow-x:auto;background:var(--white);
+  scroll-behavior:smooth; scroll-snap-type:x proximity;
   border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
   box-shadow:var(--sh-md);
   scrollbar-width:thin;scrollbar-color:var(--aqua-2) transparent;
@@ -79,7 +80,10 @@ button{font-family:inherit;cursor:pointer;}
 .tscroll::-webkit-scrollbar{height:8px;}
 .tscroll::-webkit-scrollbar-thumb{background:var(--aqua-2);border-radius:4px;}
 
-.cmp{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;}
+/* Ширины фиксированные: при двух залах таблица не должна растягиваться
+   на всю страницу, а фотография — превращаться в полосу. Пустое место
+   справа лучше растянутых колонок. */
+.cmp{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;}
 .cmp th,.cmp td{
   padding:12px 16px;text-align:left;font-size:13px;
   border-bottom:1px solid rgba(197,227,225,.28);vertical-align:top;
@@ -88,9 +92,21 @@ button{font-family:inherit;cursor:pointer;}
 
 /* первый столбец залипает при горизонтальной прокрутке */
 .rh-seat{display:inline-flex;align-items:center;gap:6px;}
+
+/* ── прокрутка таблицы стрелками ── */
+.cmp-nav{display:flex;align-items:center;gap:8px;margin:0 0 10px;}
+.cmp-arrow{
+  width:36px;height:36px;flex-shrink:0;border-radius:50%;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.cmp-arrow:hover:not(:disabled){border-color:var(--coral);color:var(--coral);}
+.cmp-arrow:disabled{opacity:.35;cursor:default;}
+.cmp-nav-hint{font-size:12px;color:var(--slate-muted);}
+.tscroll:focus-visible{outline:2px solid var(--coral);outline-offset:2px;}
 .rowhead{
   position:sticky;left:0;z-index:2;
-  width:210px;min-width:210px;
+  width:190px;min-width:190px;max-width:190px;
   background:var(--white);
   font-weight:500;color:var(--slate-muted);
   border-right:1px solid rgba(197,227,225,.35);
@@ -100,12 +116,18 @@ button{font-family:inherit;cursor:pointer;}
 
 /* шапка колонки-зала */
 .colhead{
-  width:230px;min-width:230px;
+  width:240px;min-width:240px;max-width:240px;
+  scroll-snap-align:start;
   background:var(--bg);vertical-align:top;
   border-bottom:1px solid rgba(197,227,225,.4);
 }
-.colhead.corner{position:sticky;left:0;z-index:3;background:var(--bg);}
-.ch-img{width:100%;height:96px;border-radius:var(--r-sm);overflow:hidden;background:var(--aqua-pale);margin-bottom:10px;}
+/* При table-layout:fixed ширину колонок задаёт первая строка, поэтому
+   угловая ячейка должна совпадать с .rowhead, а не с колонкой зала. */
+.colhead.corner{position:sticky;left:0;z-index:3;background:var(--bg);
+  width:190px;min-width:190px;max-width:190px;}
+/* Фиксированное соотношение сторон: фото кадрируется, а не тянется. */
+.ch-img{width:100%;aspect-ratio:4/3;border-radius:var(--r-sm);overflow:hidden;
+  background:var(--aqua-pale);margin-bottom:10px;}
 .ch-img img{width:100%;height:100%;object-fit:cover;}
 .ch-name{font-size:14.5px;font-weight:700;color:var(--slate-deep);line-height:1.3;display:block;transition:color .2s;}
 .ch-name:hover{color:var(--coral);}
@@ -205,8 +227,11 @@ textarea.fi{min-height:110px;resize:vertical;line-height:1.55;}
 @media(max-width:768px){
   .wrap{padding:18px 16px 48px;}
   .d-title{font-size:25px;}
-  .rowhead{width:150px;min-width:150px;}
-  .colhead{width:190px;min-width:190px;}
+  /* На телефоне колонки уже, но так же фиксированы: max-width обязателен,
+     иначе table-layout:fixed возьмёт ширину из первой строки. */
+  .rowhead{width:150px;min-width:150px;max-width:150px;}
+  .colhead,.colhead.corner{width:200px;min-width:200px;max-width:200px;}
+  .colhead.corner{width:150px;min-width:150px;max-width:150px;}
   .row2{grid-template-columns:1fr;}
 }
 </style>
@@ -345,12 +370,62 @@ function render() {
 
   ${MH.seatLegend()}
 
-  <div class="tscroll">
+  <div class="cmp-nav">
+    <button class="cmp-arrow" id="cmpPrev" onclick="cmpScroll(-1)" aria-label="Прокрутить влево">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="cmp-arrow" id="cmpNext" onclick="cmpScroll(1)" aria-label="Прокрутить вправо">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <span class="cmp-nav-hint" id="cmpHint"></span>
+  </div>
+
+  <div class="tscroll" id="tscroll" tabindex="0" role="region" aria-label="Таблица сравнения залов">
     <table class="cmp">
       <thead><tr><th class="colhead corner"></th>${cols}</tr></thead>
       <tbody>${body}</tbody>
     </table>
   </div>`;
+
+  bindCmpScroll();
+}
+
+/* ══════════════════════════════════════════════
+   ПРОКРУТКА ТАБЛИЦЫ
+   Прокрутка родная: свайп на телефоне работает сам. Состояние стрелок
+   пересчитываем на событии scroll, потому что листать можно и колесом,
+   и свайпом, и клавишами.
+   ══════════════════════════════════════════════ */
+const CMP_COL = 240;   // ширина колонки зала, совпадает с .colhead
+
+function cmpScroll(dir) {
+  const el = document.getElementById('tscroll');
+  if (el) el.scrollBy({ left: dir * CMP_COL, behavior: 'smooth' });
+}
+
+function cmpArrows() {
+  const el = document.getElementById('tscroll');
+  const prev = document.getElementById('cmpPrev');
+  const next = document.getElementById('cmpNext');
+  if (!el || !prev || !next) return;
+  const max = el.scrollWidth - el.clientWidth;
+  const fits = max <= 2;                       // всё помещается — листать нечего
+  prev.disabled = fits || el.scrollLeft <= 2;
+  next.disabled = fits || el.scrollLeft >= max - 2;
+  const hint = document.getElementById('cmpHint');
+  if (hint) hint.textContent = fits ? 'Все залы помещаются на экране' : 'Таблицу можно листать';
+}
+
+function bindCmpScroll() {
+  const el = document.getElementById('tscroll');
+  if (!el) return;
+  el.addEventListener('scroll', cmpArrows, { passive: true });
+  window.addEventListener('resize', cmpArrows);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); cmpScroll(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); cmpScroll(-1); }
+  });
+  cmpArrows();
 }
 
 function removeHall(id) { ML.toggleCompare(id); render(); }

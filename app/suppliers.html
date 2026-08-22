@@ -123,6 +123,21 @@ button{font-family:inherit;cursor:pointer;}
 .fd-gbody{padding:2px 18px 16px;}
 
 /* чекбоксы */
+/* ── география: выбор города и подсказка ── */
+.fd-sel{display:block;margin-bottom:10px;}
+.fd-sel > span{display:block;font-size:10.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--slate-muted);margin-bottom:5px;}
+.fd-sel select{width:100%;padding:9px 12px;border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.55);background:var(--bg);
+  font-family:inherit;font-size:13px;color:var(--slate-deep);outline:none;}
+.fd-sel select:focus{border-color:var(--coral);background:var(--white);}
+.fd-hint{font-size:11.5px;line-height:1.55;color:var(--slate-muted);margin-top:8px;}
+
+/* Пометка «выезд»: без неё непонятно, почему в выдаче по Петербургу Москва. */
+.tile-travel{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:var(--r-full);
+  background:var(--coral-soft);color:var(--coral);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;vertical-align:1px;}
+
 .fd-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--slate-mid);padding:6px 0;cursor:pointer;transition:opacity .2s;}
 .fd-check input{display:none;}
 .fd-box{
@@ -396,7 +411,30 @@ function renderFilters() {
 
   const extraN = (F.video ? 1 : 0) + (F.reviews ? 1 : 0) + (F.loyalty ? 1 : 0);
 
+  /* География. Логика командировок целиком в ML.filterSuppliers:
+     здесь только кладём значения в F.city и F.travel. */
+  const travelN = ML.supplierFacet(F, 'flag', 'travel');
+  const geo =
+    `<label class="fd-sel">
+       <span>Город</span>
+       <select onchange="F.city=this.value;render()">
+         <option value="">Любой город</option>
+         ${ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}
+       </select>
+     </label>
+     <label class="fd-check">
+       <input type="checkbox" ${F.travel ? 'checked' : ''} onchange="F.travel=this.checked;render()">
+       <span class="fd-box">${IC.check}</span>
+       <span class="fd-lbl">Готов к командировкам</span><span class="fd-cnt">(${travelN})</span>
+     </label>
+     ${F.city
+       ? `<div class="fd-hint">${F.travel
+            ? 'Показываем поставщиков из города и тех, кто готов приехать.'
+            : 'Только поставщики из выбранного города.'}</div>`
+       : (F.travel ? '<div class="fd-hint">Только те, кто готов выехать в другой город.</div>' : '')}`;
+
   document.getElementById('fdBody').innerHTML =
+    fgroup('geo', 'География', geo, (F.city ? 1 : 0) + (F.travel ? 1 : 0)) +
     fgroup('price', 'Стоимость услуги, ₽', dualPrice(), (F.price[0] > 0 || F.price[1] < MAX_PRICE) ? 1 : 0) +
     fgroup('exp', 'Опыт, лет',
       `<div class="fd-seatrow"><span>Не менее</span><span class="v" id="expVal">${F.expMin || '—'}</span></div>
@@ -460,6 +498,8 @@ function togCat(kk) { F.cats.has(kk) ? F.cats.delete(kk) : F.cats.add(kk); rende
    ══════════════════════════════════════════════ */
 function renderChips() {
   const c = [];
+  if (F.city) c.push([F.city, () => F.city = '']);
+  if (F.travel) c.push(['готов к командировкам', () => F.travel = false]);
   if (F.price[0] > 0 || F.price[1] < MAX_PRICE)
     c.push([`${F.price[0].toLocaleString('ru')}–${F.price[1].toLocaleString('ru')} ₽`, () => F.price = [0, MAX_PRICE]]);
   if (F.expMin) c.push([`опыт от ${F.expMin} ${ML.plural(F.expMin, ['года','лет','лет'])}`, () => F.expMin = 0]);
@@ -485,7 +525,9 @@ function tile(s) {
     </div>
     <div class="tile-body">
       <div class="tile-name">${esc(s.name)}</div>
-      <div class="tile-sub">${esc(s.city)} · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
+      <div class="tile-sub">${esc(s.city)}${
+        s.travel ? '<span class="tile-travel" title="Готов к командировкам">выезд</span>' : ''
+      } · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
       <div class="tile-price">${MH.blurOnly('от ' + ML.money(s.price))}</div>
       <div class="tile-badges">
         ${s.loyalty ? '<span class="tag solid">Баллы</span>' : ''}
