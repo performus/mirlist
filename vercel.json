@@ -2,29 +2,48 @@
   "cleanUrls": false,
   "headers": [
     {
-      "//": "Логотип, фавикон и og-картинка правятся по ходу работы. Сутки без перепроверки держали в браузере старый логотип — теперь браузер каждый раз спрашивает ETag и получает 304, если файл не менялся.",
       "source": "/assets/:file",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
-      "//": "Фотографии площадок не меняются — их держим сутки.",
       "source": "/assets/photos/:file",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
       ]
     },
     {
       "source": "/app/shared.js",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     }
   ],
   "redirects": [
-    { "source": "/home", "destination": "/app/homepage.html", "permanent": false },
-    { "source": "/login", "destination": "/app/auth.html", "permanent": false },
-    { "source": "/dashboard", "destination": "/app/dashboard.html", "permanent": false }
+    {
+      "source": "/home",
+      "destination": "/app/homepage.html",
+      "permanent": false
+    },
+    {
+      "source": "/login",
+      "destination": "/app/auth.html",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/app/dashboard.html",
+      "permanent": false
+    }
   ]
 }
