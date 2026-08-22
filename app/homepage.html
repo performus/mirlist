@@ -14,6 +14,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<!-- Фон hero грузим заранее: иначе экран открывается тёмным прямоугольником,
+     а фотография въезжает рывком уже после первой отрисовки. -->
+<link rel="preload" as="image" href="../assets/photos/v2.jpg">
 <style>
 /* ══════════════════════════════════════════════
    DESIGN TOKENS — Aqua Coral Slate
@@ -24,6 +27,9 @@
   --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
   --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
   --bg:#F8F5F2; --white:#FFFFFF;
+  /* Две производные подложки: разбавляют полотно, оставаясь фоном, а не заливкой. */
+  --peach-pale:#FBF2EC;
+  --aqua-faint:#F3FAF9;
   --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
   --sh-coral:0 4px 18px rgba(233,134,103,.22);
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
@@ -33,19 +39,48 @@ body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s
 a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
-@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.wrap{max-width:1240px;margin:0 auto;padding:0 28px 72px;animation:pageIn .5s ease both;}
+/* Внутренний контейнер: секции тянутся во всю ширину ради подложек,
+   а содержимое остаётся в общей колонке. */
+.in{max-width:1240px;margin:0 auto;padding:0 28px;}
 
-/* ══════ 1. ПОИСКОВАЯ СТРОКА ══════ */
-.hero{padding:52px 0 40px;text-align:center;}
-.hero .eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
-.hero h1{font-family:'Literata',Georgia,serif;font-size:42px;font-weight:600;color:var(--slate-deep);
-  line-height:1.12;margin-top:12px;letter-spacing:-.005em;}
-.hero p{font-size:15px;line-height:1.7;color:var(--slate-muted);margin:14px auto 0;max-width:660px;}
+/* ══════ 1. HERO ══════ */
+.hero{
+  position:relative; overflow:hidden;
+  height:50vh; min-height:380px; max-height:560px;
+  display:flex; align-items:center;
+}
+.hero-bg{
+  position:absolute; inset:0;
+  background:url(../assets/photos/v2.jpg) center 55% / cover no-repeat;
+}
+/* Затемнение: белый текст по светлой фотографии иначе не читается.
+   Сверху и снизу плотнее — там лежат надзаголовок и поисковая строка. */
+.hero-bg::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgba(24,38,49,.78) 0%,
+    rgba(24,38,49,.60) 42%,
+    rgba(24,38,49,.74) 100%);
+}
+.hero-in{position:relative; z-index:1; width:100%; text-align:center;}
+.hero .eyebrow{
+  display:inline-block; font-size:11.5px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.09em; color:#F3C7B6;
+}
+.hero h1{
+  font-family:'Literata',Georgia,serif; font-size:42px; font-weight:600;
+  color:#fff; line-height:1.12; margin-top:10px; letter-spacing:-.005em;
+  text-shadow:0 2px 18px rgba(16,26,34,.45);
+}
+.hero p{
+  font-size:15px; line-height:1.6; color:rgba(255,255,255,.88);
+  margin:12px auto 0; max-width:640px;
+}
 
 .sbar{display:grid;grid-template-columns:1.2fr 1fr 1.2fr auto;gap:10px;align-items:end;
-  background:var(--white);border:1px solid rgba(197,227,225,.4);border-radius:var(--r-lg);
-  box-shadow:var(--sh-lg);padding:14px;margin:28px auto 0;max-width:900px;text-align:left;}
+  background:var(--white);border:1px solid rgba(255,255,255,.5);border-radius:var(--r-lg);
+  box-shadow:0 12px 44px rgba(16,26,34,.28);padding:14px;margin:24px auto 0;max-width:900px;text-align:left;}
+.sf{position:relative;}
 .sf label{display:block;font-size:10.5px;font-weight:600;text-transform:uppercase;
   letter-spacing:.07em;color:var(--slate-muted);margin-bottom:5px;}
 .sf input,.sf select{width:100%;padding:11px 14px;border-radius:var(--r-sm);
@@ -56,19 +91,55 @@ button{font-family:inherit;cursor:pointer;}
   font-size:14.5px;font-weight:600;box-shadow:var(--sh-coral);transition:background .2s;white-space:nowrap;}
 .sbtn:hover{background:var(--coral-hover);}
 
-/* ══════ секции ══════ */
-.sec{margin-top:52px;}
+/* ── автоподбор города ── */
+.ac-list{
+  position:absolute; top:100%; left:0; right:0; z-index:40; margin-top:6px;
+  list-style:none; background:var(--white); border:1px solid rgba(197,227,225,.6);
+  border-radius:var(--r-sm); box-shadow:var(--sh-lg); overflow:hidden;
+  max-height:264px; overflow-y:auto;
+}
+.ac-list[hidden]{display:none;}
+.ac-item{
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  padding:9px 14px; font-size:13.5px; color:var(--slate-deep); cursor:pointer;
+}
+.ac-item .cnt{font-size:12px; color:var(--slate-muted); white-space:nowrap;}
+.ac-item:hover,.ac-item.on{background:var(--aqua-pale);}
+.ac-item.on .cnt{color:var(--slate-mid);}
+.ac-empty{padding:10px 14px; font-size:12.5px; color:var(--slate-muted);}
+
+/* ══════ 2. БАННЕР БОНУСНОЙ ПРОГРАММЫ ══════ */
+.bonus{background:linear-gradient(115deg,#E98667 0%,#D96345 58%,#C7563B 100%);color:#fff;}
+.bonus-in{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:26px; flex-wrap:wrap; padding-top:30px; padding-bottom:30px;
+}
+.bonus h2{font-family:'Literata',Georgia,serif;font-size:24px;font-weight:600;line-height:1.2;}
+.bonus p{font-size:14px;line-height:1.6;margin-top:8px;max-width:720px;color:rgba(255,255,255,.92);}
+.bonus b{font-weight:700;color:#fff;}
+.bonus-cta{
+  display:inline-block; padding:12px 26px; border-radius:var(--r-full);
+  background:#fff; color:#C7563B; font-size:14px; font-weight:700; white-space:nowrap;
+  box-shadow:0 6px 20px rgba(16,26,34,.18); transition:transform .2s, box-shadow .2s;
+}
+.bonus-cta:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(16,26,34,.24);}
+
+/* ══════ секции и подложки ══════ */
+.sec{padding:52px 0;}
+.sec.tint-paper{background:var(--bg);}
+.sec.tint-white{background:var(--white);}
+.sec.tint-aqua{background:var(--aqua-faint);}
+.sec.tint-peach{background:var(--peach-pale);}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
-.sec-eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
 .sec-title{font-family:'Literata',Georgia,serif;font-size:27px;font-weight:600;color:var(--slate-deep);
-  line-height:1.2;margin-top:6px;}
+  line-height:1.2;}
 .sec-sub{font-size:13px;color:var(--slate-muted);margin-top:6px;}
 .btn{display:inline-block;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:600;
   border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;white-space:nowrap;}
 .btn:hover{border-color:var(--coral);color:var(--coral);}
 
 /* ══════ плитки ══════ */
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px;}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
 .tile{display:block;text-align:left;background:var(--white);border:1px solid rgba(197,227,225,.32);
   border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-sm);width:100%;padding:0;
   transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .25s,border-color .25s;}
@@ -81,14 +152,12 @@ button{font-family:inherit;cursor:pointer;}
 .tile-sub{font-size:12.5px;color:var(--slate-muted);margin-top:4px;}
 .tile-cnt{font-size:13px;font-weight:700;color:var(--coral);margin-top:7px;}
 
-/* ══════ 3. рекламный слот ══════ */
+/* ══════ рекламный слот ══════ */
 .adslot{border:2px dashed var(--slate-pale);border-radius:var(--r-lg);background:var(--white);
-  padding:34px 28px;text-align:center;}
+  padding:30px 28px;text-align:center;}
 .adslot-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-pale);}
-.adslot-s{font-size:13.5px;line-height:1.65;color:var(--slate-muted);margin-top:10px;max-width:560px;
-  margin-left:auto;margin-right:auto;}
 
-/* ══════ 6. события отрасли ══════ */
+/* ══════ события отрасли ══════ */
 .events{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
   box-shadow:var(--sh-md);padding:6px 20px;}
 .ev{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:15px 0;
@@ -99,10 +168,21 @@ button{font-family:inherit;cursor:pointer;}
   background:var(--aqua-pale);color:var(--slate-mid);white-space:nowrap;}
 .ev-name{font-size:14px;color:var(--slate-mid);flex:1;min-width:200px;}
 
-/* ══════ 7. отзывы ══════ */
-.revs{display:grid;grid-template-columns:repeat(auto-fit,minmax(292px,1fr));gap:14px;}
-.rev{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-md);
-  box-shadow:var(--sh-sm);padding:20px;display:flex;flex-direction:column;}
+/* ══════ отзывы: горизонтальная карусель ══════ */
+/* Прокрутка родная, со scroll-snap: тогда свайп на телефоне работает сам,
+   без обработчиков касаний. */
+.rev-wrap{position:relative;}
+.rev-rail{
+  display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory;
+  scroll-behavior:smooth; padding:2px 2px 8px;
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.rev-rail::-webkit-scrollbar{display:none;}
+.rev{
+  flex:0 0 clamp(268px, 31%, 372px); scroll-snap-align:start;
+  background:var(--white);border:1px solid rgba(197,227,225,.35);border-radius:var(--r-md);
+  box-shadow:var(--sh-sm);padding:20px;display:flex;flex-direction:column;
+}
 .rev-top{display:flex;align-items:center;gap:11px;margin-bottom:11px;}
 .rev-ava{width:38px;height:38px;border-radius:50%;background:var(--coral-soft);color:var(--coral);
   display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;}
@@ -117,19 +197,38 @@ button{font-family:inherit;cursor:pointer;}
 .rev-target a{font-weight:700;color:var(--slate-deep);transition:color .2s;}
 .rev-target a:hover{color:var(--coral);}
 
+.rev-nav{display:flex;gap:8px;}
+.rev-arrow{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.rev-arrow:hover{border-color:var(--coral);color:var(--coral);}
+.rev-arrow[hidden]{display:none;}
+
+@media(max-width:1000px){
+  .tiles{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
 @media(max-width:900px){
+  .in{padding:0 16px;}
+  .sec{padding:40px 0;}
   .sbar{grid-template-columns:1fr 1fr;}
+  .hero{height:44vh;min-height:340px;max-height:460px;}
   .hero h1{font-size:31px;}
-  /* Literata шире предшественника: на узком экране заголовок секции
-     уходил в две строки — уменьшаем кегль, а не трекинг. */
   .sec-title{font-size:23px;}
-  .hero{padding:36px 0 28px;}
-  .wrap{padding:0 16px 56px;}
-  .sec{margin-top:40px;}
+  .bonus-in{padding-top:24px;padding-bottom:24px;}
+  .bonus h2{font-size:21px;}
+}
+@media(max-width:700px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .rev{flex:0 0 84%;}
 }
 @media(max-width:560px){
   .sbar{grid-template-columns:1fr;}
+  .sbtn{width:100%;}
+  .hero{height:auto;min-height:0;max-height:none;padding:34px 0 30px;}
   .hero h1{font-size:26px;}
+  .hero p{font-size:14px;}
 }
 </style>
 </head>
@@ -137,7 +236,7 @@ button{font-family:inherit;cursor:pointer;}
 
 <div id="mh-nav"></div>
 
-<div class="wrap" id="root"></div>
+<div id="root"></div>
 
 <div id="mh-footer"></div>
 
@@ -148,14 +247,16 @@ MH.init();
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-/* Отраслевые события: в модели их нет.
-   КОНТЕНТ ПОД НАПОЛНЕНИЕ ЧЕРЕЗ АДМИНКУ — правится редактором, не кодом. */
+/* Отраслевые события: в модели их нет, правятся редактором. */
 const EVENTS = [
   { date: '12.09.2026', kind: 'Выставка', name: 'MICE Excellence Forum — Москва, Экспоцентр' },
   { date: '04.10.2026', kind: 'Премия',   name: 'Национальная премия event-индустрии' },
   { date: '21.11.2026', kind: 'Воркшоп',  name: 'Воркшоп площадок Поволжья — Казань' },
   { date: '05.12.2026', kind: 'Выставка', name: 'Событийный туризм: регионы России — Сочи' },
 ];
+
+const IC_PREV = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+const IC_NEXT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
 
 /* Сколько залов в городе — считаем по модели, без выдуманных чисел. */
 function hallsInCity(city){
@@ -167,14 +268,17 @@ function initials(name){
   return ((p[0] || '')[0] || '') + ((p[1] || '')[0] || '');
 }
 
-function render(){
-  const F = ML.loadFilters();
-
-  /* ── 2. города: только те, где реально есть залы ── */
-  const cities = ML.CITIES
+/* Города с залами — источник и для плиток направлений, и для автоподбора. */
+function cityList(){
+  return ML.CITIES
     .map(c => ({ city: c, halls: hallsInCity(c) }))
     .filter(x => x.halls > 0)
     .sort((a, b) => b.halls - a.halls);
+}
+
+function render(){
+  const F = ML.loadFilters();
+  const cities = cityList();
 
   const cityTiles = cities.map((x, i) => `
     <button class="tile" onclick="goCity('${esc(x.city)}')">
@@ -185,8 +289,7 @@ function render(){
       </div>
     </button>`).join('');
 
-  /* ── 4. новые площадки ── */
-  const venueTiles = ML.VENUES.slice(0, 4).map(v => `
+  const venueTiles = ML.VENUES.slice(0, 8).map(v => `
     <a class="tile" href="venue.html?id=${v.id}">
       <div class="tile-img"><img src="${ML.photoUrl(v.photo)}" alt="" loading="lazy"></div>
       <div class="tile-b">
@@ -195,8 +298,7 @@ function render(){
       </div>
     </a>`).join('');
 
-  /* ── 5. новые поставщики ── */
-  const supTiles = ML.SUPPLIERS.slice(0, 4).map(s => `
+  const supTiles = ML.SUPPLIERS.slice(0, 8).map(s => `
     <a class="tile" href="supplier.html?id=${s.id}">
       <div class="tile-img"><img src="${ML.photoUrl(s.photo)}" alt="" loading="lazy"></div>
       <div class="tile-b">
@@ -205,8 +307,8 @@ function render(){
       </div>
     </a>`).join('');
 
-  /* ── 7. отзывы ── */
-  const revs = ML.reviewsLatest(3).map(r => {
+  /* Отзывы — все, что есть в модели: карусель их пролистает. */
+  const revs = ML.state.reviews.map(r => {
     const isVenue = r.target === 'venue';
     const obj = isVenue ? ML.venueById(r.targetId) : ML.SUPPLIERS.find(s => s.id === r.targetId);
     const href = isVenue ? `venue.html?id=${r.targetId}` : `supplier.html?id=${r.targetId}`;
@@ -229,118 +331,257 @@ function render(){
 
   document.getElementById('root').innerHTML = `
 
-  <!-- ══════ 1. ПОИСКОВАЯ СТРОКА ══════ -->
+  <!-- ══════ 1. HERO ══════ -->
   <section class="hero">
-    <span class="eyebrow">Поисковый инструмент MICE и Event</span>
-    <h1>Поиск залов, а не отелей</h1>
-    <p>Подбирайте залы по параметрам технического задания независимо от объекта,
-    сравнивайте их между собой, отправляйте один запрос сразу во все выбранные объекты
-    и выгружайте презентацию по отобранным залам.</p>
+    <div class="hero-bg"></div>
+    <div class="hero-in in">
+      <span class="eyebrow">Поисковый инструмент MICE и Event</span>
+      <h1>Поиск залов, а не отелей</h1>
+      <p>Подбирайте залы по параметрам технического задания независимо от объекта
+      и отправляйте один запрос сразу во все выбранные площадки.</p>
 
-    <div class="sbar">
-      <div class="sf">
-        <label for="sCity">Город</label>
-        <select id="sCity">
-          <option value="">Любой город</option>
-          ${ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}
-        </select>
+      <div class="sbar">
+        <div class="sf">
+          <label for="sCity">Город</label>
+          <input id="sCity" type="text" autocomplete="off" placeholder="Любой город"
+                 value="${esc(F.city || '')}"
+                 role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cityAc">
+          <ul class="ac-list" id="cityAc" role="listbox" hidden></ul>
+        </div>
+        <div class="sf">
+          <label for="sPeople">Участников</label>
+          <input id="sPeople" type="number" min="0" step="10" placeholder="любое" value="${F.people || ''}">
+        </div>
+        <div class="sf">
+          <label for="sEvent">Тип мероприятия</label>
+          <select id="sEvent">
+            ${ML.EVENT_TYPES.map(e => `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sf"><button class="sbtn" onclick="goSearch()">Найти залы</button></div>
       </div>
-      <div class="sf">
-        <label for="sPeople">Участников</label>
-        <input id="sPeople" type="number" min="0" step="10" placeholder="любое" value="${F.people || ''}">
-      </div>
-      <div class="sf">
-        <label for="sEvent">Тип мероприятия</label>
-        <select id="sEvent">
-          ${ML.EVENT_TYPES.map(e => `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')}
-        </select>
-      </div>
-      <div class="sf"><button class="sbtn" onclick="goSearch()">Найти залы</button></div>
     </div>
   </section>
 
-  <!-- ══════ 2. ПЛОЩАДКИ ПО НАПРАВЛЕНИЯМ ══════ -->
-  <section class="sec">
-    <div class="sec-head">
+  <!-- ══════ 2. БОНУСНАЯ ПРОГРАММА ══════ -->
+  <section class="bonus">
+    <div class="in bonus-in">
       <div>
-        <span class="sec-eyebrow">География</span>
-        <h2 class="sec-title">Площадки по направлениям</h2>
-        <div class="sec-sub">Счётчик — количество залов в объектах города</div>
+        <h2>Часть вознаграждения возвращается вам баллами</h2>
+        <p>Баллы начисляются за состоявшиеся мероприятия и за отзывы о площадках.
+        Курс списания — <b>1 балл = ${ML.POINT_RATE.toLocaleString('ru')} ₽</b>,
+        потратить можно на услуги подрядчиков.</p>
       </div>
-      <a class="btn" href="search.html">Все направления</a>
+      <a class="bonus-cta" href="bonus.html">О бонусной программе</a>
     </div>
-    <div class="tiles">${cityTiles}</div>
   </section>
 
-  <!-- ══════ 3. РЕКЛАМНЫЙ БЛОК ══════ -->
-  <section class="sec">
-    <div class="adslot">
-      <div class="adslot-t">Рекламное место</div>
-      <div class="adslot-s">Баннер объекта или поставщика. Место продаётся на срок —
-      отдельная статья монетизации ресурса, независимая от вознаграждения за мероприятия
-      и подписок.</div>
+  <!-- ══════ 3. ПЛОЩАДКИ ПО НАПРАВЛЕНИЯМ ══════ -->
+  <section class="sec tint-paper">
+    <div class="in">
+      <div class="sec-head">
+        <div>
+          <h2 class="sec-title">Площадки по направлениям</h2>
+          <div class="sec-sub">Счётчик — количество залов в объектах города</div>
+        </div>
+        <a class="btn" href="search.html">Все направления</a>
+      </div>
+      <div class="tiles">${cityTiles}</div>
     </div>
   </section>
 
   <!-- ══════ 4. НОВЫЕ ПЛОЩАДКИ ══════ -->
-  <section class="sec">
-    <div class="sec-head">
-      <div>
-        <span class="sec-eyebrow">Динамическая выдача</span>
-        <h2 class="sec-title">Новые площадки на сайте</h2>
+  <section class="sec tint-white">
+    <div class="in">
+      <div class="sec-head">
+        <div><h2 class="sec-title">Новые площадки на сайте</h2></div>
+        <a class="btn" href="search.html">Весь подбор</a>
       </div>
-      <a class="btn" href="search.html">Весь подбор</a>
-    </div>
-    <div class="tiles">${venueTiles}</div>
-  </section>
-
-  <!-- ══════ 5. НОВЫЕ ПОСТАВЩИКИ ══════ -->
-  <section class="sec">
-    <div class="sec-head">
-      <div>
-        <span class="sec-eyebrow">Динамическая выдача</span>
-        <h2 class="sec-title">Новые поставщики на сайте</h2>
-      </div>
-      <a class="btn" href="suppliers.html">Весь каталог</a>
-    </div>
-    <div class="tiles">${supTiles}</div>
-  </section>
-
-  <!-- ══════ 6. СОБЫТИЯ ОТРАСЛИ ══════ -->
-  <section class="sec">
-    <div class="sec-head">
-      <div>
-        <span class="sec-eyebrow">Отрасль</span>
-        <h2 class="sec-title">События MICE и Event</h2>
-        <div class="sec-sub">Календарь выставок, премий и воркшопов</div>
-      </div>
-    </div>
-    <div class="events">
-      ${EVENTS.map(e => `<div class="ev">
-        <span class="ev-date">${esc(e.date)}</span>
-        <span class="ev-kind">${esc(e.kind)}</span>
-        <span class="ev-name">${esc(e.name)}</span>
-      </div>`).join('')}
+      <div class="tiles">${venueTiles}</div>
     </div>
   </section>
 
-  <!-- ══════ 7. ОТЗЫВЫ ══════ -->
-  <section class="sec">
-    <div class="sec-head">
-      <div>
-        <span class="sec-eyebrow">Обратная связь</span>
-        <h2 class="sec-title">Отзывы по объектам и поставщикам</h2>
-        <div class="sec-sub">Пишут те, у кого мероприятие состоялось</div>
+  <!-- ══════ 5. РЕКЛАМНЫЙ БЛОК ══════ -->
+  <section class="sec tint-aqua">
+    <div class="in">
+      <div class="adslot"><div class="adslot-t">Реклама</div></div>
+    </div>
+  </section>
+
+  <!-- ══════ 6. НОВЫЕ ПОСТАВЩИКИ ══════ -->
+  <section class="sec tint-white">
+    <div class="in">
+      <div class="sec-head">
+        <div><h2 class="sec-title">Новые поставщики на сайте</h2></div>
+        <a class="btn" href="suppliers.html">Весь каталог</a>
+      </div>
+      <div class="tiles">${supTiles}</div>
+    </div>
+  </section>
+
+  <!-- ══════ 7. СОБЫТИЯ ОТРАСЛИ ══════ -->
+  <section class="sec tint-peach">
+    <div class="in">
+      <div class="sec-head">
+        <div>
+          <h2 class="sec-title">События MICE и Event</h2>
+          <div class="sec-sub">Календарь выставок, премий и воркшопов</div>
+        </div>
+      </div>
+      <div class="events">
+        ${EVENTS.map(e => `<div class="ev">
+          <span class="ev-date">${esc(e.date)}</span>
+          <span class="ev-kind">${esc(e.kind)}</span>
+          <span class="ev-name">${esc(e.name)}</span>
+        </div>`).join('')}
       </div>
     </div>
-    <div class="revs">${revs}</div>
+  </section>
+
+  <!-- ══════ 8. ОТЗЫВЫ ══════ -->
+  <section class="sec tint-white">
+    <div class="in">
+      <div class="sec-head">
+        <div>
+          <h2 class="sec-title">Отзывы по объектам и поставщикам</h2>
+          <div class="sec-sub">Пишут те, у кого мероприятие состоялось</div>
+        </div>
+        <div class="rev-nav">
+          <button class="rev-arrow" id="revPrev" aria-label="Предыдущие отзывы" onclick="revScroll(-1)">${IC_PREV}</button>
+          <button class="rev-arrow" id="revNext" aria-label="Следующие отзывы" onclick="revScroll(1)">${IC_NEXT}</button>
+        </div>
+      </div>
+      <div class="rev-wrap">
+        <div class="rev-rail" id="revRail">${revs}</div>
+      </div>
+    </div>
   </section>`;
+
+  bindCityAc();
+  bindRevRail();
+}
+
+/* ══════════════════════════════════════════════
+   АВТОПОДБОР ГОРОДА
+   Список короткий — в базе семь городов. Мышь и клавиатура равноправны:
+   стрелки двигают выделение, Enter подставляет, Esc закрывает.
+   ══════════════════════════════════════════════ */
+let AC_ITEMS = [];   // текущие подсказки
+let AC_PICK = -1;    // выделенная стрелками
+
+function acClose(){
+  const list = document.getElementById('cityAc');
+  const inp = document.getElementById('sCity');
+  if (!list) return;
+  list.hidden = true;
+  AC_ITEMS = []; AC_PICK = -1;
+  if (inp) inp.setAttribute('aria-expanded', 'false');
+}
+
+function acDraw(q){
+  const list = document.getElementById('cityAc');
+  const inp = document.getElementById('sCity');
+  const needle = String(q || '').trim().toLowerCase();
+  /* Фильтрация по вхождению без учёта регистра; пустой ввод показывает всё. */
+  AC_ITEMS = cityList().filter(x => !needle || x.city.toLowerCase().includes(needle));
+  AC_PICK = -1;
+
+  if (!AC_ITEMS.length) {
+    /* Своего города в списке нет — не мешаем: поиск и так ищет по вхождению. */
+    list.innerHTML = '<li class="ac-empty">Города нет в списке — поиск всё равно отработает</li>';
+    list.hidden = false;
+    inp.setAttribute('aria-expanded', 'true');
+    return;
+  }
+  list.innerHTML = AC_ITEMS.map((x, i) => `
+    <li class="ac-item" role="option" data-i="${i}" onmousedown="acPick(${i})">
+      <span>${esc(x.city)}</span>
+      <span class="cnt">${x.halls} ${ML.plural(x.halls, ['зал','зала','залов'])}</span>
+    </li>`).join('');
+  list.hidden = false;
+  inp.setAttribute('aria-expanded', 'true');
+}
+
+function acHighlight(){
+  document.querySelectorAll('#cityAc .ac-item').forEach((el, i) => {
+    el.classList.toggle('on', i === AC_PICK);
+    if (i === AC_PICK) el.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+function acPick(i){
+  const x = AC_ITEMS[i];
+  if (!x) return;
+  document.getElementById('sCity').value = x.city;
+  acClose();
+}
+
+function bindCityAc(){
+  const inp = document.getElementById('sCity');
+  const list = document.getElementById('cityAc');
+  if (!inp || !list) return;
+
+  inp.addEventListener('input', () => acDraw(inp.value));
+  inp.addEventListener('focus', () => acDraw(inp.value));
+
+  inp.addEventListener('keydown', e => {
+    const open = !list.hidden && AC_ITEMS.length;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!open) { acDraw(inp.value); AC_PICK = 0; } else { AC_PICK = (AC_PICK + 1) % AC_ITEMS.length; }
+      acHighlight();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!open) return;
+      AC_PICK = (AC_PICK - 1 + AC_ITEMS.length) % AC_ITEMS.length;
+      acHighlight();
+    } else if (e.key === 'Enter') {
+      if (open && AC_PICK >= 0) { e.preventDefault(); acPick(AC_PICK); }
+      else { acClose(); goSearch(); }
+    } else if (e.key === 'Escape') {
+      acClose();
+    }
+  });
+
+  /* Клик вне поля закрывает список. */
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#sCity') && !e.target.closest('#cityAc')) acClose();
+  });
+}
+
+/* ══════════════════════════════════════════════
+   КАРУСЕЛЬ ОТЗЫВОВ
+   Прокрутка родная: свайп на телефоне работает без обработчиков касаний.
+   Стрелки прячем, когда листать в эту сторону некуда.
+   ══════════════════════════════════════════════ */
+function revScroll(dir){
+  const rail = document.getElementById('revRail');
+  if (!rail) return;
+  rail.scrollBy({ left: dir * Math.round(rail.clientWidth * 0.8), behavior: 'smooth' });
+}
+
+function revArrows(){
+  const rail = document.getElementById('revRail');
+  const prev = document.getElementById('revPrev');
+  const next = document.getElementById('revNext');
+  if (!rail || !prev || !next) return;
+  const max = rail.scrollWidth - rail.clientWidth;
+  prev.hidden = rail.scrollLeft <= 2;
+  next.hidden = rail.scrollLeft >= max - 2;
+}
+
+function bindRevRail(){
+  const rail = document.getElementById('revRail');
+  if (!rail) return;
+  rail.addEventListener('scroll', revArrows, { passive: true });
+  window.addEventListener('resize', revArrows);
+  revArrows();
 }
 
 /* ── поиск: пишем фильтры в модель и уходим в подбор ── */
 function goSearch(){
   const F = ML.loadFilters();
-  F.city = document.getElementById('sCity').value || '';
+  F.city = document.getElementById('sCity').value.trim() || '';
   F.people = +document.getElementById('sPeople').value || 0;
   F.eventType = document.getElementById('sEvent').value || F.eventType;
   ML.saveFilters(F);

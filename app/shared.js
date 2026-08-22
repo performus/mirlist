@@ -99,6 +99,11 @@ const MH = (() => {
         font-size: 12px; font-weight: 800; color: #E8846A; flex-shrink: 0;
       }
       .mh-uname { font-size: 13.5px; font-weight: 600; color: #354E63; }
+      .mh-prem-mark {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 26px; height: 26px; flex-shrink: 0;
+        color: #E8846A;
+      }
       .mh-points {
         display: inline-flex; align-items: center;
         padding: 6px 14px; border-radius: 50px;
@@ -191,6 +196,16 @@ const MH = (() => {
     document.head.appendChild(s);
   }
 
+  /* Знак премиум-тарифа. Эмодзи не годится: ⭐ рисуется по-своему в Windows,
+     macOS и Android. Ромб — инлайновый SVG, красится акцентным цветом. */
+  const IC_DIAMOND = '<svg class="mh-dia" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    + '<path d="M12 2.2 21.8 12 12 21.8 2.2 12z" fill="currentColor" opacity=".92"/>'
+    + '<path d="M12 6.6 17.4 12 12 17.4 6.6 12z" fill="#fff" opacity=".28"/></svg>';
+
+  function isPrem() {
+    return typeof ML !== 'undefined' && ML.tariff && ML.tariff().key === 'prem';
+  }
+
   function buildRight(session) {
     if (session) {
       // Баллы рядом с кабинетом — из модели, если она подключена на странице
@@ -203,6 +218,7 @@ const MH = (() => {
         ? `<a class="mh-login" href="auth.html?next=${backNext}">Войти</a>`
         : pts !== null
         ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}
+      ${isPrem() ? `<span class="mh-prem-mark" title="Тариф «ПРЕМИУМ»">${IC_DIAMOND}</span>` : ''}
       <a class="mh-avatar-wrap" href="dashboard.html">
         <div class="mh-avatar">${session.initials || 'АК'}</div>
         <span class="mh-uname">${session.name || 'Профиль'}</span>
@@ -210,7 +226,7 @@ const MH = (() => {
       </a>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing.html"><span class="star">⭐</span> Премиум</a>
+    return `<a class="mh-prem" href="pricing.html">Премиум</a>
       <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
       <a class="mh-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
   }
