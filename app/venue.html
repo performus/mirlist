@@ -46,6 +46,10 @@ button{font-family:inherit;cursor:pointer;}
 /* ── шапка карточки ── */
 .dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
 .d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.d-loyal{display:inline-block;vertical-align:6px;margin-left:12px;
+  padding:5px 13px;border-radius:var(--r-full);background:var(--coral);color:#fff;
+  font-family:'Onest',system-ui,sans-serif;font-size:12px;font-weight:700;white-space:nowrap;}
+.hrow-cap{display:inline-flex;align-items:center;gap:4px;}
 .d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--slate-muted);align-items:center;}
 .d-meta b{color:var(--slate-deep);font-weight:700;}
@@ -209,7 +213,7 @@ function render() {
   const hallRows = v.halls.map(h => {
     const inC = ML.inCompare(h.id), fav = ML.isFav(h.id);
     const caps = full
-      ? ML.SEATING.filter(s => h.seats[s.k]).map(s => `<span class="hrow-cap">${esc(s.l)} ${h.seats[s.k]}</span>`).join('')
+      ? ML.SEATING.filter(s => h.seats[s.k]).map(s => `<span class="hrow-cap">${MH.seatIcon(s.k, { size: 13 })}${h.seats[s.k]}</span>`).join('')
       : '';
     return `<div class="hrow${inC ? ' picked' : ''}">
       <div class="hrow-img"><img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy"></div>
@@ -254,14 +258,15 @@ function render() {
   <div class="dhead">
     <div>
       <span class="d-eyebrow">${esc(v.cat)}</span>
-      <h1 class="d-title">${esc(v.name)}</h1>
+      <h1 class="d-title">${esc(v.name)}${
+        v.loyaltyContract ? '<span class="d-loyal">Бонусная программа</span>' : ''}</h1>
       <div class="d-meta">
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
         <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
         <span><b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</span>
         ${v.stars ? `<span class="d-stars">${'★'.repeat(v.stars)}</span>` : ''}
         <span class="d-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
-        ${v.loyaltyContract ? '<span class="tag solid">Бонусная программа</span>' : ''}
+
       </div>
     </div>
     <div class="d-actions">

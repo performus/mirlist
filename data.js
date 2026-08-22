@@ -31,15 +31,18 @@
   ];
 
   // Ключи совпадают с полем formats из старого compare.html — плюс U-shape.
+  /* shape — временная фигура-заглушка вместо иконки. Когда придут настоящие
+     иконки, менять только здесь: страницы рисуют по этому полю. */
   const SEATING = [
-    { k: 'theatre', l: 'Театр' },
-    { k: 'class', l: 'Класс' },
-    { k: 'ushape', l: 'U-shape' },
-    { k: 'banquet', l: 'Банкет' },
-    { k: 'reception', l: 'Фуршет' },
-    { k: 'cabaret', l: 'Кабаре' },
-    { k: 'board', l: 'Переговоры' },
+    { k: 'theatre',   l: 'Театр',       shape: 'triangle' },
+    { k: 'class',     l: 'Класс',       shape: 'square' },
+    { k: 'ushape',    l: 'U-shape',     shape: 'u' },
+    { k: 'banquet',   l: 'Банкет',      shape: 'circle' },
+    { k: 'reception', l: 'Фуршет',      shape: 'dots' },
+    { k: 'cabaret',   l: 'Кабаре',      shape: 'halfcircle' },
+    { k: 'board',     l: 'Переговоры',  shape: 'rect' },
   ];
+  const seatingByKey = (k) => SEATING.find(s => s.k === k) || null;
 
   const HALL_TYPES = ['Конференц-зал', 'Банкетный зал', 'Трансформер', 'Ресторанный зал', 'Переговорная', 'Открытая площадка'];
 
@@ -589,6 +592,8 @@
   /** Вместимость объекта — по самому большому залу. */
   const venueCapacity = (v) => Math.max(0, ...v.halls.map(hallCapacity));
   /** Минимальная цена дня среди залов, 0 = есть залы по договорённости. */
+  /** Общий номерной фонд. Разбивка TWIN/SNGL доступна только на ПРЕМИУМ. */
+  const venueRooms = (v) => (v.rooms.twin || 0) + (v.rooms.sngl || 0);
   const venueMinPrice = (v) => {
     const p = v.halls.map(h => h.priceDay).filter(x => x > 0);
     return p.length ? Math.min(...p) : 0;
@@ -599,10 +604,47 @@
     return {
       city: '', people: 0, eventType: 'business',
       cats: new Set(), priceDay: [0, 200000],
-      twin: 0, sngl: 0, hallsMin: 0,
-      seats: {},                       // {theatre: 200, banquet: 80, ...}
+      rooms: 0,                        // общий номерной фонд, виден всем
+      twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
+      /* Требования к залам. Каждый элемент — ОТДЕЛЬНЫЙ зал объекта:
+         {seating:'theatre', min:250} плюс {seating:'banquet', min:120}
+         найдёт объект, где есть И зал-театр на 250, И другой зал-банкет
+         на 120. Пустой seating означает любую схему. */
+      halls: [],
       food: new Set(), opts: new Set(), other: new Set(), sport: new Set(),
     };
+  }
+
+  /**
+   * Можно ли закрыть все требования РАЗНЫМИ залами объекта.
+   * Требований и залов единицы, поэтому обычный перебор с возвратом:
+   * жадный выбор здесь ошибается, если два требования претендуют на один зал.
+   */
+  function hallsSatisfy(halls, reqs) {
+    if (!reqs || !reqs.length) return { ok: true, used: [] };
+    const fits = (h, r) => {
+      const need = +r.min || 0;
+      if (!r.seating) return hallCapacity(h) >= need;
+      return (h.seats[r.seating] || 0) >= need;
+    };
+    const cand = reqs.map(r => halls.map((h, i) => i).filter(i => fits(halls[i], r)));
+    if (cand.some(c => !c.length)) return { ok: false, used: [] };
+    // сначала самые узкие требования — меньше ветвлений
+    const order = reqs.map((_, i) => i).sort((a, b) => cand[a].length - cand[b].length);
+    const used = new Set(), pick = {};
+    const go = (k) => {
+      if (k === order.length) return true;
+      const ri = order[k];
+      for (const hi of cand[ri]) {
+        if (used.has(hi)) continue;
+        used.add(hi); pick[ri] = hi;
+        if (go(k + 1)) return true;
+        used.delete(hi); delete pick[ri];
+      }
+      return false;
+    };
+    if (!go(0)) return { ok: false, used: [] };
+    return { ok: true, used: reqs.map((_, i) => pick[i]) };
   }
 
   /**
@@ -618,9 +660,9 @@
       if (F.eventType && !v.eventTypes.includes(F.eventType)) continue;
       if (F.city && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
       if (excludeGroup !== 'cats' && F.cats.size && !F.cats.has(v.cat)) continue;
+      if (F.rooms && venueRooms(v) < F.rooms) continue;
       if (F.twin && v.rooms.twin < F.twin) continue;
       if (F.sngl && v.rooms.sngl < F.sngl) continue;
-      if (F.hallsMin && v.halls.length < F.hallsMin) continue;
 
       // Удобства объекта — логика «И»: должны присутствовать все отмеченные.
       const featuresOk = ['food', 'opts', 'other', 'sport'].every(g =>
@@ -628,14 +670,19 @@
       if (!featuresOk) continue;
 
       // Залы объекта, подходящие под ТЗ. Цена 0 («по договорённости») проходит всегда.
-      const halls = v.halls.filter(h => {
+      const pool = v.halls.filter(h => {
         if (F.people && hallCapacity(h) < F.people) return false;
         if (h.priceDay > 0 && (h.priceDay < F.priceDay[0] || h.priceDay > F.priceDay[1])) return false;
-        for (const k in F.seats) { const need = F.seats[k]; if (need > 0 && (h.seats[k] || 0) < need) return false; }
         return true;
       });
-      if (!halls.length) continue;
-      out.push({ venue: v, halls });
+      if (!pool.length) continue;
+
+      const reqs = (F.halls || []).filter(r => r.seating || +r.min > 0);
+      const m = hallsSatisfy(pool, reqs);
+      if (!m.ok) continue;
+      // показываем те залы, что закрывают требования; без требований — весь пул
+      const halls = reqs.length ? m.used.map(i => pool[i]).filter((h, i, a) => a.indexOf(h) === i) : pool;
+      out.push({ venue: v, halls, matched: reqs.length > 0 });
     }
     return out;
   }
@@ -888,7 +935,9 @@
     for (const k in F) {
       if (!(k in raw)) continue;
       if (F[k] instanceof Set) F[k] = new Set(Array.isArray(raw[k]) ? raw[k] : []);
-      else if (k === 'seats' && raw[k] && typeof raw[k] === 'object') F[k] = raw[k];
+      else if (k === 'halls') F[k] = Array.isArray(raw[k])
+        ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0 }))
+        : [];
       else if (Array.isArray(F[k]) && Array.isArray(raw[k])) F[k] = raw[k];
       else if (typeof F[k] === typeof raw[k]) F[k] = raw[k];
     }
@@ -929,14 +978,14 @@
     const et = EVENT_TYPES.find(e => e.k === F.eventType);
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
+    if (F.rooms) out.push('номеров от ' + F.rooms);
     if (F.twin) out.push('TWIN от ' + F.twin);
     if (F.sngl) out.push('SNGL от ' + F.sngl);
-    if (F.hallsMin) out.push('залов от ' + F.hallsMin);
-    for (const k in F.seats) {
-      if (!F.seats[k]) continue;
-      const s = SEATING.find(x => x.k === k);
-      out.push((s ? s.l : k) + ' от ' + F.seats[k]);
-    }
+    (F.halls || []).forEach((r, i) => {
+      if (!r.seating && !+r.min) return;
+      const s = seatingByKey(r.seating);
+      out.push(`зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`);
+    });
     const [lo, hi] = F.priceDay;
     if (lo > 0 || hi < 200000) out.push(`аренда ${lo.toLocaleString('ru')}–${hi.toLocaleString('ru')} ₽`);
     for (const g of SET_KEYS) { if (g === 'cats') continue; F[g].forEach(x => out.push(x)); }
@@ -1045,7 +1094,7 @@
     state, persist,
     tariff, setTariff,
     venueById, allHalls, hallById, hallVenue,
-    hallCapacity, venueCapacity, venueMinPrice,
+    hallCapacity, venueCapacity, venueMinPrice, venueRooms, seatingByKey, hallsSatisfy,
     emptyFilters, filterVenues, facetCount,
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,

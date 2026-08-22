@@ -1337,7 +1337,7 @@ function wfield(f){
     case 'seats': {
       const s=v||{};
       return `<div class="wf">${L}<div class="seatgrid">${ML.SEATING.map(x=>`<div>
-        <label>${esc(x.l)}</label>
+        <label>${MH.seatIcon(x.k, { size: 14 })}<span>${esc(x.l)}</span></label>
         <input type="number" min="0" placeholder="—" value="${s[x.k]||''}"
           oninput="wizSeat('${x.k}',this.value)"></div>`).join('')}</div>${H}</div>`;
     }

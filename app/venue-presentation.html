@@ -180,7 +180,7 @@ function render(){
     const seats = ML.SEATING.map(s => {
       const n = h.seats[s.k];
       return `<div class="seat${n ? '' : ' off'}">
-        <div class="seat-n">${n || '—'}</div><div class="seat-l">${esc(s.l)}</div></div>`;
+        <div class="seat-n">${n || '—'}</div><div class="seat-l">${MH.seatIcon(s.k, { size: 12 })}<span>${esc(s.l)}</span></div></div>`;
     }).join('');
 
     return `<section class="hall">

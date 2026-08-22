@@ -87,6 +87,7 @@ button{font-family:inherit;cursor:pointer;}
 .cmp tr:last-child th,.cmp tr:last-child td{border-bottom:none;}
 
 /* первый столбец залипает при горизонтальной прокрутке */
+.rh-seat{display:inline-flex;align-items:center;gap:6px;}
 .rowhead{
   position:sticky;left:0;z-index:2;
   width:210px;min-width:210px;
@@ -252,7 +253,12 @@ function buildRows() {
     ['Высота потолка, м', h => h.height || '—'],
     { g: 'Вместимость по схемам рассадки' },
   ];
-  ML.SEATING.forEach(s => rows.push([s.l, h => h.seats[s.k] || '—']));
+  /* Подпись схемы — иконка плюс название. Помечаем строку как «сырую»,
+     иначе esc() выведет SVG текстом. */
+  ML.SEATING.forEach(s => rows.push({
+    raw: `<span class="rh-seat">${MH.seatIcon(s.k, { size: 15 })}<span>${s.l}</span></span>`,
+    fn: h => h.seats[s.k] || '—',
+  }));
   rows.push(
     { g: 'Условия' },
     ['Аренда за день',    h => h.priceDay ? ML.money(h.priceDay) : 'по договорённости'],
@@ -309,8 +315,8 @@ function render() {
 
   const body = rows.map(r => {
     if (r.g) return `<tr class="grp-row"><th class="rowhead grp">${esc(r.g)}</th>${halls.map(() => '<td></td>').join('')}</tr>`;
-    const [label, fn] = r;
-    return `<tr><th class="rowhead">${esc(label)}</th>${halls.map((h, i) => {
+    const [label, fn] = r.raw ? [r.raw, r.fn] : r;
+    return `<tr><th class="rowhead">${r.raw ? label : esc(label)}</th>${halls.map((h, i) => {
       const val = fn(h, venues[i]);
       const dim = val === '—' || val === 'нет' || val === 'не сдаётся почасово';
       return `<td class="${dim ? 'dim' : ''}">${val}</td>`;
@@ -336,6 +342,8 @@ function render() {
       <span>Выгрузка презентаций недоступна на тарифе <b>«СТАРТ»</b>.
       На «БИЗНЕС» файл собирается с рекламным блоком, на «ПРЕМИУМ» — без него.</span>
       <a class="btn sm" href="pricing.html">Тарифы</a></div>` : ''}
+
+  ${MH.seatLegend()}
 
   <div class="tscroll">
     <table class="cmp">

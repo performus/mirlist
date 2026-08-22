@@ -87,7 +87,8 @@ button{font-family:inherit;cursor:pointer;}
   padding:16px 12px;text-align:center;box-shadow:var(--sh-sm);transition:border-color .25s,transform .25s;}
 .seat:hover{border-color:var(--aqua-3);transform:translateY(-2px);}
 .seat-n{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--slate-deep);line-height:1;}
-.seat-l{font-size:11.5px;color:var(--slate-muted);margin-top:6px;}
+.seat-l{display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:11.5px;color:var(--slate-muted);margin-top:6px;}
 .seat.off{opacity:.42;box-shadow:none;background:var(--bg);}
 .seat.off:hover{transform:none;border-color:rgba(197,227,225,.35);}
 .seat.off .seat-n{color:var(--slate-pale);}
@@ -218,7 +219,7 @@ function render() {
     const n = h.seats[s.k];
     return `<div class="seat${n ? '' : ' off'}">
       <div class="seat-n">${n || '—'}</div>
-      <div class="seat-l">${esc(s.l)}</div>
+      <div class="seat-l">${MH.seatIcon(s.k, { size: 15 })}<span>${esc(s.l)}</span></div>
     </div>`;
   }).join('');
 
@@ -276,7 +277,7 @@ function render() {
         <span class="sec-sub">${full ? 'Человек по каждой схеме' : ''}</span>
       </div>
       ${full
-        ? `<div class="seats">${seatTiles}</div>`
+        ? `<div class="seats">${seatTiles}</div>${MH.seatLegend()}`
         : MH.isLocked()
         ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость по схемам рассадки доступна после регистрации')
         : `<div class="note">

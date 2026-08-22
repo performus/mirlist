@@ -467,6 +467,7 @@ const MH = (() => {
   }
 
   function init(active) {
+    injectSeatCSS();
     initTransition();
     injectSkeletonCSS();
     const el = document.getElementById('mh-nav');
@@ -682,6 +683,85 @@ const MH = (() => {
         </div>`;
       setTimeout(closeFeedback, 3500);
     });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     ИКОНКИ СХЕМ РАССАДКИ
+
+     Заглушки: рисуем по полю shape из ML.SEATING. Настоящие иконки
+     придут позже — менять нужно будет только SEAT_SHAPES, страницы
+     обращаются сюда и ничего о фигурах не знают.
+
+     У каждой иконки title и aria-label с названием схемы: без подписи
+     ряд из семи фигур нечитаем.
+     ══════════════════════════════════════════════════════════════════ */
+
+  const SEAT_SHAPES = {
+    triangle:   '<path d="M12 4.5 20.5 19.5H3.5z"/>',
+    square:     '<rect x="4.5" y="4.5" width="15" height="15" rx="1.6"/>',
+    u:          '<path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
+    circle:     '<circle cx="12" cy="12" r="7.6"/>',
+    dots:       '<circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="8" r="2.1"/><circle cx="17" cy="8" r="2.1"/>'
+                + '<circle cx="7" cy="16" r="2.1"/><circle cx="12" cy="16" r="2.1"/><circle cx="17" cy="16" r="2.1"/>',
+    halfcircle: '<path d="M3.6 17.5a8.4 8.4 0 0 1 16.8 0z"/>',
+    rect:       '<rect x="3" y="7.6" width="18" height="8.8" rx="1.6"/>',
+  };
+
+  function seatingOf(key) {
+    if (typeof ML === 'undefined' || !ML.seatingByKey) return null;
+    return ML.seatingByKey(key);
+  }
+
+  /**
+   * Иконка схемы рассадки.
+   * @param {string} key  ключ схемы из ML.SEATING
+   * @param {object} opts {size, cls, label} — label подставляет свой текст подсказки
+   */
+  function seatIcon(key, opts) {
+    opts = opts || {};
+    const s = seatingOf(key);
+    const shape = SEAT_SHAPES[(s && s.shape) || ''] || SEAT_SHAPES.square;
+    const name = opts.label || (s ? s.l : key);
+    const size = opts.size || 18;
+    return `<svg class="ml-seat${opts.cls ? ' ' + opts.cls : ''}" width="${size}" height="${size}"`
+      + ` viewBox="0 0 24 24" fill="currentColor" role="img"`
+      + ` aria-label="${String(name).replace(/"/g, '&quot;')}"><title>${String(name).replace(/</g, '&lt;')}</title>`
+      + shape + '</svg>';
+  }
+
+  /** Иконка вместе с подписью — для мест, где нужен и текст. */
+  function seatIconLabel(key, extra) {
+    const s = seatingOf(key);
+    return `<span class="ml-seat-pair">${seatIcon(key)}<span>${s ? s.l : key}${extra ? ' ' + extra : ''}</span></span>`;
+  }
+
+  /** Компактная легенда: где иконок много подряд, без неё не разобраться. */
+  function seatLegend(keys) {
+    if (typeof ML === 'undefined' || !ML.SEATING) return '';
+    injectSeatCSS();
+    const list = (keys && keys.length ? keys : ML.SEATING.map(s => s.k));
+    return `<div class="ml-seat-legend">${list.map(k => {
+      const s = seatingOf(k);
+      return `<span class="ml-legend-i">${seatIcon(k)}<span>${s ? s.l : k}</span></span>`;
+    }).join('')}</div>`;
+  }
+
+  function injectSeatCSS() {
+    if (document.getElementById('ml-seat-style')) return;
+    const st = document.createElement('style');
+    st.id = 'ml-seat-style';
+    st.textContent = `
+      .ml-seat { flex-shrink: 0; vertical-align: -3px; }
+      .ml-seat-pair { display: inline-flex; align-items: center; gap: 5px; }
+      .ml-seat-legend {
+        display: flex; flex-wrap: wrap; gap: 6px 16px;
+        padding: 10px 14px; margin: 10px 0 0;
+        background: rgba(237,246,245,.7); border-radius: 12px;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 11.5px; color: #7A919F;
+      }
+      .ml-legend-i { display: inline-flex; align-items: center; gap: 6px; }
+      .ml-legend-i .ml-seat { width: 15px; height: 15px; color: #7A919F; }`;
+    document.head.appendChild(st);
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -1002,5 +1082,6 @@ const MH = (() => {
     getSession, setSession, clearSession, renderNav, init, toast, go,
     getFavs, toggleFav, isFav, feedback,
     isLocked, lock, blurOnly, lockBar, lockScreen,
+    seatIcon, seatIconLabel, seatLegend,
   };
 })();

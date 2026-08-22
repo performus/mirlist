@@ -129,6 +129,100 @@ h1,h2,h3 { font-weight:700; }
 }
 .grid3 > * { min-width:0; }
 
+/* ══════ переключатель вида ══════ */
+/* ══════ конструктор требований к залам ══════ */
+.hq {
+  border:1.5px solid rgba(197,227,225,.5); border-radius:var(--r-md);
+  padding:12px 13px; margin-bottom:10px; background:var(--white);
+}
+.hq-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+.hq-n {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--coral);
+}
+.hq-x {
+  width:22px; height:22px; border:none; background:none; border-radius:6px;
+  color:var(--slate-pale); display:flex; align-items:center; justify-content:center;
+  transition:color .18s, background .18s;
+}
+.hq-x:hover { color:var(--coral); background:var(--coral-soft); }
+.hq-f { display:block; margin-bottom:9px; }
+.hq-f:last-of-type { margin-bottom:0; }
+.hq-f > span {
+  display:block; font-size:10.5px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--slate-muted); margin-bottom:4px;
+}
+.hq-f select, .hq-f input {
+  width:100%; padding:8px 11px; border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.55); background:var(--bg);
+  font-family:inherit; font-size:13px; color:var(--slate-deep); outline:none;
+}
+.hq-f select:focus, .hq-f input:focus { border-color:var(--coral); background:var(--white); }
+.hq-f select:disabled { opacity:.55; cursor:not-allowed; }
+.hq-ic {
+  display:flex; align-items:center; gap:6px; margin-top:9px;
+  font-size:11.5px; color:var(--slate-muted);
+}
+.hq-empty { font-size:12px; color:var(--slate-pale); margin-bottom:10px; }
+.hq-add {
+  display:flex; align-items:center; justify-content:center; gap:7px; width:100%;
+  padding:9px; border-radius:var(--r-sm);
+  border:1.5px dashed var(--slate-pale); background:none; color:var(--slate-mid);
+  font-family:inherit; font-size:12.5px; font-weight:600; transition:all .2s;
+}
+.hq-add:hover { border-color:var(--coral); color:var(--coral); background:var(--coral-soft); }
+.hq-note { font-size:11.5px; line-height:1.55; color:var(--slate-muted); margin-top:10px; }
+.hq-note b { color:var(--slate-deep); }
+
+
+.view-sw {
+  display:inline-flex; gap:2px; padding:2px;
+  background:var(--aqua-pale); border-radius:var(--r-full);
+}
+.view-sw button {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 13px; border:none; border-radius:var(--r-full);
+  background:none; color:var(--slate-muted);
+  font-family:inherit; font-size:12px; font-weight:600; white-space:nowrap;
+  transition:background .18s, color .18s;
+}
+.view-sw button:hover { color:var(--slate-deep); }
+.view-sw button.on { background:var(--coral); color:#fff; }
+
+/* Режим карты: список уходит, карта занимает всю колонку контента.
+   Фильтры слева остаются — они и в этом режиме работают. */
+.grid3.map-mode { grid-template-columns:300px minmax(0,1fr); }
+.grid3.map-mode .res-col { display:none; }
+.grid3.map-mode .map-col { display:flex; flex-direction:column; }
+.grid3.map-mode .map-canvas {
+  height:calc(100vh - var(--top-nav) - var(--top-bar) - 96px);
+  min-height:460px;
+}
+
+/* Карточка объекта поверх карты — открывается по клику на пин. */
+.map-card {
+  position:absolute; left:16px; bottom:16px; z-index:40;
+  width:min(300px, calc(100% - 32px));
+  background:var(--white); border-radius:var(--r-lg);
+  box-shadow:0 10px 40px rgba(53,78,99,.22); overflow:hidden;
+}
+.map-card[hidden] { display:none; }
+.map-card-img { height:112px; background:var(--aqua-pale); }
+.map-card-img img { width:100%; height:100%; object-fit:cover; }
+.map-card-b { padding:13px 15px 15px; }
+.map-card-t { font-size:15px; font-weight:700; color:var(--slate-deep); line-height:1.3; }
+.map-card-s { font-size:12.5px; color:var(--slate-muted); margin:5px 0 11px; }
+.map-card-go {
+  display:block; text-align:center; padding:9px 14px; border-radius:var(--r-full);
+  background:var(--coral); color:#fff; font-size:13px; font-weight:600;
+}
+.map-card-x {
+  position:absolute; top:9px; right:9px; width:26px; height:26px; border-radius:50%;
+  border:none; background:rgba(255,255,255,.92); color:var(--slate-mid);
+  display:flex; align-items:center; justify-content:center; font-size:13px;
+  box-shadow:0 2px 10px rgba(53,78,99,.18);
+}
+
 /* ══════════════════════════════════════════════
    FILTER PANEL
    ══════════════════════════════════════════════ */
@@ -369,13 +463,27 @@ h1,h2,h3 { font-weight:700; }
 .vb-rating { display:inline-flex; align-items:center; gap:4px; }
 .vb-rating svg { color:#F0B95A; }
 .vb-black {
-  padding:7px 14px; border-radius:var(--r-full);
-  font-size:12px; font-weight:600;
-  background:var(--white); color:var(--slate-muted);
+  width:34px; height:34px; flex-shrink:0; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; background:var(--white); color:var(--slate-pale);
   border:1.5px solid rgba(197,227,225,.55);
-  transition:all .2s; white-space:nowrap;
+  transition:all .2s;
 }
 .vb-black:hover { border-color:var(--coral); color:var(--coral); }
+
+/* Метка бонусной программы: выгода пользователя, поэтому акцентом. */
+.vb-loyal {
+  display:inline-block; margin-left:10px; vertical-align:2px;
+  padding:4px 11px; border-radius:var(--r-full);
+  background:var(--coral); color:#fff;
+  font-size:11px; font-weight:700; letter-spacing:.02em; white-space:nowrap;
+}
+
+/* Какие залы закрыли требования конструктора. */
+.vb-match {
+  margin:-4px 0 10px; font-size:12px; color:var(--slate-muted);
+}
+.vb-match b { color:var(--slate-deep); }
 
 /* ── лента залов ── */
 .rail-wrap { position:relative; }
@@ -425,10 +533,12 @@ h1,h2,h3 { font-weight:700; }
 .hc-name { font-size:13.5px; font-weight:700; color:var(--slate-deep); margin-bottom:8px; line-height:1.3; }
 .hc-caps { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:9px; min-height:20px; }
 .hc-cap {
+  display:inline-flex; align-items:center; gap:4px;
   font-size:10.5px; font-weight:600;
   background:var(--aqua-pale); color:var(--slate-mid);
   border-radius:5px; padding:3px 6px;
 }
+.hc-cap .ml-seat { color:var(--slate-muted); }
 .hc-price { font-size:15px; font-weight:800; color:var(--slate-deep); margin-bottom:10px; }
 .hc-price i { font-style:normal; font-size:11.5px; font-weight:500; color:var(--slate-muted); }
 .hc-foot { display:flex; align-items:center; justify-content:space-between; gap:6px; }
@@ -590,9 +700,13 @@ h1,h2,h3 { font-weight:700; }
 @media(max-width:1180px) {
   .grid3 { grid-template-columns:280px minmax(0,1fr); }
   .map-col { display:none; }
+  .grid3.map-mode { grid-template-columns:300px minmax(0,1fr); }
 }
 @media(max-width:900px) {
   .grid3 { grid-template-columns:minmax(0,1fr); padding:16px 18px 40px; }
+  /* На узком экране карта заменяет список целиком. */
+  .grid3.map-mode { grid-template-columns:minmax(0,1fr); }
+  .grid3.map-mode .map-canvas { height:calc(100vh - var(--top-nav) - 150px); min-height:380px; }
   .filter-toggle { display:flex; }
   .fd-close { display:flex; }
   /* фильтры уезжают в выдвижную панель */
@@ -647,6 +761,16 @@ h1,h2,h3 { font-weight:700; }
       <select id="cbEvent" onchange="F.eventType=this.value;renderFilters();render()"></select>
     </div>
     <div class="cb-right">
+      <div class="view-sw" role="group" aria-label="Вид отображения">
+        <button id="viewList" onclick="setView('list')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+          <span>Списком</span>
+        </button>
+        <button id="viewMap" onclick="setView('map')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.2 2 4v9.8L6 12l4 1.8 4-1.8V2.2L10 4z"/><path d="M6 2.2V12M10 4v9.8"/></svg>
+          <span>На карте</span>
+        </button>
+      </div>
       <span class="cb-tariff">Тариф: <b id="cbTariff">—</b></span>
     </div>
   </div>
@@ -693,6 +817,7 @@ h1,h2,h3 { font-weight:700; }
       </div>
       <div class="map-canvas" id="mapCanvas">
         <div class="map-scale" id="mapScale"></div>
+        <div class="map-card" id="mapCard" hidden></div>
         <div class="map-zoom">
           <button id="zoomIn" onclick="zoom(1)" aria-label="Приблизить">+</button>
           <button id="zoomOut" onclick="zoom(-1)" aria-label="Отдалить">−</button>
@@ -720,6 +845,12 @@ MH.init('map');
    СОСТОЯНИЕ
    ══════════════════════════════════════════════ */
 let F = ML.loadFilters();   // выборка переживает уход на карточку и возврат
+/* Вид отображения держим в sessionStorage: возврат с карточки объекта
+   не должен сбрасывать выбранный режим. */
+let VIEW = (() => {
+  try { return sessionStorage.getItem('ml_search_view') === 'map' ? 'map' : 'list'; }
+  catch (e) { return 'list'; }
+})();
 let HOVER = null;                 // id объекта, подсвеченного на карте
 let SORT = 'rel';
 let ZOOM = 1;
@@ -729,6 +860,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const jt  = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
 const IC = {
+  hide: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.7a3 3 0 004.2 4.2"/><path d="M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17.6 17.6 0 01-3.4 4.2M6.3 6.5C3.7 8.2 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"/></svg>',
   check: '<svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   star:  '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
   cmp:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"/></svg>',
@@ -784,34 +916,28 @@ function renderFilters() {
   // Категории объектов — единственная группа с логикой «ИЛИ»
   h += fgroup('cats', 'Категории объектов', checks('cats', ML.VENUE_CATS, false), F.cats.size);
 
-  // Проживание. TWIN открывается только на «ПРЕМИУМ», SNGL — с «БИЗНЕС».
-  h += fgroup('rooms', 'Проживание',
-    `<div class="fd-row2">
-       <div class="fd-mini"><label>TWIN от</label>
-         <input type="number" min="0" value="${F.twin || ''}" ${canUse('twin') ? '' : 'disabled'}
-           onchange="F.twin=+this.value||0;render()"></div>
-       <div class="fd-mini"><label>SNGL от</label>
-         <input type="number" min="0" value="${F.sngl || ''}" ${canUse('sngl') ? '' : 'disabled'}
-           onchange="F.sngl=+this.value||0;render()"></div>
-     </div>
-     ${canUse('twin') ? '' : `<div class="fd-lock">TWIN доступен с тарифа <b>«ПРЕМИУМ»</b>${canUse('sngl') ? '' : ', SNGL — с <b>«БИЗНЕС»</b>'}</div>`}`,
-    (F.twin ? 1 : 0) + (F.sngl ? 1 : 0));
+  /* Проживание. На ПРЕМИУМ — разбивка по типам номеров, на остальных
+     одно поле по общему фонду: заблокированные TWIN и SNGL не показываем. */
+  const roomsBody = canUse('twin')
+    ? `<div class="fd-row2">
+         <div class="fd-mini"><label>TWIN от</label>
+           <input type="number" min="0" value="${F.twin || ''}"
+             onchange="F.twin=+this.value||0;render()"></div>
+         <div class="fd-mini"><label>SNGL от</label>
+           <input type="number" min="0" value="${F.sngl || ''}"
+             onchange="F.sngl=+this.value||0;render()"></div>
+       </div>`
+    : `<div class="fd-mini"><label>Номеров от</label>
+         <input type="number" min="0" value="${F.rooms || ''}" ${canUse('rooms') ? '' : 'disabled'}
+           onchange="F.rooms=+this.value||0;render()"></div>
+       ${canUse('rooms')
+         ? '<div class="fd-lock">Разбивка по типам номеров — TWIN и SNGL — доступна на тарифе <b>«ПРЕМИУМ»</b></div>'
+         : lockNote('rooms', 'БИЗНЕС')}`;
+  h += fgroup('rooms', 'Проживание', roomsBody,
+    canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0) : (F.rooms ? 1 : 0));
 
-  // Залы и рассадка
-  const seatBody = canUse('seats')
-    ? ML.SEATING.map(s => `<div class="fd-seatrow"><span>${esc(s.l)}</span><span class="v" id="seat-${s.k}">${F.seats[s.k] || 0}</span></div>
-        <div class="fd-range"><input type="range" min="0" max="800" step="10" value="${F.seats[s.k] || 0}"
-          oninput="document.getElementById('seat-${s.k}').textContent=this.value"
-          onchange="F.seats['${s.k}']=+this.value;render()"></div>`).join('')
-    : `<div class="fd-lock">Фильтр по схемам рассадки доступен с тарифа <b>«ПРЕМИУМ»</b></div>`;
-  h += fgroup('halls', 'Конференц-залы',
-    `<div class="fd-mini" style="margin-bottom:12px"><label>Количество залов от</label>
-       <input type="number" min="0" value="${F.hallsMin || ''}" ${canUse('hallsMin') ? '' : 'disabled'}
-         onchange="F.hallsMin=+this.value||0;render()"></div>
-     ${canUse('hallsMin') ? '' : lockNote('hallsMin', 'БИЗНЕС')}
-     <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin:12px 0 2px">Рассадка · мин. вместимость</div>
-     ${seatBody}`,
-    (F.hallsMin ? 1 : 0) + Object.values(F.seats).filter(Boolean).length);
+  h += fgroup('halls', 'Залы', hallsBuilder(),
+    (F.halls || []).filter(r => r.seating || +r.min).length);
 
   // Стоимость
   h += fgroup('price', 'Стоимость аренды зала',
@@ -835,6 +961,59 @@ function renderFilters() {
   document.getElementById('fdBody').innerHTML = h;
   bindDual();
 }
+
+/* ══════════════════════════════════════════════
+   КОНСТРУКТОР ТРЕБОВАНИЙ К ЗАЛАМ
+
+   Каждый блок — отдельный зал объекта. Два требования означают ДВА РАЗНЫХ
+   зала: подбор делает ML.filterVenues, здесь только форма. Пустая схема —
+   «любая», так ищется «два зала от 80 человек».
+
+   Тарифы: на СТАРТ конструктор закрыт целиком, на БИЗНЕС задаётся только
+   вместимость — по договору схемы рассадки премиальный фильтр.
+   ══════════════════════════════════════════════ */
+function hallsBuilder() {
+  if (!canUse('halls')) {
+    return '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b></div>';
+  }
+  const canSeat = canUse('seats');
+  const list = F.halls || [];
+  const rows = list.map((r, i) => `
+    <div class="hq" data-i="${i}">
+      <div class="hq-top">
+        <span class="hq-n">Зал ${i + 1}</span>
+        <button class="hq-x" onclick="hallDel(${i})" title="Убрать требование" aria-label="Убрать зал ${i + 1}">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg>
+        </button>
+      </div>
+      <label class="hq-f">
+        <span>Схема рассадки</span>
+        <select ${canSeat ? '' : 'disabled'} onchange="hallSet(${i},'seating',this.value)">
+          <option value="">Любая схема</option>
+          ${ML.SEATING.map(s => `<option value="${s.k}"${r.seating === s.k ? ' selected' : ''}>${esc(s.l)}</option>`).join('')}
+        </select>
+      </label>
+      <label class="hq-f hq-min">
+        <span>Вместимость от</span>
+        <input type="number" min="0" step="10" value="${r.min || ''}" placeholder="—"
+          onchange="hallSet(${i},'min',+this.value||0)">
+      </label>
+      ${r.seating && canSeat ? `<div class="hq-ic">${MH.seatIcon(r.seating, { size: 15 })}<span>${esc((ML.seatingByKey(r.seating) || {}).l || '')}</span></div>` : ''}
+    </div>`).join('');
+
+  return `${rows || '<div class="hq-empty">Требований нет — в выдаче все объекты</div>'}
+    <button class="hq-add" onclick="hallAdd()">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
+      Добавить зал
+    </button>
+    ${canSeat ? '' : '<div class="fd-lock">Выбор схемы рассадки доступен на тарифе <b>«ПРЕМИУМ»</b> — сейчас требование считается по любой схеме</div>'}
+    ${list.length > 1 ? '<div class="hq-note">Каждое требование закрывает <b>отдельный</b> зал объекта.</div>' : ''}`;
+}
+
+function hallAdd() { (F.halls = F.halls || []).push({ seating: '', min: 0 }); render(); }
+function hallDel(i) { F.halls.splice(i, 1); render(); }
+function hallSet(i, k, v) { F.halls[i][k] = v; render(); }
+
 
 /* двойной слайдер цены */
 function dualPrice() {
@@ -888,12 +1067,15 @@ function renderChips() {
   const c = [];
   if (F.city) c.push(['Город: ' + F.city, () => F.city = '']);
   if (F.people) c.push(['от ' + F.people + ' чел.', () => F.people = 0]);
-  if (F.hallsMin) c.push(['Залов от ' + F.hallsMin, () => F.hallsMin = 0]);
+  if (F.rooms) c.push(['Номеров от ' + F.rooms, () => F.rooms = 0]);
   if (F.twin) c.push(['TWIN от ' + F.twin, () => F.twin = 0]);
   if (F.sngl) c.push(['SNGL от ' + F.sngl, () => F.sngl = 0]);
   if (F.priceDay[0] > 0 || F.priceDay[1] < 200000)
     c.push([`${F.priceDay[0].toLocaleString('ru')}–${F.priceDay[1].toLocaleString('ru')} ₽`, () => F.priceDay = [0, 200000]]);
-  ML.SEATING.forEach(s => { if (F.seats[s.k]) c.push([`${s.l} от ${F.seats[s.k]}`, () => F.seats[s.k] = 0]); });
+  (F.halls || []).forEach((r, i) => { if (!r.seating && !+r.min) return;
+    const s = ML.seatingByKey(r.seating);
+    c.push([`Зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`,
+      () => F.halls.splice(i, 1)]); });
   ['cats', 'food', 'opts', 'other', 'sport'].forEach(g => F[g].forEach(x => c.push([x, () => F[g].delete(x)])));
   [...ML.state.blacklist].forEach(id => {
     const v = ML.venueById(id);
@@ -925,7 +1107,7 @@ function hallCard(h) {
   // На «СТАРТ» вместо схем рассадки показываем площадь.
   const caps = t.fullInfo
     ? ML.SEATING.filter(s => h.seats[s.k]).slice(0, 4)
-        .map(s => `<span class="hc-cap">${esc(s.l)} ${h.seats[s.k]}</span>`).join('')
+        .map(s => `<span class="hc-cap">${MH.seatIcon(s.k, { size: 14 })}${h.seats[s.k]}</span>`).join('')
     : `<span class="hc-cap">${h.area} м²</span>`;
   return `<article class="hc${inC ? ' picked' : ''}">
     <div class="hc-img">
@@ -958,6 +1140,7 @@ function venueBlock(x) {
     <div class="vb-head">
       <div>
         <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+        ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
         <div class="vb-meta">
           <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
           <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
@@ -966,8 +1149,10 @@ function venueBlock(x) {
           <span class="vb-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
         </div>
       </div>
-      ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})">В блэк-лист</button>` : ''}
+      ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})"
+        title="Скрыть объект из выдачи" aria-label="Скрыть объект из выдачи">${IC.hide}</button>` : ''}
     </div>
+    ${x.matched ? `<div class="vb-match">Требованиям отвечают: ${halls.map(h => esc(h.name)).join(' · ')}</div>` : ''}
     <div class="rail-wrap">
       <div class="rail" id="rail-${v.id}">${halls.map(hallCard).join('')}</div>
       ${halls.length > 2 ? `<button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад">‹</button>
@@ -1058,14 +1243,49 @@ function paintHover() {
   pop.hidden = false;
 }
 
-/* Клик по пину — подсветить и подскроллить к блоку объекта. */
+/* Клик по пину. В списке — подсветить и подскроллить к блоку объекта,
+   на карте списка нет, поэтому показываем карточку поверх карты. */
 function focusCard(vid) {
+  if (VIEW === 'map') { showMapCard(vid); return; }
   const card = document.querySelector(`.vb[data-vid="${vid}"]`);
   if (!card) return;
   document.querySelectorAll('.vb').forEach(b => b.classList.remove('hi'));
   card.classList.add('hi');
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => { if (HOVER !== vid) card.classList.remove('hi'); }, 2200);
+}
+
+function showMapCard(vid) {
+  const box = document.getElementById('mapCard');
+  const x = currentList.find(y => y.venue.id === vid);
+  if (!box || !x) return;
+  const v = x.venue;
+  box.innerHTML = `<button class="map-card-x" onclick="hideMapCard()" aria-label="Закрыть">✕</button>
+    <div class="map-card-img"><img src="${ML.photoUrl(v.photo)}" alt="" loading="lazy"></div>
+    <div class="map-card-b">
+      <div class="map-card-t">${esc(v.name)}</div>
+      <div class="map-card-s">${esc(v.city)} · ${x.halls.length} ${ML.plural(x.halls.length, ['зал', 'зала', 'залов'])}</div>
+      <a class="map-card-go" href="venue.html?id=${v.id}">Карточка объекта</a>
+    </div>`;
+  box.hidden = false;
+}
+function hideMapCard() {
+  const box = document.getElementById('mapCard');
+  if (box) box.hidden = true;
+}
+
+function setView(v) {
+  VIEW = v === 'map' ? 'map' : 'list';
+  try { sessionStorage.setItem('ml_search_view', VIEW); } catch (e) { /* приватный режим */ }
+  hideMapCard();
+  applyView();
+  render();
+}
+
+function applyView() {
+  document.querySelector('.grid3').classList.toggle('map-mode', VIEW === 'map');
+  document.getElementById('viewList').classList.toggle('on', VIEW === 'list');
+  document.getElementById('viewMap').classList.toggle('on', VIEW === 'map');
 }
 
 function zoom(dir) {
@@ -1175,6 +1395,7 @@ function syncBar() {
   const ev = p.get('type');
   if (ev && ML.EVENT_TYPES.some(e => e.k === ev)) F.eventType = ev;
 
+  applyView();
   syncBar();
   renderFilters();
   render();
