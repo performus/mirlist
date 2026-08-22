@@ -1,4 +1,4 @@
-/* MirHub shared utilities — auth state + nav injection */
+/* МАЙСЛИСТ shared utilities — auth state + nav injection */
 const MH = (() => {
   /* ДЕМО-ПАНЕЛЬ, УДАЛИТЬ ПЕРЕД ПРОДАКШЕНОМ — единственный выключатель.
      false → панель не отрисовывается ни на одной странице и в разметке
@@ -226,9 +226,9 @@ const MH = (() => {
       </a>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing.html">Премиум</a>
+    return `<a class="mh-prem" href="pricing.html">Тарифы</a>
       <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
-      <a class="mh-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
+      <a class="mh-cta" href="auth.html?mode=signup">Регистрация</a>`;
   }
 
   function renderNav(targetEl, active) {
@@ -255,13 +255,13 @@ const MH = (() => {
       ? `<div class="mh-drawer-sep"></div>
          <a href="dashboard.html" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
       : `<div class="mh-drawer-sep"></div>
-         <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">⭐ Премиум</a>
+         <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">Тарифы</a>
          <a href="${'auth.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
-         <a class="mh-drawer-cta" href="auth.html?mode=venue">Разместить площадку</a>`;
+         <a class="mh-drawer-cta" href="auth.html?mode=signup">Регистрация</a>`;
 
     targetEl.innerHTML = `
       <header class="mh-header">
-        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МирХАБ" height="24" style="display:block"></a>
+        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="24" style="display:block"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
@@ -375,10 +375,10 @@ const MH = (() => {
       <footer class="mh-footer">
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
-            <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МирХАБ" height="20" style="display:block"></div>
+            <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="20" style="display:block"></div>
             <p>В2В маркетплейс площадок для деловых мероприятий в России</p>
             <div class="mh-ft-contacts">
-              <a class="mh-ft-contact" href="mailto:info@mirhub.ru">${ICON_MAIL} info@mirhub.ru</a>
+              <a class="mh-ft-contact" href="mailto:info@mayslist.ru">${ICON_MAIL} info@mayslist.ru</a>
               <a class="mh-ft-contact" href="tel:+78005553535">${ICON_PHONE} +7 (800) 555-35-35</a>
             </div>
           </div>
@@ -393,12 +393,12 @@ const MH = (() => {
             <h4>Размещение</h4>
             <a href="list-venue.html">Разместить площадку</a>
             <a href="for-organizers.html">Агентствам</a>
-            <a href="support.html" class="bold">Поддержка и арбитраж</a>
+            <a href="listing-help.html">Помощь с оформлением</a>
           </div>
           <div class="mh-ft-col">
             <h4>Поддержка</h4>
-            <a href="support.html">Написать в поддержку</a>
-            <a href="mailto:info@mirhub.ru">Контакты</a>
+            <a href="#" onclick="MH.feedback();return false;">Написать в поддержку</a>
+            <a href="mailto:info@mayslist.ru">Контакты</a>
             <a href="../index.html">Карта сайта</a>
           </div>
           <div class="mh-ft-col">
@@ -413,7 +413,7 @@ const MH = (() => {
           <a class="mh-ft-social" href="#" aria-label="Telegram">${ICON_TG}</a>
         </div>
         <div class="mh-ft-bottom">
-          <span>© 2026 Мирхаб. Рынок открыт.</span>
+          <span>© 2026 МАЙСЛИСТ. Рынок открыт.</span>
           <div>
             <a href="privacy.html">Политика конфиденциальности</a>
             <a href="#">Условия</a>
@@ -567,6 +567,8 @@ const MH = (() => {
         box-shadow: 0 4px 16px rgba(232,132,106,.28);
       }
       .mhfb-btn:hover { background: #d4704f; transform: translateY(-1px); }
+      .mhfb-hint { font-size: 12px; line-height: 1.55; color: #7A919F; margin-top: 6px; }
+      .mhfb-hint b { color: #354E63; }
       .mhfb-success { text-align: center; padding: 40px 28px; }
       .mhfb-success-icon { font-size: 48px; margin-bottom: 14px; }
       .mhfb-success-title { font-family: 'Literata', Georgia, serif; font-weight: 600; font-size: 22px; color: #354E63; margin-bottom: 8px; }
@@ -600,10 +602,16 @@ const MH = (() => {
             <label class="mhfb-label">Тема</label>
             <div class="mhfb-chips" id="mhfb-chips">
               <button class="mhfb-chip sel" data-topic="Вопрос">Вопрос</button>
+              <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по мероприятию</button>
+              <button class="mhfb-chip" data-topic="Жалоба на объект или поставщика">Жалоба</button>
               <button class="mhfb-chip" data-topic="Техническая проблема">Техническая проблема</button>
               <button class="mhfb-chip" data-topic="Предложение">Предложение</button>
-              <button class="mhfb-chip" data-topic="Другое">Другое</button>
             </div>
+          </div>
+          <div class="mhfb-field" id="mhfb-id-field" hidden>
+            <label class="mhfb-label">ID запроса <span style="color:#C7563B">*</span></label>
+            <input class="mhfb-input" id="mhfb-reqid" type="text" placeholder="RQ-260714-0031">
+            <div class="mhfb-hint" id="mhfb-id-hint"></div>
           </div>
           <div class="mhfb-field">
             <label class="mhfb-label">Сообщение</label>
@@ -621,12 +629,31 @@ const MH = (() => {
       if (e.key === 'Escape') { closeFeedback(); document.removeEventListener('keydown', esc); }
     });
 
+    /* Спор по мероприятию разбирается только по номеру запроса: без него
+       непонятно, какое мероприятие и какие стороны сверять. */
+    function syncDispute() {
+      const sel = document.querySelector('#mhfb-chips .mhfb-chip.sel');
+      const dispute = !!(sel && sel.dataset.dispute);
+      const field = document.getElementById('mhfb-id-field');
+      field.hidden = !dispute;
+      if (dispute) {
+        const ids = (typeof ML !== 'undefined' && ML.state && ML.state.requests)
+          ? ML.state.requests.map(r => r.id) : [];
+        document.getElementById('mhfb-id-hint').innerHTML =
+          'Номер стоит в шапке запроса в кабинете, раздел «История запросов».'
+          + (ids.length ? ' Например: ' + ids.slice(0, 2).join(', ') + '.' : '')
+          + '<br><b>Для спора ID обязателен</b> — без него обращение не разобрать.';
+      }
+    }
+
     document.getElementById('mhfb-chips').addEventListener('click', e => {
       const chip = e.target.closest('.mhfb-chip');
       if (!chip) return;
       document.querySelectorAll('#mhfb-chips .mhfb-chip').forEach(c => c.classList.remove('sel'));
       chip.classList.add('sel');
+      syncDispute();
     });
+    syncDispute();
 
     const sess = getSession();
     if (sess) {
@@ -638,6 +665,12 @@ const MH = (() => {
       const name = document.getElementById('mhfb-name').value.trim();
       const email = document.getElementById('mhfb-email').value.trim();
       const msg = document.getElementById('mhfb-msg').value.trim();
+      const sel = document.querySelector('#mhfb-chips .mhfb-chip.sel');
+      const dispute = !!(sel && sel.dataset.dispute);
+      const reqId = (document.getElementById('mhfb-reqid') || {}).value || '';
+      if (dispute && !reqId.trim()) {
+        toast('Для спора по мероприятию укажите ID запроса', 'error'); return;
+      }
       if (!name || !email || !msg) {
         toast('Заполните все обязательные поля', 'error'); return;
       }
@@ -814,9 +847,12 @@ const MH = (() => {
     { k: 'prem',  l: 'Премиум' },
   ];
   const DEMO_ROLES = [
-    { k: 'user',     l: 'Пользователь' },
-    { k: 'venue',    l: 'Площадка' },
-    { k: 'supplier', l: 'Поставщик' },
+    { k: 'user', l: 'Пользователь',
+      ic: '<path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4.5 20a7.5 7.5 0 0115 0"/>' },
+    { k: 'venue', l: 'Площадка',
+      ic: '<path d="M3 20h18M5 20V9l7-5 7 5v11M9.5 20v-5h5v5"/>' },
+    { k: 'supplier', l: 'Поставщик',
+      ic: '<path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5zM3 12.5 12 17l9-4.5M3 16.5 12 21l9-4.5"/>' },
   ];
 
   function demoCSS() {
@@ -833,21 +869,41 @@ const MH = (() => {
         text-transform: uppercase; letter-spacing: .09em;
         font-size: 9.5px; font-weight: 700; color: #5E7688;
       }
-      .mh-demo button, .mh-demo a.mh-demo-r {
+      .mh-demo button {
         border: 1px solid transparent; background: none;
         padding: 4px 10px; border-radius: 50px;
         font-family: inherit; font-size: 11.5px; font-weight: 500;
         color: #C2D2DC; text-decoration: none; cursor: pointer;
         transition: background .15s, color .15s, border-color .15s;
       }
-      .mh-demo button:hover, .mh-demo a.mh-demo-r:hover { background: #2E4252; color: #fff; }
-      .mh-demo button.on, .mh-demo a.mh-demo-r.on {
+      .mh-demo button:hover { background: #2E4252; color: #fff; }
+      .mh-demo button.on {
         background: #E98667; border-color: #E98667; color: #fff; font-weight: 600;
       }
+      /* Сегментированный переключатель ролей: одна дорожка, активный сегмент
+         подсвечен. В продукте роль у человека одна — это демо-режим. */
+      .mh-seg {
+        display: inline-flex; align-items: stretch; gap: 2px;
+        padding: 2px; border-radius: 8px; background: #1A2833; border: 1px solid #16232C;
+      }
+      .mh-seg-i {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 11px; border-radius: 6px;
+        font-family: inherit; font-size: 11.5px; font-weight: 500;
+        color: #9FB4C1; text-decoration: none; white-space: nowrap;
+        transition: background .15s, color .15s;
+      }
+      .mh-seg-i svg { width: 14px; height: 14px; flex-shrink: 0; }
+      .mh-seg-i:hover { background: #2E4252; color: #fff; }
+      .mh-seg-i.on { background: #E98667; color: #fff; font-weight: 600; }
       .mh-demo-note { margin-left: auto; font-size: 10.5px; color: #5E7688; }
       @media (max-width: 900px) {
         .mh-demo { padding: 6px 14px; gap: 6px 14px; }
         .mh-demo-note { margin-left: 0; width: 100%; }
+      }
+      @media (max-width: 560px) {
+        .mh-seg-i span { display: none; }
+        .mh-seg-i { padding: 6px 10px; }
       }`;
   }
 
@@ -858,12 +914,16 @@ const MH = (() => {
     const lv = DEMO_LEVELS.map(x =>
       `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('');
     const rl = DEMO_ROLES.map(x =>
-      `<a class="mh-demo-r${page === 'dashboard.html' && role === x.k ? ' on' : ''}" href="dashboard.html?role=${x.k}">${x.l}</a>`).join('');
+      `<a class="mh-seg-i${page === 'dashboard.html' && role === x.k ? ' on' : ''}" href="dashboard.html?role=${x.k}">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${x.ic}</svg>
+         <span>${x.l}</span>
+       </a>`).join('');
     return `<div class="mh-demo" id="mh-demo">
       <span class="mh-demo-l">Уровень доступа</span>
       <div class="mh-demo-g">${lv}</div>
       <span class="mh-demo-l">Роль</span>
-      <div class="mh-demo-g">${rl}</div>
+      <div class="mh-seg">${rl}</div>
       <span class="mh-demo-note">Тестовая панель для демонстрации — в рабочей версии её не будет</span>
     </div>`;
   }

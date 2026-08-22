@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Бонусная программа: как начисляются баллы за состоявшиеся мероприятия и на что их потратить.">
-<meta property="og:title" content="Бонусная программа — МирХАБ">
+<meta property="og:title" content="Бонусная программа — МАЙСЛИСТ">
 <meta property="og:description" content="Бонусная программа: как начисляются баллы за состоявшиеся мероприятия и на что их потратить.">
 <meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Бонусная программа — МирХАБ</title>
+<title>Бонусная программа — МАЙСЛИСТ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
@@ -133,7 +133,6 @@ function render(){
   // ── начисление за мероприятие: строки из ML.FEE_TIERS ──
   const rows = ML.FEE_TIERS.map(t => `<tr>
     <td>${esc(t.label)}</td>
-    <td class="${t.fee?'num':'dim'}">${t.fee?ML.money(t.fee):'по согласованию'}</td>
     <td class="${t.ptsBiz?'pts':'dim'}">${t.ptsBiz?t.ptsBiz.toLocaleString('ru'):'—'}</td>
     <td class="${t.ptsPrem?'pts':'dim'}">${t.ptsPrem?t.ptsPrem.toLocaleString('ru'):'—'}</td>
   </tr>`).join('');
@@ -151,7 +150,6 @@ function render(){
         <div class="card-prov">${esc(s.provider)}</div>
         <div class="card-price">
           <span class="card-pts">${s.pts.toLocaleString('ru')} Б</span>
-          <span class="card-rub">${ML.money(s.rub)}</span>
         </div>
         <div class="card-foot">
           <button class="btn pri wide" ${can?'':'disabled'} onclick="buy(${s.id})">Оставить заявку</button>
@@ -171,11 +169,6 @@ function render(){
 
   <div class="tiles">
     <div class="tile">
-      <div class="lbl">Курс балла</div>
-      <div class="val">${ML.POINT_RATE.toLocaleString('ru')} ₽</div>
-      <div class="sub">1 балл при списании</div>
-    </div>
-    <div class="tile">
       <div class="lbl">Баллы «ПРИВЕТ»</div>
       <div class="val">${ML.POINTS_HELLO.toLocaleString('ru')}</div>
       <div class="sub">разово за регистрацию</div>
@@ -188,7 +181,7 @@ function render(){
     <div class="tile">
       <div class="lbl">Ваш баланс</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">${ML.pointsToRub(P.free).toLocaleString('ru')} ₽ · заблокировано ${P.locked.toLocaleString('ru')} Б</div>
+      <div class="sub">заблокировано ${P.locked.toLocaleString('ru')} Б</div>
     </div>
   </div>
 
@@ -198,7 +191,7 @@ function render(){
   </div>
   <div class="panel"><div class="tscroll"><table class="tbl">
     <thead><tr>
-      <th>Количество участников</th><th>Вознаграждение объекта</th>
+      <th>Количество участников</th>
       <th>Баллы · БИЗНЕС</th><th>Баллы · ПРЕМИУМ</th>
     </tr></thead>
     <tbody>${rows}</tbody>

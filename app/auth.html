@@ -6,7 +6,7 @@
 <meta name="description" content="Вход и регистрация: пользователь, площадка или поставщик услуг.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Вход и регистрация — МирХАБ</title>
+<title>Вход и регистрация — МАЙСЛИСТ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
@@ -64,6 +64,20 @@ button{font-family:inherit;cursor:pointer;}
 .fi:focus{border-color:var(--coral);background:var(--white);}
 .fi.bad{border-color:#B14A32;background:#FDF3F0;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── пароль: показать/скрыть, требования и совпадение ── */
+.pw-wrap{position:relative;}
+.pw-wrap .fi{padding-right:44px;}
+.pw-eye{position:absolute;top:50%;right:8px;transform:translateY(-50%);
+  width:30px;height:30px;border:none;background:none;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;color:var(--slate-pale);transition:color .2s,background .2s;}
+.pw-eye:hover{color:var(--slate-mid);background:var(--aqua-pale);}
+.pw-note{display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.4;
+  color:var(--slate-muted);margin-top:6px;min-height:17px;}
+.pw-note.ok{color:#2E7D5B;}
+.pw-note.bad{color:#B14A32;}
+.pw-note svg{width:13px;height:13px;flex-shrink:0;}
+.btn[disabled]{opacity:.5;cursor:default;}
 
 .check{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.55;
   color:var(--slate-muted);margin-bottom:16px;cursor:pointer;}
@@ -158,7 +172,6 @@ function render(){
 
   document.getElementById('root').innerHTML = `
   <div class="head">
-    <span class="eyebrow">${isUp ? 'Регистрация' : 'Вход'}</span>
     <h1>${isUp ? 'Создать аккаунт' : 'Вход в кабинет'}</h1>
     <p>${isUp
       ? 'Выберите роль — от неё зависит, какой кабинет откроется после регистрации.'
@@ -184,7 +197,7 @@ function render(){
       <input type="checkbox" id="fAgree" checked>
       <span>Согласен с <a href="privacy.html">политикой конфиденциальности</a> и условиями использования</span>
     </label>` : ''}
-    <button class="btn" onclick="submit()">${isUp ? 'Зарегистрироваться' : 'Войти'}</button>
+    <button class="btn" id="btnSubmit" onclick="submit()">${isUp ? 'Зарегистрироваться' : 'Войти'}</button>
     <div class="alt">${isUp
       ? `Уже есть аккаунт? <button onclick="setMode('login')">Войти</button>`
       : `Нет аккаунта? <button onclick="setMode('signup')">Зарегистрироваться</button>`}</div>
@@ -198,6 +211,8 @@ function render(){
       ? `<div class="hint">Размещение поставщика <b>платное</b>: один тариф по образцу
          пользовательского «${esc(ML.TARIFFS.prem.name)}».</div>` : ''}
   </div>`;
+
+  if (isUp) bindPw();
 }
 
 function signupFields(){
@@ -207,11 +222,10 @@ function signupFields(){
     <div class="fg"><label for="fMail">Почта</label>
       <input class="fi" id="fMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
     <div class="row2">
-      <div class="fg"><label for="fPass">Пароль</label>
-        <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль" autocomplete="new-password"></div>
       <div class="fg"><label for="fPhone">Телефон</label>
         <input class="fi" id="fPhone" type="tel" placeholder="+7 916 000-00-00" autocomplete="tel"></div>
     </div>
+    ${passBlock()}
     <div class="fg"><label for="fOrg">Место работы</label>
       <input class="fi" id="fOrg" type="text" placeholder="Агентство или компания"></div>`;
   if (ROLE === 'venue') return `
@@ -226,11 +240,10 @@ function signupFields(){
         <input class="fi" id="fPhone" type="tel" placeholder="+7 495 000-00-00"></div>
     </div>
     <div class="row2">
-      <div class="fg"><label for="fPass">Пароль</label>
-        <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль"></div>
       <div class="fg"><label for="fCity">Город</label>
         <input class="fi" id="fCity" type="text" placeholder="Москва"></div>
-    </div>`;
+    </div>
+    ${passBlock()}`;
   return `
     <div class="fg"><label for="fName">Название или ФИО</label>
       <input class="fi" id="fName" type="text" placeholder="Ведущий Артём Соколов"></div>
@@ -242,12 +255,90 @@ function signupFields(){
       <div class="fg"><label for="fPhone">Телефон</label>
         <input class="fi" id="fPhone" type="tel" placeholder="+7 916 000-00-00"></div>
     </div>
-    <div class="fg"><label for="fPass">Пароль</label>
-      <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль"></div>`;
+    ${passBlock()}`;
 }
 
-function setMode(m){ MODE = m; render(); }
-function setRole(r){ ROLE = r; render(); }
+/* ══════════════════════════════════════════════
+   ПАРОЛЬ ПРИ РЕГИСТРАЦИИ
+   Требования показываем сразу, а не после ошибки. Ругаемся не с первого
+   символа: первое поле проверяем по уходу фокуса, второе — по ходу ввода,
+   потому что там человек уже знает, что печатает.
+   ══════════════════════════════════════════════ */
+const PW_MIN = 8;
+const IC_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+const IC_NO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const IC_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const IC_EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.7a3 3 0 004.2 4.2"/><path d="M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17.6 17.6 0 01-3.4 4.2M6.3 6.5C3.7 8.2 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"/></svg>';
+
+let PW_TOUCHED = false;   // первое поле уже покидали
+
+function passBlock(){
+  return `
+    <div class="fg">
+      <label for="fPass">Пароль</label>
+      <div class="pw-wrap">
+        <input class="fi" id="fPass" type="password" placeholder="Придумайте пароль" autocomplete="new-password">
+        <button type="button" class="pw-eye" id="pwEye" aria-label="Показать пароль" onclick="togglePw()">${IC_EYE}</button>
+      </div>
+      <div class="pw-note" id="pwReq">Не короче ${PW_MIN} символов</div>
+    </div>
+    <div class="fg">
+      <label for="fPass2">Повторите пароль</label>
+      <div class="pw-wrap">
+        <input class="fi" id="fPass2" type="password" placeholder="Ещё раз" autocomplete="new-password">
+      </div>
+      <div class="pw-note" id="pwMatch"></div>
+    </div>`;
+}
+
+function pwState(){
+  const a = (document.getElementById('fPass') || {}).value || '';
+  const b = (document.getElementById('fPass2') || {}).value || '';
+  return { a, b, long: a.length >= PW_MIN, match: !!a && a === b };
+}
+
+function togglePw(){
+  const a = document.getElementById('fPass'), b = document.getElementById('fPass2');
+  const eye = document.getElementById('pwEye');
+  const show = a.type === 'password';
+  a.type = b.type = show ? 'text' : 'password';
+  eye.innerHTML = show ? IC_EYE_OFF : IC_EYE;
+  eye.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+}
+
+function pwPaint(){
+  const req = document.getElementById('pwReq');
+  const mt = document.getElementById('pwMatch');
+  const btn = document.getElementById('btnSubmit');
+  if (!req || !mt) return;
+  const st = pwState();
+
+  if (st.long) req.className = 'pw-note ok', req.innerHTML = IC_OK + '<span>Длина подходит</span>';
+  else if (PW_TOUCHED && st.a) req.className = 'pw-note bad', req.innerHTML = IC_NO + `<span>Не короче ${PW_MIN} символов</span>`;
+  else req.className = 'pw-note', req.textContent = `Не короче ${PW_MIN} символов`;
+
+  document.getElementById('fPass').classList.toggle('bad', PW_TOUCHED && !!st.a && !st.long);
+
+  if (!st.b) { mt.className = 'pw-note'; mt.textContent = ''; }
+  else if (st.match) { mt.className = 'pw-note ok'; mt.innerHTML = IC_OK + '<span>Пароли совпадают</span>'; }
+  else { mt.className = 'pw-note bad'; mt.innerHTML = IC_NO + '<span>Пароли не совпадают</span>'; }
+  document.getElementById('fPass2').classList.toggle('bad', !!st.b && !st.match);
+
+  if (btn) btn.disabled = !(st.long && st.match);
+}
+
+function bindPw(){
+  const a = document.getElementById('fPass'), b = document.getElementById('fPass2');
+  if (!a || !b) return;
+  a.addEventListener('input', () => { if (PW_TOUCHED || pwState().long) pwPaint(); });
+  a.addEventListener('blur', () => { PW_TOUCHED = true; pwPaint(); });
+  b.addEventListener('input', pwPaint);
+  b.addEventListener('blur', pwPaint);
+  pwPaint();
+}
+
+function setMode(m){ MODE = m; PW_TOUCHED = false; render(); }
+function setRole(r){ ROLE = r; PW_TOUCHED = false; render(); }
 
 const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 function bad(id, msg){
@@ -267,6 +358,12 @@ function submit(){
   const mail = val('fMail'), pass = val('fPass');
   if (!mail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return bad('fMail', 'Укажите корректную почту');
   if (!pass) return bad('fPass', 'Введите пароль');
+
+  if (MODE === 'signup') {
+    const st = pwState();
+    if (!st.long) { PW_TOUCHED = true; pwPaint(); return bad('fPass', `Пароль короче ${PW_MIN} символов`); }
+    if (!st.match) { pwPaint(); return bad('fPass2', 'Пароли не совпадают'); }
+  }
 
   if (MODE === 'signup') {
     const name = val('fName');

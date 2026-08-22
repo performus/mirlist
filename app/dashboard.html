@@ -342,6 +342,25 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj:last-child{border-bottom:none;}
 .rq-obj.dead{opacity:.45;}
 .rq-obj-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:11px;}
+/* Миниатюра объекта: фиксированный квадрат, кадрируем, а не растягиваем. */
+.rq-thumb{width:44px;height:44px;flex-shrink:0;border-radius:10px;object-fit:cover;
+  background:var(--aq-s);border:1px solid rgba(197,227,225,.35);}
+.rq-upd{color:var(--c);font-weight:600;}
+.rq-acts{flex-wrap:wrap;justify-content:flex-end;}
+
+/* ── просмотр и корректировка запроса ── */
+.rv-obj{border:1px solid rgba(197,227,225,.35);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
+.rv-obj-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.rv-obj-name{font-size:14px;font-weight:700;color:var(--sd);}
+.rv-halls{display:flex;flex-wrap:wrap;gap:6px;}
+.rv-hall{font-size:12px;padding:4px 10px;border-radius:var(--rf);background:var(--aq-p);color:var(--sm);}
+.rv-none{font-size:12px;color:var(--sx);}
+.rv-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.rv-row > div{flex:1;min-width:150px;}
+.rv-k{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--sx);margin-bottom:4px;}
+.rv-v{font-size:13.5px;color:var(--sd);font-weight:600;}
+.rv-letter{white-space:pre-wrap;font-size:13px;line-height:1.6;color:var(--sm);
+  background:var(--aq-p);border-radius:var(--r);padding:12px 14px;}
 .rq-obj-name{font-size:14.5px;font-weight:700;color:var(--sd);transition:color .2s;}
 .rq-obj-name:hover{color:var(--c);}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
@@ -646,12 +665,17 @@ function reqBlock(r){
       <div>
         <div class="rq-id">${esc(r.id)}</div>
         <div class="rq-title">${esc(r.title)}</div>
-        <div class="rq-date">от ${esc(r.date)} · ${r.objects.length} ${ML.plural(r.objects.length,['объект','объекта','объектов'])}</div>
+        <div class="rq-date">от ${esc(r.date)} · ${r.objects.length} ${ML.plural(r.objects.length,['объект','объекта','объектов'])}${
+          r.updatedAt ? ` · <span class="rq-upd">исправлен ${esc(r.updatedAt)}</span>` : ''}</div>
         <div class="rq-params">${params.length
           ? params.map(p => `<span class="rq-param">${esc(p)}</span>`).join('')
           : '<span class="none">параметры поиска не сохранялись</span>'}</div>
       </div>
-      <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить для всех</button>
+      <div class="btn-row rq-acts">
+        <button class="btn-xs" onclick="openReqView('${esc(r.id)}')">Посмотреть запрос</button>
+        <button class="btn-xs" onclick="openReqEdit('${esc(r.id)}')">Скорректировать запрос</button>
+        <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить статус</button>
+      </div>
     </div>
     ${r.objects.map(o => reqObjRow(r, o)).join('')}
   </div>`;
@@ -675,6 +699,7 @@ function reqObjRow(r, o){
 
   return `<div class="rq-obj${dead ? ' dead' : ''}">
     <div class="rq-obj-top">
+      ${v ? `<img class="rq-thumb" src="${ML.photoUrl(v.photo)}" alt="" loading="lazy">` : ''}
       <a class="rq-obj-name" href="venue.html?id=${o.venueId}">${esc(v ? v.name : 'Объект #' + o.venueId)}</a>
       <span class="st ${o.status}">${esc(flow.label)}</span>
       ${extra ? `<span class="rq-obj-meta">${extra}</span>` : ''}
@@ -691,6 +716,96 @@ function reqObjRow(r, o){
 
 function refreshOne(){ MH.toast('Статус актуален — ответ от объекта пока не поступал', 'info'); }
 function refreshAll(){ MH.toast('Статусы обновлены', 'info'); renderPage(); }
+
+/* ══════════════════════════════════════════════
+   ПРОСМОТР И КОРРЕКТИРОВКА ЗАПРОСА
+   Состав собираем через ML.requestByVenue: он отдаёт объекты вместе
+   с выбранными в них залами, а не плоский список.
+   ══════════════════════════════════════════════ */
+function reqComposition(r){
+  return ML.requestByVenue(r).map(x => `
+    <div class="rv-obj">
+      <div class="rv-obj-top">
+        <img class="rq-thumb" src="${ML.photoUrl(x.venue.photo)}" alt="" loading="lazy">
+        <div>
+          <div class="rv-obj-name">${esc(x.venue.name)}</div>
+          <span class="st ${x.obj.status}">${esc((ML.REQUEST_FLOW[x.obj.status]||{}).label || x.obj.status)}</span>
+        </div>
+      </div>
+      ${x.halls.length
+        ? `<div class="rv-halls">${x.halls.map(h => `<span class="rv-hall">${esc(h.name)}</span>`).join('')}</div>`
+        : '<div class="rv-none">Залы не отмечались — запрос по объекту целиком</div>'}
+    </div>`).join('');
+}
+
+function openReqView(id){
+  const r = ML.requestById(id);
+  if (!r) return;
+  const params = Array.isArray(r.params) ? r.params : [];
+  dm('Запрос ' + esc(r.id), `
+    <div class="rv-row">
+      <div><div class="rv-k">Даты</div><div class="rv-v">${esc(r.dates || '—')}</div></div>
+      <div><div class="rv-k">Участников</div><div class="rv-v">${esc(String(r.guests || '—'))}</div></div>
+      <div><div class="rv-k">Отправлен</div><div class="rv-v">${esc(r.date)}${r.updatedAt ? ' · исправлен ' + esc(r.updatedAt) : ''}</div></div>
+    </div>
+    <div class="rv-k">Параметры поиска</div>
+    <div class="rq-params" style="margin-bottom:14px">${params.length
+      ? params.map(x => `<span class="rq-param">${esc(x)}</span>`).join('')
+      : '<span class="none">параметры поиска не сохранялись</span>'}</div>
+    <div class="rv-k">Куда ушёл запрос</div>
+    ${reqComposition(r)}
+    <div class="rv-k" style="margin-top:14px">Сопроводительное письмо</div>
+    <div class="rv-letter">${esc(r.letter || '—')}</div>`,
+    `<button class="btn btn-o" onclick="dmClose()">Закрыть</button>`);
+}
+
+function openReqEdit(id){
+  const r = ML.requestById(id);
+  if (!r) return;
+  const live = r.objects.filter(o => o.status !== 'cancelled').length;
+  dm('Скорректировать запрос', `
+    <div class="rv-row">
+      <div>
+        <label class="form-label" for="edDates">Даты</label>
+        <input class="form-input" id="edDates" value="${esc(r.dates || '')}" placeholder="12–14 сентября">
+      </div>
+      <div>
+        <label class="form-label" for="edGuests">Участников</label>
+        <input class="form-input" id="edGuests" type="number" min="0" value="${esc(String(r.guests || ''))}" placeholder="120">
+      </div>
+    </div>
+    <label class="form-label" for="edLetter">Сопроводительное письмо</label>
+    <textarea class="form-input" id="edLetter" rows="6">${esc(r.letter || '')}</textarea>
+    <div class="dm-note">Правка уходит объектам, которые ещё не отменили запрос — сейчас их ${live}.
+    Отдельной кнопкой можно отправить новый запрос по тем же объектам: статусы в нём начнутся заново,
+    отменённые объекты в него не попадут.</div>`,
+    `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
+     <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить ещё один запрос</button>
+     <button class="btn btn-c" onclick="saveReqEdit('${esc(r.id)}')">Сохранить</button>`);
+}
+
+function edVals(){
+  return {
+    dates: (document.getElementById('edDates') || {}).value || '',
+    guests: +((document.getElementById('edGuests') || {}).value) || 0,
+    letter: (document.getElementById('edLetter') || {}).value || '',
+  };
+}
+
+function saveReqEdit(id){
+  const ok = ML.updateRequest(id, edVals());
+  dmClose();
+  MH.toast(ok ? 'Запрос скорректирован' : 'Не удалось сохранить', ok ? 'success' : 'error');
+  renderPage();
+}
+
+function repeatReq(id){
+  const req = ML.repeatRequest(id, edVals());
+  dmClose();
+  if (!req) { MH.toast('Все объекты в запросе отменены — повторять нечего', 'error'); return; }
+  MH.toast('Новый запрос ' + req.id + ' отправлен', 'success');
+  renderPage();
+}
 
 /* ── модалка ── */
 function dm(title, body, foot){
@@ -715,7 +830,7 @@ function openConfirm(reqId, venueId){
   const v = ML.venueById(venueId);
   dm('Мероприятие подтверждено', `
     <p>Объект <b>${esc(v ? v.name : '')}</b> подтвердил мероприятие. Уточните детали —
-    от количества участников зависит вознаграждение площадки и начисление баллов.</p>
+    от количества участников зависит, сколько баллов вам начислят.</p>
     <label class="form-label">Название мероприятия</label>
     <input class="form-input" id="wzName" value="Конференция «Итоги полугодия»">
     <label class="form-label" style="margin-top:16px;display:block">Количество человек</label>
@@ -723,7 +838,7 @@ function openConfirm(reqId, venueId){
       <label class="opt${i===0?' sel':''}" data-i="${i}" onclick="pickTier(${i})">
         <input type="radio" name="wzTier" ${i===0?'checked':''}>
         <span>${esc(t.label)}</span>
-        <span class="fee">${t.fee ? 'вознаграждение ' + ML.money(t.fee) : 'по договорённости'}</span>
+        <span class="fee">${tierPoints(t)}</span>
       </label>`).join('')}</div>
     <label class="form-label" style="margin-top:16px;display:block">Даты мероприятия</label>
     <div class="dgrid">${['пн','вт','ср','чт','пт','сб','вс'].map(d => `<div class="dg-h">${d}</div>`).join('')}
@@ -732,6 +847,14 @@ function openConfirm(reqId, venueId){
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="saveConfirm('${esc(reqId)}',${venueId})">Подтвердить</button>`);
 }
+/* Сколько баллов даёт диапазон на текущем тарифе. Для 501+ в модели
+   баллы не заданы — там сумма согласуется отдельно. */
+function tierPoints(t){
+  const pts = ML.tariff().key === 'prem' ? t.ptsPrem : t.ptsBiz;
+  if (!pts) return 'по согласованию';
+  return pts.toLocaleString('ru') + ' ' + ML.plural(pts, ['балл','балла','баллов']);
+}
+
 /* Шахматка на три недели от ближайшего понедельника. */
 function dateCells(){
   const today = new Date(); today.setHours(0,0,0,0);
@@ -832,7 +955,7 @@ function openReview(reqId, venueId){
     <label class="form-label" style="margin-top:14px;display:block">Что понравилось и что нет</label>
     <textarea class="form-input" id="rvText" rows="4" placeholder="Коротко о площадке, зале и работе менеджера"></textarea>
     <div class="dm-note">${pts
-      ? `За отзыв начислим <b>${pts} ${ML.plural(pts,['балл','балла','баллов'])}</b> — это ${ML.pointsToRub(pts).toLocaleString('ru')} ₽ на услуги партнёров.`
+      ? `За отзыв начислим <b>${pts} ${ML.plural(pts,['балл','балла','баллов'])}</b> — их можно потратить на услуги партнёров.`
       : 'На тарифе «СТАРТ» баллы за отзывы не начисляются.'}</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="saveReview('${esc(reqId)}',${venueId})">Отправить отзыв</button>`);
@@ -1129,8 +1252,7 @@ function wfield(f){
         <tr><th>Розничная цена услуги</th><td>${ML.money(p)}</td></tr>
         <tr><th>Ресурс платит вам по договору</th><td>${ML.money(ML.serviceCost(p))}</td></tr>
         <tr><th>Списывается с пользователя</th><td>${ML.servicePoints(p).toLocaleString('ru')} Б</td></tr>
-      </table><div class="hint">Курс: 1 балл = ${ML.POINT_RATE.toLocaleString('ru')} ₽.
-      Разница между розничной ценой и выплатой — доход ресурса, за счёт него работает бонусная программа.</div></div>`;
+      </table></div>`;
     }
     case 'halls': {
       const hs=WIZ.data.halls||[];
@@ -1373,7 +1495,7 @@ dash:()=>{
     <div class="lk-tile">
       <div class="lbl">Доступно баллов</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">${ML.pointsToRub(P.free).toLocaleString('ru')} ₽ по курсу ${ML.POINT_RATE.toLocaleString('ru')} ₽</div>
+      <div class="sub">можно потратить на услуги партнёров</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Сгорают</div>
@@ -1461,13 +1583,13 @@ points:()=>{
   const shop=ML.SHOP.slice(0,3);
   return `
   <h1 class="page-title">Мои баллы</h1>
-  <p class="page-sub">1 балл = ${ML.POINT_RATE.toLocaleString('ru')} ₽ · тратятся на услуги партнёров</p>
+  <p class="page-sub">Тратятся на услуги объектов и поставщиков внутри ресурса и на подписку</p>
 
   <div class="lk-tiles">
     <div class="lk-tile">
       <div class="lbl">Доступно</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">${ML.pointsToRub(P.free).toLocaleString('ru')} ₽ — можно потратить сейчас</div>
+      <div class="sub">можно потратить сейчас</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Нельзя потратить</div>
@@ -1502,7 +1624,7 @@ points:()=>{
       return `<div class="shop-row">
         <div class="shop-mid">
           <div class="shop-name">${esc(s.title)}</div>
-          <div class="shop-prov">${esc(s.provider)} · ${ML.money(s.rub)}</div>
+          <div class="shop-prov">${esc(s.provider)}</div>
         </div>
         <div class="shop-pts">${s.pts.toLocaleString('ru')} Б</div>
         <button class="btn-xs" ${can?'':'disabled title="Не хватает баллов"'} onclick="buyShop(${s.id})">Оставить заявку</button>

@@ -689,7 +689,8 @@
   }
 
   /** Создаёт запрос из текущего сравнения. Возвращает объект запроса или null. */
-  function createRequest(title, letter) {
+  function createRequest(title, letter, opts) {
+    opts = opts || {};
     const halls = compareHalls();
     const venueIds = [...new Set(halls.map(h => h.venueId))];
     const chk = canGroupRequest(venueIds.length);
@@ -697,6 +698,7 @@
     const req = {
       id: newRequestId(), date: new Date().toLocaleDateString('ru'),
       title: title || `Запрос на ${venueIds.length} объектов`, letter: letter || '',
+      dates: opts.dates || '', guests: opts.guests || '',
       params: filtersSummary(state.filters),
       hallIds: halls.map(h => h.id),
       objects: venueIds.map(venueId => ({ venueId, status: 'sent' })),
@@ -707,6 +709,45 @@
   }
 
   const requestById = (id) => state.requests.find(r => r.id === id) || null;
+
+  /** Залы запроса — для окна «посмотреть запрос». */
+  const requestHalls = (r) => (r.hallIds || []).map(hallById).filter(Boolean);
+  /** Залы запроса, сгруппированные по объектам. */
+  function requestByVenue(r) {
+    const out = [];
+    for (const o of r.objects) {
+      const v = venueById(o.venueId); if (!v) continue;
+      out.push({ venue: v, obj: o, halls: requestHalls(r).filter(h => h.venueId === o.venueId) });
+    }
+    return out;
+  }
+
+  /** Корректировка запроса. Отменённые объекты не воскрешаются. */
+  function updateRequest(reqId, patch) {
+    const r = requestById(reqId); if (!r) return false;
+    ['title', 'letter', 'dates', 'guests'].forEach(k => { if (k in patch) r[k] = patch[k]; });
+    r.updatedAt = new Date().toLocaleDateString('ru');
+    persist.requests();
+    return true;
+  }
+
+  /** Повторный запрос по тем же объектам и залам — «оставить ещё один». */
+  function repeatRequest(reqId, opts) {
+    const src = requestById(reqId); if (!src) return null;
+    opts = opts || {};
+    const live = src.objects.filter(o => o.status !== 'cancelled');
+    if (!live.length) return null;
+    const req = {
+      id: newRequestId(), date: new Date().toLocaleDateString('ru'),
+      title: opts.title || src.title, letter: opts.letter || src.letter,
+      dates: opts.dates || '', guests: opts.guests || '',
+      params: src.params || [], hallIds: (src.hallIds || []).slice(),
+      objects: live.map(o => ({ venueId: o.venueId, status: 'sent' })),
+      repeatOf: src.id,
+    };
+    state.requests.unshift(req); persist.requests();
+    return req;
+  }
 
   /** Можно ли нажать кнопку статуса. Отмена активна всегда, пока не отменено. */
   function canSetStatus(obj, next) {
@@ -743,6 +784,9 @@
     return tariff().key === 'prem' ? (t.ptsPrem || 0) : (t.ptsBiz || 0);
   }
   const reviewPoints = () => tariff().key === 'prem' ? POINTS_REVIEW.prem : tariff().key === 'biz' ? POINTS_REVIEW.biz : 0;
+  /* Только для внутренних расчётов. НЕ показывать пользователю: пересчёт
+     баланса в рубли создаёт впечатление, что баллы можно вывести или
+     обменять на деньги. Баллы тратятся исключительно внутри ресурса. */
   const pointsToRub = (p) => Math.round(p * POINT_RATE);
 
   /** bucket: 'free' — можно тратить, 'locked' — до поступления оплаты от объекта. */
@@ -990,7 +1034,8 @@
     inCompare, toggleCompare, clearCompare, compareHalls,
     isFav, toggleFav,
     addToBlacklist, removeFromBlacklist,
-    canGroupRequest, createRequest, requestById, canSetStatus, setStatus,
+    canGroupRequest, createRequest, requestById, requestHalls, requestByVenue,
+    updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
     MODERATION, addMyVenue, addMyService, removeMyVenue, removeMyService,
     addReview, reviewsFor, reviewsLatest, reviewScore,
