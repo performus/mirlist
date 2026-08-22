@@ -241,14 +241,18 @@ function render() {
       <div class="ftags">${have.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div></div>`;
   }).join('');
 
+  // звёздность отделена от категории: строку показываем только там, где она применима
+  const starRow = ML.STARRED_CATS.includes(v.cat)
+    ? [['Звёздность', v.stars ? '★'.repeat(v.stars) : 'не присвоена']] : [];
+
   const rows = full
-    ? [['Категория', v.cat], ['Город', v.city], ['Адрес', v.addr],
+    ? [['Категория', v.cat], ...starRow, ['Город', v.city], ['Адрес', v.addr],
        ['Вместимость', cap + ' чел.'],
        ['Номерной фонд', (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
        ['Залов', v.halls.length],
        ['Рейтинг', `${v.rating} (${v.reviews})`],
        ['Договор по бонусной программе', v.loyaltyContract ? 'да' : 'нет']]
-    : [['Категория', v.cat], ['Регион', v.city], ['Звёздность', v.stars ? '★'.repeat(v.stars) : '—']];
+    : [['Категория', v.cat], ...starRow, ['Регион', v.city]];
 
   document.getElementById('root').innerHTML = `
   <div class="crumbs">

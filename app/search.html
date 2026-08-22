@@ -460,6 +460,7 @@ h1,h2,h3 { font-weight:700; }
 }
 .vb-meta b { color:var(--slate-deep); font-weight:700; }
 .vb-stars { color:#F0B95A; letter-spacing:1px; }
+.fd-stars { color:#F0B95A; letter-spacing:2px; font-size:14px; }
 .vb-rating { display:inline-flex; align-items:center; gap:4px; }
 .vb-rating svg { color:#F0B95A; }
 .vb-black {
@@ -896,6 +897,16 @@ function checks(group, items, locked) {
 
 function togSet(group, value) { const s = F[group]; s.has(value) ? s.delete(value) : s.add(value); render(); }
 
+/* Звёздность — отдельная группа: значения числовые, метка рисуется звёздами.
+   Логика «ИЛИ», как у категорий, и так же доступна на бесплатном тарифе. */
+function starChecks() {
+  return [3, 4, 5].map(n => `<label class="fd-check" data-g="stars" data-item="${n}">
+    <input type="checkbox" ${F.stars.has(n) ? 'checked' : ''} onchange="togStar(${n})">
+    <span class="fd-box">${IC.check}</span>
+    <span class="fd-lbl"><span class="fd-stars">${'★'.repeat(n)}</span></span><span class="fd-cnt"></span></label>`).join('');
+}
+function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); render(); }
+
 function lockNote(group, tariffName) {
   return canUse(group) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${tariffName}»</b></div>`;
 }
@@ -915,6 +926,9 @@ function renderFilters() {
 
   // Категории объектов — единственная группа с логикой «ИЛИ»
   h += fgroup('cats', 'Категории объектов', checks('cats', ML.VENUE_CATS, false), F.cats.size);
+
+  // Звёздность — отдельно от категории: она есть только у отелей
+  h += fgroup('stars', 'Звёздность', starChecks(), F.stars.size);
 
   /* Проживание. На ПРЕМИУМ — разбивка по типам номеров, на остальных
      одно поле по общему фонду: заблокированные TWIN и SNGL не показываем. */
@@ -1053,7 +1067,7 @@ function applyFacets() {
     const g = lb.dataset.g, item = lb.dataset.item, inp = lb.querySelector('input');
     const n = ML.facetCount(F, g, item);
     lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
-    const lockedByTariff = g !== 'cats' && !canUse(g);
+    const lockedByTariff = g !== 'cats' && g !== 'stars' && !canUse(g);
     const dead = !inp.checked && n === 0;
     inp.disabled = lockedByTariff || dead;
     lb.classList.toggle('off', lockedByTariff || dead);
@@ -1077,6 +1091,7 @@ function renderChips() {
     c.push([`Зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`,
       () => F.halls.splice(i, 1)]); });
   ['cats', 'food', 'opts', 'other', 'sport'].forEach(g => F[g].forEach(x => c.push([x, () => F[g].delete(x)])));
+  [...F.stars].sort().forEach(n => c.push([n + '★', () => F.stars.delete(n)]));
   [...ML.state.blacklist].forEach(id => {
     const v = ML.venueById(id);
     if (v) c.push(['Скрыт: ' + v.name, () => ML.removeFromBlacklist(id), true]);
@@ -1142,6 +1157,7 @@ function venueBlock(x) {
         <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
         ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
         <div class="vb-meta">
+          <span>${esc(v.cat)}</span>
           <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
           <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>

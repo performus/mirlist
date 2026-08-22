@@ -98,6 +98,26 @@ button{font-family:inherit;cursor:pointer;}
 .btn.wide{width:100%;text-align:center;}
 .lack{font-size:11.5px;color:var(--slate-muted);margin-top:7px;text-align:center;}
 
+/* Модальное окно заказа за баллы */
+.ovl{position:fixed;inset:0;background:rgba(53,78,99,.42);backdrop-filter:blur(3px);z-index:900;
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:var(--r-lg);box-shadow:var(--sh-lg);width:min(520px,100%);
+  max-height:88vh;overflow:auto;}
+.modal-head{display:flex;align-items:center;gap:12px;padding:20px 24px 0;}
+.modal-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--slate-deep);flex:1;}
+.modal-x{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);color:var(--slate-muted);font-size:15px;}
+.modal-b{padding:16px 24px;font-size:13.5px;line-height:1.65;color:var(--slate-mid);}
+.modal-b p + p{margin-top:8px;}
+.modal-f{display:flex;justify-content:flex-end;gap:10px;padding:0 24px 22px;}
+.msum{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.msum th{text-align:left;font-weight:500;color:var(--slate-muted);padding:6px 0;}
+.msum td{text-align:right;font-weight:700;color:var(--slate-deep);padding:6px 0;}
+.fl{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--slate-muted);margin:12px 0 6px;}
+.fi{width:100%;padding:10px 14px;border-radius:var(--r-sm);border:1.5px solid rgba(197,227,225,.5);
+  background:var(--bg);font-family:inherit;font-size:13.5px;color:var(--slate-deep);outline:none;resize:vertical;}
+.fi:focus{border-color:var(--coral);background:var(--white);}
+
 @media(max-width:768px){
   .wrap{padding:18px 16px 48px;}
   .d-title{font-size:26px;}
@@ -110,6 +130,7 @@ button{font-family:inherit;cursor:pointer;}
 <div id="mh-nav"></div>
 
 <div class="wrap" id="root"></div>
+<div id="modalRoot"></div>
 
 <div id="mh-footer"></div>
 
@@ -137,12 +158,14 @@ function render(){
     <td class="${t.ptsPrem?'pts':'dim'}">${t.ptsPrem?t.ptsPrem.toLocaleString('ru'):'—'}</td>
   </tr>`).join('');
 
-  // ── витрина: все позиции ML.SHOP ──
-  const shop = ML.SHOP.map(s => {
+  // ── витрина: затравка плюс опубликованные позиции владельцев ──
+  const catalog = ML.shopCatalog();
+  const shop = catalog.map((s, i) => {
     const can = P.free >= s.pts;
+    const pic = typeof s.id === 'number' ? s.id : i + 1;
     return `<article class="card">
       <div class="card-img">
-        <img src="${ML.photoUrl(s.id)}" alt="" loading="lazy">
+        <img src="${ML.photoUrl(pic)}" alt="" loading="lazy">
         ${s.own?'<span class="card-own">от площадки</span>':''}
       </div>
       <div class="card-b">
@@ -152,7 +175,7 @@ function render(){
           <span class="card-pts">${s.pts.toLocaleString('ru')} Б</span>
         </div>
         <div class="card-foot">
-          <button class="btn pri wide" ${can?'':'disabled'} onclick="buy(${s.id})">Оставить заявку</button>
+          <button class="btn pri wide" ${can?'':'disabled'} onclick="buy('${String(s.id).replace(/'/g,"\'")}')">Оставить заявку</button>
           ${can?'':`<div class="lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} Б</div>`}
         </div>
       </div>
@@ -205,7 +228,7 @@ function render(){
     <div>
       <h2 class="sec-title" style="margin-top:6px">Витрина</h2>
     </div>
-    <span class="sec-sub">${ML.SHOP.length} ${ML.plural(ML.SHOP.length,['позиция','позиции','позиций'])}</span>
+    <span class="sec-sub">${catalog.length} ${ML.plural(catalog.length,['позиция','позиции','позиций'])}</span>
   </div>
   <div class="shop">${shop}</div>
 
@@ -214,12 +237,67 @@ function render(){
   баллы списываются в момент оформления.</div>`;
 }
 
-function buy(id){
-  const item = ML.SHOP.find(s => s.id === id);
+/* Заказ за баллы: комментарий партнёру, списание через ML.orderFromShop,
+   подтверждение с номером заказа. Своих расчётов здесь нет. */
+function findItem(id) { return ML.shopCatalog().find(s => String(s.id) === String(id)); }
+
+function buy(id) {
+  const item = findItem(id);
   if (!item) return;
-  if (!ML.spendPoints(item.pts)) { MH.toast('Не хватает баллов', 'error'); return; }
-  MH.toast(`Заявка отправлена, списано ${item.pts.toLocaleString('ru')} Б`, 'success');
+  const P = ML.state.points;
+  if (P.free < item.pts) { MH.toast('Не хватает баллов', 'error'); return; }
+  document.getElementById('modalRoot').innerHTML = `
+  <div class="ovl" onclick="if(event.target===this)closeBuy()">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div class="modal-title">Заказ за баллы</div>
+        <button class="modal-x" onclick="closeBuy()" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modal-b">
+        <p><b>${esc(item.title)}</b> — ${esc(item.provider)}</p>
+        <table class="msum">
+          <tr><th>Спишется с баланса</th><td>${item.pts.toLocaleString('ru')} Б</td></tr>
+          <tr><th>Останется после заказа</th><td>${(P.free - item.pts).toLocaleString('ru')} Б</td></tr>
+        </table>
+        <label class="fl" for="bsNote">Комментарий партнёру</label>
+        <textarea class="fi" id="bsNote" rows="3" placeholder="Даты, количество человек, пожелания"></textarea>
+        <div class="note" style="margin-top:14px">Баллы спишутся сразу. Партнёр подтвердит заказ
+        и свяжется с вами через ресурс. Если заказ отклонят, баллы вернутся на счёт.</div>
+      </div>
+      <div class="modal-f">
+        <button class="btn" onclick="closeBuy()">Отмена</button>
+        <button class="btn pri" onclick="confirmBuy('${String(item.id).replace(/'/g, "\'")}')">Оформить заказ</button>
+      </div>
+    </div>
+  </div>`;
+  document.addEventListener('keydown', buyEsc);
+}
+function buyEsc(e) { if (e.key === 'Escape') closeBuy(); }
+function closeBuy() {
+  document.getElementById('modalRoot').innerHTML = '';
+  document.removeEventListener('keydown', buyEsc);
+}
+function confirmBuy(id) {
+  const item = findItem(id);
+  const note = (document.getElementById('bsNote') || {}).value || '';
+  const o = ML.orderFromShop(item, note.trim());
+  closeBuy();
+  if (!o) { MH.toast('Не хватает баллов', 'error'); return; }
   render();
+  document.getElementById('modalRoot').innerHTML = `
+  <div class="ovl" onclick="if(event.target===this)closeBuy()">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><div class="modal-title">Заказ оформлен</div>
+        <button class="modal-x" onclick="closeBuy()" aria-label="Закрыть">✕</button></div>
+      <div class="modal-b">
+        <p>Номер заказа <b>${esc(o.id)}</b>, списано <b>${o.pts.toLocaleString('ru')} Б</b>.</p>
+        <p>Партнёр «${esc(o.provider)}» получит заказ во входящих и подтвердит его.
+        Статус виден в кабинете, в разделе «Мои баллы».</p>
+      </div>
+      <div class="modal-f"><a class="btn pri" href="dashboard.html?page=points">В мои баллы</a></div>
+    </div>
+  </div>`;
+  document.addEventListener('keydown', buyEsc);
 }
 
 render();

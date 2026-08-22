@@ -20,8 +20,11 @@
 
   const CITIES = ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Нижний Новгород', 'Самара', 'Подмосковье'];
 
-  const VENUE_CATS = ['Отель 3*', 'Отель 4*', 'Отель 5*', 'Бутик-отель', 'Конференц-площадка',
-    'Лофт', 'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг'];
+  /* Звёздность — отдельное свойство объекта, а не категория: у отеля она
+     есть, у лофта её не бывает. В визарде выбирается ниже категории. */
+  const VENUE_CATS = ['Отель', 'Бутик-отель', 'Конференц-площадка', 'Лофт',
+    'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг'];
+  const STARRED_CATS = ['Отель', 'Бутик-отель'];   // где звёздность вообще применима
 
   const EVENT_TYPES = [
     { k: 'business', l: 'Деловое' },
@@ -179,7 +182,7 @@
 
   const V = (id, name, cat, city, addr, o) => Object.assign({
     id, name, cat, city, addr,
-    stars: /Отель (\d)\*/.test(cat) ? +RegExp.$1 : 0,
+    stars: 0,
     coords: null, rating: 4.5, reviews: 40,
     promo: null,   // {highlight:true, top:3|10|null, until:'30.09.2026'}
     rooms: { twin: 0, sngl: 0 },
@@ -191,7 +194,7 @@
     ({ id, venueId, name, type, area, height, seats, priceDay, priceHour, plan: !!plan, photo: photo || 1 });
 
   const VENUES = [
-    V(1, 'Отель «Аврора»', 'Отель 4*', 'Москва', 'Пресненская наб., 12', {
+    V(1, 'Отель «Аврора»', 'Отель', 'Москва', 'Пресненская наб., 12', {
       coords: { lat: 55.7492, lng: 37.5390 }, rating: 4.9, reviews: 127, photo: 1, px: 52, py: 38,
       promo: { highlight: true, top: 3, until: '30.09.2026' },
       rooms: { twin: 60, sngl: 24 }, loyaltyContract: true,
@@ -240,7 +243,7 @@
           { reception: 1500 }, 0, 0, false, 7),
       ],
     }),
-    V(4, 'Отель «Флагман»', 'Отель 5*', 'Санкт-Петербург', 'Адмиралтейская наб., 4', {
+    V(4, 'Отель «Флагман»', 'Отель', 'Санкт-Петербург', 'Адмиралтейская наб., 4', {
       coords: { lat: 59.9364, lng: 30.3061 }, rating: 4.9, reviews: 203, photo: 4, px: 30, py: 20,
       rooms: { twin: 120, sngl: 55 }, loyaltyContract: true,
       eventTypes: ['business', 'banquet', 'wedding'],
@@ -352,7 +355,7 @@
           { reception: 150 }, 0, 3000, false, 2),
       ],
     }),
-    V(12, 'Отель «Лагуна»', 'Отель 3*', 'Сочи', 'ул. Приморская, 9', {
+    V(12, 'Отель «Лагуна»', 'Отель', 'Сочи', 'ул. Приморская, 9', {
       coords: { lat: 43.5800, lng: 39.7200 }, rating: 4.2, reviews: 55, photo: 12, px: 36, py: 86,
       rooms: { twin: 40, sngl: 18 },
       eventTypes: ['business', 'banquet', 'team'],
@@ -378,7 +381,7 @@
           { reception: 160 }, 42000, 0, false, 4),
       ],
     }),
-    V(14, 'Отель «Панорама»', 'Отель 4*', 'Казань', 'ул. Баумана, 44', {
+    V(14, 'Отель «Панорама»', 'Отель', 'Казань', 'ул. Баумана, 44', {
       coords: { lat: 55.7900, lng: 49.1200 }, rating: 4.6, reviews: 82, photo: 14, px: 28, py: 56,
       rooms: { twin: 55, sngl: 22 }, loyaltyContract: true,
       eventTypes: ['business', 'banquet', 'wedding'],
@@ -395,6 +398,16 @@
       ],
     }),
   ];
+
+  /* Просмотры карточки. В прототипе заданы, на разработке считаются
+     счётчиком. Объект узнаёт о просмотре только в момент запроса —
+     сами просмотры видит лишь как цифру в своей статистике. */
+  const VIEWS = { 1: 862, 2: 611, 3: 344, 4: 903, 5: 428, 6: 217, 7: 556,
+    8: 168, 9: 295, 10: 141, 11: 674, 12: 233, 13: 389, 14: 512 };
+  VENUES.forEach(v => { v.stats = { views: VIEWS[v.id] || 200 }; });
+
+  const STARS = { 1: 4, 4: 5, 9: 4, 12: 3, 14: 4 };
+  VENUES.forEach(v => { v.stars = STARS[v.id] || 0; });
 
   /* ─────────── 4. ПОСТАВЩИКИ ─────────── */
 
@@ -418,6 +431,9 @@
     { id: 17, parent: 'Транспорт', child: 'Автобусы', name: 'Трансфер «БасЛайн»', city: 'Москва', price: 18000, exp: 10, video: false, reviews: true, travel: false, loyalty: false, photo: 1 },
     { id: 18, parent: 'Прочее', child: 'Тимбилдинг', name: 'Организация тимбилдинга TeamUp', city: 'Москва', price: 95000, exp: 11, video: true, reviews: true, travel: true, loyalty: true, photo: 2 },
   ];
+
+  SUPPLIERS.forEach((s, i) => { s.stats = { views: [341, 508, 196, 271, 154, 622, 383, 447,
+    229, 118, 265, 97, 412, 188, 143, 206, 174, 331][i] || 150 }; });
 
   /* ─────────── 5. ПРАЙС-ЛИСТЫ ПОСТАВЩИКОВ ─────────── */
   /* По договору поставщик заполняет карточку перечнем услуг через визард.
@@ -532,6 +548,7 @@
     tariff: 'ml_tariff', compare: 'ml_compare_halls', favs: 'ml_favs_halls',
     black: 'ml_blacklist', points: 'ml_points', requests: 'ml_requests',
     myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews',
+    shopItems: 'ml_shop_items', bonusOrders: 'ml_bonus_orders', supplierRequests: 'ml_supplier_requests',
     filters: 'ml_filters', sfilters: 'ml_supplier_filters',
   };
   const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -541,13 +558,16 @@
     tariff: read(K.tariff, 'guest'),   // первый заход — незарегистрированный посетитель
     filters: unpackFilters(read(K.filters, null)),
     myVenues: read(K.myVenues, []),
+    shopItems: read(K.shopItems, []),
+    bonusOrders: read(K.bonusOrders, []),
+    supplierRequests: read(K.supplierRequests, []),
     reviews: read(K.reviews, REVIEW_SEED),
     myServices: read(K.myServices, []),
     supplierFilters: unpackSupplierFilters(read(K.sfilters, null)),
     compare: new Set(read(K.compare, [])),
     favs: new Set(read(K.favs, [])),
     blacklist: new Set(read(K.black, [])),
-    points: read(K.points, { free: 2400, locked: 1500, expiring: 800, expiresAt: '31.12.2026' }),
+    points: read(K.points, { free: 12800, locked: 4500, expiring: 800, expiresAt: '31.12.2026' }),
     requests: read(K.requests, [
       {
         id: 'RQ-260714-0031', date: '14.07.2026', title: 'Конференция «Итоги полугодия», 120 чел.',
@@ -564,6 +584,9 @@
     tariff: () => write(K.tariff, state.tariff),
     filters: () => write(K.filters, packFilters(state.filters)),
     myVenues: () => write(K.myVenues, state.myVenues),
+    shopItems: () => write(K.shopItems, state.shopItems),
+    bonusOrders: () => write(K.bonusOrders, state.bonusOrders),
+    supplierRequests: () => write(K.supplierRequests, state.supplierRequests),
     reviews: () => write(K.reviews, state.reviews),
     myServices: () => write(K.myServices, state.myServices),
     supplierFilters: () => write(K.sfilters, packSupplierFilters(state.supplierFilters)),
@@ -607,7 +630,7 @@
   function emptyFilters() {
     return {
       city: '', people: 0, eventType: 'business',
-      cats: new Set(), priceDay: [0, 200000],
+      cats: new Set(), stars: new Set(), priceDay: [0, 200000],
       rooms: 0,                        // общий номерной фонд, виден всем
       twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
       /* Требования к залам. Каждый элемент — ОТДЕЛЬНЫЙ зал объекта:
@@ -664,6 +687,7 @@
       if (F.eventType && !v.eventTypes.includes(F.eventType)) continue;
       if (F.city && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
       if (excludeGroup !== 'cats' && F.cats.size && !F.cats.has(v.cat)) continue;
+      if (excludeGroup !== 'stars' && F.stars.size && !F.stars.has(v.stars)) continue;
       if (F.rooms && venueRooms(v) < F.rooms) continue;
       if (F.twin && v.rooms.twin < F.twin) continue;
       if (F.sngl && v.rooms.sngl < F.sngl) continue;
@@ -696,9 +720,10 @@
 
   /** Фасетный счётчик: сколько объектов останется, если добавить это условие. */
   function facetCount(F, group, value) {
-    const or = group === 'cats';
+    const or = group === 'cats' || group === 'stars';
     const base = filterVenues(F, or ? group : null);
-    if (or) return base.filter(x => x.venue.cat === value).length;
+    if (group === 'cats') return base.filter(x => x.venue.cat === value).length;
+    if (group === 'stars') return base.filter(x => x.venue.stars === +value).length;
     return base.filter(x => x.venue.features.includes(value)).length;
   }
 
@@ -960,7 +985,7 @@
      обнулял бы всю выборку. Set не переживает JSON, поэтому раскладываем в
      массивы и собираем обратно. */
 
-  const SET_KEYS = ['cats', 'food', 'opts', 'other', 'sport'];
+  const SET_KEYS = ['cats', 'stars', 'food', 'opts', 'other', 'sport'];
 
   function packFilters(F) {
     const o = {};
@@ -1019,6 +1044,7 @@
     const et = EVENT_TYPES.find(e => e.k === F.eventType);
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
+    if (F.stars.size) out.push([...F.stars].sort().map(n => n + '★').join(', '));
     if (F.rooms) out.push('номеров от ' + F.rooms);
     if (F.twin) out.push('TWIN от ' + F.twin);
     if (F.sngl) out.push('SNGL от ' + F.sngl);
@@ -1126,6 +1152,113 @@
     return r;
   }
 
+  /* — витрина владельца —
+     Объект или поставщик сам выставляет услуги в еБалльный магазин.
+     Цена задаётся розничная; сколько списать с пользователя и сколько
+     ресурс заплатит партнёру, считают servicePoints и serviceCost. */
+
+  function addShopItem(d) {
+    const retail = +d.retail || 0;
+    const item = {
+      localId: 'i' + Date.now(),
+      owner: d.owner === 'supplier' ? 'supplier' : 'venue',
+      ownerName: d.ownerName || '',
+      title: d.title || 'Без названия',
+      about: d.about || '',
+      retail, pts: servicePoints(retail), cost: serviceCost(retail),
+      limit: +d.limit || 0,          // сколько раз в месяц готовы принять, 0 = без лимита
+      status: 'review', createdAt: new Date().toLocaleDateString('ru'),
+    };
+    state.shopItems.unshift(item); persist.shopItems();
+    return item;
+  }
+  const removeShopItem = (i) => { state.shopItems.splice(i, 1); persist.shopItems(); };
+  const myShopItems = (owner) => state.shopItems.filter(x => !owner || x.owner === owner);
+  /** Витрина для пользователя: затравка плюс опубликованные позиции владельцев. */
+  const shopCatalog = () => SHOP.concat(
+    state.shopItems.filter(x => x.status === 'published')
+      .map(x => ({ id: x.localId, title: x.title, provider: x.ownerName, rub: x.retail, pts: x.pts, cost: x.cost }))
+  );
+
+  /* — заказы за баллы —
+     По документам: пользователь оставляет заявку, ресурс связывается
+     с партнёром и возвращается с подтверждением. Баллы списываются
+     сразу, чтобы их нельзя было потратить дважды; при отказе
+     возвращаются. */
+
+  const ORDER_FLOW = { new: 'новая заявка', confirmed: 'подтверждена партнёром',
+    done: 'услуга оказана', rejected: 'отклонена, баллы возвращены' };
+
+  function orderFromShop(item, note) {
+    if (!item) return null;
+    if (state.points.free < item.pts) return null;
+    state.points.free -= item.pts; persist.points();
+    const o = {
+      id: 'BN-' + String(state.bonusOrders.length + 1).padStart(4, '0'),
+      itemId: item.id, title: item.title, provider: item.provider,
+      pts: item.pts, note: note || '',
+      date: new Date().toLocaleDateString('ru'), status: 'new',
+    };
+    state.bonusOrders.unshift(o); persist.bonusOrders();
+    return o;
+  }
+  const bonusOrdersFor = (providerName) => !providerName ? state.bonusOrders
+    : state.bonusOrders.filter(o => o.provider === providerName);
+  function setOrderStatus(id, status) {
+    const o = state.bonusOrders.find(x => x.id === id); if (!o) return false;
+    if (!ORDER_FLOW[status]) return false;
+    if (status === 'rejected' && o.status !== 'rejected') { state.points.free += o.pts; persist.points(); }
+    o.status = status; persist.bonusOrders();
+    return true;
+  }
+
+  /* — запросы поставщикам —
+     Раньше их нельзя было создать: canGroupSupplierRequest существовал,
+     а хранилища не было. Без них у поставщика не считается конверсия. */
+
+  function createSupplierRequest(supplierIds, opts) {
+    opts = opts || {};
+    const ids = (supplierIds || []).map(Number).filter(id => SUPPLIERS.some(s => s.id === id));
+    if (!ids.length) return null;
+    const chk = canGroupSupplierRequest(ids);
+    if (!chk.ok) return null;
+    const req = {
+      id: 'SQ-' + String(state.supplierRequests.length + 1).padStart(4, '0'),
+      date: new Date().toLocaleDateString('ru'),
+      title: opts.title || 'Запрос поставщикам',
+      letter: opts.letter || '', dates: opts.dates || '', guests: opts.guests || '',
+      suppliers: ids.map(id => ({ supplierId: id, status: 'sent' })),
+    };
+    state.supplierRequests.unshift(req); persist.supplierRequests();
+    return req;
+  }
+
+  /* — конверсия —
+     Сколько из просмотров карточки превратилось в запросы. Это главная
+     цифра для объекта: она показывает, окупается ли присутствие. */
+
+  function venueStats(venueId) {
+    const v = venueById(venueId); if (!v) return null;
+    const id = +venueId;
+    const withObj = (f) => state.requests.filter(r => r.objects.some(o => o.venueId === id && f(o)));
+    const requests = withObj(() => true).length;
+    const done = withObj(o => o.status === 'done' || o.status === 'reviewed').length;
+    const orders = bonusOrdersFor(v.name).length;
+    const views = v.stats ? v.stats.views : 0;
+    return { views, requests, done, orders,
+      conversion: views ? +(requests / views * 100).toFixed(1) : 0,
+      toEvent: requests ? +(done / requests * 100).toFixed(1) : 0 };
+  }
+  function supplierStats(supplierId) {
+    const s = SUPPLIERS.find(x => x.id === +supplierId); if (!s) return null;
+    const requests = state.supplierRequests
+      .filter(r => r.suppliers.some(x => x.supplierId === +supplierId)).length;
+    const orders = bonusOrdersFor(s.name).length;
+    const views = s.stats ? s.stats.views : 0;
+    return { views, requests, orders,
+      conversion: views ? +((requests + orders) / views * 100).toFixed(1) : 0 };
+  }
+
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
@@ -1147,7 +1280,10 @@
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
-    MODERATION, addMyVenue, addMyService, removeMyVenue, removeMyService,
+    MODERATION, STARRED_CATS, addMyVenue, addMyService, removeMyVenue, removeMyService,
+    addShopItem, removeShopItem, myShopItems, shopCatalog,
+    ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,
+    createSupplierRequest, venueStats, supplierStats,
     addReview, reviewsFor, reviewsLatest, reviewScore,
     bothConfirmed, venueMarkDone, venueFee,
     photoUrl: (n) => `../assets/photos/v${((n - 1) % 16) + 1}.jpg`,

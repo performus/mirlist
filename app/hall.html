@@ -129,6 +129,7 @@ button{font-family:inherit;cursor:pointer;}
 .vcard-body{padding:14px 16px 16px;}
 .vcard-name{font-size:15px;font-weight:700;color:var(--slate-deep);transition:color .2s;display:inline-block;}
 .vcard-name:hover{color:var(--coral);}
+.vcard-stars{color:#F0B95A;letter-spacing:1px;}
 .vcard-sub{font-size:12.5px;color:var(--slate-muted);margin-top:4px;}
 .vcard-sub b{color:var(--slate-deep);font-weight:700;}
 .side .panel.pad{padding:18px;}
@@ -307,7 +308,7 @@ function render() {
         <div class="vcard-body">
           <div class="eyebrow">Объект</div>
           <a class="vcard-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
-          <div class="vcard-sub">${esc(v.cat)} · ${esc(v.city)}</div>
+          <div class="vcard-sub">${esc(v.cat)}${v.stars ? ' <span class="vcard-stars">' + '★'.repeat(v.stars) + '</span>' : ''} · ${esc(v.city)}</div>
           <div class="vcard-sub">${IC.star} <b>${v.rating}</b> (${v.reviews}) · ${MH.blurOnly('до <b>' + ML.venueCapacity(v) + '</b> чел.')} · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
           <a class="btn sm" style="display:block;text-align:center;margin-top:12px" href="venue.html?id=${v.id}">Карточка объекта</a>
         </div>

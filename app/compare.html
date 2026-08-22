@@ -104,6 +104,7 @@ button{font-family:inherit;cursor:pointer;}
 .cmp-arrow:disabled{opacity:.35;cursor:default;}
 .cmp-nav-hint{font-size:12px;color:var(--slate-muted);}
 .tscroll:focus-visible{outline:2px solid var(--coral);outline-offset:2px;}
+.cmp-stars{color:#F0B95A;letter-spacing:1px;}
 .rowhead{
   position:sticky;left:0;z-index:2;
   width:190px;min-width:190px;max-width:190px;
@@ -271,6 +272,9 @@ function buildRows() {
     { g: 'Объект' },
     ['Объект',            (h, v) => `<a href="venue.html?id=${v.id}" style="color:var(--coral)">${esc(v.name)}</a>`],
     ['Категория объекта', (h, v) => esc(v.cat)],
+    ['Звёздность', (h, v) => ML.STARRED_CATS.includes(v.cat)
+      ? (v.stars ? '<span class="cmp-stars">' + '★'.repeat(v.stars) + '</span>' : 'не присвоена')
+      : 'не применимо'],
     ['Город',             (h, v) => esc(v.city)],
     { g: 'Зал' },
     ['Тип зала',          h => esc(h.type)],

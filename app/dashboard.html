@@ -417,6 +417,13 @@ button{font-family:inherit;cursor:pointer;}
 .st.done{background:#E6F4EC;color:#3E9A6B;}
 .st.reviewed{background:var(--pc);color:var(--sm);}
 .st.cancelled{background:var(--bg);color:var(--sp);}
+.st.new{background:var(--cs);color:var(--c);}
+.st.rejected{background:var(--bg);color:var(--c8);}
+/* Заказы за баллы отличаются от обычных запросов рамкой и подложкой. */
+.ordcard{border:1.5px solid var(--aq-s);background:linear-gradient(180deg,var(--aq-p) 0%,var(--w) 90px);}
+.ord-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--rf);
+  background:var(--c);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.ord-note{font-size:12px;color:var(--sx);margin-top:3px;max-width:320px;}
 .btn-row{display:flex;gap:7px;flex-wrap:wrap;}
 .btn-xs{padding:7px 13px;border-radius:var(--rf);font-size:12px;font-weight:600;border:1.5px solid rgba(197,227,225,.5);background:var(--w);color:var(--s);transition:all .18s;white-space:nowrap;}
 .btn-xs:hover:not(:disabled){border-color:var(--c);color:var(--c);}
@@ -475,6 +482,7 @@ button{font-family:inherit;cursor:pointer;}
 .dcell.on{background:var(--c);border-color:var(--c);color:#fff;font-weight:700;}
 .dcell.past{opacity:.3;cursor:not-allowed;}
 
+.orow-stars{color:#F0B95A;letter-spacing:1px;}
 .stars{display:flex;gap:5px;margin-bottom:6px;}
 .star{font-size:26px;line-height:1;color:var(--sp);background:none;border:none;padding:0;transition:color .15s;}
 .star.on{color:#F0B95A;}
@@ -534,6 +542,11 @@ button{font-family:inherit;cursor:pointer;}
 .wcheck input{width:auto;accent-color:var(--c);}
 .seatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;}
 .seatgrid label{font-size:11.5px;text-transform:none;letter-spacing:0;color:var(--sm);font-weight:500;}
+.wmap{position:relative;height:230px;border-radius:var(--rm);overflow:hidden;border:1.5px solid rgba(197,227,225,.5);cursor:crosshair;margin-bottom:10px;background:var(--aq-p);}
+.wmap svg{width:100%;height:100%;display:block;}
+.wmap-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.9);border-radius:var(--rf);padding:7px 14px;font-size:12.5px;color:var(--sm);pointer-events:none;}
+.wmap-pin{position:absolute;width:18px;height:18px;margin:-18px 0 0 -9px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 2px 6px rgba(53,78,99,.3);pointer-events:none;}
+.wmap-pin::after{content:'';position:absolute;left:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#fff;}
 .drop{border:2px dashed var(--sp);border-radius:var(--rm);padding:24px;text-align:center;font-size:13px;color:var(--sx);cursor:pointer;transition:all .2s;}
 .drop:hover{border-color:var(--c);background:var(--cs);color:var(--c);}
 .wlist{display:flex;flex-direction:column;gap:7px;margin-bottom:13px;}
@@ -595,6 +608,7 @@ const IC={
   req:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>`,
   stat:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>`,
   star:`<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  shop:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18l-1.5 11a2 2 0 0 1-2 1.8H6.5a2 2 0 0 1-2-1.8z"/><path d="M3 9 6 3h12l3 6"/><path d="M9 13a3 3 0 0 0 6 0"/></svg>`,
   chk:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
 };
 
@@ -612,6 +626,7 @@ const NAVS={
     {id:'odash',icon:IC.dash,label:'Обзор'},
     {id:'ovenues',icon:IC.venue,label:'Мои объекты',badgeFn:()=>ML.state.myVenues.length||null},
     {id:'oreqs',icon:IC.req,label:'Входящие запросы',badgeFn:()=>venueIncoming().length||null},
+    {id:'oshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('venue').length||null},
     {id:'ostats',icon:IC.stat,label:'Статистика'},
     {id:'oprofile',icon:IC.user,label:'Реквизиты'},
   ],
@@ -619,6 +634,7 @@ const NAVS={
     {id:'sdash',icon:IC.dash,label:'Обзор'},
     {id:'sservices',icon:IC.venue,label:'Мои услуги',badgeFn:()=>ML.state.myServices.length||null},
     {id:'sreqs',icon:IC.req,label:'Входящие запросы'},
+    {id:'sshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('supplier').length||null},
     {id:'ssub',icon:IC.stat,label:'Подписка'},
     {id:'sprofile',icon:IC.user,label:'Реквизиты'},
   ],
@@ -668,6 +684,7 @@ function renderPage(){
   const m=document.getElementById('mainContent');
   const fn=PAGES[currentPage];
   m.innerHTML=fn?fn():'<div class="empty-state"><div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-text">Раздел в разработке</div></div>';
+  if(currentPage==='oshop'||currentPage==='sshop') shopCalc();   // подсказка расчёта сразу под полем
 }
 
 /* ══════════════════════════════════════════════
@@ -1099,12 +1116,39 @@ function pointsLedger(){
   }));
   return out;
 }
+/* Заказ за баллы. Списание и номер заказа — целиком из ML.orderFromShop. */
+function shopItemById(id){ return ML.shopCatalog().find(s => String(s.id) === String(id)); }
+
 function buyShop(id){
-  const item = ML.SHOP.find(s => s.id === id);
+  const item = shopItemById(id);
   if (!item) return;
-  if (!ML.spendPoints(item.pts)) { MH.toast('Не хватает баллов', 'error'); return; }
-  MH.toast(`Заявка отправлена, списано ${item.pts.toLocaleString('ru')} Б`, 'success');
-  renderPage();
+  const P = ML.state.points;
+  if (P.free < item.pts) { MH.toast('Не хватает баллов', 'error'); return; }
+  dm('Заказ за баллы',
+    `<p><b>${esc(item.title)}</b> — ${esc(item.provider)}</p>
+     <table class="wsum" style="margin:12px 0">
+       <tr><th>Спишется с баланса</th><td>${item.pts.toLocaleString('ru')} Б</td></tr>
+       <tr><th>Останется после заказа</th><td>${(P.free - item.pts).toLocaleString('ru')} Б</td></tr>
+     </table>
+     <label class="form-label">Комментарий партнёру</label>
+     <textarea class="form-input" id="bsNote" rows="3" placeholder="Даты, количество человек, пожелания"></textarea>
+     <div class="dm-note">Баллы спишутся сразу. Партнёр подтвердит заказ и свяжется с вами через ресурс.
+     Если заказ отклонят, баллы вернутся на счёт.</div>`,
+    `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
+     <button class="btn btn-c" onclick="confirmShop('${jt(String(item.id))}')">Оформить заказ</button>`);
+}
+function confirmShop(id){
+  const item = shopItemById(id);
+  const note = (document.getElementById('bsNote') || {}).value || '';
+  const o = ML.orderFromShop(item, note.trim());
+  dmClose();
+  if (!o) { MH.toast('Не хватает баллов', 'error'); return; }
+  renderNav(); renderPage();
+  dm('Заказ оформлен',
+    `<p>Номер заказа <b>${esc(o.id)}</b>, списано <b>${o.pts.toLocaleString('ru')} Б</b>.</p>
+     <p style="margin-top:8px">Партнёр «${esc(o.provider)}» получит заказ во входящих и подтвердит его.
+     Статус заказа виден ниже, в списке «Мои заказы».</p>`,
+    `<button class="btn btn-c" onclick="dmClose()">Понятно</button>`);
 }
 
 /* Верхняя граница даты рождения — минус 18 лет от сегодня. */
@@ -1128,6 +1172,12 @@ function goPage(id){ closeAllWiz(); currentPage = id; renderNav(); renderPage();
 
 /* Входящие запросы со стороны объекта: разворачиваем ML.state.requests
    в плоский список строк «запрос × объект». */
+/* Демо-кабинет привязан к первому объекту и первому поставщику каталога:
+   у модели нет понятия «владелец», а статистике нужен конкретный id. */
+const OWN_VENUE_ID=1, OWN_SUPPLIER_ID=1;
+const ownVenue=()=>ML.venueById(OWN_VENUE_ID);
+const ownSupplier=()=>ML.SUPPLIERS.find(x=>x.id===OWN_SUPPLIER_ID);
+
 function venueIncoming(){
   const out=[];
   ML.state.requests.forEach(r=>r.objects.forEach(o=>{
@@ -1141,15 +1191,15 @@ const VENUE_STEPS=[
  {t:'Основные данные',f:[
    {k:'name',l:'Название объекта',ty:'text',ph:'Отель «Аврора»',req:1},
    {k:'cat',l:'Категория объекта',ty:'select',optFn:()=>ML.VENUE_CATS,req:1},
-   {k:'stars',l:'Звёздность',ty:'select',opt:['не применимо','3 звезды','4 звезды','5 звёзд'],
-    hint:'Звёздность видна пользователю даже на бесплатном тарифе «СТАРТ».'},
+   {k:'stars',l:'Звёздность',ty:'select',opt:['3 звезды','4 звезды','5 звёзд'],
+    when:()=>ML.STARRED_CATS.includes(WIZ.data.cat),
+    hint:'Поле есть только у категорий, где звёздность присваивается. Она видна пользователю даже на бесплатном тарифе «СТАРТ».'},
    {k:'about',l:'Описание объекта',ty:'area',ph:'Чем площадка удобна для деловых мероприятий'},
  ]},
  {t:'Локация',f:[
    {k:'city',l:'Город или регион',ty:'select',optFn:()=>ML.CITIES,req:1},
    {k:'addr',l:'Адрес',ty:'text',ph:'Пресненская наб., 12',req:1},
-   {k:'coords',l:'Координаты для карты',ty:'text',ph:'55.7558, 37.6173',req:1,
-    hint:'Без координат объект не появится на карте подбора.'},
+   {k:'coords',l:'Точка на карте',ty:'map',req:1},
  ]},
  {t:'Проживание',f:[
    {k:'twin',l:'Номеров TWIN',ty:'num'},
@@ -1292,7 +1342,10 @@ function drawWiz(){
   </div>`;
 }
 
+/* Поле с when рисуется только когда предикат истинен — так звёздность
+   не появляется у лофта и корабля. Скрытое поле и не проверяется. */
 function wfield(f){
+  if(f.when&&!f.when()) return '';
   const v=WIZ.data[f.k], bad=WIZ.bad===f.k?' bad':'';
   const L=f.l?`<label>${esc(f.l)}</label>`:'';
   const H=f.hint?`<div class="hint">${esc(f.hint)}</div>`:'';
@@ -1347,6 +1400,17 @@ function wfield(f){
         <input type="number" min="0" placeholder="—" value="${s[x.k]||''}"
           oninput="wizSeat('${x.k}',this.value)"></div>`).join('')}</div>${H}</div>`;
     }
+    case 'map': {
+      const pin=WIZ.data._pin;
+      return `<div class="wf${bad}">${L}
+        <div class="wmap" onclick="wizPin(event)">${WZ_MAP}
+          ${pin?`<span class="wmap-pin" style="left:${pin.x}%;top:${pin.y}%"></span>`
+               :'<span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span>'}</div>
+        <input type="text" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value">
+        <div class="hint">Когда подключим 2ГИС, адрес будет подставляться по точке автоматически.
+          Пока координаты можно поправить вручную. Без них объект не появится на карте подбора.</div>
+      </div>`;
+    }
     case 'photo':
       return `<div class="wf">${L}<div class="drop" onclick="MH.toast('Загрузка файлов пока недоступна','info')">
         Перетащите файлы или нажмите, чтобы выбрать
@@ -1391,12 +1455,46 @@ function wizSeat(k,v){
 }
 function wizDelHall(i){ WIZ.data.halls.splice(i,1); drawWiz(); }
 
+/* ── точка на карте в шаге «Локация» ──
+   Подложка схематичная: настоящая карта придёт вместе с 2ГИС. Клик считается
+   в процентах от рамки, координаты — смещением от центра выбранного города. */
+const WZ_MAP = `<svg viewBox="0 0 100 60" preserveAspectRatio="none">
+  <rect width="100" height="60" fill="#E2F0EF"/>
+  ${Array.from({length:22},(_,i)=>{
+    const x=4+(i*4.3+(i*7)%17), y=5+((i*11+3)%46), w=3+(i%4), h=2+(i%3);
+    return `<rect x="${x%94}" y="${y}" width="${w}" height="${h}" rx=".4" fill="#B8CDD8" opacity="${0.2+(i%3)*0.07}"/>`;
+  }).join('')}
+  <ellipse cx="20" cy="40" rx="8" ry="5" fill="#8FC8B8" opacity=".26"/>
+  <ellipse cx="74" cy="18" rx="7" ry="4" fill="#8FC8B8" opacity=".22"/>
+  <path d="M0 22 Q24 16 52 21 T100 18" stroke="#fff" stroke-width="1.2" fill="none" opacity=".7"/>
+  <path d="M0 40 Q26 34 54 39 T100 36" stroke="#fff" stroke-width="1" fill="none" opacity=".6"/>
+  <path d="M36 0 Q38 18 36 34 T40 60" stroke="#fff" stroke-width="1.1" fill="none" opacity=".65"/>
+  <path d="M68 0 Q66 14 69 32 T66 60" stroke="#fff" stroke-width=".9" fill="none" opacity=".55"/>
+  <path d="M0 28 Q18 24 40 30 T72 26 T100 31" stroke="#7BB8C8" stroke-width="1.8" fill="none" opacity=".45"/>
+</svg>`;
+
+const CITY_CENTER={'Москва':[55.7558,37.6173],'Санкт-Петербург':[59.9386,30.3141],
+  'Сочи':[43.5855,39.7231],'Казань':[55.7963,49.1088],'Нижний Новгород':[56.3269,44.0059],
+  'Самара':[53.1959,50.1002],'Подмосковье':[55.6000,37.2000]};
+
+function wizPin(e){
+  const b=e.currentTarget.getBoundingClientRect();
+  const x=Math.min(100,Math.max(0,(e.clientX-b.left)/b.width*100));
+  const y=Math.min(100,Math.max(0,(e.clientY-b.top)/b.height*100));
+  WIZ.data._pin={x:+x.toFixed(1),y:+y.toFixed(1)};
+  const c=CITY_CENTER[WIZ.data.city]||CITY_CENTER['Москва'];
+  const lat=c[0]+(50-y)/50*0.045, lon=c[1]+(x-50)/50*0.085;
+  WIZ.data.coords=lat.toFixed(4)+', '+lon.toFixed(4);
+  drawWiz();
+}
+
 function wizGo(i){ if(i>WIZ.step&&!wizValid()) return; WIZ.step=i; WIZ.max=Math.max(WIZ.max,i); drawWiz(); }
 function wizNext(){ if(!wizValid()) return; WIZ.step++; WIZ.max=Math.max(WIZ.max,WIZ.step); drawWiz(); }
 
 /* Без заполненного обязательного поля дальше не пускаем и подсвечиваем поле. */
 function wizValid(){
   for(const f of WIZ.def.s[WIZ.step].f){
+    if(f.when&&!f.when()) continue;
     if(f.req&&!String(WIZ.data[f.k]==null?'':WIZ.data[f.k]).trim()){
       WIZ.bad=f.k; drawWiz();
       MH.toast('Заполните поле «'+f.l+'»','error');
@@ -1416,7 +1514,12 @@ function wizSave(){
     MH.toast('Зал «'+(h.name||'без названия')+'» добавлен','success');
     return;
   }
-  if(WIZ.kind==='venue') ML.addMyVenue(WIZ.data);
+  if(WIZ.kind==='venue'){
+    const v=ML.addMyVenue(WIZ.data);
+    // модель звёздность не принимает — дописываем и сохраняем сами
+    v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?(parseInt(WIZ.data.stars,10)||0):0;
+    ML.persist.myVenues();
+  }
   if(WIZ.kind==='service') ML.addMyService(WIZ.data);
   closeAllWiz();
   MH.toast('Отправлено на модерацию','success');
@@ -1447,7 +1550,8 @@ function wizPreview(){
   const feat=ML.FEATURE_GROUPS.reduce((a,g)=>a+((d[g.k]||[]).length),0);
   return `<table class="wsum">
       <tr><th>Название</th><td>${esc(d.name||'—')}</td></tr>
-      <tr><th>Категория</th><td>${esc(d.cat||'—')}${d.stars&&d.stars!=='не применимо'?' · '+esc(d.stars):''}</td></tr>
+      <tr><th>Категория</th><td>${esc(d.cat||'—')}</td></tr>
+      ${ML.STARRED_CATS.includes(d.cat)?`<tr><th>Звёздность</th><td>${d.stars?esc(d.stars):'не указана'}</td></tr>`:''}
       <tr><th>Город и адрес</th><td>${esc(d.city||'—')}${d.addr?', '+esc(d.addr):''}</td></tr>
       <tr><th>Координаты</th><td>${esc(d.coords||'—')}</td></tr>
       <tr><th>Номерной фонд</th><td>${(+d.twin||+d.sngl)?`TWIN ${+d.twin||0} · SNGL ${+d.sngl||0}`:'нет'}</td></tr>
@@ -1500,7 +1604,8 @@ function venueRow(v,i){
   return `<div class="orow">
     <div class="orow-mid">
       <div class="orow-name">${esc(v.name)}</div>
-      <div class="orow-sub">${esc(v.cat||'категория не указана')}${v.city?', '+esc(v.city):''}</div>
+      <div class="orow-sub">${esc(v.cat||'категория не указана')}${
+        v.stars?' <span class="orow-stars">'+'★'.repeat(v.stars)+'</span>':''}${v.city?', '+esc(v.city):''}</div>
       <div class="orow-halls">${halls.length
         ? `${halls.length} ${ML.plural(halls.length,['зал','зала','залов'])}: ${halls.map(esc).join(', ')}`
         : '<span style="color:var(--c8)">залов нет — объект не появится в подборе</span>'}</div>
@@ -1579,6 +1684,154 @@ function delMyService(i){
     `<p>Услуга <b>${esc(s.name)}</b> будет удалена из карточки.</p>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="ML.removeMyService(${i});dmClose();MH.toast('Услуга удалена','info');renderNav();renderPage()">Удалить</button>`);
+}
+
+
+/* ══════════════════════════════════════════════
+   ВИТРИНА ВЛАДЕЛЬЦА (объект и поставщик)
+   Экономика целиком из модели: ML.servicePoints и ML.serviceCost.
+   ══════════════════════════════════════════════ */
+function shopOwnerName(owner){
+  const o = owner==='supplier' ? ownSupplier() : ownVenue();
+  return (o && o.name) || '';
+}
+/* Пересчёт под полем цены. Считаем в обработчике, а не при рендере страницы:
+   иначе ввод цены сбрасывал бы фокус. */
+function shopCalc(){
+  const r=+((document.getElementById('shRetail')||{}).value||0);
+  const box=document.getElementById('shCalc'); if(!box) return;
+  box.innerHTML = r>0
+    ? `<table class="wsum">
+         <tr><th>Розничная цена услуги</th><td>${ML.money(r)}</td></tr>
+         <tr><th>Ресурс платит вам по договору</th><td>${ML.money(ML.serviceCost(r))}</td></tr>
+         <tr><th>Спишется с пользователя</th><td>${ML.servicePoints(r).toLocaleString('ru')} Б</td></tr>
+       </table>`
+    : `<div class="wz-note" style="margin:0">Укажите розничную цену — покажем, сколько получите вы
+       и сколько баллов спишется с пользователя.</div>`;
+}
+function shopAdd(owner){
+  const g=id=>document.getElementById(id);
+  const title=(g('shTitle').value||'').trim();
+  if(!title){ MH.toast('Укажите название услуги','error'); g('shTitle').focus(); return; }
+  const retail=+g('shRetail').value||0;
+  if(retail<=0){ MH.toast('Укажите розничную цену','error'); g('shRetail').focus(); return; }
+  ML.addShopItem({owner, ownerName:shopOwnerName(owner), title,
+    about:(g('shAbout').value||'').trim(), retail, limit:+g('shLimit').value||0});
+  MH.toast('Позиция отправлена на модерацию','success');
+  renderNav(); renderPage();
+}
+function shopPublish(localId){
+  const it=ML.state.shopItems.find(x=>x.localId===localId); if(!it) return;
+  it.status='published'; ML.persist.shopItems();
+  MH.toast('Позиция опубликована на витрине','success');
+  renderNav(); renderPage();
+}
+function shopDel(localId){
+  const i=ML.state.shopItems.findIndex(x=>x.localId===localId);
+  const it=ML.state.shopItems[i]; if(!it) return;
+  dm('Убрать с витрины',
+    `<p>Позиция <b>${esc(it.title)}</b> будет удалена. Уже оформленные заказы останутся во входящих.</p>`,
+    `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
+     <button class="btn btn-c" onclick="ML.removeShopItem(${i});dmClose();MH.toast('Позиция удалена','info');renderNav();renderPage()">Удалить</button>`);
+}
+
+function shopPage(owner){
+  const list=ML.myShopItems(owner);
+  const who=owner==='supplier'?'услуги поставщика':'услуги объекта';
+  return `
+  <h1 class="page-title">Витрина</h1>
+  <p class="page-sub">${who}, которые пользователи заказывают за баллы бонусной программы</p>
+
+  <div class="wz-note" style="margin-bottom:20px">
+    По договору бонусной программы ресурс получает скидку ${Math.round(ML.LOYALTY_DISCOUNT*100)}%
+    от розничной цены: вы получаете ${100-Math.round(ML.LOYALTY_DISCOUNT*100)}% деньгами,
+    а с пользователя списываются баллы в эквиваленте полной розничной цены.
+  </div>
+
+  <div class="card" style="margin-bottom:26px;max-width:680px">
+    <div class="section-label" style="margin-bottom:14px">Добавить позицию</div>
+    <div class="form-group"><label class="form-label">Название услуги</label>
+      <input class="form-input" id="shTitle" placeholder="Ужин на двоих в панорамном ресторане"></div>
+    <div class="form-group"><label class="form-label">Что входит</label>
+      <textarea class="form-input" id="shAbout" rows="2" placeholder="Коротко: что получает пользователь"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Розничная цена, ₽</label>
+        <input class="form-input" id="shRetail" type="number" min="0" step="500" placeholder="10000" oninput="shopCalc()"></div>
+      <div class="form-group"><label class="form-label">Лимит заказов в месяц</label>
+        <input class="form-input" id="shLimit" type="number" min="0" placeholder="0 — без лимита"></div>
+    </div>
+    <div id="shCalc" style="margin-bottom:16px"></div>
+    <button class="btn btn-c" onclick="shopAdd('${owner}')">Отправить на модерацию</button>
+  </div>
+
+  <div class="section-head" style="margin-bottom:14px"><div class="section-label">Мои позиции</div></div>
+  ${list.length ? `<div class="card" style="padding:0;overflow:hidden">
+   <div class="dscroll"><table class="dtbl">
+    <thead><tr><th>Позиция</th><th>Розница</th><th>Вам заплатят</th><th>Списывается</th><th>Лимит</th><th>Статус</th><th></th></tr></thead>
+    <tbody>${list.map(it=>`<tr>
+      <td>${esc(it.title)}${it.about?`<div class="wait">${esc(it.about)}</div>`:''}</td>
+      <td class="num">${ML.money(it.retail)}</td>
+      <td class="num">${ML.money(it.cost)}</td>
+      <td class="num">${it.pts.toLocaleString('ru')} Б</td>
+      <td class="num">${it.limit?it.limit+' / мес.':'без лимита'}</td>
+      <td><span class="mod ${it.status}">${esc(ML.MODERATION[it.status]||it.status)}</span></td>
+      <td><div class="btn-row">
+        ${it.status!=='published'?`<button class="btn-xs" onclick="shopPublish('${jt(it.localId)}')">Опубликовать</button>`:''}
+        <button class="btn-xs danger" onclick="shopDel('${jt(it.localId)}')">Убрать</button></div></td>
+    </tr>`).join('')}</tbody>
+   </table></div>
+  </div>
+  <div class="dm-note" style="margin-top:16px">На боевом сервисе позицию публикует модератор —
+  в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.</div>`
+   : `<div class="card empty-state"><div class="empty-text">На витрине пока пусто</div>
+      <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте позицию — она появится в разделе
+      «Мои баллы» у пользователей после публикации.</p></div>`}`;
+}
+
+
+/* ── заказы за баллы во входящих ──
+   Отдельный блок: это не запрос на площадку, а списанные баллы,
+   по которым ресурс уже рассчитается с партнёром. */
+function orderSet(id,st){
+  if(!ML.setOrderStatus(id,st)){ MH.toast('Статус не изменён','error'); return; }
+  MH.toast('Заказ '+id+': '+ML.ORDER_FLOW[st],'success');
+  renderNav(); renderPage();
+}
+function orderActions(o){
+  if(o.status==='new') return `
+    <button class="btn-xs" onclick="orderSet('${jt(o.id)}','confirmed')">Подтвердить</button>
+    <button class="btn-xs danger" onclick="orderSet('${jt(o.id)}','rejected')">Отклонить</button>`;
+  if(o.status==='confirmed') return `
+    <button class="btn-xs" onclick="orderSet('${jt(o.id)}','done')">Услуга оказана</button>
+    <button class="btn-xs danger" onclick="orderSet('${jt(o.id)}','rejected')">Отклонить</button>`;
+  if(o.status==='done') return '<span class="wait">оплата по отчёту периода</span>';
+  return '<span class="wait">баллы возвращены пользователю</span>';
+}
+function bonusOrdersBlock(ownerName){
+  const list=ML.bonusOrdersFor(ownerName);
+  return `
+  <div class="section-head" style="margin:26px 0 14px">
+    <div class="section-label">Заказы за баллы</div>
+    <span class="ord-badge">Бонусная программа</span>
+  </div>
+  ${list.length ? `<div class="card ordcard" style="padding:0;overflow:hidden">
+   <div class="dscroll"><table class="dtbl">
+    <thead><tr><th>Заказ</th><th>Дата</th><th>Позиция витрины</th><th>Списано</th><th>Статус</th><th>Действие</th></tr></thead>
+    <tbody>${list.map(o=>`<tr>
+      <td class="num">${esc(o.id)}</td>
+      <td>${esc(o.date)}</td>
+      <td>${esc(o.title)}${o.note?`<div class="ord-note">${esc(o.note)}</div>`:''}</td>
+      <td class="num">${o.pts.toLocaleString('ru')} Б</td>
+      <td><span class="st ${o.status}">${esc(ML.ORDER_FLOW[o.status]||o.status)}</span></td>
+      <td><div class="btn-row">${orderActions(o)}</div></td>
+    </tr>`).join('')}</tbody>
+   </table></div>
+  </div>
+  <div class="dm-note" style="margin-top:16px">Баллы списаны с пользователя в момент заказа.
+  Если отклонить заказ, они вернутся на его счёт автоматически.</div>`
+   : `<div class="card ordcard empty-state"><div class="empty-text">Заказов за баллы пока нет</div>
+      <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Позиции витрины появляются у пользователей
+      в разделе «Мои баллы» после публикации.</p></div>`}`;
 }
 
 const PAGES={
@@ -1690,7 +1943,8 @@ points:()=>{
   const P=ML.state.points;
   const rows=pointsLedger();
   /* Доступные по балансу — первыми: человек должен сразу видеть, что может взять. */
-  const shop=ML.SHOP.slice().sort((a,b)=>(P.free>=b.pts)-(P.free>=a.pts)||a.pts-b.pts);
+  const shop=ML.shopCatalog().sort((a,b)=>(P.free>=b.pts)-(P.free>=a.pts)||a.pts-b.pts);
+  const orders=ML.bonusOrdersFor();
   const affordable=shop.filter(s=>P.free>=s.pts).length;
   return `
   <h1 class="page-title">Мои баллы</h1>
@@ -1732,20 +1986,33 @@ points:()=>{
   <p class="page-sub" style="margin-bottom:14px">За ${P.free.toLocaleString('ru')} ${ML.plural(P.free,['балл','балла','баллов'])}
   доступно ${affordable} ${ML.plural(affordable,['услуга','услуги','услуг'])} из ${shop.length}</p>
   <div class="shop-grid">
-    ${shop.map(s=>{
+    ${shop.map((s,i)=>{
       const can=P.free>=s.pts;
+      const pic=typeof s.id==='number'?s.id:i+1;
       return `<article class="scard${can?'':' off'}">
-        <div class="scard-img"><img src="${ML.photoUrl(s.id)}" alt="" loading="lazy"></div>
+        <div class="scard-img"><img src="${ML.photoUrl(pic)}" alt="" loading="lazy"></div>
         <div class="scard-b">
           <div class="scard-name">${esc(s.title)}</div>
           <div class="scard-prov">${esc(s.provider)}</div>
           <div class="scard-pts">${s.pts.toLocaleString('ru')} Б</div>
-          <button class="btn btn-c scard-btn" ${can?'':'disabled'} onclick="buyShop(${s.id})">Оставить заявку</button>
+          <button class="btn btn-c scard-btn" ${can?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">Оставить заявку</button>
           ${can?'':`<div class="scard-lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} ${ML.plural(s.pts-P.free,['балла','баллов','баллов'])}</div>`}
         </div>
       </article>`;
     }).join('')}
-  </div>`;
+  </div>
+
+  <div class="section-head" style="margin:26px 0 14px"><div class="section-label">Мои заказы</div></div>
+  ${orders.length ? `<div class="card" style="padding:0;overflow:hidden">
+    <table class="ptbl">
+      <thead><tr><th>Заказ</th><th>Позиция</th><th>Статус</th><th>Списано</th></tr></thead>
+      <tbody>${orders.map(o=>`<tr>
+        <td class="num">${esc(o.id)} <span style="color:var(--sx)">· ${esc(o.date)}</span></td>
+        <td>${esc(o.title)}<div class="wait">${esc(o.provider)}</div></td>
+        <td><span class="st ${o.status}">${esc(ML.ORDER_FLOW[o.status]||o.status)}</span></td>
+        <td class="num">${o.pts.toLocaleString('ru')} Б</td></tr>`).join('')}</tbody>
+    </table></div>`
+   : `<div class="card empty-state"><div class="empty-text">Заказов за баллы пока нет</div></div>`}`;
 },
 
 /* ── ПРОФИЛЬ ── */
@@ -1847,6 +2114,7 @@ odash:()=>{
   const due=done.reduce((a,x)=>a+(ML.venueFee(x.obj)||0),0);
   const published=ML.state.myVenues.filter(v=>v.status==='published').length;
   const contracts=ML.state.myVenues.reduce((a,v)=>a.concat(v.contracts||[]),[]);
+  const own=ownVenue(), st=ML.venueStats(OWN_VENUE_ID);
   return `
   <h1 class="page-title">Обзор</h1>
   <p class="page-sub">Размещение бесплатное. Оплата — фиксированная сумма только за состоявшееся мероприятие</p>
@@ -1859,8 +2127,18 @@ odash:()=>{
     </div>
     <div class="lk-tile">
       <div class="lbl">Просмотров карточки</div>
-      <div class="val">862</div>
-      <div class="sub">оценка площадки, точные данные — в статистике</div>
+      <div class="val">${st.views}</div>
+      <div class="sub">${esc(own.name)}</div>
+    </div>
+    <div class="lk-tile">
+      <div class="lbl">Конверсия в запросы</div>
+      <div class="val">${st.conversion}%</div>
+      <div class="sub">запросов от числа просмотров</div>
+    </div>
+    <div class="lk-tile">
+      <div class="lbl">Доходят до мероприятия</div>
+      <div class="val">${st.toEvent}%</div>
+      <div class="sub">состоявшихся от числа запросов</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">К оплате за период</div>
@@ -1916,9 +2194,11 @@ ovenues:()=>{
 /* ── Входящие запросы ── */
 oreqs:()=>{
   const inc=venueIncoming();
+  const orders=bonusOrdersBlock(ownVenue().name);
   if(!inc.length) return `
     <h1 class="page-title">Входящие запросы</h1>
-    <div class="card empty-state"><div class="empty-text">Запросов пока нет</div></div>`;
+    <div class="card empty-state"><div class="empty-text">Запросов пока нет</div></div>
+    ${orders}`;
   return `
   <h1 class="page-title">Входящие запросы</h1>
   <p class="page-sub">Групповые запросы пользователей. Контакты пользователя объекту не передаются</p>
@@ -1929,33 +2209,38 @@ oreqs:()=>{
    </table></div>
   </div>
   <div class="dm-note" style="margin-top:16px">Отчёт по состоявшимся мероприятиям с ID запросов приходит
-  в конце отчётного периода одним платежом.</div>`;
+  в конце отчётного периода одним платежом.</div>
+  ${orders}`;
 },
+
+/* ── Витрина объекта ── */
+oshop:()=>shopPage('venue'),
 
 /* ── Статистика ── */
 ostats:()=>{
-  const inc=venueIncoming();
-  const views=862, clicks=341;
-  const conv=views?((inc.length/views)*100).toFixed(1):'0';
+  const own=ownVenue(), st=ML.venueStats(OWN_VENUE_ID);
   return `
   <h1 class="page-title">Статистика</h1>
-  <p class="page-sub">Как карточка работает в подборе</p>
+  <p class="page-sub">Как карточка ${esc(own.name)} работает в подборе</p>
   <div class="lk-tiles">
-    <div class="lk-tile"><div class="lbl">Просмотры карточки</div><div class="val">${views}</div>
+    <div class="lk-tile"><div class="lbl">Просмотры карточки</div><div class="val">${st.views}</div>
       <div class="sub">показы в выдаче подбора</div></div>
-    <div class="lk-tile"><div class="lbl">Клики в карточку</div><div class="val">${clicks}</div>
-      <div class="sub">переходы из выдачи</div></div>
-    <div class="lk-tile"><div class="lbl">Запросов</div><div class="val coral">${inc.length}</div>
+    <div class="lk-tile"><div class="lbl">Запросов</div><div class="val coral">${st.requests}</div>
       <div class="sub">доведено до отдела продаж</div></div>
-    <div class="lk-tile"><div class="lbl">Конверсия в запросы</div><div class="val">${conv}%</div>
+    <div class="lk-tile"><div class="lbl">Конверсия в запросы</div><div class="val">${st.conversion}%</div>
       <div class="sub">от числа просмотров</div></div>
+    <div class="lk-tile"><div class="lbl">Доходят до мероприятия</div><div class="val">${st.toEvent}%</div>
+      <div class="sub">состоялось ${st.done} из ${st.requests}</div></div>
+    <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
+      <div class="sub">оплачено баллами бонусной программы</div></div>
   </div>
   <div class="card">
     <div class="section-label" style="margin-bottom:12px">Как читать эти числа</div>
     <p style="font-size:13.5px;line-height:1.65;color:var(--sm)">
     Объект узнаёт о просмотре карточки только в момент получения запроса: до этого пользователь
-    остаётся анонимным, а его контакты не передаются. Просмотры и клики — агрегированная статистика
-    ресурса, она нужна, чтобы понимать, доходит ли карточка до отдела продаж.</p>
+    остаётся анонимным, а его контакты не передаются. Просмотры — агрегированная статистика ресурса,
+    она нужна, чтобы понимать, доходит ли карточка до отдела продаж. Конверсия считается от просмотров,
+    доля состоявшихся — от полученных запросов.</p>
   </div>`;
 },
 
@@ -2003,6 +2288,7 @@ oprofile:()=>{
 sdash:()=>{
   const list=ML.state.myServices;
   const inLoy=list.filter(s=>s.loyalty).length;
+  const own=ownSupplier(), st=ML.supplierStats(OWN_SUPPLIER_ID);
   return `
   <h1 class="page-title">Обзор</h1>
   <p class="page-sub">Размещение платное: один тариф по образцу пользовательского «ПРЕМИУМ»</p>
@@ -2010,10 +2296,14 @@ sdash:()=>{
   <div class="lk-tiles">
     <div class="lk-tile"><div class="lbl">Услуг в карточке</div><div class="val">${list.length}</div>
       <div class="sub">в бонусной программе: ${inLoy}</div></div>
-    <div class="lk-tile"><div class="lbl">Заявок за месяц</div><div class="val">9</div>
+    <div class="lk-tile"><div class="lbl">Заявок за месяц</div><div class="val">${st.requests}</div>
       <div class="sub">внутри одной категории</div></div>
-    <div class="lk-tile"><div class="lbl">Переходов в карточку</div><div class="val">341</div>
-      <div class="sub">из каталога поставщиков</div></div>
+    <div class="lk-tile"><div class="lbl">Переходов в карточку</div><div class="val">${st.views}</div>
+      <div class="sub">${esc(own.name)} — в каталоге поставщиков</div></div>
+    <div class="lk-tile"><div class="lbl">Конверсия в обращения</div><div class="val">${st.conversion}%</div>
+      <div class="sub">запросы и заказы за баллы от просмотров</div></div>
+    <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
+      <div class="sub">оплачено баллами бонусной программы</div></div>
     <div class="lk-tile"><div class="lbl">Подписка</div><div class="val" style="font-size:19px">активна</div>
       <div class="sub">до ${esc(SUB_UNTIL)}</div></div>
   </div>
@@ -2076,7 +2366,11 @@ sreqs:()=>`
    </table></div>
   </div>
   <div class="dm-note" style="margin-top:16px">Контакты пользователя поставщику не передаются —
-  переписка идёт через площадку.</div>`,
+  переписка идёт через площадку.</div>
+  ${bonusOrdersBlock(ownSupplier().name)}`,
+
+/* ── Витрина поставщика ── */
+sshop:()=>shopPage('supplier'),
 
 /* ── Подписка ── */
 ssub:()=>{

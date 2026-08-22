@@ -291,8 +291,16 @@ function closeRequest() {
   document.removeEventListener('keydown', escClose);
 }
 function sendRequest() {
+  // запрос кладём в модель — иначе у поставщика не считается конверсия
+  const req = ML.createSupplierRequest([S.id], {
+    title: 'Запрос поставщику',
+    dates: (document.getElementById('rqDates') || {}).value || '',
+    guests: (document.getElementById('rqGuests') || {}).value || '',
+    letter: (document.getElementById('rqLetter') || {}).value || '',
+  });
   closeRequest();
-  MH.toast('Запрос отправлен поставщику', 'success');
+  MH.toast(req ? 'Запрос ' + req.id + ' отправлен поставщику' : 'Не удалось отправить запрос',
+    req ? 'success' : 'error');
 }
 
 /* ── старт ── */
