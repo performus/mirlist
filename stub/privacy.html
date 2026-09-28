@@ -19,8 +19,8 @@ a{color:var(--coral-ink);text-underline-offset:3px}
 :focus-visible{outline:2px solid var(--coral);outline-offset:3px;border-radius:6px}
 .card{margin:0 auto;width:min(760px,100%);background:var(--paper);border-radius:26px;padding:40px 46px 28px;
   box-shadow:0 1px 0 rgba(31,49,72,.04),0 30px 80px -20px rgba(31,49,72,.18),0 12px 30px -12px rgba(31,49,72,.08)}
-.brand{font-weight:800;font-size:19px;letter-spacing:.07em;margin-bottom:30px;text-decoration:none;color:var(--ink);display:inline-block}
-.brand span{color:var(--coral)}
+.brand{display:inline-block;margin-bottom:30px}
+.brand img{display:block;width:auto;height:33px}
 h1{font-family:"Literata",Georgia,serif;font-weight:600;font-size:clamp(28px,5vw,40px);line-height:1.1;letter-spacing:-.01em;margin:0 0 18px;font-variation-settings:"opsz" 72}
 .draft{background:var(--coral-soft);color:var(--coral-ink);border-radius:14px;padding:14px 18px;font-size:15px;line-height:1.5;margin:0 0 26px}
 .draft b{font-weight:700}
@@ -33,7 +33,7 @@ h2{font-size:17px;margin:26px 0 8px}
 </head>
 <body>
 <main class="card">
-  <a class="brand" href="/" aria-label="МАЙСЛИСТ — на главную">МАЙС<span>ЛИСТ</span></a>
+  <a class="brand" href="/"><img src="img/logo.svg" alt="МАЙСЛИСТ — на главную" width="137" height="33"></a>
   <h1>Политика конфиденциальности</h1>
   <p class="draft"><b>Заготовка страницы.</b> Текст политики предоставит юрист клиента — до этого страница не является юридическим документом.</p>
 
