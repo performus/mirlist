@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>МАЙСЛИСТ — Залы Важных Событий</title>
-<meta name="description" content="Подбор залов для мероприятий любого формата и масштаба. Запросите ранний доступ к бета-версии.">
+<meta name="description" content="Подбор залов для мероприятий любого формата и масштаба. Скоро откроем ранний доступ к бета-версии.">
 <meta property="og:title" content="МАЙСЛИСТ — Залы Важных Событий">
 <meta property="og:description" content="Подбор залов для мероприятий любого формата и масштаба.">
 <meta name="theme-color" content="#FAF7F4">
@@ -245,88 +245,14 @@ h1 .w:nth-child(3){animation-delay:2.09s}
 .feats li::before{content:"";position:absolute;left:0;top:.72em;width:14px;height:2px;border-radius:2px;background:var(--coral)}
 .feats b{color:var(--ink);font-weight:700}
 
-/* кнопка-скролл */
-.cta{
-  display:inline-flex;align-items:center;gap:12px;
-  font:inherit;font-weight:700;font-size:16px;color:#fff;background:var(--coral);
-  border:0;border-radius:14px;padding:16px 24px;cursor:pointer;
-  box-shadow:0 10px 24px -10px rgba(235,116,84,.75);
-  transition:background .2s,transform .15s,opacity .35s;
+/* плашка вместо кнопки: приём заявок откроем позже */
+.soon{
+  display:inline-flex;align-items:center;gap:12px;margin:0;
+  font-weight:700;font-size:16px;line-height:1.35;color:var(--coral-ink);background:var(--coral-soft);
+  border-radius:14px;padding:16px 22px;
 }
-.cta:hover{background:#E0633F}
-.cta:active{transform:translateY(1px)}
-.cta svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.8s ease-in-out 3.2s infinite}
-@keyframes nudge{0%,60%,100%{transform:none}30%{transform:translateY(3px)}}
-.cta-row{display:grid;grid-template-rows:1fr;transition:grid-template-rows .5s cubic-bezier(.3,.8,.2,1),opacity .3s}
-.cta-in{overflow:hidden;min-height:0;padding-bottom:14px;margin-bottom:-14px}
-.card.open .cta-row{grid-template-rows:0fr;opacity:0;pointer-events:none}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
-/* выдвигающийся блок захвата лидов */
-.drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s cubic-bezier(.3,.8,.2,1)}
-.card.open .drawer{grid-template-rows:1fr}
-.drawer-in{overflow:hidden;min-height:0}
-.lead-box{
-  border:1.5px solid var(--line);border-radius:18px;padding:24px 24px 22px;margin-top:4px;
-  background:linear-gradient(180deg,#FFFFFF, #FDFBF9);
-  opacity:0;transform:translateY(-8px);transition:opacity .45s .15s, transform .45s .15s;
-}
-.card.open .lead-box{opacity:1;transform:none}
-.lb-note{font-size:15px;line-height:1.5;color:var(--slate);margin:0 0 16px}
-.field input[type=email]{
-  width:100%;font:inherit;font-size:16px;color:var(--ink);
-  border:1.5px solid #D9DEE4;border-radius:13px;padding:14px 16px;background:#fff;
-  transition:border-color .2s,box-shadow .2s;
-}
-.field input[type=email]::placeholder{color:#A3ACB8}
-.field input[type=email]:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 4px rgba(235,116,84,.14)}
-.field input[aria-invalid="true"]{border-color:#D2452B}
-.err{font-size:13.5px;color:#C0392B;min-height:19px;margin:7px 2px 6px}
-.roles{border:0;margin:0 0 18px;padding:0;display:grid;gap:4px}
-.roles legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.chk{display:flex;align-items:flex-start;gap:12px;padding:8px 6px;border-radius:10px;cursor:pointer;font-size:15px;line-height:1.4;color:var(--ink)}
-.chk:hover{background:#FAF7F4}
-.chk input{
-  appearance:none;-webkit-appearance:none;flex:none;margin:1px 0 0;
-  width:20px;height:20px;border:1.8px solid #C5CCD5;border-radius:6px;background:#fff;
-  display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s;
-}
-.chk input::after{content:"";width:10px;height:6px;border:solid #fff;border-width:0 0 2.4px 2.4px;transform:rotate(-45deg) translate(1px,-1px) scale(0);transition:transform .15s}
-.chk input:checked{background:var(--coral);border-color:var(--coral)}
-.chk input:checked::after{transform:rotate(-45deg) translate(1px,-1px) scale(1)}
-.chk input:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
-.chk small{color:var(--muted);font-size:14px}
-/* короткие сообщения под группой: пока пустые, места не занимают */
-.err-sm{min-height:0;margin:4px 6px 0}
-.err-sm:empty{display:none}
-.roles[aria-invalid="true"] .chk input,.consent input[aria-invalid="true"]{border-color:#D2452B}
-.consent{margin:0 0 18px}
-.consent .chk{font-size:14px;color:var(--slate)}
-.consent a{color:var(--coral-ink);text-decoration:underline;text-decoration-color:rgba(193,80,47,.35);text-underline-offset:3px}
-.consent a:hover{text-decoration-color:currentColor}
-.consent .policy{display:inline-block;margin:0 0 0 38px;font-size:14px;line-height:1.4}
-.hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
-.submit{
-  width:100%;font:inherit;font-weight:700;font-size:16px;color:#fff;background:var(--coral);
-  border:0;border-radius:13px;padding:15px 22px;cursor:pointer;
-  box-shadow:0 10px 24px -10px rgba(235,116,84,.75);transition:background .2s,transform .15s;
-}
-.submit:hover{background:#E0633F}
-.submit:active{transform:translateY(1px)}
-.submit[disabled]{opacity:.7;cursor:progress}
-
-/* экран после отправки */
-.success{display:none;text-align:left;padding:6px 2px}
-.success svg{width:44px;height:44px;margin-bottom:14px;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.success svg circle{stroke:#CFE6DE;stroke-width:2.2}
-.success svg path{stroke:#2E9A7A;stroke-width:2.6;stroke-dasharray:1;stroke-dashoffset:1}
-.success h2{font-family:"Literata",Georgia,serif;font-weight:600;font-size:24px;line-height:1.2;margin:0 0 8px}
-.success p{font-size:15.5px;line-height:1.5;color:var(--slate);margin:0}
-.lead-box.sent form{display:none}
-.lead-box.sent .success{display:block;animation:fade .5s ease both}
-.lead-box.sent .success svg path{animation:draw .6s cubic-bezier(.6,0,.2,1) .15s forwards}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes draw{to{stroke-dashoffset:0}}
+.soon i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--coral);animation:pulse 2.2s ease-out 3.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(235,116,84,.5)}70%,100%{box-shadow:0 0 0 9px rgba(235,116,84,0)}}
 
 .foot{margin-top:22px;font-size:12.5px;color:var(--muted)}
 
@@ -336,16 +262,15 @@ h1 .w:nth-child(3){animation-delay:2.09s}
   .card{padding:28px 22px 22px;border-radius:22px}
   .brand{margin-bottom:24px}
   .lead{font-size:17px}
-  .cta{width:100%;justify-content:center}
-  .lead-box{padding:20px 16px 18px}
+  .soon{width:100%;padding:15px 18px;gap:10px;font-size:15px}
 }
 
 /* ═════════ меньше движения ═════════ */
 @media (prefers-reduced-motion:reduce){
   .app{animation:none;filter:blur(6px);transform:scale(1.06)}
   .veil{animation:none}
-  .card,h1 .w,.cta svg{animation:none}
-  .stage,.card,.drawer,.lead-box,.cta-row{transition:none}
+  .card,h1 .w,.soon i{animation:none}
+  .stage,.card{transition:none}
   .wrap{scroll-behavior:auto}
   .stage *{transition:none}
 }
@@ -379,50 +304,7 @@ h1 .w:nth-child(3){animation-delay:2.09s}
       <li><b>Прямые запросы в отделы продаж</b> — отправка в один клик</li>
     </ul>
 
-    <div class="cta-row"><div class="cta-in">
-      <button class="cta" id="cta" type="button" aria-controls="drawer" aria-expanded="false">
-        Запросить ранний доступ
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg>
-      </button>
-    </div></div>
-
-    <!-- Выдвигающийся блок захвата лидов -->
-    <div class="drawer" id="drawer">
-      <div class="drawer-in">
-        <div class="lead-box" id="leadBox">
-          <form id="form" novalidate>
-            <p class="lb-note">Вы получите только одно сообщение, когда мы запустим бета-версию.</p>
-            <div class="field">
-              <label for="email" class="sr">Email</label>
-              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Введите ваш email" aria-describedby="err" tabindex="-1">
-              <div class="err" id="err" role="alert"></div>
-            </div>
-            <fieldset class="roles" id="roles" aria-describedby="errRoles">
-              <legend>Кто вы</legend>
-              <label class="chk"><input type="checkbox" name="role" value="organizer" tabindex="-1">Я организую мероприятия</label>
-              <label class="chk"><input type="checkbox" name="role" value="venue" tabindex="-1"><span>Я представляю площадку <small>(зал, отель, конгресс-центр)</small></span></label>
-              <label class="chk"><input type="checkbox" name="role" value="supplier" tabindex="-1">Я предоставляю услуги</label>
-              <div class="err err-sm" id="errRoles" role="alert"></div>
-            </fieldset>
-            <div class="consent">
-              <label class="chk"><input type="checkbox" id="consent" name="consent" aria-describedby="errConsent" tabindex="-1"><span>Я даю <a href="/consent.html" target="_blank" rel="noopener" tabindex="-1">согласие на обработку персональных данных</a></span></label>
-              <a class="policy" href="/privacy.html" target="_blank" rel="noopener" tabindex="-1">Политика конфиденциальности</a>
-              <div class="err err-sm" id="errConsent" role="alert"></div>
-            </div>
-            <!-- Ловушка для ботов: не display:none — такие поля часть ботов пропускает -->
-            <div class="hp"><label for="company">Компания</label><input id="company" name="company" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"></div>
-            <button class="submit" id="submit" type="submit" tabindex="-1">Запросить доступ</button>
-            <div class="err err-sm" id="errForm" role="alert"></div>
-          </form>
-
-          <div class="success" role="status" aria-live="polite">
-            <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path pathLength="1" d="M13.5 22.5l6 6 11-12"/></svg>
-            <h2>Спасибо! Ваша заявка принята.</h2>
-            <p>Мы пришлём вам закрытый доступ к бета-тестированию, как только оно запустится.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="soon"><i aria-hidden="true"></i>Скоро мы откроем ранний доступ</p>
 
     <div class="foot">© 2026 ООО «МАЙСЛИСТ»</div>
   </main>
@@ -505,87 +387,6 @@ h1 .w:nth-child(3){animation-delay:2.09s}
     }, {passive:true});
   }
 
-  /* ── кнопка-скролл: выдвигает блок и прокручивает к полям ── */
-  const card = document.getElementById('card'), cta = document.getElementById('cta'),
-        drawer = document.getElementById('drawer'), email = document.getElementById('email'),
-        form = document.getElementById('form'), err = document.getElementById('err'),
-        submit = document.getElementById('submit'), leadBox = document.getElementById('leadBox'),
-        rolesBox = document.getElementById('roles'), errRoles = document.getElementById('errRoles'),
-        consent = document.getElementById('consent'), errConsent = document.getElementById('errConsent'),
-        company = document.getElementById('company'), errForm = document.getElementById('errForm');
-  const roleInputs = [...form.querySelectorAll('input[name=role]')];
-  // ловушка остаётся вне порядка табуляции
-  const focusables = form.querySelectorAll('input:not(#company),button,a');
-
-  cta.addEventListener('click', ()=>{
-    card.classList.add('open');
-    cta.setAttribute('aria-expanded','true');
-    cta.tabIndex = -1;
-    focusables.forEach(el=>el.tabIndex = 0);
-    const go = ()=>{
-      leadBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'center'});
-      email.focus({preventScroll:true});
-    };
-    reduce ? go() : setTimeout(go, 380);
-  });
-
-  /* ── отправка ──
-     sendLead — единственное место связи с сервером: send.php в корне сайта.
-     Ответ {ok:true} или {ok:false, error:'email'|'roles'|'consent'|'rate'|…}.
-     Сбой сети и нечитаемый ответ считаются прочей ошибкой. */
-  async function sendLead(data){
-    try{
-      const res = await fetch('/send.php', {
-        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-      });
-      const j = await res.json();
-      return j && j.ok === true ? {ok:true} : {ok:false, error:(j && j.error) || 'server'};
-    }catch(e){ return {ok:false, error:'network'}; }
-  }
-
-  const MSG = {
-    email:   'Проверьте email: похоже, в адресе ошибка.',
-    roles:   'Выберите хотя бы один вариант',
-    consent: 'Нужно согласие на обработку персональных данных',
-    rate:    'Слишком много заявок подряд. Попробуйте через 10 минут.',
-    fail:    'Не удалось отправить заявку. Попробуйте ещё раз.',
-  };
-  // Сообщение у поля; возвращает элемент, на который ставить фокус.
-  function flag(field, text){
-    if(field === 'email'){ email.setAttribute('aria-invalid','true'); err.textContent = text || MSG.email; return email; }
-    if(field === 'roles'){ rolesBox.setAttribute('aria-invalid','true'); errRoles.textContent = MSG.roles; return roleInputs[0]; }
-    if(field === 'consent'){ consent.setAttribute('aria-invalid','true'); errConsent.textContent = MSG.consent; return consent; }
-    errForm.textContent = field === 'rate' ? MSG.rate : MSG.fail; return null;
-  }
-  function unflag(field){
-    if(field === 'email'){ email.removeAttribute('aria-invalid'); err.textContent = ''; }
-    if(field === 'roles'){ rolesBox.removeAttribute('aria-invalid'); errRoles.textContent = ''; }
-    if(field === 'consent'){ consent.removeAttribute('aria-invalid'); errConsent.textContent = ''; }
-  }
-
-  form.addEventListener('submit', async e=>{
-    e.preventDefault();
-    errForm.textContent = '';
-    // Те же проверки повторяет send.php
-    const v = email.value.trim();
-    const roles = roleInputs.filter(x=>x.checked).map(x=>x.value);
-    let first = null;
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) first = flag('email', v ? MSG.email : 'Введите email, на который прислать доступ.');
-    else unflag('email');
-    if(!roles.length){ const f = flag('roles'); first = first || f; } else unflag('roles');
-    if(!consent.checked){ const f = flag('consent'); first = first || f; } else unflag('consent');
-    if(first){ first.focus(); return; }
-
-    submit.disabled = true; submit.textContent = 'Отправляем…';
-    const r = await sendLead({ email: v, roles, consent: true, company: company.value });
-    if(r.ok){ leadBox.classList.add('sent'); return; }
-    submit.disabled = false; submit.textContent = 'Запросить доступ';
-    const f = flag(r.error);
-    if(f) f.focus();
-  });
-  email.addEventListener('input', ()=>{ if(email.hasAttribute('aria-invalid')) unflag('email'); });
-  roleInputs.forEach(x=>x.addEventListener('change', ()=>{ if(roleInputs.some(y=>y.checked)) unflag('roles'); }));
-  consent.addEventListener('change', ()=>{ if(consent.checked) unflag('consent'); });
 })();
 </script>
 </body>
