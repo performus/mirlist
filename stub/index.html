@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>МАЙСЛИСТ — Залы Важных Событий</title>
+<meta name="description" content="Подбор залов для мероприятий любого формата и масштаба. Запросите ранний доступ к бета-версии.">
+<meta property="og:title" content="МАЙСЛИСТ — Залы Важных Событий">
+<meta property="og:description" content="Подбор залов для мероприятий любого формата и масштаба.">
+<meta name="theme-color" content="#FAF7F4">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF7F4; --paper:#FFFFFF; --ink:#1F3148; --slate:#5A6678; --muted:#8A94A3;
+  --line:#E7E1D9; --coral:#EB7454; --coral-ink:#C1502F; --coral-soft:#FCEAE3;
+  --mint:#E8F1EF; --map:#EEF1EC;
+  --mx:0px; --my:0px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--coral);outline-offset:3px;border-radius:6px}
+
+/* ═════════ СЦЕНА: слепок страницы подбора за стеклом ═════════ */
+.stage{
+  position:fixed; inset:-40px; pointer-events:none; overflow:hidden;
+  transform:translate3d(var(--mx),var(--my),0);
+  transition:transform .6s cubic-bezier(.2,.7,.2,1);
+}
+.app{
+  position:absolute; inset:0; background:#F8F5F2;
+  transform-origin:50% 45%;
+  animation:focusPull 1.7s cubic-bezier(.65,0,.25,1) .45s both;
+  will-change:filter,transform;
+}
+@keyframes focusPull{
+  from{filter:blur(0) saturate(1); transform:scale(1)}
+  to  {filter:blur(6px) saturate(1.1); transform:scale(1.06)}
+}
+.veil{
+  position:fixed; inset:0; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, rgba(250,247,244,.22) 0%, rgba(250,247,244,.44) 55%, rgba(236,231,224,.78) 100%);
+  animation:veilIn 1.7s cubic-bezier(.65,0,.25,1) .45s both;
+}
+@keyframes veilIn{from{opacity:0}to{opacity:1}}
+
+/* Кадр — фиксированная композиция 1440×900, как background-size:cover
+   с привязкой к верху: на 1440 px ширины идёт один к одному, на других
+   экранах целиком масштабируется, колонки не перестраиваются.
+   Левый верхний угол кадра совпадает с углом экрана (у .app поле 40px). */
+.stage .snap{
+  --k:max(tan(atan2(100vw,1440px)),tan(atan2(100vh,900px)));
+  position:absolute; left:50%; top:40px; width:1440px; height:900px; overflow:hidden;
+  transform-origin:50% 0; transform:translateX(-50%) scale(var(--k));
+}
+
+/* ── слепок app/search.html: стили прототипа, все под .stage ── */
+.stage .snap{--coral: #E98667; --coral-hover: #D97757; --coral-soft: #F6DDD3; --coral-glow: rgba(233,134,103,.18); --aqua-1: #D9ECEB; --aqua-2: #C5E3E1; --aqua-3: #A8D4D8; --aqua-pale: #EDF6F5; --slate: #46627A; --slate-mid: #3E596F; --slate-deep: #354E63; --slate-muted: #7A919F; --slate-pale: #B4C3CC; --peach: #F6E6DE; --bg: #F8F5F2; --white: #FFFFFF; --sh-sm: 0 1px 4px rgba(53,78,99,.05); --sh-md: 0 4px 20px rgba(53,78,99,.07); --sh-lg: 0 8px 40px rgba(53,78,99,.09); --sh-coral: 0 4px 18px rgba(233,134,103,.22); --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-full: 50px; --top-nav: 64px; --top-bar: 62px;}
+.stage .snap *,.stage .snap ::before,.stage .snap ::after{margin: 0px; padding: 0px; box-sizing: border-box;}
+.stage .snap{font-family: Onest, system-ui, sans-serif; background: var(--bg); color: var(--slate); -webkit-font-smoothing: antialiased;}
+.stage a{text-decoration: none; color: inherit;}
+.stage button{font-family: inherit; cursor: pointer;}
+.stage .control-bar{position: relative; z-index: 40; display: flex; align-items: flex-end; gap: 12px; padding: 11px 28px; background: var(--white); border-bottom: 1px solid rgba(197, 227, 225, 0.35); flex-wrap: wrap;}
+.stage .cb-field{display: flex; flex-direction: column; gap: 3px;}
+.stage .cb-field label{font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--slate-muted);}
+.stage .cb-field input,.stage .cb-field select{padding: 8px 14px; border-radius: var(--r-full); font-family: inherit; font-size: 13px; font-weight: 500; border: 1.5px solid rgba(197, 227, 225, 0.55); background: var(--white); color: var(--slate); outline: none; transition: border-color 0.2s, background 0.2s; min-width: 150px;}
+.stage .cb-field input:focus,.stage .cb-field select:focus{border-color: var(--coral);}
+.stage .cb-field input:hover,.stage .cb-field select:hover{border-color: var(--aqua-3);}
+.stage .cb-right{margin-left: auto; display: flex; align-items: center; gap: 10px;}
+.stage .cb-tariff{display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--slate-muted);}
+.stage .cb-tariff b{color: var(--slate-deep); font-weight: 700;}
+.stage .grid3{display: grid; grid-template-columns: 300px minmax(0px, 1fr) 340px; gap: 18px; align-items: start; padding: 20px 28px 48px; max-width: 1760px; margin: 0px auto;}
+.stage .grid3 > *{min-width: 0px;}
+.stage .view-sw{display: inline-flex; gap: 2px; padding: 2px; background: var(--aqua-pale); border-radius: var(--r-full);}
+.stage .view-sw button{display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: var(--r-full); background: none; color: var(--slate-muted); font-family: inherit; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background 0.18s, color 0.18s;}
+.stage .view-sw button:hover{color: var(--slate-deep);}
+.stage .view-sw button.on{background: var(--coral); color: rgb(255, 255, 255);}
+.stage .fd-panel{position: relative; background: var(--white); border: 1px solid rgba(197, 227, 225, 0.3); border-radius: var(--r-lg); box-shadow: var(--sh-md); overflow: hidden;}
+.stage .fd-head{display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid rgba(197, 227, 225, 0.3);}
+.stage .fd-title{font-family: Literata, Georgia, serif; font-weight: 600; font-size: 19px; color: var(--slate-deep); flex: 1 1 0%;}
+.stage .fd-reset{border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px; font-size: 12.5px; font-weight: 600; color: var(--slate-muted); transition: color 0.2s;}
+.stage .fd-reset:hover{color: var(--coral);}
+.stage .fd-body{max-height: calc(900px - var(--top-nav) - var(--top-bar) - 120px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--slate-pale) transparent;}
+.stage .fd-body::-webkit-scrollbar{width: 6px;}
+.stage .fd-body::-webkit-scrollbar-thumb{background: var(--aqua-2); border-radius: 3px;}
+.stage .fd-group{border-bottom: 1px solid rgba(197, 227, 225, 0.28);}
+.stage .fd-group:last-child{border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor;}
+.stage .fd-group > summary{list-style: none; cursor: pointer; padding: 13px 18px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--slate-deep); transition: background 0.15s;}
+.stage .fd-group > summary::-webkit-details-marker{display: none;}
+.stage .fd-group > summary:hover{background: var(--aqua-pale);}
+.stage .fd-gcount{min-width: 18px; height: 18px; padding: 0px 6px; border-radius: var(--r-full); background: var(--coral); color: rgb(255, 255, 255); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center;}
+.stage .fd-chev{margin-left: auto; color: var(--slate-pale); font-size: 10px; transition: transform 0.2s;}
+.stage .fd-group[open] .fd-chev{transform: rotate(90deg);}
+.stage .fd-gbody{padding: 2px 18px 16px;}
+.stage .fd-check{display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--slate-mid); padding: 6px 0px; cursor: pointer; transition: opacity 0.2s;}
+.stage .fd-check input{display: none;}
+.stage .fd-box{width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--slate-pale); display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;}
+.stage .fd-check input:checked ~ .fd-box{background: var(--coral); border-color: var(--coral);}
+.stage .fd-check input:checked ~ .fd-box svg{opacity: 1;}
+.stage .fd-box svg{opacity: 0; transition: opacity 0.15s;}
+.stage .fd-lbl{flex: 1 1 0%;}
+.stage .fd-cnt{font-size: 11.5px; color: var(--slate-pale); font-weight: 600; flex: 0 0 auto;}
+.stage .fd-check.off{opacity: 0.38; cursor: not-allowed;}
+.stage .fd-check:not(.off):hover .fd-lbl{color: var(--slate-deep);}
+.stage .fd-seatrow{display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--slate-mid); padding-top: 9px;}
+.stage .fd-seatrow .v{font-weight: 700; color: var(--slate-deep);}
+.stage .fd-range input[type="range"]{width: 100%; appearance: none; height: 4px; margin-top: 5px; border-radius: 2px; background: var(--aqua-2); outline: none;}
+.stage .fd-range input[type="range"]::-webkit-slider-thumb{appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--aqua-3); cursor: pointer; border: 2.5px solid rgb(255, 255, 255); box-shadow: rgba(168, 212, 216, 0.45) 0px 2px 8px; transition: transform 0.15s, box-shadow 0.15s;}
+.stage .fd-range input[type="range"]::-webkit-slider-thumb:hover{transform: scale(1.2); box-shadow: rgba(168, 212, 216, 0.6) 0px 2px 14px;}
+.stage .fd-range input[type="range"]:disabled{opacity: 0.4;}
+.stage .res-head{display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;}
+.stage .res-count{font-family: Literata, Georgia, serif; font-weight: 600; font-size: 22px; color: var(--slate-deep);}
+.stage .res-count b{font-weight: 400; color: var(--coral);}
+.stage .res-tools{display: flex; align-items: center; gap: 8px;}
+.stage .res-sort{padding: 8px 14px; border-radius: var(--r-full); font-family: inherit; font-size: 12.5px; font-weight: 500; background: var(--white); color: var(--slate); border: 1.5px solid rgba(197, 227, 225, 0.5); outline: none; transition: border-color 0.2s;}
+.stage .res-sort:hover{border-color: var(--aqua-3);}
+.stage .f-chips{display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px;}
+.stage .f-chip{display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px 6px 14px; border-radius: var(--r-full); font-size: 12.5px; font-weight: 500; background: var(--coral-soft); color: var(--coral); border: 1.5px solid transparent;}
+.stage .f-chip button{width: 18px; height: 18px; border-radius: 50%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgba(255, 255, 255, 0.75); color: inherit; font-size: 11px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background 0.2s;}
+.stage .f-chip button:hover{background: rgb(255, 255, 255);}
+.stage .vlist{display: flex; flex-direction: column; gap: 16px;}
+.stage .vb{background: var(--white); border: 1px solid rgba(197, 227, 225, 0.28); border-radius: var(--r-lg); box-shadow: var(--sh-md); padding: 18px 18px 12px; transition: border-color 0.25s, box-shadow 0.25s;}
+.stage .vb.hi{border-color: var(--coral); box-shadow: 0 0 0 2px var(--coral-glow), var(--sh-lg);}
+.stage .vb-head{display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px;}
+.stage .vb-name{font-size: 17px; font-weight: 700; color: var(--slate-deep); letter-spacing: -0.2px; transition: color 0.2s;}
+.stage .vb-name:hover{color: var(--coral);}
+.stage .vb-meta{display: flex; gap: 14px; flex-wrap: wrap; margin-top: 5px; font-size: 12.5px; color: var(--slate-muted);}
+.stage .vb-meta b{color: var(--slate-deep); font-weight: 700;}
+.stage .vb-stars{color: rgb(240, 185, 90); letter-spacing: 1px;}
+.stage .vb-rating{display: inline-flex; align-items: center; gap: 4px;}
+.stage .vb-rating svg{color: rgb(240, 185, 90);}
+.stage .vb-black{width: 34px; height: 34px; flex-shrink: 0; padding: 0px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--white); color: var(--slate-pale); border: 1.5px solid rgba(197, 227, 225, 0.55); transition: 0.2s;}
+.stage .vb-black:hover{border-color: var(--coral); color: var(--coral);}
+.stage .vb-loyal{display: inline-block; margin-left: 10px; vertical-align: 2px; padding: 4px 11px; border-radius: var(--r-full); background: var(--coral); color: rgb(255, 255, 255); font-size: 11px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;}
+.stage .vb-match{margin: -4px 0px 10px; font-size: 12px; color: var(--slate-muted);}
+.stage .rail-wrap{position: relative;}
+.stage .rail{display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x; padding: 2px 2px 10px; scrollbar-width: thin; scrollbar-color: var(--aqua-2) transparent;}
+.stage .rail::-webkit-scrollbar{height: 6px;}
+.stage .rail::-webkit-scrollbar-thumb{background: var(--aqua-2); border-radius: 3px;}
+.stage .hc{flex: 0 0 208px; scroll-snap-align: start; border: 1px solid rgba(197, 227, 225, 0.32); border-radius: var(--r-md); overflow: hidden; background: var(--white); transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;}
+.stage .hc:hover{transform: translateY(-3px); box-shadow: var(--sh-lg);}
+.stage .hc-img{height: 104px; position: relative; overflow: hidden; background: var(--aqua-pale);}
+.stage .hc-img img{width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);}
+.stage .hc:hover .hc-img img{transform: scale(1.06);}
+.stage .hc-tags{position: absolute; top: 8px; left: 8px; display: flex; gap: 5px; flex-wrap: wrap;}
+.stage .hc-tag{padding: 3px 9px; border-radius: var(--r-full); font-size: 10px; font-weight: 600; background: rgba(255, 255, 255, 0.9); color: var(--slate); backdrop-filter: blur(8px);}
+.stage .hc-tag.plan{background: rgba(233, 134, 103, 0.9); color: rgb(255, 255, 255);}
+.stage .hc-body{padding: 11px 12px 12px;}
+.stage .hc-name{font-size: 13.5px; font-weight: 700; color: var(--slate-deep); margin-bottom: 8px; line-height: 1.3;}
+.stage .hc-caps{display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 9px; min-height: 20px;}
+.stage .hc-cap{display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; background: var(--aqua-pale); color: var(--slate-mid); border-radius: 5px; padding: 3px 6px;}
+.stage .hc-cap .ml-seat{color: var(--slate-muted);}
+.stage .hc-price{font-size: 15px; font-weight: 800; color: var(--slate-deep); margin-bottom: 10px;}
+.stage .hc-foot{display: flex; align-items: center; justify-content: space-between; gap: 6px;}
+.stage .hc-acts{display: flex; gap: 6px;}
+.stage .hc-ic{width: 30px; height: 30px; border-radius: 50%; background: var(--aqua-pale); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: flex; align-items: center; justify-content: center; color: var(--slate-muted); transition: 0.2s;}
+.stage .hc-ic:hover:not(:disabled){background: var(--coral-soft); color: var(--coral);}
+.stage .hc-ic:disabled{opacity: 0.35; cursor: not-allowed;}
+.stage .hc-more{padding: 7px 12px; border-radius: var(--r-full); font-size: 12px; font-weight: 600; background: var(--aqua-pale); color: var(--slate); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; transition: 0.2s; white-space: nowrap;}
+.stage .hc-more:hover{background: var(--coral); color: rgb(255, 255, 255);}
+.stage .map-col{position: relative; background: var(--white); border: 1px solid rgba(197, 227, 225, 0.3); border-radius: var(--r-lg); box-shadow: var(--sh-md); overflow: hidden;}
+.stage .map-head{display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid rgba(197, 227, 225, 0.3);}
+.stage .map-head b{font-size: 13px; font-weight: 700; color: var(--slate-deep);}
+.stage .map-head span{font-size: 11px; color: var(--slate-pale);}
+.stage .map-canvas{position: relative; overflow: hidden; height: calc(900px - var(--top-nav) - var(--top-bar) - 150px); min-height: 400px; background: var(--aqua-pale);}
+.stage .map-scale{position: absolute; inset: 0px; transform-origin: center center; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);}
+.stage .map-bg{width: 100%; height: 100%; display: block;}
+.stage .map-pin{position: absolute; transform: translate(-50%, -100%); cursor: pointer; transition: transform 0.25s, filter 0.25s; z-index: 3; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: none; padding: 0px;}
+.stage .map-pin:hover{z-index: 5; transform: translate(-50%, -100%) scale(1.14);}
+.stage .pin-body{display: flex; align-items: center; gap: 4px; background: var(--white); color: var(--slate-deep); border: 1.5px solid var(--coral); padding: 5px 11px; border-radius: var(--r-full); font-size: 11.5px; font-weight: 700; box-shadow: var(--sh-md); white-space: nowrap; position: relative;}
+.stage .pin-body::after{content: ""; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--coral);}
+.stage .map-pin.hi{z-index: 6; transform: translate(-50%, -100%) scale(1.2);}
+.stage .map-pin.hi .pin-body{background: var(--coral); color: rgb(255, 255, 255); border-color: var(--coral);}
+.stage .map-zoom{position: absolute; bottom: 16px; left: 16px; z-index: 8; display: flex; flex-direction: column; gap: 2px; border-radius: 10px; overflow: hidden; box-shadow: var(--sh-md);}
+.stage .map-zoom button{width: 36px; height: 36px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px); color: var(--slate); font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: background 0.2s;}
+.stage .map-zoom button:hover:not(:disabled){background: rgb(255, 255, 255); color: var(--coral);}
+.stage .map-zoom button:disabled{opacity: 0.4; cursor: not-allowed;}
+.stage .ml-seat{flex-shrink: 0; vertical-align: -3px;}
+.stage img.sk-on{opacity: 1 !important;}
+.stage .mh-header{position: fixed; top: 0px; left: 0px; right: 0px; height: 64px; z-index: 500; display: flex; align-items: center; padding: 0px 36px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); box-shadow: rgba(53, 78, 99, 0.07) 0px 2px 24px; font-family: Onest, system-ui, sans-serif;}
+.stage .mh-logo{text-decoration: none; white-space: nowrap; margin-right: 40px; flex-shrink: 0; display: flex; align-items: center;}
+.stage .mh-nav{display: flex; align-items: center; gap: 4px; flex: 1 1 0%;}
+.stage .mh-nav a{font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgb(61, 90, 110); padding: 8px 12px; border-radius: 6px; text-decoration: none; white-space: nowrap; transition: color 0.18s, background 0.18s;}
+.stage .mh-nav a:hover{color: rgb(232, 132, 106); background: rgba(232, 132, 106, 0.06);}
+.stage .mh-nav a.active{color: rgb(232, 132, 106);}
+.stage .mh-divider{width: 1px; height: 32px; background: rgb(232, 224, 216); margin: 0px 20px; flex-shrink: 0;}
+.stage .mh-right{display: flex; align-items: center; gap: 12px; flex-shrink: 0;}
+.stage .mh-avatar-wrap{display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 5px 14px 5px 5px; border-radius: 50px; transition: background 0.18s; text-decoration: none; color: inherit;}
+.stage .mh-avatar-wrap:hover{background: rgba(237, 246, 245, 0.8);}
+.stage .mh-avatar{width: 34px; height: 34px; border-radius: 50%; background: rgb(252, 234, 228); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: rgb(232, 132, 106); flex-shrink: 0;}
+.stage .mh-uname{font-size: 13.5px; font-weight: 600; color: rgb(53, 78, 99);}
+.stage .mh-prem-mark{display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex-shrink: 0; color: rgb(232, 132, 106);}
+.stage .mh-points{display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 50px; background: rgb(252, 234, 228); color: rgb(232, 132, 106); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background 0.18s;}
+.stage .mh-points:hover{background: rgb(246, 221, 211);}
+.stage .snap.has-mh-nav{padding-top: 64px;}
+
+/* ═════════ ОКНО ЗАГЛУШКИ ═════════ */
+/* flex + margin:auto: окно по центру, а если оно выше экрана —
+   прокручивается целиком, верх не обрезается */
+.wrap{
+  position:relative; z-index:2; height:100%; overflow:auto;
+  display:flex; padding:32px 16px; scroll-behavior:smooth;
+  padding-top:max(32px,env(safe-area-inset-top,0px));
+  padding-bottom:max(32px,env(safe-area-inset-bottom,0px));
+}
+.card{
+  margin:auto; width:min(640px,100%);
+  background:var(--paper); border-radius:26px;
+  padding:40px 46px 28px;
+  box-shadow:0 1px 0 rgba(31,49,72,.04), 0 30px 80px -20px rgba(31,49,72,.28), 0 12px 30px -12px rgba(31,49,72,.12);
+  translate:calc(var(--mx) * -.12) calc(var(--my) * -.12);
+  transition:translate .6s cubic-bezier(.2,.7,.2,1);
+  animation:rise .95s cubic-bezier(.2,.8,.2,1) 1.55s both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+
+.brand{font-weight:800;font-size:19px;letter-spacing:.07em;margin-bottom:30px}
+.brand span{color:var(--coral)}
+
+h1{
+  font-family:"Literata",Georgia,serif; font-weight:600;
+  font-size:clamp(38px,7.2vw,58px); line-height:1.02; letter-spacing:-.012em;
+  margin:0 0 16px; font-variation-settings:"opsz" 72;
+}
+h1 .w{display:inline-block;animation:word .9s cubic-bezier(.2,.8,.2,1) both}
+h1 .w:nth-child(1){animation-delay:1.85s}
+h1 .w:nth-child(2){animation-delay:1.97s}
+h1 .w:nth-child(3){animation-delay:2.09s}
+@keyframes word{from{opacity:0;transform:translateY(.35em);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+.lead{font-size:18.5px;line-height:1.45;color:var(--ink);margin:0 0 8px;text-wrap:balance}
+.aud{font-size:15.5px;line-height:1.5;color:var(--slate);margin:0 0 26px;text-wrap:pretty}
+
+/* возможности */
+.feats{list-style:none;margin:0 0 28px;padding:22px 0 0;border-top:1px solid var(--line);display:grid;gap:13px}
+.feats li{position:relative;padding-left:26px;font-size:15px;line-height:1.5;color:var(--slate)}
+.feats li::before{content:"";position:absolute;left:0;top:.72em;width:14px;height:2px;border-radius:2px;background:var(--coral)}
+.feats b{color:var(--ink);font-weight:700}
+
+/* кнопка-скролл */
+.cta{
+  display:inline-flex;align-items:center;gap:12px;
+  font:inherit;font-weight:700;font-size:16px;color:#fff;background:var(--coral);
+  border:0;border-radius:14px;padding:16px 24px;cursor:pointer;
+  box-shadow:0 10px 24px -10px rgba(235,116,84,.75);
+  transition:background .2s,transform .15s,opacity .35s;
+}
+.cta:hover{background:#E0633F}
+.cta:active{transform:translateY(1px)}
+.cta svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.8s ease-in-out 3.2s infinite}
+@keyframes nudge{0%,60%,100%{transform:none}30%{transform:translateY(3px)}}
+.cta-row{display:grid;grid-template-rows:1fr;transition:grid-template-rows .5s cubic-bezier(.3,.8,.2,1),opacity .3s}
+.cta-in{overflow:hidden;min-height:0;padding-bottom:14px;margin-bottom:-14px}
+.card.open .cta-row{grid-template-rows:0fr;opacity:0;pointer-events:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* выдвигающийся блок захвата лидов */
+.drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s cubic-bezier(.3,.8,.2,1)}
+.card.open .drawer{grid-template-rows:1fr}
+.drawer-in{overflow:hidden;min-height:0}
+.lead-box{
+  border:1.5px solid var(--line);border-radius:18px;padding:24px 24px 22px;margin-top:4px;
+  background:linear-gradient(180deg,#FFFFFF, #FDFBF9);
+  opacity:0;transform:translateY(-8px);transition:opacity .45s .15s, transform .45s .15s;
+}
+.card.open .lead-box{opacity:1;transform:none}
+.lb-note{font-size:15px;line-height:1.5;color:var(--slate);margin:0 0 16px}
+.field input[type=email]{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);
+  border:1.5px solid #D9DEE4;border-radius:13px;padding:14px 16px;background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field input[type=email]::placeholder{color:#A3ACB8}
+.field input[type=email]:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 4px rgba(235,116,84,.14)}
+.field input[aria-invalid="true"]{border-color:#D2452B}
+.err{font-size:13.5px;color:#C0392B;min-height:19px;margin:7px 2px 6px}
+.roles{border:0;margin:0 0 18px;padding:0;display:grid;gap:4px}
+.roles legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.chk{display:flex;align-items:flex-start;gap:12px;padding:8px 6px;border-radius:10px;cursor:pointer;font-size:15px;line-height:1.4;color:var(--ink)}
+.chk:hover{background:#FAF7F4}
+.chk input{
+  appearance:none;-webkit-appearance:none;flex:none;margin:1px 0 0;
+  width:20px;height:20px;border:1.8px solid #C5CCD5;border-radius:6px;background:#fff;
+  display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s;
+}
+.chk input::after{content:"";width:10px;height:6px;border:solid #fff;border-width:0 0 2.4px 2.4px;transform:rotate(-45deg) translate(1px,-1px) scale(0);transition:transform .15s}
+.chk input:checked{background:var(--coral);border-color:var(--coral)}
+.chk input:checked::after{transform:rotate(-45deg) translate(1px,-1px) scale(1)}
+.chk input:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.chk small{color:var(--muted);font-size:14px}
+.submit{
+  width:100%;font:inherit;font-weight:700;font-size:16px;color:#fff;background:var(--coral);
+  border:0;border-radius:13px;padding:15px 22px;cursor:pointer;
+  box-shadow:0 10px 24px -10px rgba(235,116,84,.75);transition:background .2s,transform .15s;
+}
+.submit:hover{background:#E0633F}
+.submit:active{transform:translateY(1px)}
+.submit[disabled]{opacity:.7;cursor:progress}
+
+/* экран после отправки */
+.success{display:none;text-align:left;padding:6px 2px}
+.success svg{width:44px;height:44px;margin-bottom:14px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.success svg circle{stroke:#CFE6DE;stroke-width:2.2}
+.success svg path{stroke:#2E9A7A;stroke-width:2.6;stroke-dasharray:1;stroke-dashoffset:1}
+.success h2{font-family:"Literata",Georgia,serif;font-weight:600;font-size:24px;line-height:1.2;margin:0 0 8px}
+.success p{font-size:15.5px;line-height:1.5;color:var(--slate);margin:0}
+.lead-box.sent form{display:none}
+.lead-box.sent .success{display:block;animation:fade .5s ease both}
+.lead-box.sent .success svg path{animation:draw .6s cubic-bezier(.6,0,.2,1) .15s forwards}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.foot{margin-top:22px;font-size:12.5px;color:var(--muted)}
+
+/* ═════════ адаптив ═════════ */
+@media (max-width:720px){
+  .wrap{padding-left:12px;padding-right:12px}
+  .card{padding:28px 22px 22px;border-radius:22px}
+  .brand{margin-bottom:24px}
+  .lead{font-size:17px}
+  .cta{width:100%;justify-content:center}
+  .lead-box{padding:20px 16px 18px}
+}
+
+/* ═════════ меньше движения ═════════ */
+@media (prefers-reduced-motion:reduce){
+  .app{animation:none;filter:blur(6px);transform:scale(1.06)}
+  .veil{animation:none}
+  .card,h1 .w,.cta svg{animation:none}
+  .stage,.card,.drawer,.lead-box,.cta-row{transition:none}
+  .wrap{scroll-behavior:auto}
+  .stage *{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Фон: слепок страницы подбора app/search.html. Декоративный: скрыт от скринридеров и неактивен. -->
+<div class="stage" aria-hidden="true" inert>
+  <div class="app" id="app">
+    <div class="snap has-mh-nav">
+<div> <header class="mh-header"> <a class="mh-logo"><img src="img/logo.svg" alt="МАЙСЛИСТ" height="24" style="display:block" class="sk-on"></a> <nav class="mh-nav"><a class="active">ПЛОЩАДКИ</a><a>ПОСТАВЩИКИ</a><a>БОНУСЫ</a><a>FAQ</a><a>О ПРОЕКТЕ</a><a>КАК ЭТО РАБОТАЕТ</a></nav> <div class="mh-divider"></div> <div class="mh-right"><a class="mh-points">12&nbsp;800 Б</a> <span class="mh-prem-mark"><svg class="mh-dia" width="15" height="15" viewBox="0 0 24 24"><path d="M12 2.2 21.8 12 12 21.8 2.2 12z" fill="currentColor" opacity=".92"></path><path d="M12 6.6 17.4 12 12 17.4 6.6 12z" fill="#fff" opacity=".28"></path></svg></span> <a class="mh-avatar-wrap"> <div class="mh-avatar">АК</div> <span class="mh-uname">Анна Козлова</span> </a></div> </header> </div> <div class="page-wrap">  <div class="control-bar"> <div class="cb-field"> <label>Город</label> <select><option value="" selected="">Любой</option><option value="Москва">Москва</option><option value="Санкт-Петербург">Санкт-Петербург</option><option value="Сочи">Сочи</option><option value="Казань">Казань</option><option value="Нижний Новгород">Нижний Новгород</option><option value="Самара">Самара</option><option value="Подмосковье">Подмосковье</option></select> </div> <div class="cb-field"> <label>Участников</label> <input type="number" min="0" step="10" value="100"> </div> <div class="cb-field"> <label>Тип мероприятия</label> <select><option value="business" selected="">Деловое</option><option value="banquet">Банкет / фуршет</option><option value="wedding">Свадьба</option><option value="team">Тимбилдинг</option></select> </div> <div class="cb-right"> <div class="view-sw"> <button class="on"> <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"></path></svg> <span>Списком</span> </button> <button> <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.2 2 4v9.8L6 12l4 1.8 4-1.8V2.2L10 4z"></path><path d="M6 2.2V12M10 4v9.8"></path></svg> <span>На карте</span> </button> </div> <span class="cb-tariff">Тариф: <b>ПРЕМИУМ</b></span> </div> </div> <div class="grid3">  <aside class="fd-panel"> <div class="fd-head"> <div class="fd-title">Фильтры</div> <button class="fd-reset">Сбросить всё</button> </div> <div class="fd-body"><details class="fd-group" data-k="cap" open=""> <summary>Вместимость<span class="fd-gcount">1</span><span class="fd-chev">▶</span></summary> <div class="fd-gbody"><div class="fd-seatrow"><span>Не менее</span><span class="v" data-s="cap">100 чел.</span></div> <div class="fd-range"><input type="range" min="0" max="900" step="10" value="100"></div></div> </details><details class="fd-group" data-k="cats" open=""> <summary>Категории объектов<span class="fd-gcount">3</span><span class="fd-chev">▶</span></summary> <div class="fd-gbody"><label class="fd-check" data-g="cats" data-item="Отель"> <input type="checkbox" checked=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Отель</span><span class="fd-cnt">(3)</span></label><label class="fd-check off" data-g="cats" data-item="Бутик-отель"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Бутик-отель</span><span class="fd-cnt">(0)</span></label><label class="fd-check" data-g="cats" data-item="Конференц-площадка"> <input type="checkbox" checked=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Конференц-площадка</span><span class="fd-cnt">(1)</span></label><label class="fd-check" data-g="cats" data-item="Лофт"> <input type="checkbox" checked=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Лофт</span><span class="fd-cnt">(1)</span></label><label class="fd-check" data-g="cats" data-item="Конгрессно-выставочная"> <input type="checkbox"> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Конгрессно-выставочная</span><span class="fd-cnt">(1)</span></label><label class="fd-check off" data-g="cats" data-item="Ресторан"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Ресторан</span><span class="fd-cnt">(0)</span></label><label class="fd-check off" data-g="cats" data-item="Уличная площадка"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Уличная площадка</span><span class="fd-cnt">(0)</span></label><label class="fd-check off" data-g="cats" data-item="Клуб"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Клуб</span><span class="fd-cnt">(0)</span></label><label class="fd-check off" data-g="cats" data-item="Корабль"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Корабль</span><span class="fd-cnt">(0)</span></label><label class="fd-check off" data-g="cats" data-item="Глэмпинг"> <input type="checkbox" disabled=""> <span class="fd-box"><svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M2 5.5l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span> <span class="fd-lbl">Глэмпинг</span><span class="fd-cnt">(0)</span></label></div> </details><details class="fd-group" data-k="stars"> <summary>Звёздность<span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="rooms"> <summary>Проживание<span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="halls"> <summary>Залы<span class="fd-gcount">2</span><span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="price"> <summary>Стоимость аренды зала<span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="food"> <summary>Питание<span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="opts"> <summary>Возможности для мероприятий<span class="fd-chev">▶</span></summary> </details><details class="fd-group" data-k="other"> <summary>Прочее<span class="fd-chev">▶</span></summary> </details></div> </aside>  <div class="res-col"> <div class="res-head"> <div class="res-count" data-s="count">Найдено <b>10</b> <span data-s="word">залов</span> в <b>5</b> объектах</div> <div class="res-tools"> <select class="res-sort"> <option value="rel" selected="">Сначала релевантные</option> <option value="price">По цене ↑</option> <option value="cap">По вместимости ↓</option> <option value="rating">По рейтингу ↓</option> </select> </div> </div> <div class="f-chips"><span class="f-chip">от 100 чел.<button>✕</button></span><span class="f-chip">Зал 1: Театр от 150<button>✕</button></span><span class="f-chip">Зал 2: Фуршет от 60<button>✕</button></span><span class="f-chip">Отель<button>✕</button></span><span class="f-chip">Конференц-площадка<button>✕</button></span><span class="f-chip">Лофт<button>✕</button></span></div> <div class="vlist"><section class="vb" data-vid="1"> <div class="vb-head"> <div> <a class="vb-name">Отель «Аврора»</a> <span class="vb-loyal">Бонусная программа</span> <div class="vb-meta"> <span>Отель</span> <span>Москва · Пресненская наб., 12</span> <span>до <b>300</b> чел.</span> <span><b>2</b> зала из 3</span> <span class="vb-stars">★★★★</span> <span class="vb-rating"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> <b>4.9</b> (127)</span> </div> </div> <button class="vb-black"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M10.6 10.7a3 3 0 004.2 4.2"></path><path d="M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17.6 17.6 0 01-3.4 4.2M6.3 6.5C3.7 8.2 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"></path></svg></button> </div> <div class="vb-match">Требованиям отвечают: Большой зал · Зал «Панорама»</div> <div class="rail-wrap"> <div class="rail"><article class="hc"> <div class="hc-img"> <img src="img/v1.jpg" alt="" class="sk-on"> <div class="hc-tags"> <span class="hc-tag">Конференц-зал</span> <span class="hc-tag plan">План</span> </div> </div> <div class="hc-body"> <div class="hc-name">Большой зал</div> <div class="hc-caps"><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Театр</title><path d="M12 4.5 20.5 19.5H3.5z"></path></svg>250</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Класс</title><rect x="4.5" y="4.5" width="15" height="15" rx="1.6"></rect></svg>140</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>U-shape</title><path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>60</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Банкет</title><circle cx="12" cy="12" r="7.6"></circle></svg>180</span></div> <div class="hc-price">45&nbsp;000 ₽</div> <div class="hc-foot"> <div class="hc-acts"> <button class="hc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"></path></svg></button> <button class="hc-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button> </div> <a class="hc-more">Подробнее</a> </div> </div> </article><article class="hc"> <div class="hc-img"> <img src="img/v2.jpg" alt="" class="sk-on"> <div class="hc-tags"> <span class="hc-tag">Трансформер</span> <span class="hc-tag plan">План</span> </div> </div> <div class="hc-body"> <div class="hc-name">Зал «Панорама»</div> <div class="hc-caps"><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Театр</title><path d="M12 4.5 20.5 19.5H3.5z"></path></svg>160</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Класс</title><rect x="4.5" y="4.5" width="15" height="15" rx="1.6"></rect></svg>90</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>U-shape</title><path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>45</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Банкет</title><circle cx="12" cy="12" r="7.6"></circle></svg>120</span></div> <div class="hc-price">28&nbsp;000 ₽</div> <div class="hc-foot"> <div class="hc-acts"> <button class="hc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"></path></svg></button> <button class="hc-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button> </div> <a class="hc-more">Подробнее</a> </div> </div> </article></div> </div> </section><section class="vb" data-vid="4"> <div class="vb-head"> <div> <a class="vb-name">Отель «Флагман»</a> <span class="vb-loyal">Бонусная программа</span> <div class="vb-meta"> <span>Отель</span> <span>Санкт-Петербург · Адмиралтейская наб., 4</span> <span>до <b>550</b> чел.</span> <span><b>2</b> зала из 3</span> <span class="vb-stars">★★★★★</span> <span class="vb-rating"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> <b>4.9</b> (203)</span> </div> </div> <button class="vb-black"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M10.6 10.7a3 3 0 004.2 4.2"></path><path d="M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17.6 17.6 0 01-3.4 4.2M6.3 6.5C3.7 8.2 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"></path></svg></button> </div> <div class="vb-match">Требованиям отвечают: Зал «Нева» · Бальный зал</div> <div class="rail-wrap"> <div class="rail"><article class="hc"> <div class="hc-img"> <img src="img/v8.jpg" alt="" class="sk-on"> <div class="hc-tags"> <span class="hc-tag">Конференц-зал</span> <span class="hc-tag plan">План</span> </div> </div> <div class="hc-body"> <div class="hc-name">Зал «Нева»</div> <div class="hc-caps"><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Театр</title><path d="M12 4.5 20.5 19.5H3.5z"></path></svg>150</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Класс</title><rect x="4.5" y="4.5" width="15" height="15" rx="1.6"></rect></svg>80</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>U-shape</title><path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg>44</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Переговоры</title><rect x="3" y="7.6" width="18" height="8.8" rx="1.6"></rect></svg>32</span></div> <div class="hc-price">65&nbsp;000 ₽</div> <div class="hc-foot"> <div class="hc-acts"> <button class="hc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"></path></svg></button> <button class="hc-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button> </div> <a class="hc-more">Подробнее</a> </div> </div> </article><article class="hc"> <div class="hc-img"> <img src="img/v4.jpg" alt="" class="sk-on"> <div class="hc-tags"> <span class="hc-tag">Банкетный зал</span> <span class="hc-tag plan">План</span> </div> </div> <div class="hc-body"> <div class="hc-name">Бальный зал</div> <div class="hc-caps"><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Театр</title><path d="M12 4.5 20.5 19.5H3.5z"></path></svg>400</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Банкет</title><circle cx="12" cy="12" r="7.6"></circle></svg>300</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Фуршет</title><circle cx="7" cy="8" r="2.1"></circle><circle cx="12" cy="8" r="2.1"></circle><circle cx="17" cy="8" r="2.1"></circle><circle cx="7" cy="16" r="2.1"></circle><circle cx="12" cy="16" r="2.1"></circle><circle cx="17" cy="16" r="2.1"></circle></svg>550</span><span class="hc-cap"><svg class="ml-seat" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><title>Кабаре</title><path d="M3.6 17.5a8.4 8.4 0 0 1 16.8 0z"></path></svg>240</span></div> <div class="hc-price">180&nbsp;000 ₽</div> <div class="hc-foot"> <div class="hc-acts"> <button class="hc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"></path></svg></button> <button class="hc-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button> </div> <a class="hc-more">Подробнее</a> </div> </div> </article></div> </div> </section></div> </div>  <aside class="map-col"> <div class="map-head"> <b>На карте · <span>5</span></b> </div> <div class="map-canvas"> <div class="map-scale"><svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"> <defs> <linearGradient id="mg" x1="0" y1="0" x2="100" y2="100"> <stop stop-color="#E2F0EF" offset="0"></stop> <stop stop-color="#CDE5E3" offset="1"></stop> </linearGradient> </defs> <rect width="100" height="100" fill="url(#mg)"></rect> <rect x="8" y="17" width="3" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="16.2" y="26" width="4" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="24.4" y="35" width="5" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="32.6" y="44" width="6" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="40.8" y="53" width="3" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="27" y="62" width="4" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="35.2" y="71" width="5" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="43.400000000000006" y="80" width="6" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="51.6" y="17" width="3" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="37.8" y="26" width="4" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="46" y="35" width="5" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="54.2" y="44" width="6" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="62.400000000000006" y="53" width="3" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="70.6" y="62" width="4" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="56.800000000000004" y="71" width="5" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="65" y="80" width="6" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="73.2" y="17" width="3" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="81.4" y="26" width="4" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="67.6" y="35" width="5" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="75.80000000000001" y="44" width="6" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="84" y="53" width="3" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="92.2" y="62" width="4" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="78.4" y="71" width="5" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="86.60000000000001" y="80" width="6" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="94.80000000000001" y="17" width="3" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect><rect x="103" y="26" width="4" height="3.5" rx=".4" fill="#B8CDD8" opacity="0.25"></rect><rect x="111.2" y="35" width="5" height="4.5" rx=".4" fill="#B8CDD8" opacity="0.32"></rect><rect x="97.4" y="44" width="6" height="2.5" rx=".4" fill="#B8CDD8" opacity="0.18"></rect> <ellipse cx="22" cy="58" rx="9" ry="7" fill="#8FC8B8" opacity=".28"></ellipse> <ellipse cx="70" cy="32" rx="7" ry="6" fill="#8FC8B8" opacity=".24"></ellipse> <ellipse cx="48" cy="78" rx="11" ry="5" fill="#8FC8B8" opacity=".22"></ellipse> <ellipse cx="82" cy="68" rx="6" ry="4" fill="#8FC8B8" opacity=".2"></ellipse> <path d="M0 38 Q22 28 50 34 T100 30" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"></path> <path d="M0 55 Q25 48 52 54 T100 50" stroke="#fff" stroke-width="1.1" fill="none" opacity=".6"></path> <path d="M0 70 Q30 64 55 70 T100 68" stroke="#fff" stroke-width=".9" fill="none" opacity=".5"></path> <path d="M38 0 Q40 28 38 55 T42 100" stroke="#fff" stroke-width="1.2" fill="none" opacity=".65"></path> <path d="M62 0 Q60 22 63 50 T60 100" stroke="#fff" stroke-width=".9" fill="none" opacity=".55"></path> <path d="M0 38 Q22 28 50 34 T100 30" stroke="#9BBFC8" stroke-width=".5" fill="none" opacity=".6"></path> <path d="M0 55 Q25 48 52 54 T100 50" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"></path> <path d="M38 0 Q40 28 38 55 T42 100" stroke="#9BBFC8" stroke-width=".4" fill="none" opacity=".5"></path> <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#7BB8C8" stroke-width="2.2" fill="none" opacity=".45"></path> <path d="M0 44 Q18 40 38 46 T68 42 T100 48" stroke="#A8D4DC" stroke-width="1.2" fill="none" opacity=".6"></path> </svg><button class="map-pin" data-vid="1" style="left:52%;top:38%"> <span class="pin-body">2 зала</span> </button><button class="map-pin" data-vid="4" style="left:30%;top:20%"> <span class="pin-body">2 зала</span> </button><button class="map-pin" data-vid="11" style="left:54%;top:44%"> <span class="pin-body">2 зала</span> </button><button class="map-pin" data-vid="13" style="left:56%;top:48%"> <span class="pin-body">2 зала</span> </button><button class="map-pin" data-vid="14" style="left:28%;top:56%"> <span class="pin-body">2 зала</span> </button></div> <div class="map-zoom"> <button>+</button> <button>−</button> </div> </div> </aside> </div> </div>
+    </div>
+  </div>
+</div>
+<div class="veil" aria-hidden="true"></div>
+
+<!-- Окно заглушки -->
+<div class="wrap" id="wrap">
+  <main class="card" id="card">
+    <div class="brand" aria-label="МАЙСЛИСТ">МАЙС<span>ЛИСТ</span></div>
+
+    <h1><span class="w">Залы</span> <span class="w">Важных</span> <span class="w">Событий</span></h1>
+    <p class="lead">Подбор залов для мероприятий любого формата и масштаба</p>
+    <p class="aud">Event- и MICE-менеджерам, отелям и площадкам, подрядчикам и поставщикам услуг</p>
+
+    <ul class="feats">
+      <li><b>Точные фильтры</b> — отбор залов по характеристикам, вместимости при разных схемах рассадки, техническому оснащению и пр.</li>
+      <li><b>Сравнение характеристик</b> в наглядной сводной таблице</li>
+      <li><b>Презентации в PDF</b> — аккуратный файл для защиты вариантов перед заказчиком</li>
+      <li><b>Прямые запросы в отделы продаж</b> — отправка в один клик</li>
+    </ul>
+
+    <div class="cta-row"><div class="cta-in">
+      <button class="cta" id="cta" type="button" aria-controls="drawer" aria-expanded="false">
+        Запросить ранний доступ
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12l6 6 6-6"/></svg>
+      </button>
+    </div></div>
+
+    <!-- Выдвигающийся блок захвата лидов -->
+    <div class="drawer" id="drawer">
+      <div class="drawer-in">
+        <div class="lead-box" id="leadBox">
+          <form id="form" novalidate>
+            <p class="lb-note">Вы получите только одно сообщение, когда мы запустим бета-версию.</p>
+            <div class="field">
+              <label for="email" class="sr">Email</label>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Введите ваш email" aria-describedby="err" tabindex="-1">
+              <div class="err" id="err" role="alert"></div>
+            </div>
+            <fieldset class="roles">
+              <legend>Кто вы</legend>
+              <label class="chk"><input type="checkbox" name="role" value="organizer" tabindex="-1">Я организую мероприятия</label>
+              <label class="chk"><input type="checkbox" name="role" value="venue" tabindex="-1"><span>Я представляю площадку <small>(зал, отель, конгресс-центр)</small></span></label>
+              <label class="chk"><input type="checkbox" name="role" value="supplier" tabindex="-1">Я предоставляю услуги</label>
+            </fieldset>
+            <button class="submit" id="submit" type="submit" tabindex="-1">Запросить доступ</button>
+          </form>
+
+          <div class="success" role="status" aria-live="polite">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path pathLength="1" d="M13.5 22.5l6 6 11-12"/></svg>
+            <h2>Спасибо! Ваша заявка принята.</h2>
+            <p>Мы пришлём вам закрытый доступ к бета-тестированию, как только оно запустится.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">© 2026 ООО «МАЙСЛИСТ»</div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── фон: слепок сам себя «использует» ──
+     Шаг раз в 2,4 с: щёлкает чекбокс категории, меняется счётчик залов,
+     подсвечивается объект и его пин на карте, сдвигается ползунок. */
+  const stage = document.querySelector('.stage');
+  const $ = s => stage.querySelector(s), $$ = s => [...stage.querySelectorAll(s)];
+  const venuesEl = $$('.vb');
+  const pinsEl = venuesEl.map(v => $('.map-pin[data-vid="' + v.dataset.vid + '"]'));
+  const checks = $$('.fd-check[data-g="cats"]:not(.off) input');
+  const catsCount = $('.fd-group[data-k="cats"] .fd-gcount');
+  const cnt = $('[data-s="count"] b'), cntw = $('[data-s="word"]');
+  const range = $('.fd-range input'), capVal = $('[data-s="cap"]');
+  const people = $('.control-bar input[type="number"]'), peopleChip = $('.f-chip').firstChild;
+  const word = n => { const a=n%10,b=n%100; return b>10&&b<20?'залов':a===1?'зал':a>=2&&a<=4?'зала':'залов'; };
+  let active = -1, count = +cnt.textContent, cap = +range.value, timer = null;
+
+  // одна кривая на все плавные изменения: счётчик и ползунок
+  function tween(from, to, dur, set){
+    const t0 = performance.now();
+    (function f(t){
+      const k = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-k,3);
+      set(from + (to-from)*e);
+      if(k<1) requestAnimationFrame(f);
+    })(t0);
+  }
+  function setCap(v){
+    v = Math.round(v/10)*10;
+    range.value = v; capVal.textContent = v + ' чел.';
+    people.value = v; peopleChip.nodeValue = 'от ' + v + ' чел.';
+  }
+  function highlight(i){
+    venuesEl.forEach((v,j)=>v.classList.toggle('hi', j===i));
+    pinsEl.forEach((p,j)=>p && p.classList.toggle('hi', j===i));
+  }
+  function step(){
+    active = (active+1) % venuesEl.length;
+    highlight(active);
+    const c = checks[Math.floor(Math.random()*checks.length)];
+    c.checked = !c.checked;
+    if(!checks.some(x=>x.checked)) checks[0].checked = true;
+    catsCount.textContent = checks.filter(x=>x.checked).length;
+    const from = count; count = 6 + Math.floor(Math.random()*15);
+    tween(from, count, 700, n => { n = Math.round(n); cnt.textContent = n; cntw.textContent = word(n); });
+    const cFrom = cap; cap = 40 + Math.floor(Math.random()*33)*10;
+    tween(cFrom, cap, 900, setCap);
+  }
+
+  function start(){
+    if(reduce){ highlight(0); return; }
+    if(!timer) timer = setInterval(step, 2400);
+  }
+  function stop(){ clearInterval(timer); timer = null; }
+
+  setTimeout(start, reduce ? 0 : 2900);
+  document.addEventListener('visibilitychange', ()=> document.hidden ? stop() : start());
+
+  /* кадр как cover: без tan(atan2()) в CSS масштаб считаем здесь */
+  if(!CSS.supports('scale','tan(atan2(1px,1px))')){
+    const snap = $('.snap');
+    const fit = ()=> snap.style.setProperty('--k', Math.max(innerWidth/1440, innerHeight/900));
+    fit(); addEventListener('resize', fit, {passive:true});
+  }
+
+  /* ── глубина: фон и окно чуть расходятся за курсором ── */
+  if(!reduce && matchMedia('(pointer:fine)').matches){
+    const root = document.documentElement;
+    let tx=0, ty=0, raf=null;
+    addEventListener('pointermove', e=>{
+      tx = (e.clientX/innerWidth - .5) * -24;
+      ty = (e.clientY/innerHeight - .5) * -16;
+      if(!raf) raf = requestAnimationFrame(()=>{ root.style.setProperty('--mx', tx+'px'); root.style.setProperty('--my', ty+'px'); raf=null; });
+    }, {passive:true});
+  }
+
+  /* ── кнопка-скролл: выдвигает блок и прокручивает к полям ── */
+  const card = document.getElementById('card'), cta = document.getElementById('cta'),
+        drawer = document.getElementById('drawer'), email = document.getElementById('email'),
+        form = document.getElementById('form'), err = document.getElementById('err'),
+        submit = document.getElementById('submit'), leadBox = document.getElementById('leadBox');
+  const focusables = form.querySelectorAll('input,button');
+
+  cta.addEventListener('click', ()=>{
+    card.classList.add('open');
+    cta.setAttribute('aria-expanded','true');
+    cta.tabIndex = -1;
+    focusables.forEach(el=>el.tabIndex = 0);
+    const go = ()=>{
+      leadBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'center'});
+      email.focus({preventScroll:true});
+    };
+    reduce ? go() : setTimeout(go, 380);
+  });
+
+  /* ── отправка ──
+     sendLead — единственное место, где подключается приём заявок:
+     форма Битрикса, CRM или сервис сбора лидов. Сейчас данные
+     никуда не уходят. */
+  async function sendLead(data){
+    await new Promise(r=>setTimeout(r, 600));
+    return true;
+  }
+
+  form.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const v = email.value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){
+      email.setAttribute('aria-invalid','true');
+      err.textContent = v ? 'Проверьте email: похоже, в адресе ошибка.' : 'Введите email, на который прислать доступ.';
+      email.focus(); return;
+    }
+    email.removeAttribute('aria-invalid'); err.textContent = '';
+    const roles = [...form.querySelectorAll('input[name=role]:checked')].map(x=>x.value);
+    submit.disabled = true; submit.textContent = 'Отправляем…';
+    const ok = await sendLead({ email: v, roles, source: 'stub', ts: new Date().toISOString() });
+    if(ok){ leadBox.classList.add('sent'); }
+    else { submit.disabled = false; submit.textContent = 'Запросить доступ'; err.textContent = 'Не удалось отправить заявку. Попробуйте ещё раз.'; }
+  });
+  email.addEventListener('input', ()=>{
+    if(email.hasAttribute('aria-invalid')){ email.removeAttribute('aria-invalid'); err.textContent=''; }
+  });
+})();
+</script>
+</body>
+</html>
