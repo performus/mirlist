@@ -1,0 +1,18 @@
+# МАЙСЛИСТ — заглушка micelist.ru
+Options -Indexes
+DirectoryIndex index.html
+AddDefaultCharset UTF-8
+
+# http → https. На хостинге REG.RU запрос приходит через прокси,
+# поэтому схему проверяем и по заголовкам, иначе будет вечный редирект.
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTP:X-Https} !1
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Настройки с паролем, данные заявок и служебные файлы из браузера не открываются,
+# даже если по ошибке окажутся в папке сайта.
+<FilesMatch "^(micelist-mail.*\.php|.*\.csv|ratelimit\.json|keys\.txt|\.ht.*)$">
+  Require all denied
+</FilesMatch>

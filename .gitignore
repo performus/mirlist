@@ -19,3 +19,8 @@ app/.DS_Store
 
 # справочный прототип, не часть сайта
 mycelist-prototype.html
+
+# пакет заглушки для REG.RU: пароли и рабочие настройки только локально
+deploy-micelist/private/
+deploy-micelist/keys.txt
+keys.txt
