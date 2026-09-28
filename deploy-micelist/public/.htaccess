@@ -3,18 +3,10 @@ Options -Indexes
 DirectoryIndex index.html
 AddDefaultCharset UTF-8
 
-RewriteEngine On
-
-# www.micelist.ru → https://micelist.ru одним переходом
-RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
-
-# http → https. На хостинге REG.RU запрос приходит через прокси,
-# поэтому схему проверяем и по заголовкам, иначе будет вечный редирект.
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP:X-Forwarded-Proto} !https
-RewriteCond %{HTTP:X-Https} !1
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# Перенаправлений здесь нет намеренно: http → https и www → micelist.ru
+# включаются в ISPmanager после выпуска сертификата. HTTPS на REG.RU
+# принимает nginx перед Apache, и такое правило в .htaccess может
+# зациклиться, а до сертификата — привести посетителя к ошибке безопасности.
 
 # Настройки с паролем, данные заявок и служебные файлы из браузера не открываются,
 # даже если по ошибке окажутся в папке сайта.
