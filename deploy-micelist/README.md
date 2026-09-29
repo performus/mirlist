@@ -25,22 +25,18 @@ deploy-micelist/
 
 ## HTTPS
 
-Только после того, как A-записи `@` и `www` смотрят на `31.31.198.23`:
+Сделано 29.09.2026 в ISPmanager:
 
-1. ISPmanager → «SSL-сертификаты» → «Let's Encrypt» → сайт micelist.ru,
-   имена `micelist.ru` и `www.micelist.ru`.
-2. «Сайты» → micelist.ru → включить «Перенаправлять HTTP-запросы в HTTPS»
-   и перенаправление с www на основной адрес.
+- сертификат Let's Encrypt `micelist.ru_le1` на `micelist.ru` и `www.micelist.ru`,
+  установлен на сайт, продлевается панелью автоматически (срок — 90 дней);
+- «Сайты» → micelist.ru: «Перенаправлять HTTP-запросы в HTTPS» и перенаправление
+  с www.micelist.ru на micelist.ru. HSTS включён панелью по умолчанию.
+
+Перенаправление с www панель ведёт через `http://micelist.ru`, поэтому с `http://www`
+получается 2–3 перехода по 301; итог всегда `https://micelist.ru/`.
 
 В `.htaccess` перенаправлений нет намеренно: HTTPS на REG.RU принимает nginx
-перед Apache, правило в `.htaccess` может зациклиться, а до выпуска сертификата
-привело бы посетителя к ошибке безопасности.
-
-Проверить сайт до смены DNS можно через IP:
-
-```sh
-curl -s --resolve micelist.ru:80:31.31.198.23 http://micelist.ru/ | head
-```
+перед Apache, правило в `.htaccess` может зациклиться.
 
 ## Проверка после заливки
 
