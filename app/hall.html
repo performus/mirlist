@@ -245,7 +245,7 @@ function render() {
 
   document.getElementById('root').innerHTML = `
   <div class="crumbs">
-    <a href="search.html">Подбор площадок</a><span class="sep">→</span>
+    <a href="search.html">Подбор залов</a><span class="sep">→</span>
     <a href="venue.html?id=${v.id}">${esc(v.name)}</a><span class="sep">→</span>
     <span class="cur">${esc(h.name)}</span>
   </div>
@@ -269,18 +269,18 @@ function render() {
   </div>
 
   ${gallery(h, v)}
-  <p class="gal-note">Фото и видео, схемы рассадки и точный план пространства — при наличии на ресурсе.</p>
+  <p class="gal-note">Фото и видео, схемы рассадки и точный план зала — при наличии на платформе.</p>
 
   <div class="two">
     <div>
       <div class="sec-head first">
         <h2 class="sec-title">Вместимость по схемам рассадки</h2>
-        <span class="sec-sub">${full ? 'Человек по каждой схеме' : ''}</span>
+        <span class="sec-sub">${full ? 'Количество человек в каждом из вариантов' : ''}</span>
       </div>
       ${full
         ? `<div class="seats">${seatTiles}</div>${MH.seatLegend()}`
         : MH.isLocked()
-        ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость по схемам рассадки доступна после регистрации')
+        ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость при разных схемах рассадки доступна после регистрации')
         : `<div class="note">
             <span>Схемы рассадки доступны с тарифа <b>«БИЗНЕС»</b>. Сейчас видна только площадь зала — <b>${h.area} м²</b>.</span>
             <a class="btn sm" href="pricing.html">Тарифы</a></div>`}
@@ -295,7 +295,7 @@ function render() {
           <tr><th>Аренда за час</th><td>${h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'}</td></tr>
           <tr><th>Точный план пространства</th><td>${h.plan ? (full ? 'есть, PDF' : 'есть') : 'нет'}</td></tr>
         </table>
-      </div>`, 'Параметры зала и стоимость аренды доступны после регистрации')}
+      </div>`, 'Некоторые параметры зала и стоимость аренды доступны только после регистрации')}
 
       ${others.length ? `<div class="sec-head"><h2 class="sec-title">Другие залы объекта</h2>
         <span class="sec-sub">${others.length} ${ML.plural(others.length, ['зал','зала','залов'])}</span></div>
@@ -315,7 +315,7 @@ function render() {
       </div>
       <div class="panel pad">
         <div class="eyebrow">Запрос</div>
-        <p>Бронирования на ресурсе нет. Соберите залы в сравнение и отправьте один запрос сразу во все объекты.</p>
+        <p>Услуги бронирования МАЙСЛИСТ не предоставляет. Добавьте нужные залы в сравнение — и одной кнопкой отправьте коммерческий запрос менеджерам всех выбранных объектов.</p>
         <a class="btn pri" style="display:block;text-align:center" href="compare.html">Сравнение (${ML.state.compare.size})</a>
       </div>
     </aside>
