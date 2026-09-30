@@ -554,6 +554,16 @@ const MH = (() => {
         cursor: pointer; transition: all .18s; font-family: 'Onest', system-ui, sans-serif;
       }
       .mhfb-chip.sel { background: #FCEAE4; color: #E8846A; border-color: rgba(232,132,106,.3); font-weight: 600; }
+      /* Узкий экран: длинная тема «Спор по факту…» занимает строку целиком и переносится
+         ровно, остальные кнопки тянутся по ширине строки и выравниваются по высоте. */
+      @media (max-width: 480px) {
+        .mhfb-chips { align-items: stretch; }
+        .mhfb-chip {
+          flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center;
+          text-align: center; line-height: 1.3; min-height: 34px;
+        }
+        .mhfb-chip[data-dispute] { flex-basis: 100%; border-radius: 14px; text-wrap: balance; }
+      }
       .mhfb-textarea {
         width: 100%; padding: 11px 15px; border-radius: 10px;
         border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;

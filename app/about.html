@@ -58,13 +58,14 @@ h2{font-family:'Literata',Georgia,serif;font-size:24px;font-weight:600;color:var
 .feat b{display:block;font-size:14.5px;font-weight:700;color:var(--slate-deep);margin-bottom:6px;}
 .feat span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
 
-/* чего не делаем */
+/* что происходит вне платформы: нейтральный значок «наружу» */
 .nots{display:flex;flex-direction:column;gap:10px;}
 .not{display:flex;align-items:flex-start;gap:12px;background:var(--white);
-  border:1px solid rgba(197,227,225,.32);border-left:3px solid var(--coral);
+  border:1px solid rgba(197,227,225,.32);border-left:3px solid var(--aqua-3);
   border-radius:var(--r-md);padding:15px 18px;box-shadow:var(--sh-sm);}
-.not-x{width:22px;height:22px;border-radius:50%;background:var(--coral-soft);color:var(--coral);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.not-x{width:22px;height:22px;border-radius:50%;background:var(--aqua-pale);color:var(--slate-mid);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.not-x svg{display:block;}
 .not b{display:block;font-size:14px;font-weight:700;color:var(--slate-deep);margin-bottom:4px;}
 .not span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
 
@@ -111,17 +112,18 @@ h2{font-family:'Literata',Georgia,serif;font-size:24px;font-weight:600;color:var
 
   <h2>Что происходит вне платформы</h2>
   <div class="nots">
-    <div class="not"><span class="not-x">✕</span><div>
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
       <b>Бронирование и заключение договора</b>
       <span>Бронирование и договор идут напрямую между вами и объектом. Ресурс не участвует
       в переписке и не выступает стороной сделки.</span></div></div>
-    <div class="not"><span class="not-x">✕</span><div>
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
       <b>Расчёт и согласование сметы</b>
       <span>Калькулятора услуг и смет не предусмотрено. Подтверждающих документов и смет
       ресурс не получает ни от пользователя, ни от объектов.</span></div></div>
-    <div class="not"><span class="not-x">✕</span><div>
+    <!-- REMOVED BY CLIENT: пункт «Не передаёт контакты пользователей»
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
       <b>Не передаёт контакты пользователей</b>
-      <span>Объектам и поставщикам уходит только запрос. Персональные данные не раскрываются.</span></div></div>
+      <span>Объектам и поставщикам уходит только запрос. Персональные данные не раскрываются.</span></div></div> -->
   </div>
 
   <h2>Что в планах МАЙСЛИСТ</h2>

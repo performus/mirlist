@@ -184,6 +184,8 @@ button{font-family:inherit;cursor:pointer;}
 .reveal.vis{opacity:1;transform:translateY(0);}
 
 @media(max-width:1100px){.hero-right{display:none;}.hero{padding:120px 48px 80px;gap:0;}}
+/* после скрытия трёх карточек в «Функциях платформы» их нечётное число: в две колонки последняя — на всю строку */
+@media(min-width:601px) and (max-width:900px){.features-grid .feat-card:last-child:nth-child(odd){grid-column:1/-1;}}
 @media(max-width:900px){.steps-grid,.benefits-grid,.features-grid,.test-grid{grid-template-columns:1fr 1fr;}.cat-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.nav{padding:0 20px;height:60px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;min-height:auto;}.hero-h1{font-size:32px;}.hero-sub{font-size:16px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-hero{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps-grid,.benefits-grid,.features-grid,.test-grid,.cat-grid{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}.cta-section{padding:48px 20px;}}
 </style>
@@ -309,21 +311,22 @@ button{font-family:inherit;cursor:pointer;}
   <div class="section-center reveal">
     <div class="section-label">Возможности</div>
     <h2 class="section-title">Функции платформы</h2>
-    <p class="section-desc">Инструменты для эффективного управления площадкой</p>
+    <!-- REMOVED BY CLIENT: подзаголовок «Функции платформы» | <p class="section-desc">Инструменты для эффективного управления площадкой</p> -->
   </div>
   <div class="container">
     <div class="features-grid">
       <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="feat-title">Управление запросами</div><div class="feat-text">Статусы запросов, шаблоны быстрых ответов</div></div>
       <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="feat-title">Редактирование профиля</div><div class="feat-text">Описания залов, фото, цены</div></div>
       <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="feat-title">Статистика просмотров</div><div class="feat-text">Динамика эффективности</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="feat-title">Быстрые ответы</div><div class="feat-text">Шаблоны сообщений для отклика</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="feat-title">Календарь дат</div><div class="feat-text">Управление доступностью и загруженностью</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="feat-title">Уведомления</div><div class="feat-text">Уведомления о новых запросах и изменениях</div></div>
+      <!-- REMOVED BY CLIENT: карточка «Быстрые ответы» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="feat-title">Быстрые ответы</div><div class="feat-text">Шаблоны сообщений для отклика</div></div> -->
+      <!-- REMOVED BY CLIENT: карточка «Календарь дат» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="feat-title">Календарь дат</div><div class="feat-text">Управление доступностью и загруженностью</div></div> -->
+      <!-- REMOVED BY CLIENT: карточка «Уведомления» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="feat-title">Уведомления</div><div class="feat-text">Уведомления о новых запросах и изменениях</div></div> -->
     </div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
+<!-- REMOVED BY CLIENT: отзывы «Владельцы площадок о нас» (решение клиента: не публиковать фейковые отзывы)
 <section class="section">
   <div class="section-center reveal">
     <div class="section-label">Отзывы</div>
@@ -345,7 +348,7 @@ button{font-family:inherit;cursor:pointer;}
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 <!-- FINAL CTA -->
 <section class="cta-section">

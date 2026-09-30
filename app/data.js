@@ -541,6 +541,18 @@
   ];
 
   /* ─────────── 8. СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ─────────── */
+  /* Удобства переименованы по корректуре клиента (сентябрь 2026). Старые названия
+     остаются в сохранённых фильтрах посетителей и в объектах, заведённых в кабинете:
+     переводим их при чтении, чтобы выбор не сбрасывался и объекты находились. */
+  const FEATURE_RENAMES = {
+    'Место для велкома': 'Зона Welcome',
+    'Своя парковка': 'Отдельная парковка',
+    'Можно привезти алкоголь': 'Возможен свой алкоголь (пробковый сбор)',
+    'Возможен свой кейтеринг': 'Возможен кейтеринг заказчика',
+  };
+  const renameFeature = (x) => FEATURE_RENAMES[x] || x;
+  const hasOldFeature = (v) => Object.keys(FEATURE_RENAMES).some(k => JSON.stringify(v || '').includes(JSON.stringify(k)));
+
   /* Ключи localStorage. mh_compare теперь хранит ID ЗАЛОВ, а не объектов —
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
 
@@ -557,7 +569,7 @@
   const state = {
     tariff: read(K.tariff, 'guest'),   // первый заход — незарегистрированный посетитель
     filters: unpackFilters(read(K.filters, null)),
-    myVenues: read(K.myVenues, []),
+    myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: v.features.map(renameFeature) }) : v),
     shopItems: read(K.shopItems, []),
     bonusOrders: read(K.bonusOrders, []),
     supplierRequests: read(K.supplierRequests, []),
@@ -596,6 +608,10 @@
     points: () => write(K.points, state.points),
     requests: () => write(K.requests, state.requests),
   };
+
+  // Однократная миграция: если в хранилище были старые названия удобств, сразу сохраняем новые
+  if (hasOldFeature(read(K.filters, null))) persist.filters();
+  if (hasOldFeature(read(K.myVenues, null))) persist.myVenues();
 
   /* ─────────── 9. СЕЛЕКТОРЫ И ЛОГИКА ─────────── */
 
@@ -1000,7 +1016,7 @@
     if (!raw || typeof raw !== 'object') return F;
     for (const k in F) {
       if (!(k in raw)) continue;
-      if (F[k] instanceof Set) F[k] = new Set(Array.isArray(raw[k]) ? raw[k] : []);
+      if (F[k] instanceof Set) F[k] = new Set((Array.isArray(raw[k]) ? raw[k] : []).map(renameFeature));
       else if (k === 'halls') F[k] = Array.isArray(raw[k])
         ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0 }))
         : [];
