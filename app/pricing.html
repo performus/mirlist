@@ -107,6 +107,8 @@ button{font-family:inherit;cursor:pointer;}
   padding:16px 20px;margin-bottom:10px;box-shadow:var(--sh-sm);}
 .faq-item h3{font-size:14.5px;font-weight:700;color:var(--slate-deep);margin-bottom:7px;}
 .faq-item p{font-size:13px;line-height:1.65;color:var(--slate-muted);}
+.faq-item a{color:var(--coral);font-weight:600;}
+.faq-item a:hover{text-decoration:underline;text-underline-offset:3px;}
 
 @media(max-width:900px){
   .plans{grid-template-columns:1fr;}
@@ -151,6 +153,19 @@ function filtersLabel(t){
   if (Array.isArray(f)) return 'категории залов, город, кол-во гостей';
   return '—';
 }
+/* Доступ к группе фильтров на тарифе — по полю filters, как в подборе.
+   БИЗНЕС: все, кроме рассадки и TWIN (SNGL доступен); ПРЕМИУМ: все. */
+function canFilter(t, g){
+  const f = t.filters;
+  if (f === 'all') return true;
+  if (f === 'all-except-seating-twin') return g !== 'seats' && g !== 'twin';
+  return Array.isArray(f) && f.includes(g);
+}
+function seatsLabel(t){ return canFilter(t, 'seats') ? 'есть' : null; }
+function roomsLabel(t){
+  const s = canFilter(t, 'sngl'), w = canFilter(t, 'twin');
+  return s && w ? 'SNGL и TWIN' : s ? 'SNGL' : w ? 'TWIN' : null;
+}
 function presLabel(t){
   if (!t.presentation) return null;
   return t.presentation === 'ads' ? 'с рекламным блоком' : 'без рекламного блока';
@@ -166,6 +181,8 @@ function bonusLabel(t){
 
 const ROWS = [
   ['Фильтры подбора',        t => filtersLabel(t)],
+  ['Дополнительные фильтры по возможностям рассадки участников', t => seatsLabel(t)],
+  ['Возможность подбора объекта по количеству номеров SNGL и TWIN', t => roomsLabel(t)],
   ['Залов в сравнении',      t => t.compare === Infinity ? 'без ограничения' : String(t.compare)],
   ['Презентации',            t => presLabel(t)],
   ['Полная информация по объекту', t => t.fullInfo ? 'точный адрес, оснащение залов, схемы рассадки участников' : null],
@@ -260,7 +277,7 @@ function render(){
 
   <div class="faq">
     <h2 class="sec-title">Частые вопросы</h2>
-    ${faq().map(f => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`).join('')}
+    ${faq().map(f => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${faqText(f)}</p></div>`).join('')}
   </div>`;
 }
 
@@ -273,22 +290,30 @@ function saveBadge(period){
   return `<span class="off">−${off}%</span>`;
 }
 
+/* Текст ответа экранируется целиком, ссылки ставятся поверх по точной фразе. */
+function faqText(f){
+  let h = esc(f.a);
+  (f.links || []).forEach(([text, href]) => { h = h.replace(esc(text), `<a href="${href}">${esc(text)}</a>`); });
+  return h;
+}
 function faq(){
   const b = ML.TARIFFS.biz, p = ML.TARIFFS.prem, s = ML.TARIFFS.start;
   return [
     { q: 'Сколько стоит размещение объекта?',
       a: 'Размещение информации о залах и объектах бесплатное. Объект платит фиксированную сумму только '
        + 'за состоявшееся мероприятие. Размер такого платежа рассчитывается исходя из минимального количества '
-       + 'участников и не превышает суммарной стоимости одной чашки кофе для каждого из них.' },
+       + 'участников и не превышает суммарной стоимости одной чашки кофе для каждого из них.',
+      links: [['Размещение информации о залах и объектах', 'list-venue.html']] },
     { q: 'Что именно закрыто на «' + s.name + '»?',
       a: 'Доступны только категории объектов, город и количество гостей. Схемы рассадки, стоимость, '
        + 'проживание и удобства закрыты, в сравнение помещается ' + s.compare + ' зала, презентации и групповые запросы недоступны.' },
     { q: 'Чем «' + p.name + '» отличается от «' + b.name + '»?',
-      a: 'Открываются фильтры по схемам рассадки и возможностям размещения в номерах SNGL/TWIN, в сравнении ' + p.compare + ' залов вместо ' + b.compare
+      a: 'Открываются фильтры по схемам рассадки и возможностям размещения в номерах TWIN, в сравнении ' + p.compare + ' залов вместо ' + b.compare
        + ', презентация собирается без рекламного блока, появляется блэк-лист, а баллы начисляются с коэффициентом ×' + p.bonusRate.toLocaleString('ru') + '.' },
     { q: 'Как работают баллы?',
       a: 'Часть агентского вознаграждения возвращается баллами за состоявшиеся мероприятия и отзывы. '
-       + 'Изучить возможности использования баллов можно в витрине бонусной программы.' },
+       + 'Изучить возможности использования баллов можно в витрине бонусной программы.',
+      links: [['витрине бонусной программы', 'bonus.html']] },
   ];
 }
 

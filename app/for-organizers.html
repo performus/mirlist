@@ -324,14 +324,14 @@ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 <script src="shared.js"></script>
 <script>
 MH.init('agencies');
-/* Лимиты сравнения по платным тарифам — из модели, а не из текста: «До 2, 6 или 15 залов» */
+/* Лимиты сравнения по платным тарифам — из модели, а не из текста: «До 2, 6 или 10 залов в зависимости от тарифа» */
 (function () {
   const el = document.querySelector('[data-compare-limits]');
   const n = ML.plans().map(t => t.compare).filter(x => isFinite(x) && x > 0);
   if (!el || !n.length) return;
   const last = n[n.length - 1];
   const list = n.length > 1 ? n.slice(0, -1).join(', ') + ' или ' + last : String(last);
-  el.textContent = 'До ' + list + ' ' + (last % 10 === 1 && last % 100 !== 11 ? 'зала' : 'залов');
+  el.textContent = 'До ' + list + ' ' + (last % 10 === 1 && last % 100 !== 11 ? 'зала' : 'залов') + ' в зависимости от тарифа';
 })();
 </script>
 </body>

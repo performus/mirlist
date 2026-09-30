@@ -413,7 +413,6 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
 .st{padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:700;white-space:nowrap;}
 .st.sent{background:var(--cs);color:var(--c);}
-.st.confirmed{background:var(--aq-p);color:var(--aq);}
 .st.done{background:#E6F4EC;color:#3E9A6B;}
 .st.reviewed{background:var(--pc);color:var(--sm);}
 .st.cancelled{background:var(--bg);color:var(--sp);}
@@ -754,7 +753,6 @@ function reqObjRow(r, o){
   const dead = o.status === 'cancelled';
   // активность каждой кнопки — только по модели
   const canRefresh   = ML.canSetStatus(o, 'cancelled');   // активна, пока объект не отменён
-  const canConfirm   = ML.canSetStatus(o, 'confirmed');
   const canDone      = ML.canSetStatus(o, 'done');
   const canReview    = ML.canSetStatus(o, 'reviewed');
   const canCancel    = ML.canSetStatus(o, 'cancelled');
@@ -774,7 +772,6 @@ function reqObjRow(r, o){
     </div>
     <div class="btn-row">
       <button class="btn-xs" ${canRefresh ? '' : 'disabled'} onclick="refreshOne('${esc(r.id)}',${o.venueId})">Обновить</button>
-      <button class="btn-xs" ${canConfirm ? '' : 'disabled'} onclick="openConfirm('${esc(r.id)}',${o.venueId})">Мероприятие подтверждено</button>
       <button class="btn-xs" ${canDone ? '' : 'disabled'} onclick="markDone('${esc(r.id)}',${o.venueId})">Мероприятие состоялось</button>
       <button class="btn-xs" ${canReview ? '' : 'disabled'} onclick="openReview('${esc(r.id)}',${o.venueId})">Отзыв</button>
       <button class="btn-xs danger" ${canCancel ? '' : 'disabled'} onclick="openCancel('${esc(r.id)}',${o.venueId})">Отмена</button>
@@ -932,13 +929,15 @@ function dm(title, body, foot){
 function dmEsc(e){ if (e.key === 'Escape') dmClose(); }
 function dmClose(){ document.getElementById('dmRoot').innerHTML = ''; document.removeEventListener('keydown', dmEsc); }
 
-/* ── визард подтверждения ── */
+/* ── визард «Мероприятие состоялось» ──
+   Отдельного шага «Мероприятие подтверждено» больше нет: количество участников
+   и даты, которые он спрашивал, уточняются здесь, в момент отметки. */
 let WZ = { tier: 0, dates: new Set() };
-function openConfirm(reqId, venueId){
+function markDone(reqId, venueId){
   WZ = { tier: 0, dates: new Set() };
   const v = ML.venueById(venueId);
-  dm('Мероприятие подтверждено', `
-    <p>Объект <b>${esc(v ? v.name : '')}</b> подтвердил мероприятие. Уточните детали —
+  dm('Мероприятие состоялось', `
+    <p>Отметьте, что мероприятие в объекте <b>${esc(v ? v.name : '')}</b> состоялось, и уточните детали —
     от количества участников зависит, сколько баллов вам начислят.</p>
     <label class="form-label">Название мероприятия</label>
     <input class="form-input" id="wzName" value="Конференция «Итоги полугодия»">
@@ -954,7 +953,7 @@ function openConfirm(reqId, venueId){
       ${dateCells()}</div>
     <div class="dm-note" id="wzHint">Выберите один или несколько дней.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
-     <button class="btn btn-c" onclick="saveConfirm('${esc(reqId)}',${venueId})">Подтвердить</button>`);
+     <button class="btn btn-c" onclick="saveDone('${esc(reqId)}',${venueId})">Отметить</button>`);
 }
 /* Сколько баллов даёт диапазон на текущем тарифе. Список ярусов берём
    из модели: изменится ML.FEE_TIERS — изменится и визард. */
@@ -964,17 +963,18 @@ function tierPoints(t){
   return pts.toLocaleString('ru') + ' ' + ML.plural(pts, ['балл','балла','баллов']);
 }
 
-/* Шахматка на три недели от ближайшего понедельника. */
+/* Шахматка на три недели, последняя — текущая: мероприятие уже прошло,
+   поэтому закрыты будущие дни, а не прошедшие. */
 function dateCells(){
   const today = new Date(); today.setHours(0,0,0,0);
   const start = new Date(today);
-  start.setDate(start.getDate() - ((start.getDay() + 6) % 7));   // понедельник текущей недели
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - 14);   // понедельник две недели назад
   let out = '';
   for (let i = 0; i < 21; i++){
     const d = new Date(start); d.setDate(start.getDate() + i);
     const key = d.toLocaleDateString('ru');
-    const past = d < today;
-    out += `<button class="dcell${past ? ' past' : ''}" ${past ? 'disabled' : ''}
+    const future = d > today;
+    out += `<button class="dcell${future ? ' past' : ''}" ${future ? 'disabled' : ''}
       data-d="${key}" onclick="pickDate(this)">${d.getDate()}</button>`;
   }
   return out;
@@ -996,19 +996,12 @@ function pickTier(i){
     el.querySelector('input').checked = on;
   });
 }
-function saveConfirm(reqId, venueId){
+function saveDone(reqId, venueId){
   if (!WZ.dates.size) { MH.toast('Выберите даты мероприятия', 'error'); return; }
   const tier = ML.FEE_TIERS[WZ.tier];
   const guests = tier.max === Infinity ? tier.min : tier.max;
-  const ok = ML.setStatus(reqId, venueId, 'confirmed', { guests, dates: [...WZ.dates].join(', ') });
+  const ok = ML.setStatus(reqId, venueId, 'done', { guests, dates: [...WZ.dates].join(', ') });
   dmClose();
-  MH.toast(ok ? 'Мероприятие подтверждено' : 'Статус изменить нельзя', ok ? 'success' : 'error');
-  renderPage();
-}
-
-/* ── состоялось ── */
-function markDone(reqId, venueId){
-  const ok = ML.setStatus(reqId, venueId, 'done');
   MH.toast(ok ? 'Отмечено: мероприятие состоялось' : 'Статус изменить нельзя', ok ? 'success' : 'error');
   renderPage();
 }
@@ -1904,7 +1897,8 @@ requests:()=>{
     <button class="btn-xs${REQ_SORT==='date'?' ':''}" style="${REQ_SORT==='date'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('date')">По дате</button>
     <button class="btn-xs" style="${REQ_SORT==='title'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('title')">По названию</button>
   </div>
-  ${list.map(r=>reqBlock(r)).join('')}`;
+  ${list.map(r=>reqBlock(r)).join('')}
+  <div class="dm-note" style="margin-top:16px">Отметки сторон разошлись или мероприятие сорвалось? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
 },
 
 /* ── ИЗБРАННОЕ ── */
@@ -2209,6 +2203,7 @@ oreqs:()=>{
   </div>
   <div class="dm-note" style="margin-top:16px">Отчёт по состоявшимся мероприятиям с ID запросов приходит
   в конце отчётного периода одним платежом.</div>
+  <div class="dm-note" style="margin-top:16px">Отметки сторон разошлись или мероприятие сорвалось? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
   ${orders}`;
 },
 
@@ -2515,7 +2510,7 @@ function addHall(){
   const list=document.getElementById('hallsList');
   if(!list)return;
   const existing=list.querySelectorAll('.hall-card').length;
-  if(existing>=10){alert('Максимум 10 залов');return;}
+  if(existing>=10){alert('Лимит залов зависит от тарифа');return;}
   const card=document.createElement('div');
   card.className='hall-card';
   card.dataset.hall=hallCounter;

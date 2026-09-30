@@ -151,7 +151,7 @@ function render(){
       <div class="opt-b">
         <div class="opt-t">${esc(x.name)}</div>
         <div class="opt-s">${k==='biz'
-          ? `Все фильтры кроме рассадки и SNGL/TWIN · ${x.compare} залов в сравнении · презентация с рекламным блоком · групповой запрос до ${x.groupRequest} объектов`
+          ? `Все фильтры кроме рассадки и TWIN · ${x.compare} залов в сравнении · презентация с рекламным блоком · групповой запрос до ${x.groupRequest} объектов`
           : `Все фильтры · ${x.compare} залов в сравнении · презентация без рекламы · групповой запрос без ограничения · блэк-лист · баллы ×${x.bonusRate.toLocaleString('ru')}`}</div>
       </div>
       <div class="opt-p">${ML.money(x.price)}<small>в месяц</small></div>

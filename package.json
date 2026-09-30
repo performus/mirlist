@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "browser-sync start --server --files 'index.html,app/**/*.html,app/**/*.js,assets/**/*' --no-notify --open",
-    "serve": "npx serve . -p 3000"
+    "serve": "npx serve . -p 3000",
+    "test": "node tests/lifecycle.test.js"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4"

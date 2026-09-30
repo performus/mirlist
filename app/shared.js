@@ -397,6 +397,7 @@ const MH = (() => {
           </div>
           <div class="mh-ft-col">
             <h4>Поддержка</h4>
+            <a href="support.html">Поддержка и арбитраж</a>
             <a href="#" onclick="MH.feedback();return false;">Написать в поддержку</a>
             <a href="mailto:info@micelist.ru">Контакты</a>
             <a href="../index.html">Карта сайта</a>

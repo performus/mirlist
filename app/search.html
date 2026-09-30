@@ -930,8 +930,8 @@ function renderFilters() {
   // Звёздность — отдельно от категории: она есть только у отелей
   h += fgroup('stars', 'Звёздность', starChecks(), F.stars.size);
 
-  /* Проживание. На ПРЕМИУМ — разбивка по типам номеров, на остальных
-     одно поле по общему фонду: заблокированные TWIN и SNGL не показываем. */
+  /* Проживание. ПРЕМИУМ — номера TWIN и SNGL; БИЗНЕС — общий фонд и SNGL,
+     TWIN закрыт; на бесплатных тарифах группа заблокирована. */
   const roomsBody = canUse('twin')
     ? `<div class="fd-row2">
          <div class="fd-mini"><label>TWIN от</label>
@@ -941,14 +941,23 @@ function renderFilters() {
            <input type="number" min="0" value="${F.sngl || ''}"
              onchange="F.sngl=+this.value||0;render()"></div>
        </div>`
+    : canUse('sngl')
+    ? `<div class="fd-row2">
+         <div class="fd-mini"><label>Номеров от</label>
+           <input type="number" min="0" value="${F.rooms || ''}"
+             onchange="F.rooms=+this.value||0;render()"></div>
+         <div class="fd-mini"><label>SNGL от</label>
+           <input type="number" min="0" value="${F.sngl || ''}"
+             onchange="F.sngl=+this.value||0;render()"></div>
+       </div>
+       <div class="fd-lock">Фильтр по номерам TWIN доступен на тарифе <b>«ПРЕМИУМ»</b></div>`
     : `<div class="fd-mini"><label>Номеров от</label>
-         <input type="number" min="0" value="${F.rooms || ''}" ${canUse('rooms') ? '' : 'disabled'}
+         <input type="number" min="0" value="${F.rooms || ''}" disabled
            onchange="F.rooms=+this.value||0;render()"></div>
-       ${canUse('rooms')
-         ? '<div class="fd-lock">Разбивка по типам номеров — TWIN и SNGL — доступна на тарифе <b>«ПРЕМИУМ»</b></div>'
-         : lockNote('rooms', 'БИЗНЕС')}`;
+       ${lockNote('rooms', 'БИЗНЕС')}`;
   h += fgroup('rooms', 'Проживание', roomsBody,
-    canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0) : (F.rooms ? 1 : 0));
+    canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0)
+      : canUse('sngl') ? (F.rooms ? 1 : 0) + (F.sngl ? 1 : 0) : (F.rooms ? 1 : 0));
 
   h += fgroup('halls', 'Залы', hallsBuilder(),
     (F.halls || []).filter(r => r.seating || +r.min).length);
@@ -1409,7 +1418,7 @@ function syncBar() {
   const people = parseInt(p.get('people') || p.get('guests'), 10);
   if (people > 0) F.people = people;
   const ev = p.get('type');
-  if (ev && ML.EVENT_TYPES.some(e => e.k === ev)) F.eventType = ev;
+  if (ev) F.eventType = ML.normEventType(ev);   // старые ключи ссылок (business, wedding) переводятся
 
   applyView();
   syncBar();

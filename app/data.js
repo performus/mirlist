@@ -27,11 +27,19 @@
   const STARRED_CATS = ['Отель', 'Бутик-отель'];   // где звёздность вообще применима
 
   const EVENT_TYPES = [
-    { k: 'business', l: 'Деловое' },
-    { k: 'banquet', l: 'Банкет / фуршет' },
-    { k: 'wedding', l: 'Свадьба' },
+    { k: 'forum', l: 'Форум / Конгресс' },
+    { k: 'presentation', l: 'Презентация / Пресс-конференция / Лекция' },
+    { k: 'banquet', l: 'Банкет / Фуршет / Праздник' },
+    { k: 'meeting', l: 'Закрытое совещание / Переговоры' },
     { k: 'team', l: 'Тимбилдинг' },
+    { k: 'online', l: 'Онлайн-марафон / Телемост' },
   ];
+  /* Старые ключи из сохранённых фильтров и ссылок: «Деловое» → форум, «Свадьба» → банкет/праздник. */
+  const EVENT_TYPE_RENAMES = { business: 'forum', wedding: 'banquet' };
+  const normEventType = (k) => {
+    k = EVENT_TYPE_RENAMES[k] || k;
+    return EVENT_TYPES.some(e => e.k === k) ? k : EVENT_TYPES[0].k;
+  };
 
   // Ключи совпадают с полем formats из старого compare.html — плюс U-shape.
   /* shape — временная фигура-заглушка вместо иконки. Когда придут настоящие
@@ -118,7 +126,7 @@
     prem: {
       key: 'prem', name: 'ПРЕМИУМ', plan: true, blur: false,
       price: 1950, priceHalf: 8750, priceYear: 14000,
-      compare: 15, presentation: 'clean', groupRequest: Infinity,
+      compare: 10, presentation: 'clean', groupRequest: Infinity,
       fullInfo: true, blacklist: true, bonusRate: 1.5,
       filters: 'all',
     },
@@ -159,8 +167,7 @@
 
   // Жизненный цикл объекта внутри запроса. next — какая кнопка активна дальше.
   const REQUEST_FLOW = {
-    sent: { label: 'Запрос отправлен', next: 'confirmed' },
-    confirmed: { label: 'Мероприятие подтверждено', next: 'done' },
+    sent: { label: 'Запрос отправлен', next: 'done' },
     done: { label: 'Мероприятие состоялось', next: 'reviewed' },
     reviewed: { label: 'Отзыв оставлен', next: null },
     cancelled: { label: 'Отменён', next: null, dead: true },
@@ -186,7 +193,7 @@
     coords: null, rating: 4.5, reviews: 40,
     promo: null,   // {highlight:true, top:3|10|null, until:'30.09.2026'}
     rooms: { twin: 0, sngl: 0 },
-    eventTypes: ['business', 'banquet'],
+    eventTypes: ['forum', 'presentation', 'banquet'],
     features: [], halls: [], photo: 1, px: 50, py: 50, loyaltyContract: false,
   }, o);
 
@@ -198,7 +205,7 @@
       coords: { lat: 55.7492, lng: 37.5390 }, rating: 4.9, reviews: 127, photo: 1, px: 52, py: 38,
       promo: { highlight: true, top: 3, until: '30.09.2026' },
       rooms: { twin: 60, sngl: 24 }, loyaltyContract: true,
-      eventTypes: ['business', 'banquet', 'wedding'],
+      eventTypes: ['forum', 'presentation', 'banquet', 'meeting', 'online'],
       features: ['Свой ресторан / кейтеринг', 'Зона Welcome', 'Дегустация меню', 'Wi-Fi',
         'Звуковое оборудование', 'Световое оборудование', 'Экран', 'Гримёрки', 'Без колонн',
         'Затемнение', 'Наличие окон', 'Отдельная парковка', 'Кондиционер', 'Гардероб', 'ЧОП'],
@@ -214,7 +221,7 @@
     V(2, 'Лофт «Кирпич»', 'Лофт', 'Москва', 'Нижняя Сыромятническая, 10', {
       coords: { lat: 55.7539, lng: 37.6656 }, rating: 4.6, reviews: 112, photo: 2, px: 57, py: 46,
       promo: { highlight: false, top: 10, until: '01.11.2026' },
-      eventTypes: ['banquet', 'team', 'wedding'],
+      eventTypes: ['presentation', 'banquet', 'team'],
       features: ['Возможен кейтеринг заказчика', 'Возможен свой алкоголь (пробковый сбор)', 'Зона Welcome', 'Wi-Fi',
         'Звуковое оборудование', 'Световое оборудование', 'Стационарная сцена', 'Возможность подвеса',
         'Завоз оборудования', 'Своя мебель', 'Свой декор', 'Затемнение', 'Отдельный вход',
@@ -228,7 +235,7 @@
     }),
     V(3, 'Конгресс-центр «Экспо-Волга»', 'Конгрессно-выставочная', 'Самара', 'Мичурина, 23А', {
       coords: { lat: 53.2001, lng: 50.1401 }, rating: 4.4, reviews: 61, photo: 3, px: 22, py: 62,
-      eventTypes: ['business'],
+      eventTypes: ['forum', 'presentation', 'meeting', 'online'],
       features: ['Свой ресторан / кейтеринг', 'Wi-Fi', 'Звуковое оборудование', 'Световое оборудование',
         'Экран', 'Стационарная сцена', 'Силовое подключение', 'Грузовой лифт', 'Завоз оборудования',
         'Без колонн', 'Отдельная парковка', 'Кондиционер', 'Гардероб', 'ЧОП', 'Раздельный туалет М/Ж'],
@@ -246,7 +253,7 @@
     V(4, 'Отель «Флагман»', 'Отель', 'Санкт-Петербург', 'Адмиралтейская наб., 4', {
       coords: { lat: 59.9364, lng: 30.3061 }, rating: 4.9, reviews: 203, photo: 4, px: 30, py: 20,
       rooms: { twin: 120, sngl: 55 }, loyaltyContract: true,
-      eventTypes: ['business', 'banquet', 'wedding'],
+      eventTypes: ['forum', 'presentation', 'banquet', 'meeting'],
       features: ['Свой ресторан / кейтеринг', 'Дегустация меню', 'Зона Welcome', 'Сертификат халяль',
         'Wi-Fi', 'Звуковое оборудование', 'Световое оборудование', 'Экран', 'Гримёрки', 'Без колонн',
         'Наличие окон', 'Отдельная парковка', 'Кондиционер', 'Гардероб', 'ЧОП', 'У водоёма / пляж', 'Молельная комната'],
@@ -261,7 +268,7 @@
     }),
     V(5, 'Ресторан «Терраса»', 'Ресторан', 'Сочи', 'Курортный просп., 72', {
       coords: { lat: 43.5734, lng: 39.7300 }, rating: 4.8, reviews: 156, photo: 5, px: 34, py: 84,
-      eventTypes: ['banquet', 'wedding'],
+      eventTypes: ['banquet'],
       features: ['Свой ресторан / кейтеринг', 'Дегустация меню', 'Зона Welcome', 'Возможен свой алкоголь (пробковый сбор)',
         'Wi-Fi', 'Звуковое оборудование', 'Наличие окон', 'Кондиционер', 'Отдельный вход',
         'У водоёма / пляж', 'Фейерверки', 'Кальян', 'Музыка после «часа тишины»'],
@@ -274,7 +281,7 @@
     }),
     V(6, 'Клуб «Лофт 22»', 'Клуб', 'Казань', 'Профсоюзная, 22', {
       coords: { lat: 55.7887, lng: 49.1221 }, rating: 4.3, reviews: 47, photo: 6, px: 26, py: 55,
-      eventTypes: ['banquet', 'team'],
+      eventTypes: ['presentation', 'banquet', 'team'],
       features: ['Возможен кейтеринг заказчика', 'Возможен свой алкоголь (пробковый сбор)', 'Wi-Fi', 'Звуковое оборудование',
         'Световое оборудование', 'Стационарная сцена', 'Гримёрки', 'Возможность подвеса', 'Затемнение',
         'Отдельный вход', 'Музыка после «часа тишины»', 'ЧОП', 'Кальян'],
@@ -287,7 +294,7 @@
     }),
     V(7, 'Усадьба «Белые ночи»', 'Уличная площадка', 'Подмосковье', 'Рублёво-Успенское ш., 24 км', {
       coords: { lat: 55.7300, lng: 37.1900 }, rating: 4.9, reviews: 98, photo: 7, px: 44, py: 30,
-      eventTypes: ['wedding', 'banquet', 'team'],
+      eventTypes: ['banquet', 'team'],
       features: ['Возможен кейтеринг заказчика', 'Возможен свой алкоголь (пробковый сбор)', 'Зона Welcome', 'Дегустация меню',
         'Отдельная парковка', 'Отдельный вход', 'Фейерверки', 'У водоёма / пляж', 'Свой декор',
         'Завоз оборудования', 'Своя мебель', 'Футбольное поле', 'Волейбольная площадка',
@@ -303,7 +310,7 @@
     }),
     V(8, 'Теплоход «Меридиан»', 'Корабль', 'Нижний Новгород', 'Нижне-Волжская наб., причал 5', {
       coords: { lat: 56.3285, lng: 44.0059 }, rating: 4.5, reviews: 34, photo: 8, px: 38, py: 44,
-      eventTypes: ['banquet', 'team', 'wedding'],
+      eventTypes: ['banquet', 'team'],
       features: ['Свой ресторан / кейтеринг', 'Возможен свой алкоголь (пробковый сбор)', 'Wi-Fi', 'Звуковое оборудование',
         'Световое оборудование', 'Кондиционер', 'Гардероб', 'У водоёма / пляж', 'Кальян'],
       halls: [
@@ -316,7 +323,7 @@
     V(9, 'Бутик-отель «Гавань»', 'Бутик-отель', 'Санкт-Петербург', 'наб. реки Мойки, 58', {
       coords: { lat: 59.9333, lng: 30.3081 }, rating: 4.7, reviews: 71, photo: 9, px: 32, py: 24,
       rooms: { twin: 25, sngl: 10 }, loyaltyContract: true,
-      eventTypes: ['business', 'banquet'],
+      eventTypes: ['presentation', 'banquet', 'meeting'],
       features: ['Свой ресторан / кейтеринг', 'Зона Welcome', 'Wi-Fi', 'Экран',
         'Наличие окон', 'Кондиционер', 'Гардероб', 'Отдельный вход', 'Без колонн'],
       halls: [
@@ -328,7 +335,7 @@
     }),
     V(10, 'Глэмпинг «Сосны»', 'Глэмпинг', 'Подмосковье', 'Дмитровское ш., 48 км', {
       coords: { lat: 56.1200, lng: 37.4500 }, rating: 4.6, reviews: 29, photo: 10, px: 48, py: 22,
-      eventTypes: ['team', 'wedding'],
+      eventTypes: ['team'],
       features: ['Возможен кейтеринг заказчика', 'Возможен свой алкоголь (пробковый сбор)', 'Отдельная парковка', 'Отдельный вход',
         'У водоёма / пляж', 'Фейерверки', 'Свой декор', 'Волейбольная площадка', 'Настольный теннис',
         'Прокат инвентаря', 'Медперсонал', 'Футбольное поле'],
@@ -342,7 +349,7 @@
     V(11, 'Конференц-центр «Высота»', 'Конференц-площадка', 'Москва', 'Павелецкая пл., 2', {
       coords: { lat: 55.7297, lng: 37.6392 }, rating: 4.7, reviews: 88, photo: 11, px: 54, py: 44,
       promo: { highlight: true, top: null, until: '15.10.2026' },
-      eventTypes: ['business'],
+      eventTypes: ['forum', 'presentation', 'meeting', 'online'],
       features: ['Свой ресторан / кейтеринг', 'Wi-Fi', 'Звуковое оборудование', 'Световое оборудование',
         'Экран', 'Силовое подключение', 'Грузовой лифт', 'Без колонн', 'Затемнение', 'Кондиционер',
         'Гардероб', 'Раздельный туалет М/Ж', 'Отдельная парковка'],
@@ -358,7 +365,7 @@
     V(12, 'Отель «Лагуна»', 'Отель', 'Сочи', 'ул. Приморская, 9', {
       coords: { lat: 43.5800, lng: 39.7200 }, rating: 4.2, reviews: 55, photo: 12, px: 36, py: 86,
       rooms: { twin: 40, sngl: 18 },
-      eventTypes: ['business', 'banquet', 'team'],
+      eventTypes: ['presentation', 'banquet', 'meeting', 'team'],
       features: ['Свой ресторан / кейтеринг', 'Зона Welcome', 'Wi-Fi', 'Экран', 'Кондиционер',
         'Отдельная парковка', 'У водоёма / пляж', 'Бассейн', 'Прокат инвентаря', 'Настольный теннис'],
       halls: [
@@ -370,7 +377,7 @@
     }),
     V(13, 'Арт-пространство «Винзавод»', 'Лофт', 'Москва', '4-й Сыромятнический пер., 1', {
       coords: { lat: 55.7548, lng: 37.6640 }, rating: 4.5, reviews: 64, photo: 13, px: 56, py: 48,
-      eventTypes: ['business', 'banquet', 'team'],
+      eventTypes: ['presentation', 'banquet', 'team', 'online'],
       features: ['Возможен кейтеринг заказчика', 'Возможен свой алкоголь (пробковый сбор)', 'Wi-Fi', 'Звуковое оборудование',
         'Световое оборудование', 'Экран', 'Возможность подвеса', 'Завоз оборудования', 'Своя мебель',
         'Свой декор', 'Затемнение', 'Отдельный вход', 'Гардероб'],
@@ -384,7 +391,7 @@
     V(14, 'Отель «Панорама»', 'Отель', 'Казань', 'ул. Баумана, 44', {
       coords: { lat: 55.7900, lng: 49.1200 }, rating: 4.6, reviews: 82, photo: 14, px: 28, py: 56,
       rooms: { twin: 55, sngl: 22 }, loyaltyContract: true,
-      eventTypes: ['business', 'banquet', 'wedding'],
+      eventTypes: ['forum', 'presentation', 'banquet', 'meeting'],
       features: ['Свой ресторан / кейтеринг', 'Дегустация меню', 'Сертификат халяль', 'Зона Welcome',
         'Wi-Fi', 'Звуковое оборудование', 'Экран', 'Без колонн', 'Наличие окон', 'Кондиционер',
         'Гардероб', 'Отдельная парковка', 'Молельная комната', 'Раздельный туалет М/Ж'],
@@ -580,17 +587,23 @@
     favs: new Set(read(K.favs, [])),
     blacklist: new Set(read(K.black, [])),
     points: read(K.points, { free: 12800, locked: 4500, expiring: 800, expiresAt: '31.12.2026' }),
-    requests: read(K.requests, [
+    requests: migrateRequests(read(K.requests, [
       {
         id: 'RQ-260714-0031', date: '14.07.2026', title: 'Конференция «Итоги полугодия», 120 чел.',
-        objects: [{ venueId: 1, status: 'sent' }, { venueId: 11, status: 'confirmed' }, { venueId: 4, status: 'done' }],
+        objects: [{ venueId: 1, status: 'sent' }, { venueId: 11, status: 'sent' }, { venueId: 4, status: 'done', guests: 120, dates: '10.07.2026' }],
       },
       {
         id: 'RQ-260703-0018', date: '03.07.2026', title: 'Выездной тимбилдинг, 60 чел.',
         objects: [{ venueId: 7, status: 'sent' }, { venueId: 10, status: 'cancelled', reason: 'Не устроила стоимость' }],
       },
-    ]),
+    ])),
   };
+
+  function migrateRequests(list) {
+    return (Array.isArray(list) ? list : []).map(r => Object.assign({}, r, {
+      objects: (r.objects || []).map(o => o.status === 'confirmed' ? Object.assign({}, o, { status: 'sent' }) : o),
+    }));
+  }
 
   const persist = {
     tariff: () => write(K.tariff, state.tariff),
@@ -612,6 +625,7 @@
   // Однократная миграция: если в хранилище были старые названия удобств, сразу сохраняем новые
   if (hasOldFeature(read(K.filters, null))) persist.filters();
   if (hasOldFeature(read(K.myVenues, null))) persist.myVenues();
+  if (JSON.stringify(read(K.requests, null) || '').includes('"status":"confirmed"')) persist.requests();
 
   /* ─────────── 9. СЕЛЕКТОРЫ И ЛОГИКА ─────────── */
 
@@ -645,7 +659,7 @@
   /** Пустой набор фильтров. */
   function emptyFilters() {
     return {
-      city: '', people: 0, eventType: 'business',
+      city: '', people: 0, eventType: EVENT_TYPES[0].k,
       cats: new Set(), stars: new Set(), priceDay: [0, 200000],
       rooms: 0,                        // общий номерной фонд, виден всем
       twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
@@ -878,8 +892,7 @@
   function canSetStatus(obj, next) {
     if (obj.status === 'cancelled') return false;
     if (next === 'cancelled') return true;
-    if (next === 'confirmed') return obj.status === 'sent';
-    if (next === 'done') return obj.status === 'confirmed';
+    if (next === 'done') return obj.status === 'sent';
     if (next === 'reviewed') return obj.status === 'done';
     return false;
   }
@@ -892,6 +905,8 @@
     if (extra && extra.reason) o.reason = extra.reason;
     if (extra && extra.guests) o.guests = extra.guests;
     if (extra && extra.dates) o.dates = extra.dates;
+    // объект мог отметить «состоялось» раньше пользователя: тогда вторая отметка — эта, и баллы разблокируются сейчас
+    if (next === 'done' && o.venueDone) unlockPoints(eventPoints(o.guests || 100));
     if (next === 'reviewed') {
       addPoints(reviewPoints(), 'free');
       if (extra && extra.review) addReview(Object.assign({ target: 'venue', targetId: venueId, requestId: reqId, event: r.title }, extra.review));
@@ -1023,6 +1038,7 @@
       else if (Array.isArray(F[k]) && Array.isArray(raw[k])) F[k] = raw[k];
       else if (typeof F[k] === typeof raw[k]) F[k] = raw[k];
     }
+    F.eventType = normEventType(F.eventType);
     return F;
   }
   const saveFilters = (F) => { state.filters = F; write(K.filters, packFilters(F)); };
@@ -1278,7 +1294,7 @@
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
-    CITIES, VENUE_CATS, EVENT_TYPES, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
+    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
     TARIFFS, plans, isGuest, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
     VENUES, SUPPLIERS, SHOP,
