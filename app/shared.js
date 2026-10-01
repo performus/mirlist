@@ -379,7 +379,8 @@ const MH = (() => {
             <p>Умный поиск и подбор залов под мероприятие. B2B-платформа для MICE- и Event-менеджеров и их подрядчиков.</p>
             <div class="mh-ft-contacts">
               <a class="mh-ft-contact" href="mailto:info@micelist.ru">${ICON_MAIL} info@micelist.ru</a>
-              <a class="mh-ft-contact" href="tel:+78005553535">${ICON_PHONE} +7 (800) 555-35-35</a>
+              <a class="mh-ft-contact" href="tel:+79166704905">${ICON_PHONE} +79166704905 (Алексей)</a>
+              <a class="mh-ft-contact" href="tel:+79251751570">${ICON_PHONE} +79251751570 (Денис)</a>
             </div>
           </div>
           <div class="mh-ft-col">
