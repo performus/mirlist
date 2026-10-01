@@ -144,8 +144,8 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function render(){
   /* Бонусная программа гостю недоступна целиком. */
   if (MH.isLocked()) {
-    document.getElementById('root').innerHTML = MH.lockScreen('Бонусная программа — после регистрации',
-      'Баллы начисляются за проведённые мероприятия и отзывы, и тратятся на услуги подрядчиков. Зарегистрируйтесь, чтобы открыть счёт и витрину.');
+    document.getElementById('root').innerHTML = MH.lockScreen('Доступ к бонусной программе откроется после регистрации',
+      'Баллы начисляются за проведённые мероприятия и отзывы и тратятся на услуги подрядчиков. Зарегистрируйтесь, чтобы открыть счёт и витрину.');
     return;
   }
   const P = ML.state.points;
@@ -183,16 +183,15 @@ function render(){
   }).join('');
 
   document.getElementById('root').innerHTML = `
-  <div class="crumbs"><a href="search.html">Подбор площадок</a><span class="sep">→</span>
+  <div class="crumbs"><a href="search.html">Подбор залов</a><span class="sep">→</span>
     <span class="cur">Бонусная программа</span></div>
 
   <h1 class="d-title">Бонусная программа</h1>
-  <p class="d-sub">Часть агентского вознаграждения возвращается вам баллами — за мероприятия,
-  которые действительно состоялись, и за отзывы о площадках.</p>
+  <p class="d-sub">Часть агентского вознаграждения возвращается вам баллами — за состоявшиеся мероприятия и за отзывы о площадках.</p>
 
   <div class="tiles">
     <div class="tile">
-      <div class="lbl">Баллы «ПРИВЕТ»</div>
+      <div class="lbl">Приветственный бонус</div>
       <div class="val">${ML.POINTS_HELLO.toLocaleString('ru')}</div>
       <div class="sub">разово за регистрацию</div>
     </div>
@@ -204,7 +203,7 @@ function render(){
     <div class="tile">
       <div class="lbl">Ваш баланс</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">заблокировано ${P.locked.toLocaleString('ru')} Б</div>
+      <div class="sub">Заблокировано ${P.locked.toLocaleString('ru')} Б</div>
     </div>
   </div>
 
@@ -214,15 +213,15 @@ function render(){
   </div>
   <div class="panel"><div class="tscroll"><table class="tbl">
     <thead><tr>
-      <th>Количество участников</th>
+      <th>Минимальное количество участников</th>
       <th>Баллы · БИЗНЕС</th><th>Баллы · ПРЕМИУМ</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table></div></div>
 
   <div class="note">До поступления оплаты от объекта баллы зачисляются со статусом
-  <b>«нельзя потратить»</b>: объект платит вознаграждение по итогам отчётного периода, и только
-  после этого баллы становятся доступны. Сейчас в этом статусе <b>${P.locked.toLocaleString('ru')} Б</b>.</div>
+  <b>«нельзя потратить»</b>: после подтверждения от объекта баллы становятся доступны
+  для использования. Сейчас в этом статусе <b>${P.locked.toLocaleString('ru')} Б</b>.</div>
 
   <div class="sec-head">
     <div>
@@ -232,9 +231,10 @@ function render(){
   </div>
   <div class="shop">${shop}</div>
 
+  <!-- REMOVED BY CLIENT: примечание о витрине: только услуги
   <div class="note">На первом этапе в витрине <b>только услуги</b> — без физических товаров:
   ресурс не берёт на себя хранение, доставку и возвраты. Заявка уходит партнёру,
-  баллы списываются в момент оформления.</div>`;
+  баллы списываются в момент оформления.</div> -->`;
 }
 
 /* Заказ за баллы: комментарий партнёру, списание через ML.orderFromShop,

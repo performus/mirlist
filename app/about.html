@@ -58,13 +58,14 @@ h2{font-family:'Literata',Georgia,serif;font-size:24px;font-weight:600;color:var
 .feat b{display:block;font-size:14.5px;font-weight:700;color:var(--slate-deep);margin-bottom:6px;}
 .feat span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
 
-/* чего не делаем */
+/* что происходит вне платформы: нейтральный значок «наружу» */
 .nots{display:flex;flex-direction:column;gap:10px;}
 .not{display:flex;align-items:flex-start;gap:12px;background:var(--white);
-  border:1px solid rgba(197,227,225,.32);border-left:3px solid var(--coral);
+  border:1px solid rgba(197,227,225,.32);border-left:3px solid var(--aqua-3);
   border-radius:var(--r-md);padding:15px 18px;box-shadow:var(--sh-sm);}
-.not-x{width:22px;height:22px;border-radius:50%;background:var(--coral-soft);color:var(--coral);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.not-x{width:22px;height:22px;border-radius:50%;background:var(--aqua-pale);color:var(--slate-mid);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.not-x svg{display:block;}
 .not b{display:block;font-size:14px;font-weight:700;color:var(--slate-deep);margin-bottom:4px;}
 .not span{font-size:13px;line-height:1.6;color:var(--slate-muted);}
 
@@ -90,57 +91,57 @@ h2{font-family:'Literata',Georgia,serif;font-size:24px;font-weight:600;color:var
 <div class="wrap">
   <div class="crumbs"><a href="homepage.html">Главная</a><span class="sep">→</span><span class="cur">О проекте</span></div>
 
-  <h1>Инструмент подбора, а не система бронирования</h1>
-  <p class="lead">МАЙСЛИСТ — профессиональный инструмент подбора залов и поставщиков для рынка
-  MICE и Event. Он сокращает время менеджера на сбор информации и подготовку предложения —
-  и на этом останавливается: дальше стороны работают напрямую.</p>
+  <h1>Платформа подбора залов под мероприятие</h1>
+  <p class="lead">МАЙСЛИСТ позволяет подобрать и сравнить залы и объекты, которым они принадлежат, отправить групповой запрос их менеджерам, подготовить презентацию для заказчика. Условия, смету
+  и бронирование стороны обсуждают напрямую, вне платформы.</p>
 
-  <h2>Чего нет у существующих поисковых систем</h2>
+  <h2>Чем удобен МАЙСЛИСТ</h2>
   <div class="feats">
-    <div class="feat"><b>Единая форма информации</b>
-      <span>Каждый объект описан по одной схеме: залы, площади, схемы рассадки, оснащение, условия.
-      Не нужно вычитывать сайты и сводить разнородные презентации.</span></div>
-    <div class="feat"><b>Сравнение залов между собой</b>
-      <span>Залы ищутся независимо от объектов и сравниваются в одной таблице по значимым параметрам.</span></div>
+    <div class="feat"><b>Единая структура данных о тысячах залов</b>
+      <span>Описание составлено по шаблону: характеристики зала, площадь, схема рассадки, оснащение, условия.
+      Вам не придется больше изучать сайты площадок и сводить воедино информацию из презентаций.</span></div>
+    <div class="feat"><b>Удобное сравнение залов и объектов</b>
+      <span>Залы можно сопоставлять между собой по значимым параметрам и характеристикам, независимо от объектов, в которых они находятся.</span></div>
     <div class="feat"><b>Групповой запрос в отделы продаж</b>
-      <span>Один запрос уходит сразу во все выбранные объекты — не нужно писать каждому отдельно.</span></div>
-    <div class="feat"><b>Презентация под ТЗ мероприятия</b>
-      <span>По отобранным залам собирается документ, который можно отдать заказчику.</span></div>
-    <div class="feat"><b>Баллы по программе лояльности</b>
-      <span>Часть агентского вознаграждения возвращается баллами за состоявшиеся мероприятия и отзывы.</span></div>
+      <span>Время, дата и описание мероприятия направляются менеджерам всех выбранных объектов сразу. Остается дождаться их предложений.</span></div>
+    <div class="feat"><b>Выгрузка подборки в виде презентации</b>
+      <span>Компактный PDF с подробной информацией о выбранных залах можно скачать в один клик и отправить заказчику.</span></div>
+    <div class="feat"><b>Начисление баллов за состоявшиеся мероприятия</b>
+      <span>Часть агентского вознаграждения возвращается пользователям баллами. Баллы также начисляются за отзывы о залах, объектах и подрядчиках.</span></div>
   </div>
 
-  <h2>Чего ресурс не делает</h2>
+  <h2>Что происходит вне платформы</h2>
   <div class="nots">
-    <div class="not"><span class="not-x">✕</span><div>
-      <b>Не бронирует</b>
-      <span>Бронирование и договор идут напрямую между вами и объектом. Ресурс не участвует
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
+      <b>Бронирование и заключение договора</b>
+      <span>Вы договариваетесь напрямую с площадкой. МАЙСЛИСТ не участвует
       в переписке и не выступает стороной сделки.</span></div></div>
-    <div class="not"><span class="not-x">✕</span><div>
-      <b>Не считает сметы</b>
-      <span>Калькулятора услуг и смет не предусмотрено. Подтверждающих документов и смет
-      ресурс не получает ни от пользователя, ни от объектов.</span></div></div>
-    <div class="not"><span class="not-x">✕</span><div>
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
+      <b>Расчёт и согласование сметы</b>
+      <span>Калькулятора услуг и смет не предусмотрено. Никаких финансовых документов
+      ресурс не получает ни от пользователя, ни от объекта.</span></div></div>
+    <!-- REMOVED BY CLIENT: пункт «Не передаёт контакты пользователей»
+    <div class="not"><span class="not-x" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span><div>
       <b>Не передаёт контакты пользователей</b>
-      <span>Объектам и поставщикам уходит только запрос. Персональные данные не раскрываются.</span></div></div>
+      <span>Объектам и поставщикам уходит только запрос. Персональные данные не раскрываются.</span></div></div> -->
   </div>
 
-  <h2>На дальнейших этапах</h2>
+  <h2>Что в планах МАЙСЛИСТ</h2>
   <div class="next">
     <div>Вакансии и резюме</div>
     <div>Календарь поставщиков</div>
     <div>Горящие предложения</div>
-    <div>Пробковый сбор</div>
-    <div>Бронирование номеров — партнёрство</div>
+    <div>Фильтр «Пробковый сбор»</div>
+    <div>Бронирование номеров под участников</div>
     <div>Организация выставок и воркшопов</div>
     <div>Новости отрасли</div>
     <div>Калькулятор услуг</div>
-    <div>Шахматка доступности залов</div>
+    <div>Календарь доступности залов (шахматка)</div>
     <div>Мобильное приложение</div>
   </div>
 
   <div class="cta">
-    <a class="btn pri" href="search.html">Перейти к подбору</a>
+    <a class="btn pri" href="search.html">Перейти к подбору залов</a>
     <a class="btn" href="how.html">Как это работает</a>
     <a class="btn" href="faq.html">FAQ</a>
   </div>

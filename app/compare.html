@@ -197,6 +197,7 @@ button{font-family:inherit;cursor:pointer;}
 .fl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin:16px 0 7px;}
 .fl:first-child{margin-top:0;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fl-sub{display:block;font-size:12px;color:var(--slate-muted);margin:0 0 5px;}
 .fi{
   width:100%;padding:10px 14px;border-radius:var(--r-sm);
   border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
@@ -291,7 +292,7 @@ function buildRows() {
   rows.push(
     { g: 'Условия' },
     ['Аренда за день',    h => h.priceDay ? ML.money(h.priceDay) : 'по договорённости'],
-    ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'],
+    ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'Нет почасовой аренды'],
     ['Номерной фонд объекта', (h, v) => (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
     ['Точный план пространства', h => h.plan ? 'есть' : 'нет'],
     ['Рейтинг объекта',   (h, v) => `${v.rating} (${v.reviews})`],
@@ -308,7 +309,7 @@ function render() {
   const root = document.getElementById('root');
 
   const head = `<div class="crumbs">
-      <a href="search.html">Подбор площадок</a><span class="sep">→</span><span class="cur">Сравнение залов</span>
+      <a href="search.html">Подбор залов</a><span class="sep">→</span><span class="cur">Сравнение залов</span>
     </div>`;
 
   /* Гостю сравнение недоступно целиком: показываем экран с объяснением
@@ -347,7 +348,7 @@ function render() {
     const [label, fn] = r.raw ? [r.raw, r.fn] : r;
     return `<tr><th class="rowhead">${r.raw ? label : esc(label)}</th>${halls.map((h, i) => {
       const val = fn(h, venues[i]);
-      const dim = val === '—' || val === 'нет' || val === 'не сдаётся почасово';
+      const dim = val === '—' || val === 'нет' || val === 'Нет почасовой аренды';
       return `<td class="${dim ? 'dim' : ''}">${val}</td>`;
     }).join('')}</tr>`;
   }).join('');
@@ -469,18 +470,18 @@ function openPresentation() {
   modal('Презентация сформирована', `
     <p>В файл вошли <b>${halls.length}</b> ${ML.plural(halls.length, ['зал','зала','залов'])}
     из <b>${venues.length}</b> ${ML.plural(venues.length, ['объекта','объектов','объектов'])}
-    с полной информацией, фото и картой.</p>
+    с полной информацией, фото и точкой на карте.</p>
     <table class="mtbl">
       <tr><th>Залов в файле</th><td>${halls.length}</td></tr>
-      <tr><th>Шаблон</th><td>Корпоративный шаблон заказчика</td></tr>
+      <!-- REMOVED BY CLIENT: строка «Шаблон» в окне презентации | <tr><th>Шаблон</th><td>Корпоративный шаблон заказчика</td></tr> -->
       <tr><th>Рекламный блок</th><td>${t.presentation === 'ads'
         ? 'включён (тариф «БИЗНЕС»)' : 'отсутствует (тариф «ПРЕМИУМ»)'}</td></tr>
-      <tr><th>Параметры подбора в файле</th><td>${params.length ? esc(params.join(' · ')) : 'фильтры не задавались'}</td></tr>
+      <tr><th>Параметры подбора</th><td>${params.length ? esc(params.join(' · ')) : 'фильтры не задавались'}</td></tr>
     </table>
-    <div class="mnote">Печатная версия открывается отдельной страницей — оттуда её можно
-    отправить на печать или сохранить в PDF средствами браузера.</div>`,
+    <div class="mnote">Презентацию можно
+    скачать в PDF.</div>`,
     `<button class="btn" onclick="closeModal()">Закрыть</button>
-     <a class="btn pri" href="venue-presentation.html">Открыть презентацию</a>`);
+     <a class="btn pri" href="venue-presentation.html">Скачать презентацию в PDF</a>`);
 }
 
 /* ── групповой запрос ── */
@@ -509,16 +510,18 @@ function openRequest() {
   }
 
   modal('Групповой запрос', `
-    <label class="fl">Запрос уйдёт в отделы продаж</label>
+    <label class="fl">Будет направлен в отделы продаж следующих объектов</label>
     <div class="obj-list">${objs.map(o => `<div class="obj">
       <b>${esc(o.venue.name)}</b>
       <span>${o.halls.map(h => esc(h.name)).join(', ')}</span>
     </div>`).join('')}</div>
 
-    <label class="fl">Параметры мероприятия</label>
+    <label class="fl">Детали</label>
     <div class="row2">
-      <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты">
-      <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек">
+      <div><label class="fl-sub" for="rqDates">Даты и время проведения</label>
+        <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты"></div>
+      <div><label class="fl-sub" for="rqGuests">Количество участников</label>
+        <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек"></div>
     </div>
 
     <label class="fl">Сопроводительное письмо</label>
@@ -528,8 +531,7 @@ function openRequest() {
     </div>
     <textarea class="fi" id="rqLetter" placeholder="Текст письма"></textarea>
 
-    <div class="mnote">Контакты пользователя объектам не передаются. Дальнейшая переписка идёт
-    через площадку — история запроса остаётся в личном кабинете.</div>`,
+    <div class="mnote">Кроме рабочего адреса электронной почты никакие контакты не передаются.</div>`,
     `<button class="btn" onclick="closeModal()">Отмена</button>
      <button class="btn pri" onclick="sendRequest()">Отправить запрос</button>`);
 }

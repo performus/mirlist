@@ -251,12 +251,12 @@ function render() {
        ['Номерной фонд', (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
        ['Залов', v.halls.length],
        ['Рейтинг', `${v.rating} (${v.reviews})`],
-       ['Договор по бонусной программе', v.loyaltyContract ? 'да' : 'нет']]
+       ['Договор с оплатой бонусными баллами', v.loyaltyContract ? 'да' : 'нет']]
     : [['Категория', v.cat], ...starRow, ['Регион', v.city]];
 
   document.getElementById('root').innerHTML = `
   <div class="crumbs">
-    <a href="search.html">Подбор площадок</a><span class="sep">→</span><span class="cur">${esc(v.name)}</span>
+    <a href="search.html">Подбор залов</a><span class="sep">→</span><span class="cur">${esc(v.name)}</span>
   </div>
 
   <div class="dhead">
@@ -289,13 +289,13 @@ function render() {
   <div class="two">
     <div>
       ${v.desc ? `<div class="sec-head first"><h2 class="sec-title">О площадке</h2></div>
-      ${MH.lock(`<div class="panel about"><p>${esc(v.desc)}</p></div>`, 'Описание площадки доступно после регистрации')}` : ''}
+      ${MH.lock(`<div class="panel about"><p>${esc(v.desc)}</p></div>`, 'Описание зала/объекта доступно после регистрации')}` : ''}
 
       <div class="sec-head${v.desc ? '' : ' first'}">
         <h2 class="sec-title">Залы объекта</h2>
-        <span class="sec-sub">В подбор попадают именно залы</span>
+        <span class="sec-sub">Единицей выборки является зал, а не объект</span>
       </div>
-      ${MH.lockBar('Цены и вместимость залов видны зарегистрированным пользователям.')}
+      ${MH.lockBar('Расчётные цены аренды и вместимость залов видны зарегистрированным пользователям (если указаны объектом).')}
       <div class="hrows">${hallRows}</div>
 
       ${full && featureBlocks ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}` : ''}
@@ -308,7 +308,7 @@ function render() {
       </div>
       <div class="panel">
         <div class="eyebrow">Как отправить запрос</div>
-        <p>Бронирования на ресурсе нет. Соберите нужные залы в сравнение — запрос уходит одной кнопкой сразу во все выбранные объекты.</p>
+        <p>Услуги бронирования МАЙСЛИСТ не предоставляет. Добавьте нужные залы в сравнение — и одной кнопкой отправьте коммерческий запрос менеджерам всех выбранных объектов.</p>
         <a class="btn pri" style="display:block;text-align:center" href="compare.html">Перейти в сравнение (${ML.state.compare.size})</a>
       </div>
     </aside>

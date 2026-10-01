@@ -376,29 +376,31 @@ const MH = (() => {
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
             <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="20" style="display:block"></div>
-            <p>В2В маркетплейс площадок для деловых мероприятий в России</p>
+            <p>Умный поиск и подбор залов под мероприятие. B2B-платформа для MICE- и Event-менеджеров и их подрядчиков.</p>
             <div class="mh-ft-contacts">
-              <a class="mh-ft-contact" href="mailto:info@mayslist.ru">${ICON_MAIL} info@mayslist.ru</a>
-              <a class="mh-ft-contact" href="tel:+78005553535">${ICON_PHONE} +7 (800) 555-35-35</a>
+              <a class="mh-ft-contact" href="mailto:info@micelist.ru">${ICON_MAIL} info@micelist.ru</a>
+              <a class="mh-ft-contact" href="tel:+79166704905">${ICON_PHONE} +79166704905 (Алексей)</a>
+              <a class="mh-ft-contact" href="tel:+79251751570">${ICON_PHONE} +79251751570 (Денис)</a>
             </div>
           </div>
           <div class="mh-ft-col">
             <h4>Платформа</h4>
-            <a href="search.html">Подбор площадок</a>
+            <a href="search.html">Подбор залов</a>
             <a href="suppliers.html">Поставщики</a>
             <a href="bonus.html">Бонусная программа</a>
             <a href="pricing.html">Тарифы</a>
           </div>
           <div class="mh-ft-col">
             <h4>Размещение</h4>
-            <a href="list-venue.html">Разместить площадку</a>
+            <a href="list-venue.html">Добавить зал</a>
             <a href="for-organizers.html">Агентствам</a>
             <a href="listing-help.html">Помощь с оформлением</a>
           </div>
           <div class="mh-ft-col">
             <h4>Поддержка</h4>
+            <a href="support.html">Поддержка и арбитраж</a>
             <a href="#" onclick="MH.feedback();return false;">Написать в поддержку</a>
-            <a href="mailto:info@mayslist.ru">Контакты</a>
+            <a href="mailto:info@micelist.ru">Контакты</a>
             <a href="../index.html">Карта сайта</a>
           </div>
           <div class="mh-ft-col">
@@ -413,7 +415,7 @@ const MH = (() => {
           <a class="mh-ft-social" href="#" aria-label="Telegram">${ICON_TG}</a>
         </div>
         <div class="mh-ft-bottom">
-          <span>© 2026 МАЙСЛИСТ. Рынок открыт.</span>
+          <span>© 2026 ООО «МАЙСЛИСТ»</span>
           <div>
             <a href="privacy.html">Политика конфиденциальности</a>
             <a href="#">Условия</a>
@@ -554,6 +556,16 @@ const MH = (() => {
         cursor: pointer; transition: all .18s; font-family: 'Onest', system-ui, sans-serif;
       }
       .mhfb-chip.sel { background: #FCEAE4; color: #E8846A; border-color: rgba(232,132,106,.3); font-weight: 600; }
+      /* Узкий экран: длинная тема «Спор по факту…» занимает строку целиком и переносится
+         ровно, остальные кнопки тянутся по ширине строки и выравниваются по высоте. */
+      @media (max-width: 480px) {
+        .mhfb-chips { align-items: stretch; }
+        .mhfb-chip {
+          flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center;
+          text-align: center; line-height: 1.3; min-height: 34px;
+        }
+        .mhfb-chip[data-dispute] { flex-basis: 100%; border-radius: 14px; text-wrap: balance; }
+      }
       .mhfb-textarea {
         width: 100%; padding: 11px 15px; border-radius: 10px;
         border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
@@ -603,7 +615,7 @@ const MH = (() => {
             <label class="mhfb-label">Тема</label>
             <div class="mhfb-chips" id="mhfb-chips">
               <button class="mhfb-chip sel" data-topic="Вопрос">Вопрос</button>
-              <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по мероприятию</button>
+              <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по факту состоявшегося мероприятия</button>
               <button class="mhfb-chip" data-topic="Жалоба на объект или поставщика">Жалоба</button>
               <button class="mhfb-chip" data-topic="Техническая проблема">Техническая проблема</button>
               <button class="mhfb-chip" data-topic="Предложение">Предложение</button>
@@ -616,7 +628,7 @@ const MH = (() => {
           </div>
           <div class="mhfb-field">
             <label class="mhfb-label">Сообщение</label>
-            <textarea class="mhfb-textarea" id="mhfb-msg" placeholder="Опишите ваш вопрос или предложение..."></textarea>
+            <textarea class="mhfb-textarea" id="mhfb-msg" placeholder="Введите ваш вопрос / предложение / комментарий..."></textarea>
           </div>
           <button class="mhfb-btn" id="mhfb-send">Отправить</button>
         </div>
@@ -641,7 +653,7 @@ const MH = (() => {
         const ids = (typeof ML !== 'undefined' && ML.state && ML.state.requests)
           ? ML.state.requests.map(r => r.id) : [];
         document.getElementById('mhfb-id-hint').innerHTML =
-          'Номер стоит в шапке запроса в кабинете, раздел «История запросов».'
+          'Найдите его в личном кабинете, в разделе «История запросов», в шапке каждого запроса.'
           + (ids.length ? ' Например: ' + ids.slice(0, 2).join(', ') + '.' : '')
           + '<br><b>Для спора ID обязателен</b> — без него обращение не разобрать.';
       }
