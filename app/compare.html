@@ -197,6 +197,7 @@ button{font-family:inherit;cursor:pointer;}
 .fl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin:16px 0 7px;}
 .fl:first-child{margin-top:0;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fl-sub{display:block;font-size:12px;color:var(--slate-muted);margin:0 0 5px;}
 .fi{
   width:100%;padding:10px 14px;border-radius:var(--r-sm);
   border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
@@ -509,16 +510,18 @@ function openRequest() {
   }
 
   modal('Групповой запрос', `
-    <label class="fl">Запрос уйдёт в отделы продаж</label>
+    <label class="fl">Будет направлен в отделы продаж следующих объектов</label>
     <div class="obj-list">${objs.map(o => `<div class="obj">
       <b>${esc(o.venue.name)}</b>
       <span>${o.halls.map(h => esc(h.name)).join(', ')}</span>
     </div>`).join('')}</div>
 
-    <label class="fl">Параметры мероприятия</label>
+    <label class="fl">Детали</label>
     <div class="row2">
-      <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты">
-      <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек">
+      <div><label class="fl-sub" for="rqDates">Даты и время проведения</label>
+        <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты"></div>
+      <div><label class="fl-sub" for="rqGuests">Количество участников</label>
+        <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек"></div>
     </div>
 
     <label class="fl">Сопроводительное письмо</label>
