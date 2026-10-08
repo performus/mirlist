@@ -127,9 +127,10 @@ test('статистика объекта: «доходят до меропри�
 
 console.log('Тарифы и типы мероприятий');
 
-test('лимит сравнения: 2 / 6 / 10', () => {
+test('лимиты тарифов: сравнение 2 / 5 / 10, групповой запрос БИЗНЕС — до 5 объектов', () => {
   const { ML } = load();
-  assert.deepStrictEqual(plain(ML.plans().map(t => t.compare)), [2, 6, 10]);
+  assert.deepStrictEqual(plain(ML.plans().map(t => t.compare)), [2, 5, 10]);
+  assert.strictEqual(ML.TARIFFS.biz.groupRequest, 5);
 });
 
 test('на ПРЕМИУМ в сравнение помещается 10 залов, 11-й — нет', () => {
@@ -139,10 +140,9 @@ test('на ПРЕМИУМ в сравнение помещается 10 зало
   assert.strictEqual(ML.toggleCompare(ids[10]).ok, false);
 });
 
-test('шесть типов мероприятий, по каждому есть выдача', () => {
+test('четыре типа мероприятий, по каждому есть выдача', () => {
   const { ML } = load();
-  assert.deepStrictEqual(plain(ML.EVENT_TYPES.map(e => e.l)), ['Форум / Конгресс', 'Презентация / Пресс-конференция / Лекция',
-    'Банкет / Фуршет / Праздник', 'Закрытое совещание / Переговоры', 'Тимбилдинг', 'Онлайн-марафон / Телемост']);
+  assert.deepStrictEqual(plain(ML.EVENT_TYPES.map(e => e.l)), ['Деловое', 'Банкет / фуршет', 'Свадьба', 'Тимбилдинг']);
   for (const e of ML.EVENT_TYPES) {
     const F = ML.emptyFilters(); F.eventType = e.k;
     assert.ok(ML.filterVenues(F).length > 0, e.l);
@@ -151,15 +151,16 @@ test('шесть типов мероприятий, по каждому есть
 });
 
 test('миграция сохранённых фильтров: старые типы и названия удобств', () => {
-  const { ML, storage } = load({ ml_filters: { eventType: 'business', food: ['Место для велкома'], other: ['Своя парковка'] } });
+  const { ML, storage } = load({ ml_filters: { eventType: 'forum', food: ['Место для велкома'], other: ['Своя парковка'] } });
   const F = ML.loadFilters();
-  assert.strictEqual(F.eventType, 'forum');
+  assert.strictEqual(F.eventType, 'business');
   assert.deepStrictEqual([...F.food], ['Зона Welcome']);
   assert.deepStrictEqual([...F.other], ['Отдельная парковка']);
   const s = stored(storage, 'ml_filters');
   assert.deepStrictEqual(s.food, ['Зона Welcome'], 'хранилище перезаписано');
-  const w = load({ ml_filters: { eventType: 'wedding' } }).ML.loadFilters();
-  assert.strictEqual(w.eventType, 'banquet');
+  for (const k of ['presentation', 'meeting', 'online'])
+    assert.strictEqual(load({ ml_filters: { eventType: k } }).ML.loadFilters().eventType, 'business', k);
+  assert.strictEqual(load({ ml_filters: { eventType: 'wedding' } }).ML.loadFilters().eventType, 'wedding');
 });
 
 console.log(`\n${passed} прошло, ${failed} упало`);

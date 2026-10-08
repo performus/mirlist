@@ -376,7 +376,7 @@ const MH = (() => {
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
             <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="20" style="display:block"></div>
-            <p>Умный поиск и подбор залов под мероприятие. B2B-платформа для MICE- и Event-менеджеров и их подрядчиков.</p>
+            <p>Умный поиск и подбор залов под мероприятие.<br>B2B-платформа для ивент-менеджеров, MICE-агентств и их подрядчиков.</p>
             <div class="mh-ft-contacts">
               <a class="mh-ft-contact" href="mailto:info@micelist.ru">${ICON_MAIL} info@micelist.ru</a>
               <a class="mh-ft-contact" href="tel:+79166704905">${ICON_PHONE} +79166704905 (Алексей)</a>

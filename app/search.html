@@ -873,7 +873,7 @@ const IC = {
 function canUse(group) {
   const f = ML.tariff().filters;
   if (f === 'all') return true;
-  if (f === 'all-except-seating-twin') return group !== 'seats' && group !== 'twin';
+  if (f === 'all-except-seating-roomsplit') return group !== 'seats' && group !== 'twin' && group !== 'sngl';
   if (Array.isArray(f)) return f.includes(group);
   return true;
 }
@@ -930,8 +930,8 @@ function renderFilters() {
   // Звёздность — отдельно от категории: она есть только у отелей
   h += fgroup('stars', 'Звёздность', starChecks(), F.stars.size);
 
-  /* Проживание. ПРЕМИУМ — номера TWIN и SNGL; БИЗНЕС — общий фонд и SNGL,
-     TWIN закрыт; на бесплатных тарифах группа заблокирована. */
+  /* Проживание. ПРЕМИУМ — номера TWIN и SNGL; БИЗНЕС — только общий фонд;
+     на бесплатных тарифах группа заблокирована. */
   const roomsBody = canUse('twin')
     ? `<div class="fd-row2">
          <div class="fd-mini"><label>TWIN от</label>
@@ -941,23 +941,18 @@ function renderFilters() {
            <input type="number" min="0" value="${F.sngl || ''}"
              onchange="F.sngl=+this.value||0;render()"></div>
        </div>`
-    : canUse('sngl')
-    ? `<div class="fd-row2">
-         <div class="fd-mini"><label>Номеров от</label>
-           <input type="number" min="0" value="${F.rooms || ''}"
-             onchange="F.rooms=+this.value||0;render()"></div>
-         <div class="fd-mini"><label>SNGL от</label>
-           <input type="number" min="0" value="${F.sngl || ''}"
-             onchange="F.sngl=+this.value||0;render()"></div>
-       </div>
-       <div class="fd-lock">Фильтр по номерам TWIN доступен на тарифе <b>«ПРЕМИУМ»</b></div>`
+    : canUse('rooms')
+    ? `<div class="fd-mini"><label>Номеров от</label>
+         <input type="number" min="0" value="${F.rooms || ''}"
+           onchange="F.rooms=+this.value||0;render()"></div>
+       <div class="fd-lock">Фильтр по номерам SNGL и TWIN доступен на тарифе <b>«ПРЕМИУМ»</b></div>`
     : `<div class="fd-mini"><label>Номеров от</label>
          <input type="number" min="0" value="${F.rooms || ''}" disabled
            onchange="F.rooms=+this.value||0;render()"></div>
        ${lockNote('rooms', 'БИЗНЕС')}`;
   h += fgroup('rooms', 'Проживание', roomsBody,
     canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0)
-      : canUse('sngl') ? (F.rooms ? 1 : 0) + (F.sngl ? 1 : 0) : (F.rooms ? 1 : 0));
+      : (F.rooms ? 1 : 0));
 
   h += fgroup('halls', 'Залы', hallsBuilder(),
     (F.halls || []).filter(r => r.seating || +r.min).length);

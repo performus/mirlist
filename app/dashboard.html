@@ -882,11 +882,11 @@ function openReqEdit(id){
     </div>
     <label class="form-label" for="edLetter">Сопроводительное письмо</label>
     <textarea class="form-input" id="edLetter" rows="6">${esc(r.letter || '')}</textarea>
-    <div class="dm-note">Правка уходит объектам, которые ещё не отменили запрос — сейчас их ${live}.
-    Отдельной кнопкой можно отправить новый запрос по тем же объектам: статусы в нём начнутся заново,
-    отменённые объекты в него не попадут.</div>`,
+    <div class="dm-note">Исправления отправятся объектам, которые ещё не отменили запрос — сейчас их ${live}.
+    Если, скорректировав запрос, вы отправите его заново, статусы обновятся, но объекты,
+    отклонившие изначальный запрос, новый уже не получат.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
-     <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить ещё один запрос</button>
+     <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить новый запрос</button>
      <button class="btn btn-c" onclick="saveReqEdit('${esc(r.id)}')">Сохранить</button>`);
 }
 
@@ -1125,8 +1125,8 @@ function buyShop(id){
      </table>
      <label class="form-label">Комментарий партнёру</label>
      <textarea class="form-input" id="bsNote" rows="3" placeholder="Даты, количество человек, пожелания"></textarea>
-     <div class="dm-note">Баллы спишутся сразу. Партнёр подтвердит заказ и свяжется с вами через ресурс.
-     Если заказ отклонят, баллы вернутся на счёт.</div>`,
+     <div class="dm-note">Баллы спишутся сразу. Партнёр подтвердит заказ и свяжется с вами.
+     Если заказ будет отклонен, баллы вернутся на счёт.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="confirmShop('${jt(String(item.id))}')">Оформить заказ</button>`);
 }
@@ -1197,7 +1197,7 @@ const VENUE_STEPS=[
  {t:'Проживание',f:[
    {k:'twin',l:'Номеров TWIN',ty:'num'},
    {k:'sngl',l:'Номеров SNGL',ty:'num'},
-   {ty:'note',text:'Заполняют только отели. Фильтры по TWIN/SNGL доступны пользователям на платных тарифах.'},
+   {ty:'note',text:'Заполняют только отели. Фильтры по TWIN/SNGL доступны пользователям на тарифе «ПРЕМИУМ».'},
  ]},
  {t:'Характеристики',f:[{ty:'features'}]},
  {t:'Фото объекта',f:[
@@ -1244,7 +1244,7 @@ const HALL_STEPS=[
    {k:'priceDay',l:'Аренда за день, ₽',ty:'num'},
    {k:'priceHour',l:'Аренда за час, ₽',ty:'num'},
    {k:'agree',ty:'checks',opt:['Стоимость по договорённости']},
-   {ty:'note',text:'Залы «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
+   {ty:'note',text:'Залы с ценой «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
  ]},
  {t:'Медиа и планы',f:[
    {k:'photos',l:'Фотографии зала',ty:'photo'},
@@ -1733,13 +1733,15 @@ function shopPage(owner){
   const who=owner==='supplier'?'услуги поставщика':'услуги объекта';
   return `
   <h1 class="page-title">Витрина</h1>
-  <p class="page-sub">${who}, которые пользователи заказывают за баллы бонусной программы</p>
+  <p class="page-sub">${who}, которые пользователи могут заказать за баллы бонусной программы</p>
 
+  <!-- REMOVED BY CLIENT: пояснение о скидке по договору бонусной программы — механика уточняется
   <div class="wz-note" style="margin-bottom:20px">
-    По договору бонусной программы ресурс получает скидку ${Math.round(ML.LOYALTY_DISCOUNT*100)}%
-    от розничной цены: вы получаете ${100-Math.round(ML.LOYALTY_DISCOUNT*100)}% деньгами,
+    По договору бонусной программы ресурс получает скидку \${Math.round(ML.LOYALTY_DISCOUNT*100)}%
+    от розничной цены: вы получаете \${100-Math.round(ML.LOYALTY_DISCOUNT*100)}% деньгами,
     а с пользователя списываются баллы в эквиваленте полной розничной цены.
   </div>
+  -->
 
   <div class="card" style="margin-bottom:26px;max-width:680px">
     <div class="section-label" style="margin-bottom:14px">Добавить позицию</div>
@@ -1851,7 +1853,7 @@ dash:()=>{
       <div class="sub">Тратятся на услуги партнёров</div>
     </div>
     <div class="lk-tile">
-      <div class="lbl">Используйте до:</div>
+      <div class="lbl">Используйте</div>
       <div class="val">${P.expiring.toLocaleString('ru')}</div>
       <div class="sub">до ${esc(P.expiresAt)}</div>
     </div>
@@ -1898,7 +1900,7 @@ requests:()=>{
     <button class="btn-xs" style="${REQ_SORT==='title'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('title')">По названию</button>
   </div>
   ${list.map(r=>reqBlock(r)).join('')}
-  <div class="dm-note" style="margin-top:16px">Отметки сторон разошлись или мероприятие сорвалось? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
+  <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
 },
 
 /* ── ИЗБРАННОЕ ── */
@@ -1956,7 +1958,7 @@ points:()=>{
       <div class="sub">Станут доступны после того, как менеджмент объекта подтвердит прошедшее мероприятие.</div>
     </div>
     <div class="lk-tile">
-      <div class="lbl">Используйте до:</div>
+      <div class="lbl">Используйте</div>
       <div class="val">${P.expiring.toLocaleString('ru')}</div>
       <div class="sub">до ${esc(P.expiresAt)}</div>
     </div>
@@ -2223,18 +2225,17 @@ ostats:()=>{
       <div class="sub">доведено до отдела продаж</div></div>
     <div class="lk-tile"><div class="lbl">Конверсия в запросы</div><div class="val">${st.conversion}%</div>
       <div class="sub">от числа просмотров</div></div>
-    <div class="lk-tile"><div class="lbl">Доходят до мероприятия</div><div class="val">${st.toEvent}%</div>
-      <div class="sub">состоялось ${st.done} из ${st.requests}</div></div>
+    <div class="lk-tile"><div class="lbl">Реализовано</div><div class="val">${st.toEvent}%</div>
+      <div class="sub">состоявшихся мероприятий</div></div>
     <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
       <div class="sub">оплачено баллами бонусной программы</div></div>
   </div>
   <div class="card">
     <div class="section-label" style="margin-bottom:12px">Как читать эти числа</div>
     <p style="font-size:13.5px;line-height:1.65;color:var(--sm)">
-    Объект узнаёт о просмотре карточки только в момент получения запроса: до этого пользователь
-    остаётся анонимным, а его контакты не передаются. Просмотры — агрегированная статистика платформы,
-    она нужна, чтобы понимать эффективность каждой карточки зала. Конверсия считается от просмотров,
-    доля состоявшихся — от полученных запросов.</p>
+    Просмотры и клики — агрегированная статистика платформы по карточкам ваших объектов и залов,
+    она нужна, чтобы понимать общую эффективность размещения. Конверсия: соотношение просмотров
+    и запросов. В блоке «Реализовано» показана доля состоявшихся мероприятий от числа полученных запросов.</p>
   </div>`;
 },
 
