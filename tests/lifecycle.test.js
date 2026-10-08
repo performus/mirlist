@@ -133,11 +133,23 @@ test('лимиты тарифов: сравнение 2 / 5 / 10, группов
   assert.strictEqual(ML.TARIFFS.biz.groupRequest, 5);
 });
 
-test('на ПРЕМИУМ в сравнение помещается 10 залов, 11-й — нет', () => {
+test('лимит сравнения — по объектам: на ПРЕМИУМ 10 объектов, 11-й нет, залы тех же объектов — без ограничения', () => {
   const { ML } = load({ ml_tariff: 'prem' });
-  const ids = ML.VENUES.flatMap(v => v.halls.map(h => h.id)).slice(0, 11);
-  ids.slice(0, 10).forEach(id => assert.ok(ML.toggleCompare(id).ok));
-  assert.strictEqual(ML.toggleCompare(ids[10]).ok, false);
+  const vs = ML.VENUES.slice(0, 11);
+  vs.slice(0, 10).forEach(v => assert.ok(ML.toggleCompare(v.halls[0].id).ok));
+  assert.strictEqual(ML.toggleCompare(vs[10].halls[0].id).ok, false, '11-й объект');
+  vs.slice(0, 10).forEach(v => v.halls.slice(1).forEach(h => assert.ok(ML.toggleCompare(h.id).ok, 'ещё зал того же объекта')));
+  assert.strictEqual(ML.compareVenueCount(), 10);
+});
+
+test('при понижении тарифа остаются залы первых объектов в пределах лимита', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  ML.VENUES.slice(0, 4).forEach(v => v.halls.forEach(h => ML.toggleCompare(h.id)));
+  ML.setTariff('start');
+  assert.strictEqual(ML.compareVenueCount(), 2);
+  const kept = plain(ML.compareHalls().map(h => h.venueId));
+  assert.deepStrictEqual([...new Set(kept)], [ML.VENUES[0].id, ML.VENUES[1].id]);
+  assert.strictEqual(kept.length, ML.VENUES[0].halls.length + ML.VENUES[1].halls.length, 'все залы оставшихся объектов');
 });
 
 test('четыре типа мероприятий, по каждому есть выдача', () => {

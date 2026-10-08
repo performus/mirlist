@@ -353,13 +353,13 @@ function render() {
     }).join('')}</tr>`;
   }).join('');
 
-  const limitTxt = t.compare === Infinity ? 'без ограничения' : `до ${t.compare} ${ML.plural(t.compare, ['зала','залов','залов'])}`;
+  const limitTxt = t.compare === Infinity ? 'без ограничения' : `до ${t.compare} ${ML.plural(t.compare, ['объекта','объектов','объектов'])}`;
 
   root.innerHTML = head + `
   <div class="dhead">
     <div>
       <h1 class="d-title">Сравнение залов</h1>
-      <div class="d-limit">Тариф <b>«${esc(t.name)}»</b> — ${limitTxt}. Сейчас: <b>${halls.length}</b>.</div>
+      <div class="d-limit">Тариф <b>«${esc(t.name)}»</b> — ${limitTxt}. Сейчас: <b>${ML.compareVenueCount()}</b>.</div>
     </div>
     <div class="d-actions">
       <button class="btn" onclick="clearAll()">Очистить список</button>

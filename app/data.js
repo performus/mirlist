@@ -632,9 +632,16 @@
     if (!TARIFFS[k]) return;
     if (k === 'guest') { state.compare.clear(); persist.compare(); }
     state.tariff = k; persist.tariff();
-    // лимит сравнения мог уменьшиться — обрезаем
+    // лимит сравнения (по объектам) мог уменьшиться — оставляем залы первых lim объектов
     const lim = TARIFFS[k].compare;
-    if (state.compare.size > lim) { state.compare = new Set([...state.compare].slice(0, lim)); persist.compare(); }
+    const keep = new Set();
+    const next = [...state.compare].filter(id => {
+      const h = hallById(id); if (!h) return false;
+      if (keep.has(h.venueId)) return true;
+      if (keep.size >= lim) return false;
+      keep.add(h.venueId); return true;
+    });
+    if (next.length !== state.compare.size) { state.compare = new Set(next); persist.compare(); }
   };
 
   const venueById = (id) => VENUES.find(v => v.id === +id) || null;
@@ -755,16 +762,21 @@
     return base.filter(x => x.venue.features.includes(value)).length;
   }
 
-  /* — сравнение и избранное работают по ID ЗАЛОВ — */
+  /* — сравнение и избранное работают по ID ЗАЛОВ, а лимит тарифа считается
+       по ОБЪЕКТАМ: залов одного объекта можно добавить сколько угодно — */
 
   function inCompare(hallId) { return state.compare.has(+hallId); }
+  /** Объекты, залы которых сейчас в сравнении. */
+  const compareVenueIds = () => new Set([...state.compare].map(id => (hallById(id) || {}).venueId).filter(Boolean));
   /** @returns {{ok:boolean, reason?:string}} */
   function toggleCompare(hallId) {
     hallId = +hallId;
     if (state.compare.has(hallId)) { state.compare.delete(hallId); persist.compare(); return { ok: true }; }
     const lim = tariff().compare;
-    if (state.compare.size >= lim) {
-      return { ok: false, reason: `Тариф «${tariff().name}»: максимум ${lim} залов в сравнении` };
+    const h = hallById(hallId), vs = compareVenueIds();
+    if (h && !vs.has(h.venueId) && vs.size >= lim) {
+      const w = lim % 10 === 1 && lim % 100 !== 11 ? 'объект' : lim % 10 >= 2 && lim % 10 <= 4 && (lim % 100 < 12 || lim % 100 > 14) ? 'объекта' : 'объектов';
+      return { ok: false, reason: `Тариф «${tariff().name}»: максимум ${lim} ${w} в сравнении` };
     }
     state.compare.add(hallId); persist.compare(); return { ok: true };
   }
@@ -1304,7 +1316,7 @@
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,
     emptySupplierFilters, filterSuppliers, supplierFacet, supplierKey, canGroupSupplierRequest,
-    inCompare, toggleCompare, clearCompare, compareHalls,
+    inCompare, toggleCompare, clearCompare, compareHalls, compareVenueCount: () => compareVenueIds().size,
     isFav, toggleFav,
     addToBlacklist, removeFromBlacklist,
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
