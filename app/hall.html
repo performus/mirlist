@@ -44,6 +44,12 @@ button{font-family:inherit;cursor:pointer;}
 
 .dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
 .d-eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+.d-venue{font-size:18px;font-weight:600;color:var(--slate-mid);line-height:1.35;display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;}
+.d-venue a{color:var(--slate-deep);font-weight:700;}
+.d-venue a:hover{color:var(--coral);}
+.d-vstars{color:#F0B95A;letter-spacing:2px;font-size:17px;}
+a.tag.dl{cursor:pointer;text-decoration:none;}
+a.tag.dl:hover{filter:brightness(1.06);}
 .d-eyebrow a{color:var(--slate-muted);text-transform:none;letter-spacing:0;font-weight:500;}
 .d-eyebrow a:hover{color:var(--coral);}
 .d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
@@ -188,37 +194,24 @@ function notFound(msg) {
 }
 
 /* Галерея зала: своё фото + соседние залы объекта. */
+/* п.34: галерея зала — те же правила, что у объекта: с пятью и больше фото «+N» и лайтбокс. */
 function gallery(h, v) {
-  const shots = [h.photo, ...v.halls.filter(x => x.id !== h.id).map(x => x.photo), v.photo]
-    .filter((x, i, a) => a.indexOf(x) === i);
-  if (shots.length < 3) {
-    return `<div class="gal solo"><div class="gal-cell"><img src="${ML.photoUrl(shots[0])}" alt="${esc(h.name)}"></div></div>`;
-  }
-  const at = i => ML.photoUrl(shots[i % shots.length]);
-  return `<div class="gal">
-    <div class="gal-cell"><img src="${at(0)}" alt="${esc(h.name)}"></div>
-    <div class="gal-stack">
-      <div class="gal-cell"><img src="${at(1)}" alt="" loading="lazy"></div>
-      <div class="gal-cell"><img src="${at(2)}" alt="" loading="lazy"></div>
-    </div>
-    <div class="gal-stack">
-      <div class="gal-cell"><img src="${at(3)}" alt="" loading="lazy"></div>
-      <div class="gal-cell"><img src="${at(4)}" alt="" loading="lazy"></div>
-    </div>
-  </div>`;
+  return MH.gallery((ML.tariff().fullInfo ? h.gallery : [h.photo]).map(ML.photoUrl), h.name);
 }
 
 let H = null, V = null;
+/* Мок-план для прототипа: один PDF на все залы с точным планом. */
+const PLAN_PDF = '../assets/plans/hall-plan-sample.pdf';
 
 function render() {
   const h = H, v = V, t = ML.tariff(), full = t.fullInfo;
   const inC = ML.inCompare(h.id), fav = ML.isFav(h.id);
   const others = v.halls.filter(x => x.id !== h.id);
 
-  // ── вместимость по всем семи схемам: чего нет — неактивная плитка ──
-  const seatTiles = ML.SEATING.map(s => {
+  // ── вместимость: показываем только схемы, по которым есть данные ──
+  const seatTiles = ML.SEATING.filter(s => h.seats[s.k]).map(s => {
     const n = h.seats[s.k];
-    return `<div class="seat${n ? '' : ' off'}">
+    return `<div class="seat">
       <div class="seat-n">${n || '—'}</div>
       <div class="seat-l">${MH.seatIcon(s.k, { size: 15 })}<span>${esc(s.l)}</span></div>
     </div>`;
@@ -252,14 +245,17 @@ function render() {
 
   <div class="dhead">
     <div>
-      <span class="d-eyebrow">${esc(h.type)} · <a href="venue.html?id=${v.id}">${esc(v.name)}</a></span>
+      <div class="d-venue">${esc(h.type)} · <a href="venue.html?id=${v.id}">${esc(v.name)}</a>${
+        v.stars ? `<span class="d-vstars" aria-label="${v.stars} ${ML.plural(v.stars, ['звезда', 'звезды', 'звёзд'])}">${'★'.repeat(v.stars)}</span>` : ''}</div>
       <h1 class="d-title">${esc(h.name)}</h1>
       <div class="d-meta">
         <span><b>${h.area}</b> м²</span>
         ${h.height ? `<span>потолок <b>${h.height}</b> м</span>` : ''}
         <span>${MH.blurOnly('до <b>' + ML.hallCapacity(h) + '</b> чел.')}</span>
         <span>${esc(v.city)}</span>
-        ${h.plan ? '<span class="tag solid">Есть точный план</span>' : ''}
+        ${h.plan ? (full
+          ? `<a class="tag solid dl" href="${PLAN_PDF}" download="${esc('План зала — ' + h.name + '.pdf')}" title="Скачать план (PDF)">Есть точный план · скачать PDF</a>`
+          : `<a class="tag solid dl" href="#" ${MH.payAttr('biz', 'Точный план зала')}>Есть точный план</a>`) : ''}
       </div>
     </div>
     <div class="d-actions">
@@ -278,12 +274,13 @@ function render() {
         <span class="sec-sub">${full ? 'Количество человек в каждом из вариантов' : ''}</span>
       </div>
       ${full
-        ? `<div class="seats">${seatTiles}</div>${MH.seatLegend()}`
+        ? (seatTiles ? `<div class="seats">${seatTiles}</div>${MH.seatLegend(ML.SEATING.filter(s => h.seats[s.k]).map(s => s.k))}`
+            : '<div class="panel pad">Схемы рассадки для этого зала не указаны.</div>')
         : MH.isLocked()
         ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость при разных схемах рассадки доступна после регистрации')
         : `<div class="note">
             <span>Схемы рассадки доступны с тарифа <b>«БИЗНЕС»</b>. Сейчас видна только площадь зала — <b>${h.area} м²</b>.</span>
-            <a class="btn sm" href="pricing.html">Тарифы</a></div>`}
+            <a class="btn sm" href="pricing.html" ${MH.payAttr('biz', 'Схемы рассадки')}>Перейти на «БИЗНЕС»</a></div>`}
 
       <div class="sec-head"><h2 class="sec-title">Параметры зала</h2></div>
       ${MH.lock(`<div class="panel">
@@ -293,7 +290,7 @@ function render() {
           <tr><th>Высота потолка</th><td>${h.height ? h.height + ' м' : '—'}</td></tr>
           <tr><th>Аренда за день</th><td>${h.priceDay ? ML.money(h.priceDay) : 'по договорённости'}</td></tr>
           <tr><th>Аренда за час</th><td>${h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'}</td></tr>
-          <tr><th>Точный план пространства</th><td>${h.plan ? (full ? 'есть, PDF' : 'есть') : 'нет'}</td></tr>
+          <tr><th>Точный план пространства</th><td>${h.plan ? (full ? `<a href="${PLAN_PDF}" download="${esc('План зала — ' + h.name + '.pdf')}" style="color:var(--coral)">скачать PDF</a>` : 'есть') : 'нет'}</td></tr>
         </table>
       </div>`, 'Некоторые параметры зала и стоимость аренды доступны только после регистрации')}
 
@@ -325,7 +322,7 @@ function render() {
 /* ── действия ── */
 function toggleCmp(hallId) {
   const r = ML.toggleCompare(hallId);
-  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  if (!r.ok) { r.need ? MH.paywall(r.need, r.reason) : MH.toast(r.reason, 'error'); return; }
   render();
 }
 function toggleFavHall(hallId) {

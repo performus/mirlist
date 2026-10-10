@@ -111,6 +111,29 @@ h1,h2,h3 { font-weight:700; }
   display:flex; align-items:center; justify-content:center;
 }
 .cb-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+/* п.21: тариф — в верхней строке, отдельно от переключателя «Списком / На карте» */
+.cb-plan {
+  align-self:center; display:inline-flex; align-items:center; gap:6px;
+  padding:6px 13px; border-radius:var(--r-full); background:var(--aqua-pale);
+  font-size:12px; color:var(--slate-muted); white-space:nowrap; text-decoration:none;
+}
+.cb-plan b { color:var(--slate-deep); font-weight:700; }
+.cb-plan:hover { background:#E2F0EF; }
+/* п.17: город — поле с автоподсказкой */
+.cb-city { position:relative; }
+.cb-ac {
+  position:absolute; top:100%; left:0; min-width:100%; z-index:60; margin-top:6px; padding:4px;
+  list-style:none; background:var(--white); border:1px solid rgba(197,227,225,.6);
+  border-radius:var(--r-md); box-shadow:var(--sh-lg); max-height:260px; overflow-y:auto;
+}
+.cb-ac[hidden] { display:none; }
+.cb-ac li {
+  display:flex; justify-content:space-between; gap:12px; padding:8px 12px; border-radius:var(--r-sm);
+  font-size:13px; color:var(--slate-deep); cursor:pointer; white-space:nowrap;
+}
+.cb-ac li .n { font-size:11.5px; color:var(--slate-muted); }
+.cb-ac li.on, .cb-ac li:hover { background:var(--aqua-pale); }
+.cb-ac li.none { color:var(--slate-muted); cursor:default; background:none; }
 .cb-tariff {
   display:flex; align-items:center; gap:6px;
   font-size:12px; color:var(--slate-muted);
@@ -282,6 +305,8 @@ h1,h2,h3 { font-weight:700; }
 }
 .fd-chev { margin-left:auto; color:var(--slate-pale); font-size:10px; transition:transform .2s; }
 .fd-group[open] .fd-chev { transform:rotate(90deg); }
+/* п.24: счётчик заполненных значений — только у свёрнутой секции */
+.fd-group[open] > summary .fd-gcount { display:none; }
 .fd-gbody { padding:2px 18px 16px; }
 
 /* чекбокс с фасетным счётчиком */
@@ -308,6 +333,8 @@ h1,h2,h3 { font-weight:700; }
 
 /* числовые поля и слайдеры */
 .fd-row2 { display:flex; gap:10px; }
+.fd-row2 > * { flex:1 1 0; min-width:0; }
+.fd-mini label { white-space:nowrap; }
 .fd-mini { flex:1; }
 .fd-mini label { display:block; font-size:11.5px; color:var(--slate-muted); margin-bottom:4px; }
 .fd-mini input {
@@ -375,6 +402,13 @@ h1,h2,h3 { font-weight:700; }
   font-size:11.5px; line-height:1.5; color:var(--slate-muted);
 }
 .fd-lock b { color:var(--slate-deep); font-weight:600; }
+/* п.6: закрытая группа целиком ведёт на пейвол */
+.fd-paywall { position:relative; cursor:pointer; }
+.fd-paywall::after { content:''; position:absolute; inset:0; z-index:2; }
+.fd-paywall .fd-lock { color:var(--coral); }
+.fd-paywall:hover .fd-lock { text-decoration:underline; text-underline-offset:3px; }
+.fd-pricenote { margin-top:10px; font-size:11.5px; line-height:1.5; color:var(--slate-muted); }
+.fd-mini.locked input { background:var(--bg); }
 .fd-note {
   margin:14px 18px 16px; padding:12px 14px;
   background:var(--aqua-pale); border-radius:var(--r-sm);
@@ -445,6 +479,30 @@ h1,h2,h3 { font-weight:700; }
   transition:border-color .25s, box-shadow .25s;
 }
 .vb.hi { border-color:var(--coral); box-shadow:0 0 0 2px var(--coral-glow), var(--sh-lg); }
+/* п.25: реклама в выдаче */
+.vb.ml-ad-frame { outline-offset:-1px; }
+.vb-admark { display:inline-flex; vertical-align:2px; margin-left:8px; }
+/* п.22: пагинация */
+.pager { display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:20px; }
+.pager button {
+  min-width:38px; height:38px; padding:0 12px; border-radius:var(--r-full);
+  border:1.5px solid rgba(197,227,225,.6); background:var(--white);
+  font-size:13px; font-weight:600; color:var(--slate-mid);
+}
+.pager button:hover:not(:disabled) { border-color:var(--coral); color:var(--coral); }
+.pager button.on { background:var(--coral); border-color:var(--coral); color:#fff; }
+.pager button:disabled { opacity:.4; cursor:default; }
+.pager .gap { padding:0 4px; color:var(--slate-pale); }
+.pager-info { text-align:center; font-size:12px; color:var(--slate-muted); margin-top:8px; }
+/* п.16: стартовое состояние — карта всех объектов */
+.map-hint {
+  position:absolute; left:50%; top:16px; transform:translateX(-50%); z-index:30;
+  width:min(440px, calc(100% - 32px));
+  background:rgba(255,255,255,.96); border-radius:var(--r-lg); box-shadow:0 10px 36px rgba(53,78,99,.18);
+  padding:14px 18px; text-align:center; font-size:13px; line-height:1.55; color:var(--slate-mid);
+}
+.map-hint b { display:block; font-size:14.5px; color:var(--slate-deep); margin-bottom:3px; }
+.map-hint[hidden] { display:none; }
 .vb-head {
   display:flex; align-items:flex-start; justify-content:space-between;
   gap:14px; flex-wrap:wrap; margin-bottom:14px;
@@ -578,7 +636,7 @@ h1,h2,h3 { font-weight:700; }
 }
 .res-empty button:hover { background:var(--coral-hover); }
 
-.res-note {
+.res-note-unused {
   margin-top:16px; padding:13px 16px;
   background:var(--white); border:1px solid rgba(197,227,225,.3);
   border-radius:var(--r-md);
@@ -639,6 +697,9 @@ h1,h2,h3 { font-weight:700; }
 }
 .map-pin.hi { z-index:6; transform:translate(-50%,-100%) scale(1.2); }
 .map-pin.hi .pin-body { background:var(--coral); color:#fff; border-color:var(--coral); }
+/* объекты текущей страницы списка ярче остальных */
+.map-scale.paged .map-pin:not(.pg):not(.hi) { opacity:.42; }
+.map-pin.pg .pin-body { background:#FCEAE4; }
 
 /* всплывашка с фото и названием */
 .pin-pop {
@@ -749,9 +810,12 @@ h1,h2,h3 { font-weight:700; }
       Фильтр
       <span class="ft-count" id="ftCount">0</span>
     </button>
-    <div class="cb-field">
+    <a class="cb-plan" href="pricing.html" title="Сравнить тарифы">Тариф: <b id="cbTariff">—</b></a>
+    <div class="cb-field cb-city">
       <label for="cbCity">Город</label>
-      <select id="cbCity" onchange="F.city=this.value;render()"></select>
+      <input id="cbCity" type="text" role="combobox" autocomplete="off" placeholder="Любой город"
+        aria-autocomplete="list" aria-expanded="false" aria-controls="cbCityList">
+      <ul class="cb-ac" id="cbCityList" role="listbox" hidden></ul>
     </div>
     <div class="cb-field">
       <label for="cbPeople">Кол-во участников</label>
@@ -772,7 +836,6 @@ h1,h2,h3 { font-weight:700; }
           <span>На карте</span>
         </button>
       </div>
-      <span class="cb-tariff">Тариф: <b id="cbTariff">—</b></span>
     </div>
   </div>
 
@@ -806,9 +869,7 @@ h1,h2,h3 { font-weight:700; }
       </div>
       <div class="f-chips" id="fChips"></div>
       <div class="vlist" id="vList"></div>
-      <div class="res-note">
-        Залы с ценой «по договорённости» остаются в выдаче всегда.
-      </div>
+      <div id="pager"></div>
     </div>
 
     <!-- ══════ КАРТА ══════ -->
@@ -817,6 +878,8 @@ h1,h2,h3 { font-weight:700; }
         <b>На карте · <span id="mapCount">0</span></b>
       </div>
       <div class="map-canvas" id="mapCanvas">
+        <div class="map-hint" id="mapHint" hidden><b>Все объекты на карте</b>Примените хотя бы один фильтр —
+          появится список залов по объектам.</div>
         <div class="map-scale" id="mapScale"></div>
         <div class="map-card" id="mapCard" hidden></div>
         <div class="map-zoom">
@@ -830,6 +893,8 @@ h1,h2,h3 { font-weight:700; }
 </div>
 
 <div class="fd-backdrop" id="fdBackdrop" onclick="toggleFilter()"></div>
+
+<div id="mh-footer"></div>
 
 <div class="cmp-bar" id="cmpBar">
   <span><b id="cmpCount">0</b> <span id="cmpWord">залов</span> в сравнении</span>
@@ -856,6 +921,24 @@ let HOVER = null;                 // id объекта, подсвеченног
 let SORT = 'rel';
 let ZOOM = 1;
 const OPEN = new Set(['cap', 'cats']);   // раскрытые группы фильтров
+/* п.24: после перезагрузки раскрыты секции, где есть заполненные значения. */
+function groupFilled(k) {
+  if (k === 'cap') return !!F.people;
+  if (k === 'cats' || k === 'stars' || ML.FEATURES[k]) return !!(F[k] && F[k].size);
+  if (k === 'rooms') return !!(F.rooms || F.twin || F.sngl);
+  if (k === 'halls') return (F.halls || []).some(r => r.seating || +r.min);
+  if (k === 'price') return F.priceDay[0] > 0 || F.priceDay[1] < 200000;
+  return false;
+}
+['cap', 'cats', 'stars', 'rooms', 'halls', 'price', 'food', 'opts', 'other', 'sport'].forEach(k => { if (groupFilled(k)) OPEN.add(k); });
+const PER_PAGE = 10;
+let PAGE = 1, PAGE_SIG = '';
+/** Применён ли хоть один фильтр. Без фильтров — стартовая карта со всеми объектами. */
+function hasFilters() {
+  return !!(F.city || F.people || F.eventType || F.cats.size || F.stars.size || F.rooms || F.twin || F.sngl
+    || (F.halls || []).some(r => r.seating || +r.min) || F.priceDay[0] > 0 || F.priceDay[1] < 200000
+    || ['food', 'opts', 'other', 'sport'].some(g => F[g].size) || ML.state.blacklist.size);
+}
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const jt  = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -870,13 +953,7 @@ const IC = {
 
 /* Какие группы фильтров доступны на текущем тарифе.
    Правила берём из самого тарифа (ML.TARIFFS[...].filters), а не выдумываем. */
-function canUse(group) {
-  const f = ML.tariff().filters;
-  if (f === 'all') return true;
-  if (f === 'all-except-seating-roomsplit') return group !== 'seats' && group !== 'twin' && group !== 'sngl';
-  if (Array.isArray(f)) return f.includes(group);
-  return true;
-}
+function canUse(group) { return ML.canUseFilter(ML.tariff().key, group); }
 
 /* ══════════════════════════════════════════════
    ПАНЕЛЬ ФИЛЬТРОВ
@@ -897,18 +974,28 @@ function checks(group, items, locked) {
 
 function togSet(group, value) { const s = F[group]; s.has(value) ? s.delete(value) : s.add(value); render(); }
 
-/* Звёздность — отдельная группа: значения числовые, метка рисуется звёздами.
-   Логика «ИЛИ», как у категорий, и так же доступна на бесплатном тарифе. */
-function starChecks() {
-  return [3, 4, 5].map(n => `<label class="fd-check" data-g="stars" data-item="${n}">
-    <input type="checkbox" ${F.stars.has(n) ? 'checked' : ''} onchange="togStar(${n})">
+/* п.6: какой тариф открывает группу и обёртка, ведущая на пейвол */
+const needFor = (g) => ['seats', 'twin', 'sngl'].includes(g) ? 'prem' : 'biz';
+const GROUP_NAMES = { stars: 'Фильтр по звёздности', rooms: 'Фильтр по номерному фонду', twin: 'Фильтр по номерам SNGL и TWIN',
+  halls: 'Подбор по залам', seats: 'Выбор схемы рассадки', priceDay: 'Фильтр по стоимости', food: 'Фильтры по удобствам' };
+function payWrap(group, html) {
+  const need = needFor(group);
+  return `<div class="fd-paywall" role="button" tabindex="0" ${MH.payAttr(need, GROUP_NAMES[group] || 'Этот фильтр')}
+    onkeydown="if(event.key==='Enter')this.click()">${html}</div>`;
+}
+
+/* Звёздность — отдельная группа, логика «ИЛИ». Варианты — ML.STAR_OPTIONS:
+   «Без звёзд», «1–2 звезды», 3, 4, 5. На «СТАРТ» закрыта (п.27). */
+function starChecks(locked) {
+  return ML.STAR_OPTIONS.map(o => `<label class="fd-check${locked ? ' off' : ''}" data-g="stars" data-item="${o.k}">
+    <input type="checkbox" ${F.stars.has(o.k) ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="togStar(${o.k})">
     <span class="fd-box">${IC.check}</span>
-    <span class="fd-lbl"><span class="fd-stars">${'★'.repeat(n)}</span></span><span class="fd-cnt"></span></label>`).join('');
+    <span class="fd-lbl">${o.k >= 3 ? `<span class="fd-stars">${'★'.repeat(o.k)}</span>` : esc(o.l)}</span><span class="fd-cnt"></span></label>`).join('');
 }
 function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); render(); }
 
 function lockNote(group, tariffName) {
-  return canUse(group) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${tariffName}»</b></div>`;
+  return canUse(group) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${tariffName}»</b> →</div>`;
 }
 
 function renderFilters() {
@@ -927,8 +1014,9 @@ function renderFilters() {
   // Категории объектов — единственная группа с логикой «ИЛИ»
   h += fgroup('cats', 'Категории объектов', checks('cats', ML.VENUE_CATS, false), F.cats.size);
 
-  // Звёздность — отдельно от категории: она есть только у отелей
-  h += fgroup('stars', 'Звёздность', starChecks(), F.stars.size);
+  // Звёздность — отдельно от категории: она есть только у отелей. На «СТАРТ» закрыта.
+  h += fgroup('stars', 'Звёздность', canUse('stars') ? starChecks(false)
+    : payWrap('stars', starChecks(true) + lockNote('stars', 'БИЗНЕС')), F.stars.size);
 
   /* Проживание. ПРЕМИУМ — номера TWIN и SNGL; БИЗНЕС — только общий фонд;
      на бесплатных тарифах группа заблокирована. */
@@ -942,14 +1030,18 @@ function renderFilters() {
              onchange="F.sngl=+this.value||0;render()"></div>
        </div>`
     : canUse('rooms')
-    ? `<div class="fd-mini"><label>Номеров от</label>
-         <input type="number" min="0" value="${F.rooms || ''}"
-           onchange="F.rooms=+this.value||0;render()"></div>
-       <div class="fd-lock">Фильтр по номерам SNGL и TWIN доступен на тарифе <b>«ПРЕМИУМ»</b></div>`
-    : `<div class="fd-mini"><label>Номеров от</label>
-         <input type="number" min="0" value="${F.rooms || ''}" disabled
-           onchange="F.rooms=+this.value||0;render()"></div>
-       ${lockNote('rooms', 'БИЗНЕС')}`;
+    /* п.26: БИЗНЕС — активное «Номеров от» и закрытое поле TWIN, клик ведёт на пейвол. */
+    ? `<div class="fd-row2">
+         <div class="fd-mini"><label>Номеров от</label>
+           <input type="number" min="0" value="${F.rooms || ''}"
+             onchange="F.rooms=+this.value||0;render()"></div>
+         ${payWrap('twin', `<div class="fd-mini locked"><label>TWIN от</label>
+           <input type="number" disabled placeholder="—"></div>`)}
+       </div>
+       ${payWrap('twin', '<div class="fd-lock">TWIN и SNGL — доступно с тарифа <b>«ПРЕМИУМ»</b> →</div>')}`
+    : payWrap('rooms', `<div class="fd-mini"><label>Номеров от</label>
+         <input type="number" min="0" value="${F.rooms || ''}" disabled></div>
+       ${lockNote('rooms', 'БИЗНЕС')}`);
   h += fgroup('rooms', 'Проживание', roomsBody,
     canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0)
       : (F.rooms ? 1 : 0));
@@ -958,16 +1050,19 @@ function renderFilters() {
     (F.halls || []).filter(r => r.seating || +r.min).length);
 
   // Стоимость
+  // п.18: подсказка про «по договорённости» — под фильтром цены
   h += fgroup('price', 'Стоимость аренды зала',
-    canUse('priceDay')
+    (canUse('priceDay')
       ? dualPrice()
-      : `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b></div>`,
+      : payWrap('priceDay', `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b> →</div>`))
+    + '<div class="fd-pricenote">Залы с ценой «по договорённости» остаются в выдаче всегда.</div>',
     (F.priceDay[0] > 0 || F.priceDay[1] < 200000) ? 1 : 0);
 
   // Группы удобств — список берём из ML.FEATURE_GROUPS / ML.FEATURES
   ML.FEATURE_GROUPS.forEach(g => {
     if (g.onlyEvent && g.onlyEvent !== F.eventType) return;
-    h += fgroup(g.k, esc(g.l), checks(g.k, ML.FEATURES[g.k], lockFeat) + lockNote(g.k, 'БИЗНЕС'), F[g.k].size);
+    h += fgroup(g.k, esc(g.l), lockFeat ? payWrap('food', checks(g.k, ML.FEATURES[g.k], true) + lockNote(g.k, 'БИЗНЕС'))
+      : checks(g.k, ML.FEATURES[g.k], false), F[g.k].size);
   });
 
   if (!t.fullInfo) {
@@ -992,7 +1087,7 @@ function renderFilters() {
    ══════════════════════════════════════════════ */
 function hallsBuilder() {
   if (!canUse('halls')) {
-    return '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b></div>';
+    return payWrap('halls', '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b> →</div>');
   }
   const canSeat = canUse('seats');
   const list = F.halls || [];
@@ -1024,13 +1119,13 @@ function hallsBuilder() {
       <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
       Добавить зал
     </button>
-    ${canSeat ? '' : '<div class="fd-lock">Выбор схемы рассадки доступен на тарифе <b>«ПРЕМИУМ»</b> — сейчас требование считается по любой схеме</div>'}
+    ${canSeat ? '' : payWrap('seats', '<div class="fd-lock">Выбор схемы рассадки доступен на тарифе <b>«ПРЕМИУМ»</b> → сейчас требование считается по любой схеме</div>')}
     ${list.length > 1 ? '<div class="hq-note">Каждое требование закрывает <b>отдельный</b> зал объекта.</div>' : ''}`;
 }
 
-function hallAdd() { (F.halls = F.halls || []).push({ seating: '', min: 0 }); render(); }
-function hallDel(i) { F.halls.splice(i, 1); render(); }
-function hallSet(i, k, v) { F.halls[i][k] = v; render(); }
+function hallAdd() { (F.halls = F.halls || []).push({ seating: '', min: 0 }); OPEN.add('halls'); renderFilters(); render(); }
+function hallDel(i) { F.halls.splice(i, 1); renderFilters(); render(); }
+function hallSet(i, k, v) { F.halls[i][k] = v; renderFilters(); render(); }
 
 
 /* двойной слайдер цены */
@@ -1071,7 +1166,7 @@ function applyFacets() {
     const g = lb.dataset.g, item = lb.dataset.item, inp = lb.querySelector('input');
     const n = ML.facetCount(F, g, item);
     lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
-    const lockedByTariff = g !== 'cats' && g !== 'stars' && !canUse(g);
+    const lockedByTariff = g !== 'cats' && !canUse(g === 'stars' ? 'stars' : g);
     const dead = !inp.checked && n === 0;
     inp.disabled = lockedByTariff || dead;
     lb.classList.toggle('off', lockedByTariff || dead);
@@ -1095,7 +1190,7 @@ function renderChips() {
     c.push([`Зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`,
       () => F.halls.splice(i, 1)]); });
   ['cats', 'food', 'opts', 'other', 'sport'].forEach(g => F[g].forEach(x => c.push([x, () => F[g].delete(x)])));
-  [...F.stars].sort().forEach(n => c.push([n + '★', () => F.stars.delete(n)]));
+  [...F.stars].sort().forEach(n => c.push([(ML.STAR_OPTIONS.find(o => o.k === n) || { l: n + '★' }).l, () => F.stars.delete(n)]));
   [...ML.state.blacklist].forEach(id => {
     const v = ML.venueById(id);
     if (v) c.push(['Скрыт: ' + v.name, () => ML.removeFromBlacklist(id), true]);
@@ -1103,7 +1198,7 @@ function renderChips() {
 
   window._chips = c;
   document.getElementById('fChips').innerHTML = c.map((x, i) =>
-    `<span class="f-chip${x[2] ? ' black' : ''}">${esc(x[0])}<button onclick="_chips[${i}][1]();render()" aria-label="Убрать">✕</button></span>`).join('');
+    `<span class="f-chip${x[2] ? ' black' : ''}">${esc(x[0])}<button onclick="_chips[${i}][1]();syncBar();renderFilters();render()" aria-label="Убрать">✕</button></span>`).join('');
 
   document.getElementById('ftCount').textContent = c.length;
 }
@@ -1154,11 +1249,13 @@ function hallCard(h) {
 function venueBlock(x) {
   const v = x.venue, halls = x.halls, t = ML.tariff();
   const cap = ML.venueCapacity(v);
-  return `<section class="vb${HOVER === v.id ? ' hi' : ''}" data-vid="${v.id}"
+  const promo = v.promo || {};
+  const isAd = !!(promo.highlight || promo.top === 3);   // рамка — у выделенных, пометка — у них и у Топ-3
+  return `<section class="vb${HOVER === v.id ? ' hi' : ''}${promo.highlight ? ' ml-ad-frame' : ''}" data-vid="${v.id}"
       onmouseenter="setHover(${v.id})" onmouseleave="setHover(null)">
     <div class="vb-head">
       <div>
-        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>${isAd ? MH.adMark('vb-admark') : ''}
         ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
         <div class="vb-meta">
           <span>${esc(v.cat)}</span>
@@ -1223,7 +1320,7 @@ const MAP_SVG = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="
 function renderMap(list) {
   const pins = list.map(x => {
     const v = x.venue;
-    return `<button class="map-pin${HOVER === v.id ? ' hi' : ''}" data-vid="${v.id}"
+    return `<button class="map-pin${HOVER === v.id ? ' hi' : ''}${PAGE_IDS.has(v.id) ? ' pg' : ''}" data-vid="${v.id}"
       style="left:${v.px}%;top:${v.py}%"
       onmouseenter="setHover(${v.id})" onmouseleave="setHover(null)"
       onclick="focusCard(${v.id})"
@@ -1234,7 +1331,9 @@ function renderMap(list) {
 
   // Пустой контейнер всплывашки. Наполняем его в setHover, а не перерисовкой
   // всей карты: иначе пин под курсором уничтожается и подсветка мерцает.
-  document.getElementById('mapScale').innerHTML = MAP_SVG + pins + '<div class="pin-pop" id="pinPop" hidden></div>';
+  const sc = document.getElementById('mapScale');
+  sc.innerHTML = MAP_SVG + pins + '<div class="pin-pop" id="pinPop" hidden></div>';
+  sc.classList.toggle('paged', PAGE_IDS.size > 0 && PAGE_IDS.size < list.length);
   document.getElementById('mapCount').textContent = list.length;
   paintHover();
 }
@@ -1302,10 +1401,16 @@ function setView(v) {
   render();
 }
 
+/* п.16: пока не применён ни один фильтр, вместо списка — карта со всеми объектами. */
 function applyView() {
-  document.querySelector('.grid3').classList.toggle('map-mode', VIEW === 'map');
-  document.getElementById('viewList').classList.toggle('on', VIEW === 'list');
-  document.getElementById('viewMap').classList.toggle('on', VIEW === 'map');
+  const start = !hasFilters();
+  const view = start ? 'map' : VIEW;
+  document.querySelector('.grid3').classList.toggle('map-mode', view === 'map');
+  document.getElementById('viewList').classList.toggle('on', view === 'list');
+  document.getElementById('viewMap').classList.toggle('on', view === 'map');
+  document.getElementById('viewList').disabled = start;
+  document.getElementById('viewList').title = start ? 'Список появится после применения фильтра' : '';
+  document.getElementById('mapHint').hidden = !start;
 }
 
 function zoom(dir) {
@@ -1319,8 +1424,8 @@ function zoom(dir) {
    ДЕЙСТВИЯ
    ══════════════════════════════════════════════ */
 function toggleCmp(hallId) {
-  const r = ML.toggleCompare(hallId);       // лимит тарифа проверяет сам ML
-  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  const r = ML.toggleCompare(hallId);       // лимит тарифа (по объектам) проверяет сам ML
+  if (!r.ok) { r.need ? MH.paywall(r.need, r.reason) : MH.toast(r.reason, 'error'); return; }
   render();
 }
 function toggleFavHall(hallId) {
@@ -1341,6 +1446,7 @@ function openCompare() {
 }
 function resetAll() {
   F = ML.resetFilters();
+  PAGE = 1;
   [...ML.state.blacklist].forEach(id => ML.removeFromBlacklist(id));
   syncBar();
   renderFilters();
@@ -1359,11 +1465,45 @@ function toggleFilter() {
    РЕНДЕР
    ══════════════════════════════════════════════ */
 let currentList = [];
+let PAGE_IDS = new Set();       // объекты текущей страницы списка — подсвечены на карте
+
+function goPage(n) {
+  PAGE = n;
+  render();
+  const col = document.querySelector('.res-col');
+  if (col) window.scrollTo({ top: col.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' });
+}
+
+function pagerHTML(total) {
+  const pages = Math.ceil(total / PER_PAGE);
+  if (pages <= 1) return '';
+  const nums = [];
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || Math.abs(i - PAGE) <= 1) nums.push(i);
+    else if (nums[nums.length - 1] !== '…') nums.push('…');
+  }
+  return `<nav class="pager" aria-label="Страницы выдачи">
+    <button ${PAGE === 1 ? 'disabled' : ''} onclick="goPage(${PAGE - 1})" aria-label="Предыдущая страница">‹</button>
+    ${nums.map(n => n === '…' ? '<span class="gap">…</span>'
+      : `<button class="${n === PAGE ? 'on' : ''}" ${n === PAGE ? 'aria-current="page"' : ''} onclick="goPage(${n})">${n}</button>`).join('')}
+    <button ${PAGE === pages ? 'disabled' : ''} onclick="goPage(${PAGE + 1})" aria-label="Следующая страница">›</button>
+  </nav>
+  <div class="pager-info">Объекты ${(PAGE - 1) * PER_PAGE + 1}–${Math.min(PAGE * PER_PAGE, total)} из ${total}</div>`;
+}
 
 function render() {
   ML.saveFilters(F);                     // любое изменение проходит через render()
+  const start = !hasFilters();
   const list = sortList(ML.filterVenues(F));
   currentList = list;
+  // новая выборка или сортировка — снова первая страница
+  const sig = JSON.stringify([ML.state.filters, SORT, list.length]) + JSON.stringify(F, (k, v) => v instanceof Set ? [...v] : v);
+  if (sig !== PAGE_SIG) { PAGE_SIG = sig; PAGE = 1; }
+  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  if (PAGE > pages) PAGE = pages;
+  const pageList = list.slice((PAGE - 1) * PER_PAGE, PAGE * PER_PAGE);
+  PAGE_IDS = start ? new Set() : new Set(pageList.map(x => x.venue.id));
+  applyView();
 
   const halls = list.reduce((a, x) => a + x.halls.length, 0);
   document.getElementById('resCount').innerHTML = list.length
@@ -1372,13 +1512,14 @@ function render() {
 
   /* Одна полоса на всю выдачу, а не кнопка в каждой карточке. */
   document.getElementById('vList').innerHTML = list.length
-    ? MH.lockBar('Цены и вместимость залов открыты зарегистрированным пользователям.') + list.map(venueBlock).join('')
+    ? MH.lockBar('Цены и вместимость залов открыты зарегистрированным пользователям.') + pageList.map(venueBlock).join('')
     : `<div class="res-empty">
          <h3>Под эти условия залов нет</h3>
          <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>
          <button onclick="resetAll()">Сбросить фильтры</button>
        </div>`;
 
+  document.getElementById('pager').innerHTML = start ? '' : pagerHTML(list.length);
   renderChips();
   renderMap(list);
   applyFacets();
@@ -1394,16 +1535,74 @@ function render() {
 
 /* Значения в верхней панели — из справочников ML. */
 function syncBar() {
-  const city = document.getElementById('cbCity');
-  city.innerHTML = '<option value="">Любой</option>' +
-    ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
+  document.getElementById('cbCity').value = F.city || '';
   const ev = document.getElementById('cbEvent');
-  ev.innerHTML = ML.EVENT_TYPES.map(e =>
+  ev.innerHTML = `<option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>` + ML.EVENT_TYPES.map(e =>
     `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
   document.getElementById('cbPeople').value = F.people || '';
   document.getElementById('cbTariff').textContent = ML.tariff().name;
   document.getElementById('resSort').value = SORT;
 }
+
+/* ══════════════════════════════════════════════
+   п.17: ГОРОД — поле с автоподсказкой по первым буквам
+   Стрелки двигают выделение, Enter выбирает, Esc закрывает.
+   ══════════════════════════════════════════════ */
+let CITY_ITEMS = [], CITY_PICK = -1;
+function cityMatches(q) {
+  const n = String(q || '').trim().toLowerCase();
+  return ML.CITIES.filter(c => !n || c.toLowerCase().startsWith(n) || c.toLowerCase().split(/[\s-]+/).some(w => w.startsWith(n)));
+}
+function cityDraw() {
+  const inp = document.getElementById('cbCity'), ul = document.getElementById('cbCityList');
+  CITY_ITEMS = cityMatches(inp.value);
+  if (CITY_PICK >= CITY_ITEMS.length) CITY_PICK = CITY_ITEMS.length - 1;
+  ul.innerHTML = CITY_ITEMS.length
+    ? CITY_ITEMS.map((c, i) => `<li role="option" id="cbc-${i}" class="${i === CITY_PICK ? 'on' : ''}" aria-selected="${i === CITY_PICK}"
+        onmousedown="event.preventDefault();cityPick(${i})"><span>${esc(c)}</span>
+        <span class="n">${ML.VENUES.filter(v => v.city === c).length} ${ML.plural(ML.VENUES.filter(v => v.city === c).length, ['объект', 'объекта', 'объектов'])}</span></li>`).join('')
+    : '<li class="none">Такого города в базе нет</li>';
+  ul.hidden = false;
+  inp.setAttribute('aria-expanded', 'true');
+  inp.setAttribute('aria-activedescendant', CITY_PICK >= 0 ? 'cbc-' + CITY_PICK : '');
+}
+function cityClose() {
+  const ul = document.getElementById('cbCityList');
+  ul.hidden = true; CITY_PICK = -1;
+  document.getElementById('cbCity').setAttribute('aria-expanded', 'false');
+}
+function cityPick(i) {
+  const c = CITY_ITEMS[i]; if (!c) return;
+  document.getElementById('cbCity').value = c;
+  cityClose();
+  if (F.city !== c) { F.city = c; render(); }
+}
+function cityCommit() {
+  const inp = document.getElementById('cbCity');
+  const v = inp.value.trim();
+  if (!v) { if (F.city) { F.city = ''; render(); } return; }
+  const exact = ML.CITIES.find(c => c.toLowerCase() === v.toLowerCase());
+  const only = cityMatches(v);
+  const c = exact || (only.length === 1 ? only[0] : null);
+  if (c) { inp.value = c; if (F.city !== c) { F.city = c; render(); } }
+  else inp.value = F.city || '';
+}
+(function bindCity() {
+  const inp = document.getElementById('cbCity');
+  inp.addEventListener('focus', () => { CITY_PICK = -1; cityDraw(); });
+  inp.addEventListener('input', () => { CITY_PICK = 0; cityDraw(); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (document.getElementById('cbCityList').hidden) cityDraw(); CITY_PICK = Math.min(CITY_ITEMS.length - 1, CITY_PICK + 1); cityDraw(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); CITY_PICK = Math.max(0, CITY_PICK - 1); cityDraw(); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (CITY_PICK >= 0 && CITY_ITEMS[CITY_PICK]) cityPick(CITY_PICK); else { cityCommit(); cityClose(); } }
+    else if (e.key === 'Escape') { cityClose(); inp.value = F.city || ''; }
+  });
+  inp.addEventListener('blur', () => { cityCommit(); cityClose(); });
+})();
+
+/* п.31: возврат «Назад» из bfcache — shared.js перечитал состояние модели
+   (сравнение могли сбросить на другой странице), здесь перерисовываем выдачу. */
+function RESTORE() { F = ML.loadFilters(); syncBar(); renderFilters(); render(); }
 
 /* Параметры из URL: ?city= и ?people= приходят с главной. */
 (function init() {

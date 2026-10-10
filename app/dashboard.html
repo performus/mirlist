@@ -50,6 +50,8 @@ button{font-family:inherit;cursor:pointer;}
 
 /* MAIN */
 .main{flex:1;height:100%;overflow-y:auto;padding:28px 36px 60px;}
+.db-ft{margin:48px -36px -60px;}
+@media(max-width:1024px){.db-ft{margin:40px -16px -40px;}}
 .page{display:none;animation:fadeIn .35s ease;}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -252,7 +254,10 @@ button{font-family:inherit;cursor:pointer;}
   .sb-nav{display:flex;flex-direction:row;padding:4px 0;overflow:visible;gap:0;scrollbar-width:none;flex:1;}
   .sb-item{flex:1;padding:10px 4px 12px;flex-direction:column;gap:4px;align-items:center;justify-content:center;border-radius:0;margin-bottom:0;background:none!important;position:relative;min-height:52px;}
   .sb-item svg{width:22px;height:22px;}
-  .sb-item span:not(.sb-badge){display:block!important;font-size:10px;white-space:nowrap;color:var(--sx);}
+  .sb-item span:not(.sb-badge){display:block!important;font-size:9.5px;line-height:1.15;white-space:normal;text-align:center;color:var(--sx);}
+  /* семь пунктов: подписи переносятся, при нехватке места панель прокручивается */
+  .sb-nav{overflow-x:auto!important;}
+  .sb-item{flex:1 0 54px!important;min-width:54px;padding-left:2px!important;padding-right:2px!important;}
   .sb-item.active span:not(.sb-badge){color:var(--c);}
   .sb-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--c);}
   .sb-badge{position:absolute;top:8px;left:calc(50% + 5px);width:14px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;}
@@ -386,6 +391,24 @@ button{font-family:inherit;cursor:pointer;}
 .rq-params .none{font-size:11.5px;color:var(--sp);}
 
 .rq-obj{padding:14px 20px;border-bottom:1px solid rgba(197,227,225,.16);}
+.rq-fold{display:flex;align-items:center;gap:12px;width:100%;padding:12px 20px;border:none;border-bottom:1px solid rgba(197,227,225,.16);
+  background:var(--bg,#FAF7F4);font-family:inherit;text-align:left;cursor:pointer;color:var(--sd);}
+.rq-fold:hover{background:#F6F1EC;}
+.rq-fold:last-child{border-bottom:none;}
+.rq-fold-t{font-size:13px;font-weight:600;white-space:nowrap;}
+.rq-fold-s{flex:1;min-width:0;font-size:12px;color:var(--sx);}
+.rq-fold-c{width:12px;height:12px;flex-shrink:0;color:var(--sx);transition:transform .18s;}
+.rq-fold.open .rq-fold-c{transform:rotate(180deg);}
+.rq-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.ctr-list{display:flex;flex-direction:column;gap:8px;}
+.ctr-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:var(--r);
+  background:var(--bg,#FAF7F4);font-size:13.5px;color:var(--sd);}
+@media(max-width:560px){.ctr-row{flex-direction:column;align-items:flex-start;}}
+.rq-tab{padding:8px 16px;border-radius:var(--rf);border:1.5px solid rgba(197,227,225,.6);background:var(--w);
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--sm);cursor:pointer;}
+.rq-tab.on{border-color:var(--c);color:var(--c);background:var(--cs);}
+.st.declined{background:var(--bg);color:var(--c8);}
+@media(max-width:560px){.rq-fold{flex-wrap:wrap;}.rq-fold-s{flex-basis:100%;order:3;}}
 .rq-obj:last-child{border-bottom:none;}
 .rq-obj.dead{opacity:.45;}
 .rq-obj-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:11px;}
@@ -611,36 +634,26 @@ const IC={
   chk:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
 };
 
-/* ═══ NAV CONFIG ═══ */
-const NAVS={
-  user:[
-    {id:'dash',icon:IC.dash,label:'Обзор'},
-    {id:'requests',icon:IC.req,label:'История запросов',badgeFn:()=>ML.state.requests.length||null},
-    {id:'favs',icon:IC.fav,label:'Избранное',badgeFn:()=>ML.state.favs.size||null},
-    {id:'points',icon:IC.star,label:'Мои баллы'},
-    {id:'profile',icon:IC.user,label:'Профиль'},
-    {id:'billing',icon:IC.stat,label:'Подписка и оплата'},
-  ],
-  venue:[
-    {id:'odash',icon:IC.dash,label:'Обзор'},
-    {id:'ovenues',icon:IC.venue,label:'Мои объекты',badgeFn:()=>ML.state.myVenues.length||null},
-    {id:'oreqs',icon:IC.req,label:'Входящие запросы',badgeFn:()=>venueIncoming().length||null},
-    {id:'oshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('venue').length||null},
-    {id:'ostats',icon:IC.stat,label:'Статистика'},
-    {id:'oprofile',icon:IC.user,label:'Реквизиты'},
-  ],
-  supplier:[
-    {id:'sdash',icon:IC.dash,label:'Обзор'},
-    {id:'sservices',icon:IC.venue,label:'Мои услуги',badgeFn:()=>ML.state.myServices.length||null},
-    {id:'sreqs',icon:IC.req,label:'Входящие запросы'},
-    {id:'sshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('supplier').length||null},
-    {id:'ssub',icon:IC.stat,label:'Подписка'},
-    {id:'sprofile',icon:IC.user,label:'Реквизиты'},
-  ],
-  guest:[
-    {id:'guest',icon:IC.user,label:'Вход'},
-  ],
+/* ═══ NAV CONFIG ═══
+   Состав пунктов — MH.CABINET_MENU (shared.js): из него же собирается
+   выпадающее меню пользователя в шапке. Здесь только иконки и счётчики. */
+const NAV_ICONS={dash:IC.dash,requests:IC.req,compare:IC.check,favs:IC.fav,points:IC.star,profile:IC.user,billing:IC.stat,
+  odash:IC.dash,ovenues:IC.venue,oreqs:IC.req,oshop:IC.shop,ostats:IC.stat,oprofile:IC.user,
+  sdash:IC.dash,sservices:IC.venue,sreqs:IC.req,sshop:IC.shop,ssub:IC.stat,sprofile:IC.user};
+const NAV_BADGES={
+  requests:()=>ML.activeRequests().length||null,
+  compare:()=>ML.state.compare.size||null,
+  favs:()=>ML.state.favs.size||null,
+  ovenues:()=>ML.state.myVenues.length||null,
+  oreqs:()=>venueIncoming().filter(x=>!ML.isClosedRow(x.obj)).length||null,
+  oshop:()=>ML.myShopItems('venue').length||null,
+  sservices:()=>ML.state.myServices.length||null,
+  sshop:()=>ML.myShopItems('supplier').length||null,
 };
+const NAVS={guest:[{id:'guest',icon:IC.user,label:'Вход'}]};
+Object.keys(MH.CABINET_MENU).forEach(role=>{
+  NAVS[role]=MH.CABINET_MENU[role].map(it=>({id:it.id,label:it.label,href:it.href||'',icon:NAV_ICONS[it.id]||IC.dash,badgeFn:NAV_BADGES[it.id]}));
+});
 
 /* ═══ RENDER SIDEBAR NAV ═══ */
 let currentRole='user', currentPage='dash';
@@ -659,6 +672,7 @@ function renderNav(){
   nav.querySelectorAll('.sb-item').forEach(el=>{
     el.addEventListener('click',()=>{
       if(el.dataset.page==='_addvenue'){MH.go('list-venue.html');return;}
+      if(el.dataset.href){MH.go(el.dataset.href);return;}
       closeAllWiz();   // смена раздела закрывает все открытые визарды
       currentPage=el.dataset.page;renderNav();renderPage();
     });
@@ -669,10 +683,10 @@ function renderNav(){
   const ini=s?s.initials:'АК';
   const uname=s?s.name:'Пользователь';
   const prem=s&&s.premium;
-  const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage.html'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
+  const logoutBtn=`<button onclick="MH.logout()" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
   if(currentRole==='guest'){bot.innerHTML=`<a href="auth.html" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
   else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?`<div class="sb-premium">${IC.star} Premium</div>`:''}</div></div>${logoutBtn}`;}
-  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Менеджер объекта</div></div></div>${logoutBtn}`;}
+  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">${currentRole==='supplier'?'Поставщик':'Менеджер объекта'}</div></div></div>${logoutBtn}`;}
 }
 
 /* Переключатель ролей переехал в демо-панель в шапке (shared.js).
@@ -682,7 +696,9 @@ function renderNav(){
 function renderPage(){
   const m=document.getElementById('mainContent');
   const fn=PAGES[currentPage];
-  m.innerHTML=fn?fn():'<div class="empty-state"><div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-text">Раздел в разработке</div></div>';
+  m.innerHTML=(fn?fn():'<div class="empty-state"><div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-text">Раздел в разработке</div></div>')
+    + '<div class="db-ft" id="mh-footer"></div>';
+  MH.renderFooter(document.getElementById('mh-footer'));
   if(currentPage==='oshop'||currentPage==='sshop') shopCalc();   // подсказка расчёта сразу под полем
 }
 
@@ -695,7 +711,10 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const jt  = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 
 let REQ_SORT = 'date';
-const SUB_UNTIL = '01.05.2027';
+let REQ_TAB = 'active';
+function setReqTab(t){ REQ_TAB = t; renderPage(); }
+/* Дата окончания подписки: после покупки ПРЕМИУМ за баллы — из модели. */
+const subUntil = () => ML.state.premUntil || '01.05.2027';
 const SESS_NAME = () => (window._mhSess && window._mhSess.name) || 'Анна Козлова';
 const SESS_INI  = () => (window._mhSess && window._mhSess.initials) || 'АК';
 
@@ -721,8 +740,17 @@ function dmy(s){
 }
 
 /* ── блок одного запроса ── */
-function reqBlock(r){
+/* Развёрнутые запросы. По умолчанию строки объектов свёрнуты. */
+const RQ_OPEN = new Set();
+function toggleRq(key){ RQ_OPEN.has(key) ? RQ_OPEN.delete(key) : RQ_OPEN.add(key); renderPage(); }
+/** part: 'active' | 'archived' | undefined (весь запрос) */
+function reqBlock(r, part){
   const params = Array.isArray(r.params) ? r.params : [];
+  const rows = part ? ML.splitRequest(r)[part] : r.objects;
+  const key = r.id + ':' + (part || 'all');
+  const open = RQ_OPEN.has(key);
+  const sum = {};
+  rows.forEach(o => { const l = (ML.bothConfirmed(o) ? 'Состоялось, баллы начислены' : (ML.REQUEST_FLOW[o.status] || {}).label || o.status); sum[l] = (sum[l] || 0) + 1; });
   return `<div class="rq" data-rq="${esc(r.id)}">
     <div class="rq-head">
       <div>
@@ -731,7 +759,7 @@ function reqBlock(r){
           <span>${esc(r.title)}</span>
           <button class="rq-pen" aria-label="Переименовать запрос">${IC_PEN}</button>
         </div>
-        <div class="rq-date">от ${esc(r.date)} · ${r.objects.length} ${ML.plural(r.objects.length,['объект','объекта','объектов'])}${
+        <div class="rq-date">от ${esc(r.date)} · ${rows.length} ${ML.plural(rows.length,['объект','объекта','объектов'])}${part === 'archived' ? ' в архиве' : ''}${
           r.updatedAt ? ` · <span class="rq-upd">исправлен ${esc(r.updatedAt)}</span>` : ''}</div>
         <div class="rq-params">${params.length
           ? params.map(p => `<span class="rq-param">${esc(p)}</span>`).join('')
@@ -739,11 +767,16 @@ function reqBlock(r){
       </div>
       <div class="btn-row rq-acts">
         <button class="btn-xs" onclick="openReqView('${esc(r.id)}')">Посмотреть запрос</button>
-        <button class="btn-xs" onclick="openReqEdit('${esc(r.id)}')">Скорректировать запрос</button>
-        <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить статус</button>
+        ${part === 'archived' ? '' : `<button class="btn-xs" onclick="openReqEdit('${esc(r.id)}')">Скорректировать запрос</button>
+        <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить статус</button>`}
       </div>
     </div>
-    ${r.objects.map(o => reqObjRow(r, o)).join('')}
+    <button type="button" class="rq-fold${open ? ' open' : ''}" aria-expanded="${open}" onclick="toggleRq('${jt(key)}')">
+      <span class="rq-fold-t">${open ? 'Свернуть' : 'Показать'} объекты запроса (${rows.length})</span>
+      <span class="rq-fold-s">${Object.entries(sum).map(([l, n]) => `${esc(l)}${n > 1 ? ' × ' + n : ''}`).join(' · ')}</span>
+      <svg class="rq-fold-c" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+    </button>
+    ${open ? rows.map(o => reqObjRow(r, o)).join('') : ''}
   </div>`;
 }
 
@@ -1084,7 +1117,7 @@ function saveReview(reqId, venueId){
 /* ── избранное ── */
 function favToCompare(hallId){
   const r = ML.toggleCompare(hallId);
-  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  if (!r.ok) { r.need ? MH.paywall(r.need, r.reason) : MH.toast(r.reason, 'error'); return; }
   MH.toast(ML.inCompare(hallId) ? 'Зал добавлен в сравнение' : 'Зал убран из сравнения', 'success');
   renderPage();
 }
@@ -1115,6 +1148,7 @@ function shopItemById(id){ return ML.shopCatalog().find(s => String(s.id) === St
 function buyShop(id){
   const item = shopItemById(id);
   if (!item) return;
+  if (item.premiumMonths) { MH.buyPremium(() => { renderNav(); renderPage(); }); return; }
   const P = ML.state.points;
   if (P.free < item.pts) { MH.toast('Не хватает баллов', 'error'); return; }
   dm('Заказ за баллы',
@@ -1214,10 +1248,7 @@ const VENUE_STEPS=[
    {k:'bank',l:'Реквизиты для платежей',ty:'area',req:1},
  ]},
  {t:'Договоры',f:[
-   {k:'contracts',l:'Подписываются отдельно от регистрации',ty:'checks',
-    opt:['Партнёрский договор с агентским вознаграждением',
-         'Договор по бонусной программе',
-         'Доп. соглашение на повышенную комиссию']},
+   {k:'contracts',l:'Подписываются отдельно от регистрации',ty:'contracts-ro'},
    {ty:'feenote'},
  ]},
  {t:'Проверка',f:[{ty:'preview'}]},
@@ -1377,6 +1408,9 @@ function wfield(f){
         <input type="checkbox" ${a.includes(o)?'checked':''} onchange="wizToggle('${f.k}','${jt(o)}')">
         <span>${esc(o)}</span></label>`).join('')}</div>${H}</div>`;
     }
+    case 'contracts-ro':
+      return `<div class="wf">${L}${contractStatusList(v||[])}
+        ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}</div>`;
     case 'features':
       // четыре группы удобств строго по ML.FEATURE_GROUPS
       return ML.FEATURE_GROUPS.map(g=>{
@@ -1400,8 +1434,8 @@ function wfield(f){
           ${pin?`<span class="wmap-pin" style="left:${pin.x}%;top:${pin.y}%"></span>`
                :'<span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span>'}</div>
         <input type="text" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value">
-        <div class="hint">Когда подключим 2ГИС, адрес будет подставляться по точке автоматически.
-          Пока координаты можно поправить вручную. Без них объект не появится на карте подбора.</div>
+        <div class="hint">Без координат объект не появится на карте подбора.</div>
+        ${MH.protoNote('Когда подключим 2ГИС, адрес будет подставляться по точке автоматически. Пока координаты можно поправить вручную.')}
       </div>`;
     }
     case 'photo':
@@ -1569,6 +1603,21 @@ function updateReq(who){
 }
 
 /* ── отметка «мероприятие состоялось» со стороны объекта ── */
+function venueDecline(reqId,venueId){
+  dm('Отклонить запрос',
+    `<p>Пользователь увидит, что объект отклонил запрос. Строка уйдёт в архив.</p>
+     <label class="form-label" for="vdReason">Причина</label>
+     <select class="form-input" id="vdReason"><option>Нет свободных дат</option><option>Не подходит формат мероприятия</option>
+       <option>Не подходит количество участников</option><option>Другое</option></select>`,
+    `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
+     <button class="btn btn-c" onclick="saveVenueDecline('${esc(reqId)}',${venueId})">Отклонить</button>`);
+}
+function saveVenueDecline(reqId,venueId){
+  const ok=ML.venueDecline(reqId,venueId,(document.getElementById('vdReason')||{}).value);
+  dmClose();
+  MH.toast(ok?'Запрос отклонён и перенесён в архив':'Этот запрос уже нельзя отклонить',ok?'info':'error');
+  renderNav();renderPage();
+}
 function venueDone(reqId,venueId){
   const r=ML.requestById(reqId);
   const o=r&&r.objects.find(x=>x.venueId===+venueId);
@@ -1619,21 +1668,30 @@ function delMyVenue(i){
      <button class="btn btn-c" onclick="ML.removeMyVenue(${i});dmClose();MH.toast('Объект удалён','info');renderNav();renderPage()">Удалить</button>`);
 }
 
+/* Договоры площадки — только чтение: статус приходит извне, не из кабинета. */
+const CONTRACT_TYPES=['Партнёрский договор с агентским вознаграждением','Договор по бонусной программе','Доп. соглашение на повышенную комиссию'];
+function contractStatusList(signed){
+  return `<div class="ctr-list">${CONTRACT_TYPES.map(t=>{const on=signed.includes(t);
+    return `<div class="ctr-row"><span>${esc(t)}</span><span class="st ${on?'done':'cancelled'}">${on?'подписан':'не подписан'}</span></div>`;}).join('')}</div>`;
+}
+
 /* ── строка входящего запроса ── */
 function incomingRow(x){
   const {req,obj,venue}=x;
   const flow=ML.REQUEST_FLOW[obj.status]||{label:obj.status};
-  const dead=obj.status==='cancelled';
+  const dead=obj.status==='cancelled'||obj.status==='declined';
   const both=ML.bothConfirmed(obj);
   const fee=both?ML.venueFee(obj):null;
 
   let action;
-  if(dead) action=`<span class="wait">запрос отменён</span>`;
+  if(obj.status==='declined') action=`<span class="wait">вы отклонили запрос</span>`;
+  else if(dead) action=`<span class="wait">запрос отменён</span>`;
   else if(both) action=`<span class="paid">${fee!=null?'к оплате '+ML.money(fee):'сумма по договорённости'}</span>`;
   else if(obj.venueDone) action=`<span class="wait">ждём подтверждения пользователя</span>`;
   else if(obj.status==='done'||obj.status==='reviewed')
     action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>`;
-  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>`;
+  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>
+    <button class="btn-xs danger" style="margin-top:6px" onclick="venueDecline('${esc(req.id)}',${obj.venueId})">Отклонить</button>`;
 
   // подпись про вторую сторону
   let note='';
@@ -1776,8 +1834,7 @@ function shopPage(owner){
     </tr>`).join('')}</tbody>
    </table></div>
   </div>
-  <div class="dm-note" style="margin-top:16px">На боевом сервисе позицию публикует модератор —
-  в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.</div>`
+  ${MH.protoNote('На боевом сервисе позицию публикует модератор — в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.','margin-top:16px')}`
    : `<div class="card empty-state"><div class="empty-text">На витрине пока пусто</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте позицию — она появится в разделе
       «Мои баллы» у пользователей после публикации.</p></div>`}`;
@@ -1834,7 +1891,7 @@ const PAGES={
 /* ── ОБЗОР ── */
 dash:()=>{
   const t=ML.tariff(), P=ML.state.points;
-  const active=ML.state.requests.filter(r=>r.objects.some(o=>o.status!=='cancelled'&&o.status!=='reviewed')).length;
+  const active=ML.activeRequests().length;
   const lim=t.compare===Infinity?'∞':t.compare;
   const last=ML.state.requests[0];
   return `
@@ -1845,7 +1902,7 @@ dash:()=>{
     <div class="lk-tile">
       <div class="lbl">Тариф</div>
       <div class="val">${esc(t.name)}</div>
-      <div class="sub">действует до ${esc(SUB_UNTIL)}</div>
+      <div class="sub">действует до ${esc(subUntil())}</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Доступно баллов</div>
@@ -1860,7 +1917,7 @@ dash:()=>{
     <div class="lk-tile">
       <div class="lbl">В сравнении</div>
       <div class="val">${ML.compareVenueCount()} / ${lim}</div>
-      <div class="sub">${ML.state.compare.size?'<a href="compare.html" style="color:var(--c)">перейти в сравнение</a>':'залы не выбраны'}</div>
+      <div class="sub">${ML.state.compare.size?`объектов · залов ${ML.state.compare.size} — <a href="compare.html" style="color:var(--c)">перейти в сравнение</a>`:'объекты не выбраны'}</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Активных запросов</div>
@@ -1869,20 +1926,31 @@ dash:()=>{
     </div>
   </div>
 
-  <div class="adslot"><div class="adslot-t">Реклама</div></div>
+  ${t.key==='prem'?'':`<div class="adslot">${MH.adMark()}</div>`}
 
   <div class="section-head" style="margin-bottom:14px">
     <div class="section-label">Последний запрос</div>
     ${ML.state.requests.length?'<button class="btn btn-o" onclick="goPage(\'requests\')">Вся история</button>':''}
   </div>
-  ${last?reqBlock(last):`<div class="card empty-state">
+  ${last?reqBlock(last, last.objects.some(o=>!ML.isClosedRow(o))?'active':'archived'):`<div class="card empty-state">
     <div class="empty-text">Запросов пока нет</div>
     <a class="btn btn-c" style="margin-top:14px;display:inline-block" href="search.html">Перейти к подбору</a></div>`}`;
 },
 
 /* ── ИСТОРИЯ ЗАПРОСОВ ── */
 requests:()=>{
-  const list=sortedRequests();
+  const all=sortedRequests();
+  const list=all.filter(r=>REQ_TAB==='archive'?r.objects.some(ML.isClosedRow):r.objects.some(o=>!ML.isClosedRow(o)));
+  const part=REQ_TAB==='archive'?'archived':'active';
+  const tabs=`<div class="rq-tabs" role="tablist">
+    <button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${ML.activeRequests().length})</button>
+    <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${ML.archivedRequests().length})</button></div>`;
+  const rule=`<div class="dm-note" style="margin-bottom:16px">В архив попадают объекты запроса, по которым обе стороны отметили «Мероприятие состоялось»
+    (баллы начислены), которые отклонил объект или которые вы отменили.</div>`;
+  if(all.length&&!list.length) return `
+    <h1 class="page-title">История запросов</h1>
+    <p class="page-sub">Запросы в отделы продаж и их статусы</p>${tabs}${rule}
+    <div class="card empty-state"><div class="empty-text">${REQ_TAB==='archive'?'В архиве пока пусто':'Активных запросов нет'}</div></div>`;
   if(!list.length) return `
     <h1 class="page-title">История запросов</h1>
     <p class="page-sub">Запросы в отделы продаж и их статусы</p>
@@ -1893,13 +1961,14 @@ requests:()=>{
     </div>`;
   return `
   <h1 class="page-title">История запросов</h1>
-  <p class="page-sub">${list.length} ${ML.plural(list.length,['запрос','запроса','запросов'])} · Статусы обновляете вы</p>
+  <p class="page-sub">${all.length} ${ML.plural(all.length,['запрос','запроса','запросов'])} · Статусы обновляете вы</p>
+  ${tabs}${rule}
   <div class="sortbar">
     <span>Сортировка:</span>
     <button class="btn-xs${REQ_SORT==='date'?' ':''}" style="${REQ_SORT==='date'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('date')">По дате</button>
     <button class="btn-xs" style="${REQ_SORT==='title'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('title')">По названию</button>
   </div>
-  ${list.map(r=>reqBlock(r)).join('')}
+  ${list.map(r=>reqBlock(r,part)).join('')}
   <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
 },
 
@@ -1991,7 +2060,7 @@ points:()=>{
           <div class="scard-name">${esc(s.title)}</div>
           <div class="scard-prov">${esc(s.provider)}</div>
           <div class="scard-pts">${s.pts.toLocaleString('ru')} Б</div>
-          <button class="btn btn-c scard-btn" ${can?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">Отправить запрос</button>
+          <button class="btn btn-c scard-btn" ${can||s.premiumMonths?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">${s.premiumMonths?(ML.tariff().key==='prem'?'Продлить сразу':'Подключить сразу'):'Отправить запрос'}</button>
           ${can?'':`<div class="scard-lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} ${ML.plural(s.pts-P.free,['балла','баллов','баллов'])}</div>`}
         </div>
       </article>`;
@@ -2060,7 +2129,7 @@ billing:()=>{
         <div class="stat-label">Текущий тариф</div>
         <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">${esc(t.name)}</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
-          ${t.price?ML.money(t.price)+' в месяц':'бесплатно'} · действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
+          ${t.price?ML.money(t.price)+' в месяц':'бесплатно'} · действует до <b style="color:var(--sd)">${esc(subUntil())}</b>
         </div>
         <label class="opt" style="margin-top:14px;max-width:280px">
           <input type="checkbox" checked onchange="MH.toast(this.checked?'Автопродление включено':'Автопродление выключено','info')">
@@ -2188,15 +2257,21 @@ ovenues:()=>{
 
 /* ── Входящие запросы ── */
 oreqs:()=>{
-  const inc=venueIncoming();
+  const all=venueIncoming();
+  const inc=all.filter(x=>REQ_TAB==='archive'?ML.isClosedRow(x.obj):!ML.isClosedRow(x.obj));
+  const nA=all.filter(x=>!ML.isClosedRow(x.obj)).length, nZ=all.length-nA;
+  const tabs=`<div class="rq-tabs"><button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${nA})</button>
+    <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${nZ})</button></div>`;
   const orders=bonusOrdersBlock(ownVenue().name);
   if(!inc.length) return `
     <h1 class="page-title">Входящие запросы</h1>
-    <div class="card empty-state"><div class="empty-text">Запросов пока нет</div></div>
+    ${all.length?tabs:''}
+    <div class="card empty-state"><div class="empty-text">${all.length?(REQ_TAB==='archive'?'В архиве пока пусто':'Активных запросов нет'):'Запросов пока нет'}</div></div>
     ${orders}`;
   return `
   <h1 class="page-title">Входящие запросы</h1>
   <p class="page-sub">Групповые запросы пользователей. Контакты пользователя объекту не передаются</p>
+  ${tabs}
   <div class="card" style="padding:0;overflow:hidden">
    <div class="dscroll"><table class="dtbl">
     <thead><tr><th>ID запроса</th><th>Дата</th><th>Мероприятие</th><th>Человек</th><th>Статус</th><th>Действие</th></tr></thead>
@@ -2268,10 +2343,9 @@ oprofile:()=>{
     <div class="form-group"><label class="form-label">Реквизиты для платежей</label>
       <textarea class="form-input" rows="3" placeholder="Расчётный счёт, банк, БИК">${esc(c.bank||'')}</textarea></div>
 
-    <div class="form-group"><label class="form-label">Подписанные договоры</label>
-      ${['Партнёрский договор с агентским вознаграждением','Договор по бонусной программе','Доп. соглашение на повышенную комиссию']
-        .map(t=>{const on=(v&&(v.contracts||[]).includes(t));
-        return `<label class="opt${on?' sel':''}"><input type="checkbox" ${on?'checked':''}><span>${esc(t)}</span></label>`;}).join('')}
+    <div class="form-group"><label class="form-label">Статус договоров</label>
+      ${contractStatusList((v&&v.contracts)||[])}
+      ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}
     </div>
     <button class="btn btn-c" onclick="MH.toast('Реквизиты сохранены','success')">Сохранить</button>
   </div>`;
@@ -2300,7 +2374,7 @@ sdash:()=>{
     <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
       <div class="sub">оплачено баллами бонусной программы</div></div>
     <div class="lk-tile"><div class="lbl">Подписка</div><div class="val" style="font-size:19px">активна</div>
-      <div class="sub">до ${esc(SUB_UNTIL)}</div></div>
+      <div class="sub">до ${esc(subUntil())}</div></div>
   </div>
 
   <div class="btn-row" style="margin-bottom:26px">
@@ -2379,7 +2453,7 @@ ssub:()=>{
         <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">Приоритетное размещение карточки</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
           ${ML.money(t.price)} в месяц · по образцу пользовательского «${esc(t.name)}» ·
-          действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
+          действует до <b style="color:var(--sd)">${esc(subUntil())}</b>
         </div>
         <label class="opt" style="margin-top:14px;max-width:280px">
           <input type="checkbox" checked onchange="MH.toast(this.checked?'Автопродление включено':'Автопродление выключено','info')">
@@ -2511,7 +2585,7 @@ function addHall(){
   const list=document.getElementById('hallsList');
   if(!list)return;
   const existing=list.querySelectorAll('.hall-card').length;
-  if(existing>=10){alert('Лимит залов зависит от тарифа');return;}
+  if(existing>=10){MH.toast('В карточке объекта — не больше 10 залов','error');return;}
   const card=document.createElement('div');
   card.className='hall-card';
   card.dataset.hall=hallCounter;
@@ -2560,7 +2634,7 @@ function addHall(){
 function removeHall(btn){
   const card=btn.closest('.hall-card');
   const list=card.parentElement;
-  if(list.querySelectorAll('.hall-card').length<=1){alert('Необходим минимум 1 зал');return;}
+  if(list.querySelectorAll('.hall-card').length<=1){MH.toast('Необходим минимум 1 зал','error');return;}
   card.style.opacity='0';card.style.transform='translateX(-20px)';card.style.transition='all .3s';
   setTimeout(()=>{card.remove();renumberHalls();},300);
 }
@@ -2656,7 +2730,11 @@ document.addEventListener('click',e=>{
   const _page=_sp.get('page');
   // ?role=owner — старое имя роли объекта, оставлено ради ссылок из index.html
   const _alias={owner:'venue',venue:'venue',supplier:'supplier',user:'user',guest:'guest'};
-  const _want=_alias[_role]||(sess.role==='venue'?'venue':sess.role==='supplier'?'supplier':null);
+  const _sessRole=MH.sessionRole();
+  /* Роли — отдельные аккаунты: кабинет открывается в роли сессии. Ссылка
+     с другой ?role= (сервисная панель, отчёт) входит в демо-аккаунт этой роли. */
+  if(_alias[_role]&&_alias[_role]!=='guest'&&_alias[_role]!==_sessRole){MH.demoRole(_alias[_role],_page);return;}
+  const _want=_alias[_role]||_sessRole;
   if(_want&&NAVS[_want]){
     currentRole=_want;
     currentPage=NAVS[_want][0].id;

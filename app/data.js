@@ -25,6 +25,17 @@
   const VENUE_CATS = ['Отель', 'Бутик-отель', 'Конференц-площадка', 'Лофт',
     'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг'];
   const STARRED_CATS = ['Отель', 'Бутик-отель'];   // где звёздность вообще применима
+  /* Варианты фильтра звёздности. «Без звёзд» — отели и бутик-отели без
+     присвоенной категории; «1–2 звезды» — одним пунктом. */
+  const STAR_OPTIONS = [
+    { k: 0, l: 'Без звёзд' },
+    { k: 2, l: '1–2 звезды' },
+    { k: 3, l: '3 звезды' },
+    { k: 4, l: '4 звезды' },
+    { k: 5, l: '5 звёзд' },
+  ];
+  /** Ключ варианта звёздности объекта; null — звёздность к объекту неприменима. */
+  const starKey = (v) => !STARRED_CATS.includes(v.cat) ? null : !v.stars ? 0 : v.stars <= 2 ? 2 : v.stars;
 
   const EVENT_TYPES = [
     { k: 'business', l: 'Деловое' },
@@ -32,11 +43,12 @@
     { k: 'wedding', l: 'Свадьба' },
     { k: 'team', l: 'Тимбилдинг' },
   ];
-  /* Ключи шести типов из промежуточной версии (сохранённые фильтры и ссылки) → «Деловое». */
+  /* Ключи шести типов из промежуточной версии (сохранённые фильтры и ссылки) → «Деловое».
+     Пустой ключ — «Любой тип»: с него начинается подбор, на карте все объекты. */
   const EVENT_TYPE_RENAMES = { forum: 'business', presentation: 'business', meeting: 'business', online: 'business' };
   const normEventType = (k) => {
-    k = EVENT_TYPE_RENAMES[k] || k;
-    return EVENT_TYPES.some(e => e.k === k) ? k : EVENT_TYPES[0].k;
+    k = EVENT_TYPE_RENAMES[k] || k || '';
+    return EVENT_TYPES.some(e => e.k === k) ? k : '';
   };
 
   // Ключи совпадают с полем formats из старого compare.html — плюс U-shape.
@@ -129,6 +141,16 @@
       filters: 'all',
     },
   };
+  /** Открыта ли группа фильтров на тарифе. СТАРТ и гость — только город, гости
+      и категория объекта; БИЗНЕС — всё, кроме рассадки и разбивки номеров на
+      SNGL/TWIN; ПРЕМИУМ — всё. Страница подбора спрашивает только здесь. */
+  function canUseFilter(tariffKey, group) {
+    const f = (TARIFFS[tariffKey] || TARIFFS.start).filters;
+    if (f === 'all') return true;
+    if (f === 'all-except-seating-roomsplit') return group !== 'seats' && group !== 'twin' && group !== 'sngl';
+    if (Array.isArray(f)) return f.includes(group);
+    return false;
+  }
   /** Только покупаемые тарифы — для pricing.html и checkout.html. */
   const plans = () => Object.values(TARIFFS).filter(t => t.plan);
   const isGuest = () => state.tariff === 'guest';
@@ -138,11 +160,10 @@
     { min: 1, max: 100, label: '1–100 чел.', fee: 6000, ptsBiz: 500, ptsPrem: 750 },
     { min: 101, max: 300, label: '101–300 чел.', fee: 21000, ptsBiz: 1500, ptsPrem: 2250 },
     { min: 301, max: 500, label: '301–500 чел.', fee: 45000, ptsBiz: 3000, ptsPrem: 4500 },
+    /* Ярус «501+» — по корректуре: сумма и баллы «по согласованию». Числа нет,
+       поэтому fee и баллы — null: начисление считается вручную, а не подставляется ближайшее. */
+    { min: 501, max: Infinity, label: '501+ чел.', fee: null, ptsBiz: null, ptsPrem: null, byAgreement: true },
   ];
-  /* Ярус «501 и более» убран: в каркасе проекта он оставлен без суммы,
-     мероприятий такого масштаба через ресурс не проводят. Последствие:
-     feeTier() выше 500 человек вернёт null. Если такие мероприятия
-     появятся — вернуть ярус сюда, а не подставлять ближайший. */
 
   const POINT_RATE = 0.70;          // 1 балл = 0,70 ₽
   const POINTS_HELLO = 100;         // баллы «ПРИВЕТ» за регистрацию
@@ -169,6 +190,7 @@
     done: { label: 'Мероприятие состоялось', next: 'reviewed' },
     reviewed: { label: 'Отзыв оставлен', next: null },
     cancelled: { label: 'Отменён', next: null, dead: true },
+    declined: { label: 'Отклонён объектом', next: null, dead: true },
   };
 
   /* ─────────── 3. ОБЪЕКТЫ И ЗАЛЫ ─────────── */
@@ -411,8 +433,21 @@
     8: 168, 9: 295, 10: 141, 11: 674, 12: 233, 13: 389, 14: 512 };
   VENUES.forEach(v => { v.stats = { views: VIEWS[v.id] || 200 }; });
 
-  const STARS = { 1: 4, 4: 5, 9: 4, 12: 3, 14: 4 };
+  /* «Гавань» — бутик-отель без звёзд, «Лагуна» — 2★: на них проверяются
+     варианты фильтра «Без звёзд» и «1–2 звезды». */
+  const STARS = { 1: 4, 4: 5, 12: 2, 14: 3 };
   VENUES.forEach(v => { v.stars = STARS[v.id] || 0; });
+
+  /* Галереи (номера фото ../assets/photos/vN.jpg). У большинства объектов
+     семь фото — чтобы было видно «+N»; у глэмпинга три — короткая галерея.
+     Залы с точным планом получают по шесть фото, остальные — по два. */
+  const extraPhotos = (seed, n) => Array.from({ length: n }, (_, k) => ((seed * 5 + k * 3) % 16) + 1);
+  const uniq = (a) => a.filter((x, i) => a.indexOf(x) === i);
+  VENUES.forEach(v => {
+    const want = v.id === 10 ? 3 : 7;
+    v.gallery = uniq([v.photo, ...v.halls.map(h => h.photo), ...extraPhotos(v.id, 16)]).slice(0, want);
+    v.halls.forEach(h => { h.gallery = uniq([h.photo, ...extraPhotos(h.id, 16)]).slice(0, h.plan ? 6 : 2); });
+  });
 
   /* ─────────── 4. ПОСТАВЩИКИ ─────────── */
 
@@ -529,19 +564,28 @@
     { id: 3, title: 'Ведение корпоратива, до 6 часов', provider: 'Ведущий Артём Соколов', rub: 45000 },
     { id: 4, title: 'Фотосъёмка мероприятия, 5 часов', provider: 'Фотограф Мария Лебедева', rub: 35000 },
     { id: 5, title: 'Дегустация банкетного меню', provider: 'Кейтеринг «Формат»', rub: 6000 },
-    { id: 6, title: 'Подписка ПРЕМИУМ на 6 месяцев', provider: 'МАЙСЛИСТ', rub: 8750, own: true },
+    { id: 6, title: 'Подписка ПРЕМИУМ на 6 месяцев', provider: 'МАЙСЛИСТ', rub: 8750, own: true, premiumMonths: 6 },
   ].map(s => Object.assign(s, {
     pts: servicePoints(s.rub),
     cost: s.own ? s.rub : serviceCost(s.rub),
   }));
 
   /* Затравка отзывов. Объявлена до состояния — оно её читает. */
+  /* Тестовые отзывы, добавленные позже, дописываются к уже сохранённым у посетителя. */
+  const withSeedReviews = (list) => { list = Array.isArray(list) ? list : []; const ids = new Set(list.map(r => r.id));
+    return list.concat(REVIEW_SEED.filter(r => !ids.has(r.id))); };
   const REVIEW_SEED = [
     { id: 1, target: 'venue', targetId: 1, author: 'Мария И.', role: 'Event-агентство «Формат»', date: '18.07.2026', rating: 5, event: 'Конференция на 120 человек', text: 'Площадку отдали за час до заезда, техника отработала без замечаний. Единственное — парковка тесная, автобус пришлось ставить на улице.' },
     { id: 2, target: 'venue', targetId: 2, author: 'Дмитрий К.', role: 'Прямой клиент', date: '02.07.2026', rating: 4, event: 'Презентация продукта', text: 'Затемнение реальное, свой свет не понадобился. Загрузка оборудования только через основной вход — закладывайте лишний час на монтаж.' },
     { id: 3, target: 'venue', targetId: 4, author: 'Анна С.', role: 'DMC', date: '26.06.2026', rating: 5, event: 'Гала-ужин, 280 гостей', text: 'Отработали ровно, меню согласовали с третьего захода без нервов. Монтаж просят согласовывать за трое суток — это правда, не формальность.' },
     { id: 4, target: 'venue', targetId: 7, author: 'Игорь В.', role: 'Фриланс-организатор', date: '14.06.2026', rating: 4, event: 'Выездной тимбилдинг', text: 'Территория отличная, активности свои есть. Связь на поляне ловит плохо — рации берите с собой.' },
     { id: 5, target: 'supplier', targetId: 8, author: 'Мария И.', role: 'Event-агентство «Формат»', date: '10.07.2026', rating: 5, event: 'Корпоратив, 200 гостей', text: 'Материал прислали на третий день, отбор нормальный. Работали спокойно, в кадр не лезли.' },
+    { id: 7, target: 'venue', targetId: 1, author: 'Сергей Л.', role: 'Корпоративный клиент', date: '05.08.2026', rating: 5, event: 'Стратегическая сессия, 60 человек', text: 'Переговорные рядом с большим залом — удобно делить группу на секции. Кофе-брейк подавали в фойе вовремя.' },
+    { id: 8, target: 'venue', targetId: 3, author: 'Елена Р.', role: 'Event-агентство «Вектор»', date: '22.07.2026', rating: 4, event: 'Отраслевой форум, 900 участников', text: 'Залы трансформируются быстро, регистрацию поставили в атриуме. Навигацию внутри комплекса лучше продумать заранее.' },
+    { id: 9, target: 'venue', targetId: 5, author: 'Павел Т.', role: 'Прямой клиент', date: '15.07.2026', rating: 5, event: 'Юбилей компании, 90 гостей', text: 'Терраса вечером — то, ради чего выбирали. Кухня ровная, меню утвердили за одну встречу.' },
+    { id: 10, target: 'venue', targetId: 9, author: 'Кира Н.', role: 'DMC', date: '09.07.2026', rating: 5, event: 'Выездное совещание, 30 человек', text: 'Камерно, тихо, номера с видом на залив. Для небольшой группы руководителей — идеальный формат.' },
+    { id: 11, target: 'venue', targetId: 11, author: 'Алексей М.', role: 'Фриланс-организатор', date: '30.06.2026', rating: 4, event: 'Обучающий семинар', text: 'Техника в залах современная, техник на площадке отзывчивый. Парковка платная — предупредите гостей.' },
+    { id: 12, target: 'venue', targetId: 14, author: 'Наталья Г.', role: 'Event-агентство «Формат»', date: '20.06.2026', rating: 5, event: 'Пресс-конференция', text: 'Панорамный зал производит впечатление на гостей, свет для съёмки ставить почти не пришлось.' },
     { id: 6, target: 'supplier', targetId: 6, author: 'Ольга П.', role: 'Прямой клиент', date: '28.06.2026', rating: 4, event: 'Кофе-брейки на трёхдневном форуме', text: 'По вкусу вопросов нет. Смену подач держат по таймингу, но на третий день ассортимент повторился.' },
   ];
 
@@ -562,7 +606,7 @@
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
 
   const K = {
-    tariff: 'ml_tariff', compare: 'ml_compare_halls', favs: 'ml_favs_halls',
+    tariff: 'ml_tariff', compare: 'ml_compare_halls', favs: 'ml_favs_halls', premUntil: 'ml_prem_until',
     black: 'ml_blacklist', points: 'ml_points', requests: 'ml_requests',
     myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews',
     shopItems: 'ml_shop_items', bonusOrders: 'ml_bonus_orders', supplierRequests: 'ml_supplier_requests',
@@ -573,12 +617,13 @@
 
   const state = {
     tariff: read(K.tariff, 'guest'),   // первый заход — незарегистрированный посетитель
+    premUntil: read(K.premUntil, null),
     filters: unpackFilters(read(K.filters, null)),
     myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: v.features.map(renameFeature) }) : v),
     shopItems: read(K.shopItems, []),
     bonusOrders: read(K.bonusOrders, []),
     supplierRequests: read(K.supplierRequests, []),
-    reviews: read(K.reviews, REVIEW_SEED),
+    reviews: withSeedReviews(read(K.reviews, REVIEW_SEED)),
     myServices: read(K.myServices, []),
     supplierFilters: unpackSupplierFilters(read(K.sfilters, null)),
     compare: new Set(read(K.compare, [])),
@@ -588,11 +633,17 @@
     requests: migrateRequests(read(K.requests, [
       {
         id: 'RQ-260714-0031', date: '14.07.2026', title: 'Конференция «Итоги полугодия», 120 чел.',
-        objects: [{ venueId: 1, status: 'sent' }, { venueId: 11, status: 'sent' }, { venueId: 4, status: 'done', guests: 120, dates: '10.07.2026' }],
+        objects: [{ venueId: 1, status: 'sent' }, { venueId: 11, status: 'sent' },
+          { venueId: 4, status: 'done', venueDone: true, guests: 120, dates: '10.07.2026' }],
       },
       {
         id: 'RQ-260703-0018', date: '03.07.2026', title: 'Выездной тимбилдинг, 60 чел.',
         objects: [{ venueId: 7, status: 'sent' }, { venueId: 10, status: 'cancelled', reason: 'Не устроила стоимость' }],
+      },
+      {
+        id: 'RQ-260612-0007', date: '12.06.2026', title: 'Летний корпоратив, 80 чел.',
+        objects: [{ venueId: 2, status: 'reviewed', venueDone: true, guests: 80, dates: '20.06.2026' },
+          { venueId: 6, status: 'declined', reason: 'Нет свободных дат' }],
       },
     ])),
   };
@@ -664,7 +715,7 @@
   /** Пустой набор фильтров. */
   function emptyFilters() {
     return {
-      city: '', people: 0, eventType: EVENT_TYPES[0].k,
+      city: '', people: 0, eventType: '',
       cats: new Set(), stars: new Set(), priceDay: [0, 200000],
       rooms: 0,                        // общий номерной фонд, виден всем
       twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
@@ -722,7 +773,7 @@
       if (F.eventType && !v.eventTypes.includes(F.eventType)) continue;
       if (F.city && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
       if (excludeGroup !== 'cats' && F.cats.size && !F.cats.has(v.cat)) continue;
-      if (excludeGroup !== 'stars' && F.stars.size && !F.stars.has(v.stars)) continue;
+      if (excludeGroup !== 'stars' && F.stars.size && !F.stars.has(starKey(v))) continue;
       if (F.rooms && venueRooms(v) < F.rooms) continue;
       if (F.twin && v.rooms.twin < F.twin) continue;
       if (F.sngl && v.rooms.sngl < F.sngl) continue;
@@ -745,7 +796,7 @@
       if (!m.ok) continue;
       // показываем те залы, что закрывают требования; без требований — весь пул
       const halls = reqs.length ? m.used.map(i => pool[i]).filter((h, i, a) => a.indexOf(h) === i) : pool;
-      out.push({ venue: v, halls, matched: reqs.length > 0 });
+      out.push({ venue: v, halls: sortHallsByPrice(halls), matched: reqs.length > 0 });
     }
     /* Платное продвижение: Топ-3 выше Топ-10, остальные в обычном порядке.
        Выделение рамкой (highlight) на позицию не влияет — это только вид. */
@@ -753,12 +804,15 @@
     return out.sort((a, b) => rank(a.venue) - rank(b.venue));
   }
 
+  /** Залы по цене дня по возрастанию; цена 0 («по договорённости») — в конце. */
+  const sortHallsByPrice = (halls) => halls.slice().sort((a, b) => (a.priceDay || Infinity) - (b.priceDay || Infinity));
+
   /** Фасетный счётчик: сколько объектов останется, если добавить это условие. */
   function facetCount(F, group, value) {
     const or = group === 'cats' || group === 'stars';
     const base = filterVenues(F, or ? group : null);
     if (group === 'cats') return base.filter(x => x.venue.cat === value).length;
-    if (group === 'stars') return base.filter(x => x.venue.stars === +value).length;
+    if (group === 'stars') return base.filter(x => starKey(x.venue) === +value).length;
     return base.filter(x => x.venue.features.includes(value)).length;
   }
 
@@ -776,11 +830,24 @@
     const h = hallById(hallId), vs = compareVenueIds();
     if (h && !vs.has(h.venueId) && vs.size >= lim) {
       const w = lim % 10 === 1 && lim % 100 !== 11 ? 'объект' : lim % 10 >= 2 && lim % 10 <= 4 && (lim % 100 < 12 || lim % 100 > 14) ? 'объекта' : 'объектов';
-      return { ok: false, reason: `Тариф «${tariff().name}»: максимум ${lim} ${w} в сравнении` };
+      const need = tariff().key === 'prem' ? null : tariff().key === 'biz' ? 'prem' : 'biz';
+      return { ok: false, need, reason: `Тариф «${tariff().name}»: максимум ${lim} ${w} в сравнении` };
     }
     state.compare.add(hallId); persist.compare(); return { ok: true };
   }
   const clearCompare = () => { state.compare.clear(); persist.compare(); };
+  /** Перечитать изменчивое состояние из localStorage. Нужно при возврате
+      на страницу из bfcache (pageshow): другая вкладка или страница могла
+      очистить сравнение, а объект state в памяти остался прежним. */
+  function reloadState() {
+    state.tariff = read(K.tariff, state.tariff);
+    state.compare = new Set(read(K.compare, []));
+    state.favs = new Set(read(K.favs, []));
+    state.blacklist = new Set(read(K.black, []));
+    state.points = read(K.points, state.points);
+    state.requests = migrateRequests(read(K.requests, state.requests));
+    state.filters = unpackFilters(read(K.filters, null));
+  }
   const compareHalls = () => [...state.compare].map(hallById).filter(Boolean);
 
   const isFav = (hallId) => state.favs.has(+hallId);
@@ -900,7 +967,7 @@
 
   /** Можно ли нажать кнопку статуса. Отмена активна всегда, пока не отменено. */
   function canSetStatus(obj, next) {
-    if (obj.status === 'cancelled') return false;
+    if (obj.status === 'cancelled' || obj.status === 'declined') return false;
     if (next === 'cancelled') return true;
     if (next === 'done') return obj.status === 'sent';
     if (next === 'reviewed') return obj.status === 'done';
@@ -1086,7 +1153,7 @@
     const et = EVENT_TYPES.find(e => e.k === F.eventType);
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
-    if (F.stars.size) out.push([...F.stars].sort().map(n => n + '★').join(', '));
+    if (F.stars.size) out.push([...F.stars].sort().map(n => (STAR_OPTIONS.find(o => o.k === n) || { l: n + '★' }).l).join(', '));
     if (F.rooms) out.push('номеров от ' + F.rooms);
     if (F.twin) out.push('TWIN от ' + F.twin);
     if (F.sngl) out.push('SNGL от ' + F.sngl);
@@ -1153,13 +1220,37 @@
   function venueMarkDone(reqId, venueId, guests) {
     const r = requestById(reqId); if (!r) return false;
     const o = r.objects.find(x => x.venueId === +venueId); if (!o) return false;
-    if (o.status === 'cancelled') return false;
+    if (o.status === 'cancelled' || o.status === 'declined') return false;
     o.venueDone = true;
     if (guests) o.guests = guests;
     if (bothConfirmed(o)) unlockPoints(eventPoints(o.guests || 100));
     persist.requests();
     return true;
   }
+  /** Объект отклоняет запрос: строка закрывается и уходит в архив. */
+  function venueDecline(reqId, venueId, reason) {
+    const r = requestById(reqId); if (!r) return false;
+    const o = r.objects.find(x => x.venueId === +venueId); if (!o) return false;
+    if (o.status !== 'sent' || o.venueDone) return false;
+    o.status = 'declined';
+    if (reason) o.reason = reason;
+    persist.requests();
+    return true;
+  }
+
+  /* — активные и архив —
+     Строка запроса (объект группового запроса) закрыта и уходит в архив, когда:
+     обе стороны отметили «мероприятие состоялось» (баллы начислены), объект
+     отклонил запрос или пользователь его отменил. Остальные — активные. */
+  const isClosedRow = (o) => o.status === 'cancelled' || o.status === 'declined' || bothConfirmed(o);
+  /** Запрос, разложенный на активную и архивную части. */
+  const splitRequest = (r) => ({
+    active: r.objects.filter(o => !isClosedRow(o)),
+    archived: r.objects.filter(isClosedRow),
+  });
+  const activeRequests = () => state.requests.filter(r => r.objects.some(o => !isClosedRow(o)));
+  const archivedRequests = () => state.requests.filter(r => r.objects.some(isClosedRow));
+
   /** Что объект должен ресурсу за это мероприятие. */
   function venueFee(o) {
     const t = feeTier(o.guests || 0);
@@ -1230,6 +1321,33 @@
 
   const ORDER_FLOW = { new: 'новая заявка', confirmed: 'подтверждена партнёром',
     done: 'услуга оказана', rejected: 'отклонена, баллы возвращены' };
+
+  /* — ПРЕМИУМ за баллы: оформляется сразу, без заявки —
+     Баллы списываются, ПРЕМИУМ включается или продлевается на 6 месяцев
+     от текущей даты окончания (если подписка ещё действует) или от сегодня. */
+  const parseDmy = (s) => { const m = String(s || '').match(/(\d{2})\.(\d{2})\.(\d{4})/); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
+  const fmtDmy = (d) => [d.getDate(), d.getMonth() + 1].map(n => String(n).padStart(2, '0')).join('.') + '.' + d.getFullYear();
+  const premiumItem = () => SHOP.find(x => x.premiumMonths);
+  /** @returns {{ok:boolean, lack?:number, until?:string, extended?:boolean, order?:object}} */
+  function buyPremiumForPoints(today) {
+    const item = premiumItem();
+    if (state.points.free < item.pts) return { ok: false, lack: item.pts - state.points.free };
+    const now = today ? new Date(today) : new Date(); now.setHours(0, 0, 0, 0);
+    const cur = parseDmy(state.premUntil);
+    const extended = state.tariff === 'prem' && !!cur && cur > now;
+    const from = extended ? cur : now;
+    const until = new Date(from.getFullYear(), from.getMonth() + item.premiumMonths, from.getDate());
+    state.points.free -= item.pts; persist.points();
+    state.premUntil = fmtDmy(until); write(K.premUntil, state.premUntil);
+    state.tariff = 'prem'; persist.tariff();
+    const o = {
+      id: 'BN-' + String(state.bonusOrders.length + 1).padStart(4, '0'),
+      itemId: item.id, title: item.title, provider: item.provider, pts: item.pts, note: '',
+      date: fmtDmy(now), status: 'done',
+    };
+    state.bonusOrders.unshift(o); persist.bonusOrders();
+    return { ok: true, until: state.premUntil, extended, order: o };
+  }
 
   function orderFromShop(item, note) {
     if (!item) return null;
@@ -1304,8 +1422,8 @@
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
-    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
-    TARIFFS, plans, isGuest, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
+    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, STARRED_CATS, STAR_OPTIONS, starKey, sortHallsByPrice, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
+    TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
     VENUES, SUPPLIERS, SHOP,
     state, persist,
@@ -1316,7 +1434,7 @@
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,
     emptySupplierFilters, filterSuppliers, supplierFacet, supplierKey, canGroupSupplierRequest,
-    inCompare, toggleCompare, clearCompare, compareHalls, compareVenueCount: () => compareVenueIds().size,
+    inCompare, toggleCompare, clearCompare, compareHalls, reloadState, buyPremiumForPoints, premiumItem, compareVenueCount: () => compareVenueIds().size,
     isFav, toggleFav,
     addToBlacklist, removeFromBlacklist,
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
@@ -1327,7 +1445,7 @@
     ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,
     createSupplierRequest, venueStats, supplierStats,
     addReview, reviewsFor, reviewsLatest, reviewScore,
-    bothConfirmed, venueMarkDone, venueFee,
+    bothConfirmed, venueMarkDone, venueFee, venueDecline, isClosedRow, splitRequest, activeRequests, archivedRequests,
     photoUrl: (n) => `../assets/photos/v${((n - 1) % 16) + 1}.jpg`,
     money: (n) => n > 0 ? n.toLocaleString('ru') + ' ₽' : 'по договорённости',
     plural: (n, f) => { const a = n % 10, b = n % 100; return b > 11 && b < 15 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; },

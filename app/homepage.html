@@ -63,6 +63,26 @@ button{font-family:inherit;cursor:pointer;}
     rgba(24,38,49,.74) 100%);
 }
 .hero-in{position:relative; z-index:1; width:100%; text-align:center;}
+
+/* Светлые подложки поиска (?bg=1|2|3). Текст на них тёмный. */
+.hero.bgl h1{color:var(--slate-deep); text-shadow:none;}
+.hero.bgl p{color:var(--slate-mid);}
+.hero.bgl .sbar{border-color:rgba(197,227,225,.7); box-shadow:0 14px 44px rgba(53,78,99,.13);}
+/* 1 — персиково-мятный градиент с мягкими пятнами */
+.hero.bg1 .hero-bg{background:
+  radial-gradient(60% 80% at 12% 18%, rgba(246,221,211,.95) 0%, rgba(246,221,211,0) 70%),
+  radial-gradient(55% 75% at 88% 30%, rgba(197,227,225,.95) 0%, rgba(197,227,225,0) 70%),
+  radial-gradient(70% 70% at 50% 110%, rgba(237,246,245,1) 0%, rgba(237,246,245,0) 70%),
+  linear-gradient(180deg, #FBF2EC 0%, #F3FAF9 100%);}
+.hero.bg1 .hero-bg::after{content:none;}
+/* 2 — фото зала под плотной светлой вуалью */
+.hero.bg2 .hero-bg::after{background:linear-gradient(180deg, rgba(251,242,236,.90) 0%, rgba(251,242,236,.82) 45%, rgba(243,250,249,.92) 100%);}
+/* 3 — мятный фон с тонкой сеткой «плана зала» */
+.hero.bg3 .hero-bg{background:
+  linear-gradient(rgba(168,212,216,.22) 1px, transparent 1px) 0 0 / 34px 34px,
+  linear-gradient(90deg, rgba(168,212,216,.22) 1px, transparent 1px) 0 0 / 34px 34px,
+  linear-gradient(160deg, #EDF6F5 0%, #F8F5F2 60%, #FBF2EC 100%);}
+.hero.bg3 .hero-bg::after{content:none;}
 .hero .eyebrow{
   display:inline-block; font-size:11.5px; font-weight:600;
   text-transform:uppercase; letter-spacing:.09em; color:#F3C7B6;
@@ -167,6 +187,17 @@ button{font-family:inherit;cursor:pointer;}
 .ev-kind{font-size:11px;font-weight:600;padding:4px 11px;border-radius:var(--r-full);
   background:var(--aqua-pale);color:var(--slate-mid);white-space:nowrap;}
 .ev-name{font-size:14px;color:var(--slate-mid);flex:1;min-width:200px;}
+.ev-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.ev-tile{display:flex;flex-direction:column;gap:12px;padding:18px 18px 16px;background:var(--white);
+  border:1px solid rgba(197,227,225,.35);border-radius:var(--r-lg);box-shadow:var(--sh-md);
+  text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s;}
+.ev-tile:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);border-color:var(--aqua-3);}
+.ev-tile.past{opacity:.6;}
+.ev-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.ev-tile .ev-name{flex:1;min-width:0;font-size:14.5px;font-weight:600;line-height:1.45;color:var(--slate-deep);}
+.ev-go{font-size:12.5px;font-weight:600;color:var(--coral);}
+@media(max-width:1024px){.ev-tiles{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.ev-tiles{grid-template-columns:1fr;}}
 
 /* ══════ отзывы: горизонтальная карусель ══════ */
 /* Прокрутка родная, со scroll-snap: тогда свайп на телефоне работает сам,
@@ -249,12 +280,24 @@ MH.init();
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 /* Отраслевые события: в модели их нет, правятся редактором. */
+/* Вариант подложки блока поиска: ?bg=1|2|3, по умолчанию 1. */
+const HERO_BG = (() => { const b = +new URLSearchParams(location.search).get('bg'); return [1, 2, 3].includes(b) ? b : 1; })();
+
 const EVENTS = [
-  { date: '12.09.2026', kind: 'Выставка', name: 'MICE Excellence Forum — Москва, Экспоцентр' },
-  { date: '04.10.2026', kind: 'Премия',   name: 'Национальная премия event-индустрии' },
-  { date: '21.11.2026', kind: 'Воркшоп',  name: 'Воркшоп площадок Поволжья — Казань' },
-  { date: '05.12.2026', kind: 'Выставка', name: 'Событийный туризм: регионы России — Сочи' },
+  { date: '05.12.2026', kind: 'Выставка', name: 'Событийный туризм: регионы России — Сочи', url: 'https://example.org/events/sobytiyny-turizm-sochi' },
+  { date: '12.09.2026', kind: 'Выставка', name: 'MICE Excellence Forum — Москва, Экспоцентр', url: 'https://example.org/events/mice-excellence-forum' },
+  { date: '21.11.2026', kind: 'Воркшоп',  name: 'Воркшоп площадок Поволжья — Казань', url: 'https://example.org/events/workshop-povolzhye' },
+  { date: '04.10.2026', kind: 'Премия',   name: 'Национальная премия event-индустрии', url: 'https://example.org/events/event-award' },
 ];
+/* Ближайшие — первыми: сначала предстоящие по возрастанию даты, прошедшие — в конце. */
+const evTime = (d) => { const m = String(d).match(/(\d{2})\.(\d{2})\.(\d{4})/); return m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0; };
+function sortedEvents(){
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const t0 = today.getTime();
+  const up = EVENTS.filter(e => evTime(e.date) >= t0).sort((a, b) => evTime(a.date) - evTime(b.date));
+  const past = EVENTS.filter(e => evTime(e.date) < t0).sort((a, b) => evTime(b.date) - evTime(a.date));
+  return up.map(e => ({ ...e, past: false })).concat(past.map(e => ({ ...e, past: true })));
+}
 
 const IC_PREV = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
 const IC_NEXT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
@@ -333,7 +376,7 @@ function render(){
   document.getElementById('root').innerHTML = `
 
   <!-- ══════ 1. HERO ══════ -->
-  <section class="hero">
+  <section class="hero bgl bg${HERO_BG}">
     <div class="hero-bg"></div>
     <div class="hero-in in">
       <!-- REMOVED BY CLIENT: надзаголовок <span class="eyebrow">Поисковый инструмент MICE и Event</span> -->
@@ -356,6 +399,7 @@ function render(){
         <div class="sf">
           <label for="sEvent">Тип мероприятия</label>
           <select id="sEvent">
+            <option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>
             ${ML.EVENT_TYPES.map(e => `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')}
           </select>
         </div>
@@ -385,9 +429,16 @@ function render(){
           <h2 class="sec-title">Площадки по направлениям</h2>
           <!-- REMOVED BY CLIENT: подзаголовок <div class="sec-sub">Количество залов в объектах города</div> -->
         </div>
-        <a class="btn" href="search.html">Все направления</a>
+        <a class="btn" href="search.html">Перейти к подбору</a>
       </div>
       <div class="tiles">${cityTiles}</div>
+    </div>
+  </section>
+
+  <!-- ══════ РЕКЛАМНЫЙ БЛОК — между направлениями и новыми площадками ══════ -->
+  <section class="sec tint-aqua">
+    <div class="in">
+      <div class="adslot">${MH.adMark()}</div>
     </div>
   </section>
 
@@ -396,25 +447,19 @@ function render(){
     <div class="in">
       <div class="sec-head">
         <div><h2 class="sec-title">Новые площадки</h2></div>
-        <a class="btn" href="search.html">Показать все</a>
+        <a class="btn" href="search.html">Перейти к подбору</a>
       </div>
       <div class="tiles">${venueTiles}</div>
     </div>
   </section>
 
-  <!-- ══════ 5. РЕКЛАМНЫЙ БЛОК ══════ -->
-  <section class="sec tint-aqua">
-    <div class="in">
-      <div class="adslot"><div class="adslot-t">Реклама</div></div>
-    </div>
-  </section>
 
   <!-- ══════ 6. НОВЫЕ ПОСТАВЩИКИ ══════ -->
   <section class="sec tint-white">
     <div class="in">
       <div class="sec-head">
         <div><h2 class="sec-title">Новые предложения услуг</h2></div>
-        <a class="btn" href="suppliers.html">Показать всех</a>
+        <a class="btn" href="suppliers.html">Перейти к подбору</a>
       </div>
       <div class="tiles">${supTiles}</div>
     </div>
@@ -429,13 +474,14 @@ function render(){
           <div class="sec-sub">Анонсы и календарь выставок, премий и воркшопов</div>
         </div>
       </div>
-      <div class="events">
-        ${EVENTS.map(e => `<div class="ev">
-          <span class="ev-date">${esc(e.date)}</span>
-          <span class="ev-kind">${esc(e.kind)}</span>
+      <div class="ev-tiles">
+        ${sortedEvents().map(e => `<a class="ev-tile${e.past ? ' past' : ''}" href="${esc(e.url)}" target="_blank" rel="noopener">
+          <span class="ev-top"><span class="ev-date">${esc(e.date)}</span><span class="ev-kind">${esc(e.kind)}</span></span>
           <span class="ev-name">${esc(e.name)}</span>
-        </div>`).join('')}
+          <span class="ev-go">${e.past ? 'Прошло · подробнее' : 'Подробнее'} →</span>
+        </a>`).join('')}
       </div>
+      ${MH.protoNote('Ссылки событий в прототипе тестовые (example.org) — в рабочей версии сюда ставятся адреса организаторов.')}
     </div>
   </section>
 
@@ -585,7 +631,7 @@ function goSearch(){
   const F = ML.loadFilters();
   F.city = document.getElementById('sCity').value.trim() || '';
   F.people = +document.getElementById('sPeople').value || 0;
-  F.eventType = document.getElementById('sEvent').value || F.eventType;
+  F.eventType = document.getElementById('sEvent').value;
   ML.saveFilters(F);
   MH.go('search.html');
 }

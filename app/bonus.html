@@ -152,7 +152,9 @@ function render(){
   const rev = ML.POINTS_REVIEW;
 
   // ── начисление за мероприятие: строки из ML.FEE_TIERS ──
-  const rows = ML.FEE_TIERS.map(t => `<tr>
+  const rows = ML.FEE_TIERS.map(t => t.byAgreement ? `<tr>
+    <td>${esc(t.label)}</td><td colspan="2" class="dim">по согласованию</td>
+  </tr>` : `<tr>
     <td>${esc(t.label)}</td>
     <td class="${t.ptsBiz?'pts':'dim'}">${t.ptsBiz?t.ptsBiz.toLocaleString('ru'):'—'}</td>
     <td class="${t.ptsPrem?'pts':'dim'}">${t.ptsPrem?t.ptsPrem.toLocaleString('ru'):'—'}</td>
@@ -175,7 +177,9 @@ function render(){
           <span class="card-pts">${s.pts.toLocaleString('ru')} Б</span>
         </div>
         <div class="card-foot">
-          <button class="btn pri wide" ${can?'':'disabled'} onclick="buy('${String(s.id).replace(/'/g,"\'")}')">Оставить заявку</button>
+          ${s.premiumMonths
+            ? `<button class="btn pri wide" onclick="MH.buyPremium(render)">${ML.tariff().key === 'prem' ? 'Продлить сразу' : 'Подключить сразу'}</button>`
+            : `<button class="btn pri wide" ${can?'':'disabled'} onclick="buy('${String(s.id).replace(/'/g,"\'")}')">Оставить заявку</button>`}
           ${can?'':`<div class="lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} Б</div>`}
         </div>
       </div>
