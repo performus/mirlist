@@ -106,6 +106,11 @@ button{font-family:inherit;cursor:pointer;}
 .modal-h{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
 .modal-t{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--slate-deep);}
 .modal-b{padding:14px 24px 20px;font-size:13.5px;line-height:1.7;color:var(--slate-mid);}
+.fg-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin-bottom:8px;}
+.fg-roles{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.fg-role{padding:8px 14px;border-radius:50px;border:1.5px solid var(--slate-pale);background:#fff;font-family:inherit;
+  font-size:13px;font-weight:600;color:var(--slate-mid);cursor:pointer;}
+.fg-role.on{border-color:var(--coral);color:var(--coral);background:#FCEAE4;}
 .modal-f{display:flex;gap:8px;justify-content:flex-end;padding:0 24px 22px;}
 .x{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--slate-pale);background:var(--white);
   color:var(--slate-muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
@@ -138,8 +143,8 @@ const ROLES = [
   { k:'venue',    ic:'🏛', t:'Площадка',     s:'Размещаю объект' },
   { k:'supplier', ic:'🎪', t:'Поставщик',    s:'Оказываю услуги' },
 ];
-/* Куда уходим после входа — кабинет своей роли. */
-const HOME = { user:'dashboard.html?role=user', venue:'dashboard.html?role=venue', supplier:'dashboard.html?role=supplier' };
+/* Роли, допустимые в ссылках вида ?role=venue. */
+const HOME = { user:1, venue:1, supplier:1 };
 
 let MODE = 'login';      // login | signup
 let ROLE = 'user';
@@ -153,10 +158,12 @@ let ROLE = 'user';
   if (r && HOME[r]) ROLE = r;
 })();
 
+/* После входа — на главную. Если на вход пришли с конкретной страницы
+   (?next=…, например с закрытой карточки зала), возвращаем туда. */
 function nextUrl(){
   const n = new URLSearchParams(location.search).get('next');
-  if (n && /^[\w.\-?=&]+$/.test(n)) return n;
-  return HOME[ROLE];
+  if (n && /^[\w.\-?=&%]+$/.test(n) && !/^auth\.html/.test(n)) return n;
+  return 'homepage.html';
 }
 
 function render(){
@@ -168,14 +175,17 @@ function render(){
       <input class="fi" id="fMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
     <div class="fg"><label for="fPass">Пароль</label>
       <input class="fi" id="fPass" type="password" placeholder="Ваш пароль" autocomplete="current-password"></div>
-    <button class="forgot" onclick="forgot()">Забыли пароль?</button>`;
+    <button class="forgot" onclick="forgot()">Забыли пароль?</button>
+    ${MH.protoNote(`Демо-аккаунты: почта <b>demo@micelist.ru</b>, пароль зависит от роли —
+      <code>user1234</code> пользователь, <code>venue1234</code> площадка, <code>supp1234</code> поставщик.
+      Один адрес в трёх ролях — три разных аккаунта.`)}`;
 
   document.getElementById('root').innerHTML = `
   <div class="head">
     <h1>${isUp ? 'Создать аккаунт' : 'Вход в кабинет'}</h1>
     <p>${isUp
-      ? 'Выберите роль — от неё зависит, какой кабинет откроется после регистрации.'
-      : 'Войдите по почте и паролю. Роль определяет, куда вы попадёте.'}</p>
+      ? 'Правильно укажите вашу специализацию, иначе нужные инструменты могут оказаться вам недоступны.'
+      : 'Выберите роль и войдите по почте и паролю этой роли.'}</p>
   </div>
 
   <div class="tabs">
@@ -371,11 +381,12 @@ function submit(){
     const agree = document.getElementById('fAgree');
     if (agree && !agree.checked) { MH.toast('Нужно принять условия использования', 'error'); return; }
 
-    MH.setSession({
-      name, initials: initials(name), role: ROLE, email: mail,
-      phone: val('fPhone'), org: val('fOrg') || val('fCity') || val('fCat') || '',
-      premium: false,
+    // каждая роль — отдельный аккаунт: та же почта в другой роли регистрируется заново
+    const reg = MH.register(ROLE, mail, pass, {
+      name, phone: val('fPhone'), org: val('fOrg') || val('fCity') || val('fCat') || '',
     });
+    if (!reg.ok) return bad('fMail', reg.error);
+    MH.setSession(MH.sessionFor(reg.account));
 
     if (ROLE === 'user') {
       // баллы «ПРИВЕТ» начисляет модель
@@ -385,9 +396,9 @@ function submit(){
       MH.toast('Аккаунт создан', 'success');
     }
   } else {
-    // вход: имя выводим из почты, пока профиля на бэкенде нет
-    const guess = mail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    MH.setSession({ name: guess, initials: initials(guess), role: ROLE, email: mail, premium: false });
+    const res = MH.login(ROLE, mail, pass);
+    if (!res.ok) return bad(/пароль/i.test(res.error) ? 'fPass' : 'fMail', res.error);
+    MH.setSession(MH.sessionFor(res.account));
     MH.toast('С возвращением', 'success');
   }
 
@@ -398,22 +409,63 @@ function submit(){
   setTimeout(() => { window.location.href = nextUrl(); }, 600);
 }
 
-/* Отдельной страницы восстановления нет — заглушка. */
+/* Восстановление пароля начинается с выбора роли: у каждой роли свой
+   аккаунт и свой пароль, меняется пароль только выбранной. */
+let FG = { role: 'user', mail: '', step: 1 };
 function forgot(){
+  FG = { role: ROLE, mail: val('fMail'), step: 1 };
+  drawForgot();
+  document.addEventListener('keydown', escClose);
+}
+function drawForgot(){
+  const body = FG.step === 1 ? `
+      <div class="modal-b">
+        <div class="fg-l">Для какой роли восстановить пароль?</div>
+        <div class="fg-roles">${ROLES.map(r => `<button type="button" class="fg-role${FG.role === r.k ? ' on' : ''}"
+          onclick="FG.role='${r.k}';FG.mail=val('fgMail');drawForgot()">${esc(r.t)}</button>`).join('')}</div>
+        <div class="fg"><label for="fgMail">Почта этого аккаунта</label>
+          <input class="fi" id="fgMail" type="email" value="${esc(FG.mail)}" placeholder="you@company.ru"></div>
+      </div>
+      <div class="modal-f">
+        <button class="btn-o" onclick="closeModal()">Отмена</button>
+        <button class="btn-o" onclick="forgotSend()" style="border-color:var(--coral);color:var(--coral)">Прислать ссылку</button>
+      </div>` : `
+      <div class="modal-b">
+        <p style="margin-bottom:12px">Ссылка отправлена на <b>${esc(FG.mail)}</b>. Новый пароль будет установлен
+          только для роли «${esc(MH.ROLE_NAMES[FG.role])}» — пароли других ролей этой почты не изменятся.</p>
+        ${MH.protoNote('Письма в прототипе не уходят, поэтому шаг из письма показан здесь же: задайте новый пароль.')}
+        <div class="fg"><label for="fgPass">Новый пароль</label>
+          <input class="fi" id="fgPass" type="password" placeholder="Не короче ${PW_MIN} символов" autocomplete="new-password"></div>
+      </div>
+      <div class="modal-f">
+        <button class="btn-o" onclick="closeModal()">Отмена</button>
+        <button class="btn-o" onclick="forgotSave()" style="border-color:var(--coral);color:var(--coral)">Сохранить пароль</button>
+      </div>`;
   document.getElementById('modalRoot').innerHTML = `
   <div class="ovl" onclick="if(event.target===this)closeModal()">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-h"><div class="modal-t">Восстановление доступа</div>
         <button class="x" onclick="closeModal()" aria-label="Закрыть">✕</button></div>
-      <div class="modal-b">Введите почту, и мы пришлём ссылку для смены пароля.</div>
-      <div class="modal-f">
-        <button class="btn-o" onclick="closeModal()">Закрыть</button>
-        <button class="btn-o" onclick="closeModal();MH.toast('Письмо отправлено на указанную почту','info')"
-          style="border-color:var(--coral);color:var(--coral)">Прислать ссылку</button>
-      </div>
+      ${body}
     </div>
   </div>`;
-  document.addEventListener('keydown', escClose);
+}
+function forgotSend(){
+  FG.mail = val('fgMail');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(FG.mail)) return bad('fgMail', 'Укажите корректную почту');
+  if (!MH.findAccount(FG.role, FG.mail))
+    return bad('fgMail', `Аккаунт с этой почтой в роли «${MH.ROLE_NAMES[FG.role]}» не найден`);
+  FG.step = 2; drawForgot();
+}
+function forgotSave(){
+  const p = val('fgPass');
+  if (p.length < PW_MIN) return bad('fgPass', `Пароль короче ${PW_MIN} символов`);
+  const res = MH.resetPassword(FG.role, FG.mail, p);
+  if (!res.ok) return bad('fgPass', res.error);
+  closeModal();
+  ROLE = FG.role; MODE = 'login'; render();
+  document.getElementById('fMail').value = FG.mail;
+  MH.toast(`Пароль для роли «${MH.ROLE_NAMES[FG.role]}» обновлён — войдите с ним`, 'success');
 }
 function escClose(e){ if (e.key === 'Escape') closeModal(); }
 function closeModal(){

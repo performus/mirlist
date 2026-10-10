@@ -89,6 +89,17 @@ button{font-family:inherit;cursor:pointer;}
 .sec-sub{font-size:12.5px;color:var(--slate-muted);}
 
 .panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);box-shadow:var(--sh-md);}
+.rvs{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rv{padding:18px 20px;}
+.rv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.rv-a{font-size:14.5px;font-weight:700;color:var(--slate-deep);}
+.rv-r{font-size:12px;color:var(--slate-muted);margin-top:2px;}
+.rv-s{color:#F0B95A;font-size:14px;letter-spacing:1px;white-space:nowrap;}
+.rv-s span{color:var(--slate-pale);opacity:.5;}
+.rv-e{font-size:12px;color:var(--slate-muted);margin:10px 0 8px;padding:4px 10px;border-radius:50px;background:var(--aqua-pale);display:inline-block;}
+.rv-t{font-size:13.5px;line-height:1.65;color:var(--slate-mid);}
+.rv-empty{padding:18px 20px;font-size:13.5px;color:var(--slate-muted);}
+@media(max-width:760px){.rvs{grid-template-columns:1fr;}}
 .about{padding:18px 22px;}
 .about p{font-size:14px;line-height:1.7;color:var(--slate-mid);}
 
@@ -183,24 +194,10 @@ function notFound(msg) {
   document.title = msg + ' — МАЙСЛИСТ';
 }
 
-/* Галерея: обложка объекта + фото залов. На «СТАРТ» — только общее фото. */
+/* Галерея: фото объекта из данных. С пятью и больше — «+N» и лайтбокс (MH.gallery).
+   На «СТАРТ» — только общее фото. */
 function gallery(v, full) {
-  const shots = [v.photo, ...v.halls.map(h => h.photo)].filter((x, i, a) => a.indexOf(x) === i);
-  if (!full || shots.length < 3) {
-    return `<div class="gal solo"><div class="gal-cell"><img src="${ML.photoUrl(shots[0])}" alt="${esc(v.name)}"></div></div>`;
-  }
-  const at = i => ML.photoUrl(shots[i % shots.length]);
-  return `<div class="gal">
-    <div class="gal-cell"><img src="${at(0)}" alt="${esc(v.name)}"></div>
-    <div class="gal-stack">
-      <div class="gal-cell"><img src="${at(1)}" alt="" loading="lazy"></div>
-      <div class="gal-cell"><img src="${at(2)}" alt="" loading="lazy"></div>
-    </div>
-    <div class="gal-stack">
-      <div class="gal-cell"><img src="${at(3)}" alt="" loading="lazy"></div>
-      <div class="gal-cell"><img src="${at(4)}" alt="" loading="lazy"></div>
-    </div>
-  </div>`;
+  return MH.gallery((full ? v.gallery : [v.photo]).map(ML.photoUrl), v.name);
 }
 
 let V = null;
@@ -251,12 +248,12 @@ function render() {
        ['Номерной фонд', (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
        ['Залов', v.halls.length],
        ['Рейтинг', `${v.rating} (${v.reviews})`],
-       ['Договор по бонусной программе', v.loyaltyContract ? 'да' : 'нет']]
+       ['Договор с оплатой бонусными баллами', v.loyaltyContract ? 'да' : 'нет']]
     : [['Категория', v.cat], ...starRow, ['Регион', v.city]];
 
   document.getElementById('root').innerHTML = `
   <div class="crumbs">
-    <a href="search.html">Подбор площадок</a><span class="sep">→</span><span class="cur">${esc(v.name)}</span>
+    <a href="search.html">Подбор залов</a><span class="sep">→</span><span class="cur">${esc(v.name)}</span>
   </div>
 
   <div class="dhead">
@@ -284,21 +281,23 @@ function render() {
   ${!full ? `<div class="note">
       <span>Тариф <b>«${esc(t.name)}»</b> показывает общее фото, название, категорию, регион и звёздность.
       Адрес, оснащение и схемы рассадки — с тарифа «БИЗНЕС».</span>
-      <a class="btn sm" href="pricing.html">Тарифы</a></div>` : ''}
+      <a class="btn sm" href="pricing.html" ${MH.payAttr('biz', 'Адрес, оснащение и схемы рассадки')}>Перейти на «БИЗНЕС»</a></div>` : ''}
 
   <div class="two">
     <div>
       ${v.desc ? `<div class="sec-head first"><h2 class="sec-title">О площадке</h2></div>
-      ${MH.lock(`<div class="panel about"><p>${esc(v.desc)}</p></div>`, 'Описание площадки доступно после регистрации')}` : ''}
+      ${MH.lock(`<div class="panel about"><p>${esc(v.desc)}</p></div>`, 'Описание зала/объекта доступно после регистрации')}` : ''}
 
       <div class="sec-head${v.desc ? '' : ' first'}">
         <h2 class="sec-title">Залы объекта</h2>
-        <span class="sec-sub">В подбор попадают именно залы</span>
+        <span class="sec-sub">Единицей выборки является зал, а не объект</span>
       </div>
-      ${MH.lockBar('Цены и вместимость залов видны зарегистрированным пользователям.')}
+      ${MH.lockBar('Расчётные цены аренды и вместимость залов видны зарегистрированным пользователям (если указаны объектом).')}
       <div class="hrows">${hallRows}</div>
 
       ${full && featureBlocks ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}` : ''}
+
+      ${reviewsBlock(v)}
     </div>
 
     <aside class="side">
@@ -308,17 +307,33 @@ function render() {
       </div>
       <div class="panel">
         <div class="eyebrow">Как отправить запрос</div>
-        <p>Бронирования на ресурсе нет. Соберите нужные залы в сравнение — запрос уходит одной кнопкой сразу во все выбранные объекты.</p>
+        <p>Услуги бронирования МАЙСЛИСТ не предоставляет. Добавьте нужные залы в сравнение — и одной кнопкой отправьте коммерческий запрос менеджерам всех выбранных объектов.</p>
         <a class="btn pri" style="display:block;text-align:center" href="compare.html">Перейти в сравнение (${ML.state.compare.size})</a>
       </div>
     </aside>
   </div>`;
 }
 
+/* п.33: отзывы об объекте. Оставляют их после состоявшегося мероприятия — из истории запросов. */
+function reviewsBlock(v) {
+  const list = ML.reviewsFor('venue', v.id).slice().sort((a, b) => String(b.date).split('.').reverse().join('').localeCompare(String(a.date).split('.').reverse().join('')));
+  const avg = list.length ? (list.reduce((a, r) => a + (+r.rating || 0), 0) / list.length).toFixed(1).replace('.', ',') : null;
+  return `<div class="sec-head"><h2 class="sec-title">Отзывы</h2>
+      <span class="sec-sub">${list.length ? `${list.length} ${ML.plural(list.length, ['отзыв', 'отзыва', 'отзывов'])} · средняя оценка ${avg}` : 'пока нет'}</span></div>
+    ${list.length ? `<div class="rvs">${list.map(r => `<article class="rv panel">
+        <div class="rv-top"><div><div class="rv-a">${esc(r.author)}</div><div class="rv-r">${esc(r.role || '')}</div></div>
+          <div class="rv-s" aria-label="Оценка ${r.rating} из 5">${'★'.repeat(r.rating)}<span>${'★'.repeat(5 - r.rating)}</span></div></div>
+        ${r.event ? `<div class="rv-e">${esc(r.event)} · ${esc(r.date)}</div>` : `<div class="rv-e">${esc(r.date)}</div>`}
+        <p class="rv-t">${esc(r.text)}</p>
+      </article>`).join('')}</div>`
+      : `<div class="panel rv-empty">Отзывов пока нет. Оставить отзыв можно после состоявшегося мероприятия — из истории запросов в кабинете.</div>`}
+    ${MH.protoNote('Отзывы в прототипе — тестовые данные; в рабочей версии их оставляют пользователи по состоявшимся мероприятиям.')}`;
+}
+
 /* ── действия ── */
 function toggleCmp(hallId) {
   const r = ML.toggleCompare(hallId);
-  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  if (!r.ok) { r.need ? MH.paywall(r.need, r.reason) : MH.toast(r.reason, 'error'); return; }
   render();
 }
 function toggleFavHall(hallId) {

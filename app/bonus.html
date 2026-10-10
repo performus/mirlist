@@ -144,15 +144,17 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function render(){
   /* Бонусная программа гостю недоступна целиком. */
   if (MH.isLocked()) {
-    document.getElementById('root').innerHTML = MH.lockScreen('Бонусная программа — после регистрации',
-      'Баллы начисляются за проведённые мероприятия и отзывы, и тратятся на услуги подрядчиков. Зарегистрируйтесь, чтобы открыть счёт и витрину.');
+    document.getElementById('root').innerHTML = MH.lockScreen('Доступ к бонусной программе откроется после регистрации',
+      'Баллы начисляются за проведённые мероприятия и отзывы и тратятся на услуги подрядчиков. Зарегистрируйтесь, чтобы открыть счёт и витрину.');
     return;
   }
   const P = ML.state.points;
   const rev = ML.POINTS_REVIEW;
 
   // ── начисление за мероприятие: строки из ML.FEE_TIERS ──
-  const rows = ML.FEE_TIERS.map(t => `<tr>
+  const rows = ML.FEE_TIERS.map(t => t.byAgreement ? `<tr>
+    <td>${esc(t.label)}</td><td colspan="2" class="dim">по согласованию</td>
+  </tr>` : `<tr>
     <td>${esc(t.label)}</td>
     <td class="${t.ptsBiz?'pts':'dim'}">${t.ptsBiz?t.ptsBiz.toLocaleString('ru'):'—'}</td>
     <td class="${t.ptsPrem?'pts':'dim'}">${t.ptsPrem?t.ptsPrem.toLocaleString('ru'):'—'}</td>
@@ -175,7 +177,9 @@ function render(){
           <span class="card-pts">${s.pts.toLocaleString('ru')} Б</span>
         </div>
         <div class="card-foot">
-          <button class="btn pri wide" ${can?'':'disabled'} onclick="buy('${String(s.id).replace(/'/g,"\'")}')">Оставить заявку</button>
+          ${s.premiumMonths
+            ? `<button class="btn pri wide" onclick="MH.buyPremium(render)">${ML.tariff().key === 'prem' ? 'Продлить сразу' : 'Подключить сразу'}</button>`
+            : `<button class="btn pri wide" ${can?'':'disabled'} onclick="buy('${String(s.id).replace(/'/g,"\'")}')">Оставить заявку</button>`}
           ${can?'':`<div class="lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} Б</div>`}
         </div>
       </div>
@@ -183,16 +187,15 @@ function render(){
   }).join('');
 
   document.getElementById('root').innerHTML = `
-  <div class="crumbs"><a href="search.html">Подбор площадок</a><span class="sep">→</span>
+  <div class="crumbs"><a href="search.html">Подбор залов</a><span class="sep">→</span>
     <span class="cur">Бонусная программа</span></div>
 
   <h1 class="d-title">Бонусная программа</h1>
-  <p class="d-sub">Часть агентского вознаграждения возвращается вам баллами — за мероприятия,
-  которые действительно состоялись, и за отзывы о площадках.</p>
+  <p class="d-sub">Баллы начисляются за состоявшиеся мероприятия и за отзывы о площадках.</p>
 
   <div class="tiles">
     <div class="tile">
-      <div class="lbl">Баллы «ПРИВЕТ»</div>
+      <div class="lbl">Приветственный бонус</div>
       <div class="val">${ML.POINTS_HELLO.toLocaleString('ru')}</div>
       <div class="sub">разово за регистрацию</div>
     </div>
@@ -204,13 +207,13 @@ function render(){
     <div class="tile">
       <div class="lbl">Ваш баланс</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">заблокировано ${P.locked.toLocaleString('ru')} Б</div>
+      <div class="sub">Ожидают начисления: ${P.locked.toLocaleString('ru')} Б</div>
     </div>
   </div>
 
   <div class="sec-head">
     <h2 class="sec-title">Начисление за мероприятие</h2>
-    <span class="sec-sub">зависит от числа участников и вашего тарифа</span>
+    <!-- REMOVED BY CLIENT: <span class="sec-sub">зависит от числа участников и вашего тарифа</span> -->
   </div>
   <div class="panel"><div class="tscroll"><table class="tbl">
     <thead><tr>
@@ -220,9 +223,8 @@ function render(){
     <tbody>${rows}</tbody>
   </table></div></div>
 
-  <div class="note">До поступления оплаты от объекта баллы зачисляются со статусом
-  <b>«нельзя потратить»</b>: объект платит вознаграждение по итогам отчётного периода, и только
-  после этого баллы становятся доступны. Сейчас в этом статусе <b>${P.locked.toLocaleString('ru')} Б</b>.</div>
+  <div class="note">Баллы станут доступны после того, как и организатор, и площадка подтвердят
+  проведение мероприятия.</div>
 
   <div class="sec-head">
     <div>
@@ -232,9 +234,10 @@ function render(){
   </div>
   <div class="shop">${shop}</div>
 
+  <!-- REMOVED BY CLIENT: примечание о витрине: только услуги
   <div class="note">На первом этапе в витрине <b>только услуги</b> — без физических товаров:
   ресурс не берёт на себя хранение, доставку и возвраты. Заявка уходит партнёру,
-  баллы списываются в момент оформления.</div>`;
+  баллы списываются в момент оформления.</div> -->`;
 }
 
 /* Заказ за баллы: комментарий партнёру, списание через ML.orderFromShop,
@@ -262,7 +265,7 @@ function buy(id) {
         <label class="fl" for="bsNote">Комментарий партнёру</label>
         <textarea class="fi" id="bsNote" rows="3" placeholder="Даты, количество человек, пожелания"></textarea>
         <div class="note" style="margin-top:14px">Баллы спишутся сразу. Партнёр подтвердит заказ
-        и свяжется с вами через ресурс. Если заказ отклонят, баллы вернутся на счёт.</div>
+        и свяжется с вами. Если заказ будет отклонен, баллы вернутся на счёт.</div>
       </div>
       <div class="modal-f">
         <button class="btn" onclick="closeBuy()">Отмена</button>

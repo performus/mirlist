@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Поддержка и арбитраж МАЙСЛИСТ: вопросы о платформе, споры по факту состоявшегося мероприятия, жалобы на объекты и поставщиков.">
+<meta property="og:title" content="Поддержка и арбитраж — МАЙСЛИСТ">
+<meta property="og:description" content="Вопросы о платформе, споры по факту состоявшегося мероприятия, жалобы на объекты и поставщиков.">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/og-image.png">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Поддержка и арбитраж — МАЙСЛИСТ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#E98667; --coral-hover:#D97757; --coral-soft:#F6DDD3;
+  --peach:#F6E6DE;
+  --aqua-1:#D9ECEB; --aqua-2:#C5E3E1; --aqua-3:#A8D4D8; --aqua-pale:#EDF6F5;
+  --slate:#46627A; --slate-mid:#3E596F; --slate-deep:#354E63; --slate-muted:#7A919F; --slate-pale:#B4C3CC;
+  --bg:#F8F5F2; --white:#FFFFFF;
+  --sh-sm:0 1px 4px rgba(53,78,99,.05); --sh-md:0 4px 20px rgba(53,78,99,.07); --sh-lg:0 8px 40px rgba(53,78,99,.09);
+  --sh-coral:0 4px 18px rgba(233,134,103,.22);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-full:50px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--slate);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 28px 72px;animation:pageIn .5s ease both;}
+
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;color:var(--slate-muted);margin-bottom:18px;}
+.crumbs a:hover{color:var(--coral);}
+.crumbs .sep{opacity:.5;}
+.crumbs .cur{color:var(--slate-deep);font-weight:600;}
+
+.eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
+h1{font-family:'Literata',Georgia,serif;font-size:32px;font-weight:600;color:var(--slate-deep);
+  line-height:1.15;margin-top:10px;letter-spacing:-.005em;}
+.sub{font-size:14px;line-height:1.7;color:var(--slate-muted);margin-top:10px;max-width:680px;}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start;margin-top:26px;}
+.panel{background:var(--white);border:1px solid rgba(197,227,225,.3);border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);padding:24px;}
+.panel + .panel{margin-top:16px;}
+
+.lbl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--slate-muted);margin-bottom:9px;}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px;}
+.kind{display:flex;align-items:flex-start;gap:10px;border:1.5px solid rgba(197,227,225,.45);
+  border-radius:var(--r-md);padding:14px 15px;text-align:left;background:var(--white);transition:all .2s;}
+.kind:hover{border-color:var(--aqua-3);}
+.kind.on{border-color:var(--coral);background:var(--coral-soft);}
+.kind input{margin-top:2px;accent-color:var(--coral);flex-shrink:0;}
+.kind-t{font-size:13.5px;font-weight:700;color:var(--slate-deep);}
+.kind.on .kind-t{color:var(--coral);}
+.kind-s{font-size:11.5px;line-height:1.5;color:var(--slate-muted);margin-top:3px;}
+
+.fg{margin-bottom:17px;}
+.fi{width:100%;padding:12px 15px;border-radius:var(--r-sm);
+  border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
+  font-family:inherit;font-size:14px;color:var(--slate-deep);outline:none;transition:border-color .2s,background .2s;}
+.fi:focus{border-color:var(--coral);background:var(--white);}
+.fi.bad{border-color:#B14A32;background:#FDF3F0;}
+textarea.fi{min-height:130px;resize:vertical;line-height:1.6;}
+.hint{font-size:12px;line-height:1.6;color:var(--slate-muted);margin-top:7px;}
+.req{color:var(--coral);}
+
+.drop{border:2px dashed var(--slate-pale);border-radius:var(--r-md);padding:22px;text-align:center;
+  font-size:13px;color:var(--slate-muted);transition:all .2s;}
+.drop:hover{border-color:var(--coral);background:var(--coral-soft);color:var(--coral);}
+
+.btn{width:100%;padding:14px;border-radius:var(--r-full);font-size:15px;font-weight:600;
+  background:var(--coral);border:none;color:#fff;box-shadow:var(--sh-coral);transition:background .2s;}
+.btn:hover{background:var(--coral-hover);}
+
+.side{position:sticky;top:88px;}
+.side h3{font-size:14px;font-weight:700;color:var(--slate-deep);margin-bottom:10px;}
+.side p{font-size:13px;line-height:1.7;color:var(--slate-muted);}
+.side p + p{margin-top:11px;}
+.side a{color:var(--coral);font-weight:600;}
+.arb{background:var(--aqua-pale);border-radius:var(--r-md);padding:16px 18px;margin-top:14px;
+  font-size:12.5px;line-height:1.7;color:var(--slate-mid);}
+.arb b{color:var(--slate-deep);}
+
+/* успех */
+.done{max-width:520px;margin:40px auto;text-align:center;padding:48px 32px;}
+.done h2{font-family:'Literata',Georgia,serif;font-size:26px;font-weight:600;color:var(--slate-deep);margin-bottom:10px;}
+.done p{font-size:13.5px;line-height:1.7;color:var(--slate-muted);margin-bottom:8px;}
+.done-num{font-family:'Literata',Georgia,serif;font-weight:600;font-size:30px;color:var(--coral);display:block;margin:14px 0 18px;}
+.done .btn{width:auto;padding:12px 28px;display:inline-block;margin-top:8px;}
+
+@media(max-width:860px){
+  .two{grid-template-columns:minmax(0,1fr);}
+  .side{position:static;}
+  .kinds{grid-template-columns:1fr;}
+  h1{font-size:26px;}
+  .wrap{padding:20px 16px 56px;}
+}
+</style>
+</head>
+<body>
+
+<div id="mh-nav"></div>
+
+<div class="wrap" id="root"></div>
+
+<div id="mh-footer"></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>
+MH.init();
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const KINDS = [
+  { k:'question', t:'Вопрос по работе платформы', s:'Как устроен подбор, тарифы, баллы' },
+  { k:'dispute',  t:'Спор по факту состоявшегося мероприятия', s:'Отметки сторон разошлись или мероприятие сорвалось' },
+  { k:'complaint',t:'Жалоба на объект или поставщика', s:'Некорректное общение, недостоверные данные' },
+  { k:'tech',     t:'Техническая проблема',     s:'Ошибка на странице, не работает функция' },
+];
+
+let KIND = 'question';
+
+/* Подсказка по ID: показываем реальные номера из истории запросов. */
+function knownIds(){
+  return (ML.state.requests || []).map(r => r.id);
+}
+
+function render(){
+  const ids = knownIds();
+  const isDispute = KIND === 'dispute';
+
+  document.getElementById('root').innerHTML = `
+  <div class="crumbs"><a href="homepage.html">Главная</a><span class="sep">→</span>
+    <span class="cur">Поддержка и арбитраж</span></div>
+
+  <h1>Поддержка и арбитраж</h1>
+  <p class="sub">Ответим на вопросы о платформе. Поможем разобраться, если отметка «мероприятие
+  состоялось» от одной из сторон не поступила.</p>
+
+  <div class="two">
+    <div>
+      <div class="panel">
+        <span class="lbl">Тип обращения</span>
+        <div class="kinds">
+          ${KINDS.map(x => `<label class="kind${KIND===x.k?' on':''}">
+            <input type="radio" name="kind" ${KIND===x.k?'checked':''} onchange="setKind('${x.k}')">
+            <div>
+              <div class="kind-t">${esc(x.t)}</div>
+              <div class="kind-s">${esc(x.s)}</div>
+            </div>
+          </label>`).join('')}
+        </div>
+
+        <div class="fg">
+          <label class="lbl" for="fId">ID запроса ${isDispute ? '<span class="req">*</span>' : ''}</label>
+          <input class="fi" id="fId" type="text" placeholder="RQ-260714-0031" value="">
+          <div class="hint">Найдите его в личном кабинете, в разделе
+            <a href="dashboard.html?role=user&page=requests" style="color:var(--coral);font-weight:600">«История запросов»</a>,
+            в шапке каждого запроса.${ids.length ? ' Например: ' + esc(ids[0]) + '.' : ''}
+            ${isDispute ? '<br><b style="color:var(--slate-deep)">Для спора по мероприятию ID обязателен</b> — без него не понять, о какой заявке речь.' : ''}
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="lbl" for="fText">Описание <span class="req">*</span></label>
+          <textarea class="fi" id="fText" placeholder="${isDispute
+            ? 'Что произошло, какие даты, какая из сторон не признает мероприятие состоявшимся'
+            : 'Опишите вопрос или проблему'}"></textarea>
+        </div>
+
+        <div class="fg">
+          <span class="lbl">Вложения</span>
+          <div class="drop" onclick="MH.toast('Загрузка файлов пока недоступна','info')">
+            Переписка, счёт, скриншот — перетащите или нажмите
+            <div style="margin-top:5px;font-size:12px">JPG, PNG, PDF · до 10 МБ</div>
+          </div>
+        </div>
+
+        <button class="btn" onclick="send()">Отправить обращение</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="panel">
+        <h3>Как разбирается спор</h3>
+        <p>Отметку «мероприятие состоялось» ставят обе стороны: вы — в истории запросов,
+        объект — в своём кабинете. Пока мероприятие отмечено как состоявшееся только одной из сторон,
+        бонусные баллы, начисленные за мероприятие, потратить не получится.</p>
+        <p>Если отметки не совпадают, мы запрашиваем подтверждения у обеих сторон и принимаем решение
+        по вознаграждению. Каналы связи со сторонами остаются конфиденциальными.</p>
+        <div class="arb"><b>Что приложить к заявке на разбор:</b> ID запроса, даты мероприятия,
+        переписку с объектом и, если есть, счёт или договор. Без ID разобрать обращение не получится.</div>
+      </div>
+      <div class="panel">
+        <h3>Другие способы</h3>
+        <p>Почта: <a href="mailto:info@micelist.ru">info@micelist.ru</a><br>
+        Телефоны: <a href="tel:+79166704905">+79166704905</a> (Алексей), <a href="tel:+79251751570">+79251751570</a> (Денис)</p>
+        <p>Ответы на частые вопросы: <a href="faq.html">FAQ</a>.</p>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function setKind(k){ KIND = k; render(); }
+
+function send(){
+  const id = (document.getElementById('fId').value || '').trim();
+  const text = (document.getElementById('fText').value || '').trim();
+  document.querySelectorAll('.fi').forEach(el => el.classList.remove('bad'));
+
+  if (KIND === 'dispute' && !id) {
+    const el = document.getElementById('fId');
+    el.classList.add('bad'); el.focus();
+    MH.toast('Для спора по факту мероприятия укажите ID запроса', 'error');
+    return;
+  }
+  if (!text) {
+    const el = document.getElementById('fText');
+    el.classList.add('bad'); el.focus();
+    MH.toast('Опишите обращение', 'error');
+    return;
+  }
+
+  const kind = KINDS.find(x => x.k === KIND);
+  const num = 'SR-' + new Date().toISOString().slice(2,10).replace(/-/g,'') + '-'
+    + String(1000 + Math.floor(Math.random() * 8999)).slice(0,4);
+
+  document.getElementById('root').innerHTML = `
+  <div class="panel done">
+    <h2>Обращение принято</h2>
+    <p>Тип: ${esc(kind.t)}${id ? ' · запрос ' + esc(id) : ''}</p>
+    <span class="done-num">${esc(num)}</span>
+    <p>Ответим в течение одного рабочего дня. Номер обращения сохраните —
+    по нему можно уточнить статус.</p>
+    ${KIND === 'dispute'
+      ? '<p>Мы подтверждаем информацию сторон. Баллы останутся заблокированными до решения.</p>'
+      : ''}
+    <a class="btn" href="homepage.html">На главную</a>
+  </div>`;
+  MH.toast('Обращение ' + num + ' отправлено', 'success');
+}
+
+render();
+</script>
+</body>
+</html>

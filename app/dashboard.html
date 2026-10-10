@@ -50,6 +50,8 @@ button{font-family:inherit;cursor:pointer;}
 
 /* MAIN */
 .main{flex:1;height:100%;overflow-y:auto;padding:28px 36px 60px;}
+.db-ft{margin:48px -36px -60px;}
+@media(max-width:1024px){.db-ft{margin:40px -16px -40px;}}
 .page{display:none;animation:fadeIn .35s ease;}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -252,7 +254,10 @@ button{font-family:inherit;cursor:pointer;}
   .sb-nav{display:flex;flex-direction:row;padding:4px 0;overflow:visible;gap:0;scrollbar-width:none;flex:1;}
   .sb-item{flex:1;padding:10px 4px 12px;flex-direction:column;gap:4px;align-items:center;justify-content:center;border-radius:0;margin-bottom:0;background:none!important;position:relative;min-height:52px;}
   .sb-item svg{width:22px;height:22px;}
-  .sb-item span:not(.sb-badge){display:block!important;font-size:10px;white-space:nowrap;color:var(--sx);}
+  .sb-item span:not(.sb-badge){display:block!important;font-size:9.5px;line-height:1.15;white-space:normal;text-align:center;color:var(--sx);}
+  /* семь пунктов: подписи переносятся, при нехватке места панель прокручивается */
+  .sb-nav{overflow-x:auto!important;}
+  .sb-item{flex:1 0 54px!important;min-width:54px;padding-left:2px!important;padding-right:2px!important;}
   .sb-item.active span:not(.sb-badge){color:var(--c);}
   .sb-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--c);}
   .sb-badge{position:absolute;top:8px;left:calc(50% + 5px);width:14px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;}
@@ -386,6 +391,24 @@ button{font-family:inherit;cursor:pointer;}
 .rq-params .none{font-size:11.5px;color:var(--sp);}
 
 .rq-obj{padding:14px 20px;border-bottom:1px solid rgba(197,227,225,.16);}
+.rq-fold{display:flex;align-items:center;gap:12px;width:100%;padding:12px 20px;border:none;border-bottom:1px solid rgba(197,227,225,.16);
+  background:var(--bg,#FAF7F4);font-family:inherit;text-align:left;cursor:pointer;color:var(--sd);}
+.rq-fold:hover{background:#F6F1EC;}
+.rq-fold:last-child{border-bottom:none;}
+.rq-fold-t{font-size:13px;font-weight:600;white-space:nowrap;}
+.rq-fold-s{flex:1;min-width:0;font-size:12px;color:var(--sx);}
+.rq-fold-c{width:12px;height:12px;flex-shrink:0;color:var(--sx);transition:transform .18s;}
+.rq-fold.open .rq-fold-c{transform:rotate(180deg);}
+.rq-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.ctr-list{display:flex;flex-direction:column;gap:8px;}
+.ctr-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:var(--r);
+  background:var(--bg,#FAF7F4);font-size:13.5px;color:var(--sd);}
+@media(max-width:560px){.ctr-row{flex-direction:column;align-items:flex-start;}}
+.rq-tab{padding:8px 16px;border-radius:var(--rf);border:1.5px solid rgba(197,227,225,.6);background:var(--w);
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--sm);cursor:pointer;}
+.rq-tab.on{border-color:var(--c);color:var(--c);background:var(--cs);}
+.st.declined{background:var(--bg);color:var(--c8);}
+@media(max-width:560px){.rq-fold{flex-wrap:wrap;}.rq-fold-s{flex-basis:100%;order:3;}}
 .rq-obj:last-child{border-bottom:none;}
 .rq-obj.dead{opacity:.45;}
 .rq-obj-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:11px;}
@@ -413,7 +436,6 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
 .st{padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:700;white-space:nowrap;}
 .st.sent{background:var(--cs);color:var(--c);}
-.st.confirmed{background:var(--aq-p);color:var(--aq);}
 .st.done{background:#E6F4EC;color:#3E9A6B;}
 .st.reviewed{background:var(--pc);color:var(--sm);}
 .st.cancelled{background:var(--bg);color:var(--sp);}
@@ -612,36 +634,26 @@ const IC={
   chk:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
 };
 
-/* ═══ NAV CONFIG ═══ */
-const NAVS={
-  user:[
-    {id:'dash',icon:IC.dash,label:'Обзор'},
-    {id:'requests',icon:IC.req,label:'История запросов',badgeFn:()=>ML.state.requests.length||null},
-    {id:'favs',icon:IC.fav,label:'Избранное',badgeFn:()=>ML.state.favs.size||null},
-    {id:'points',icon:IC.star,label:'Мои баллы'},
-    {id:'profile',icon:IC.user,label:'Профиль'},
-    {id:'billing',icon:IC.stat,label:'Подписка и оплата'},
-  ],
-  venue:[
-    {id:'odash',icon:IC.dash,label:'Обзор'},
-    {id:'ovenues',icon:IC.venue,label:'Мои объекты',badgeFn:()=>ML.state.myVenues.length||null},
-    {id:'oreqs',icon:IC.req,label:'Входящие запросы',badgeFn:()=>venueIncoming().length||null},
-    {id:'oshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('venue').length||null},
-    {id:'ostats',icon:IC.stat,label:'Статистика'},
-    {id:'oprofile',icon:IC.user,label:'Реквизиты'},
-  ],
-  supplier:[
-    {id:'sdash',icon:IC.dash,label:'Обзор'},
-    {id:'sservices',icon:IC.venue,label:'Мои услуги',badgeFn:()=>ML.state.myServices.length||null},
-    {id:'sreqs',icon:IC.req,label:'Входящие запросы'},
-    {id:'sshop',icon:IC.shop,label:'Витрина',badgeFn:()=>ML.myShopItems('supplier').length||null},
-    {id:'ssub',icon:IC.stat,label:'Подписка'},
-    {id:'sprofile',icon:IC.user,label:'Реквизиты'},
-  ],
-  guest:[
-    {id:'guest',icon:IC.user,label:'Вход'},
-  ],
+/* ═══ NAV CONFIG ═══
+   Состав пунктов — MH.CABINET_MENU (shared.js): из него же собирается
+   выпадающее меню пользователя в шапке. Здесь только иконки и счётчики. */
+const NAV_ICONS={dash:IC.dash,requests:IC.req,compare:IC.check,favs:IC.fav,points:IC.star,profile:IC.user,billing:IC.stat,
+  odash:IC.dash,ovenues:IC.venue,oreqs:IC.req,oshop:IC.shop,ostats:IC.stat,oprofile:IC.user,
+  sdash:IC.dash,sservices:IC.venue,sreqs:IC.req,sshop:IC.shop,ssub:IC.stat,sprofile:IC.user};
+const NAV_BADGES={
+  requests:()=>ML.activeRequests().length||null,
+  compare:()=>ML.state.compare.size||null,
+  favs:()=>ML.state.favs.size||null,
+  ovenues:()=>ML.state.myVenues.length||null,
+  oreqs:()=>venueIncoming().filter(x=>!ML.isClosedRow(x.obj)).length||null,
+  oshop:()=>ML.myShopItems('venue').length||null,
+  sservices:()=>ML.state.myServices.length||null,
+  sshop:()=>ML.myShopItems('supplier').length||null,
 };
+const NAVS={guest:[{id:'guest',icon:IC.user,label:'Вход'}]};
+Object.keys(MH.CABINET_MENU).forEach(role=>{
+  NAVS[role]=MH.CABINET_MENU[role].map(it=>({id:it.id,label:it.label,href:it.href||'',icon:NAV_ICONS[it.id]||IC.dash,badgeFn:NAV_BADGES[it.id]}));
+});
 
 /* ═══ RENDER SIDEBAR NAV ═══ */
 let currentRole='user', currentPage='dash';
@@ -660,6 +672,7 @@ function renderNav(){
   nav.querySelectorAll('.sb-item').forEach(el=>{
     el.addEventListener('click',()=>{
       if(el.dataset.page==='_addvenue'){MH.go('list-venue.html');return;}
+      if(el.dataset.href){MH.go(el.dataset.href);return;}
       closeAllWiz();   // смена раздела закрывает все открытые визарды
       currentPage=el.dataset.page;renderNav();renderPage();
     });
@@ -670,10 +683,10 @@ function renderNav(){
   const ini=s?s.initials:'АК';
   const uname=s?s.name:'Пользователь';
   const prem=s&&s.premium;
-  const logoutBtn=`<button onclick="MH.clearSession();window.location.href='homepage.html'" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
+  const logoutBtn=`<button onclick="MH.logout()" style="width:100%;margin-top:8px;padding:8px;border-radius:var(--r);border:1.5px solid rgba(197,227,225,.3);background:none;font-family:inherit;font-size:12.5px;color:var(--sx);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--c)';this.style.color='var(--c)'" onmouseout="this.style.borderColor='rgba(197,227,225,.3)';this.style.color='var(--sx)'">Выйти</button>`;
   if(currentRole==='guest'){bot.innerHTML=`<a href="auth.html" style="display:block;text-align:center;padding:10px;border-radius:var(--r);background:var(--c);color:#fff;font-size:13px;font-weight:600;text-decoration:none;">Войти / Зарегистрироваться</a>`;}
   else if(currentRole==='user'){bot.innerHTML=`<div class="sb-user"><div class="sb-avatar">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Пользователь</div>${prem?`<div class="sb-premium">${IC.star} Premium</div>`:''}</div></div>${logoutBtn}`;}
-  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">Владелец площадки</div></div></div>${logoutBtn}`;}
+  else{bot.innerHTML=`<div class="sb-user"><div class="sb-avatar" style="background:var(--aq-s);color:var(--sm)">${ini}</div><div><div class="sb-uname">${uname}</div><div class="sb-urole">${currentRole==='supplier'?'Поставщик':'Менеджер объекта'}</div></div></div>${logoutBtn}`;}
 }
 
 /* Переключатель ролей переехал в демо-панель в шапке (shared.js).
@@ -683,7 +696,9 @@ function renderNav(){
 function renderPage(){
   const m=document.getElementById('mainContent');
   const fn=PAGES[currentPage];
-  m.innerHTML=fn?fn():'<div class="empty-state"><div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-text">Раздел в разработке</div></div>';
+  m.innerHTML=(fn?fn():'<div class="empty-state"><div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="empty-text">Раздел в разработке</div></div>')
+    + '<div class="db-ft" id="mh-footer"></div>';
+  MH.renderFooter(document.getElementById('mh-footer'));
   if(currentPage==='oshop'||currentPage==='sshop') shopCalc();   // подсказка расчёта сразу под полем
 }
 
@@ -696,7 +711,10 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const jt  = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 
 let REQ_SORT = 'date';
-const SUB_UNTIL = '01.05.2027';
+let REQ_TAB = 'active';
+function setReqTab(t){ REQ_TAB = t; renderPage(); }
+/* Дата окончания подписки: после покупки ПРЕМИУМ за баллы — из модели. */
+const subUntil = () => ML.state.premUntil || '01.05.2027';
 const SESS_NAME = () => (window._mhSess && window._mhSess.name) || 'Анна Козлова';
 const SESS_INI  = () => (window._mhSess && window._mhSess.initials) || 'АК';
 
@@ -722,8 +740,17 @@ function dmy(s){
 }
 
 /* ── блок одного запроса ── */
-function reqBlock(r){
+/* Развёрнутые запросы. По умолчанию строки объектов свёрнуты. */
+const RQ_OPEN = new Set();
+function toggleRq(key){ RQ_OPEN.has(key) ? RQ_OPEN.delete(key) : RQ_OPEN.add(key); renderPage(); }
+/** part: 'active' | 'archived' | undefined (весь запрос) */
+function reqBlock(r, part){
   const params = Array.isArray(r.params) ? r.params : [];
+  const rows = part ? ML.splitRequest(r)[part] : r.objects;
+  const key = r.id + ':' + (part || 'all');
+  const open = RQ_OPEN.has(key);
+  const sum = {};
+  rows.forEach(o => { const l = (ML.bothConfirmed(o) ? 'Состоялось, баллы начислены' : (ML.REQUEST_FLOW[o.status] || {}).label || o.status); sum[l] = (sum[l] || 0) + 1; });
   return `<div class="rq" data-rq="${esc(r.id)}">
     <div class="rq-head">
       <div>
@@ -732,7 +759,7 @@ function reqBlock(r){
           <span>${esc(r.title)}</span>
           <button class="rq-pen" aria-label="Переименовать запрос">${IC_PEN}</button>
         </div>
-        <div class="rq-date">от ${esc(r.date)} · ${r.objects.length} ${ML.plural(r.objects.length,['объект','объекта','объектов'])}${
+        <div class="rq-date">от ${esc(r.date)} · ${rows.length} ${ML.plural(rows.length,['объект','объекта','объектов'])}${part === 'archived' ? ' в архиве' : ''}${
           r.updatedAt ? ` · <span class="rq-upd">исправлен ${esc(r.updatedAt)}</span>` : ''}</div>
         <div class="rq-params">${params.length
           ? params.map(p => `<span class="rq-param">${esc(p)}</span>`).join('')
@@ -740,11 +767,16 @@ function reqBlock(r){
       </div>
       <div class="btn-row rq-acts">
         <button class="btn-xs" onclick="openReqView('${esc(r.id)}')">Посмотреть запрос</button>
-        <button class="btn-xs" onclick="openReqEdit('${esc(r.id)}')">Скорректировать запрос</button>
-        <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить статус</button>
+        ${part === 'archived' ? '' : `<button class="btn-xs" onclick="openReqEdit('${esc(r.id)}')">Скорректировать запрос</button>
+        <button class="btn-xs" onclick="refreshAll('${esc(r.id)}')">Обновить статус</button>`}
       </div>
     </div>
-    ${r.objects.map(o => reqObjRow(r, o)).join('')}
+    <button type="button" class="rq-fold${open ? ' open' : ''}" aria-expanded="${open}" onclick="toggleRq('${jt(key)}')">
+      <span class="rq-fold-t">${open ? 'Свернуть' : 'Показать'} объекты запроса (${rows.length})</span>
+      <span class="rq-fold-s">${Object.entries(sum).map(([l, n]) => `${esc(l)}${n > 1 ? ' × ' + n : ''}`).join(' · ')}</span>
+      <svg class="rq-fold-c" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+    </button>
+    ${open ? rows.map(o => reqObjRow(r, o)).join('') : ''}
   </div>`;
 }
 
@@ -754,7 +786,6 @@ function reqObjRow(r, o){
   const dead = o.status === 'cancelled';
   // активность каждой кнопки — только по модели
   const canRefresh   = ML.canSetStatus(o, 'cancelled');   // активна, пока объект не отменён
-  const canConfirm   = ML.canSetStatus(o, 'confirmed');
   const canDone      = ML.canSetStatus(o, 'done');
   const canReview    = ML.canSetStatus(o, 'reviewed');
   const canCancel    = ML.canSetStatus(o, 'cancelled');
@@ -774,7 +805,6 @@ function reqObjRow(r, o){
     </div>
     <div class="btn-row">
       <button class="btn-xs" ${canRefresh ? '' : 'disabled'} onclick="refreshOne('${esc(r.id)}',${o.venueId})">Обновить</button>
-      <button class="btn-xs" ${canConfirm ? '' : 'disabled'} onclick="openConfirm('${esc(r.id)}',${o.venueId})">Мероприятие подтверждено</button>
       <button class="btn-xs" ${canDone ? '' : 'disabled'} onclick="markDone('${esc(r.id)}',${o.venueId})">Мероприятие состоялось</button>
       <button class="btn-xs" ${canReview ? '' : 'disabled'} onclick="openReview('${esc(r.id)}',${o.venueId})">Отзыв</button>
       <button class="btn-xs danger" ${canCancel ? '' : 'disabled'} onclick="openCancel('${esc(r.id)}',${o.venueId})">Отмена</button>
@@ -885,11 +915,11 @@ function openReqEdit(id){
     </div>
     <label class="form-label" for="edLetter">Сопроводительное письмо</label>
     <textarea class="form-input" id="edLetter" rows="6">${esc(r.letter || '')}</textarea>
-    <div class="dm-note">Правка уходит объектам, которые ещё не отменили запрос — сейчас их ${live}.
-    Отдельной кнопкой можно отправить новый запрос по тем же объектам: статусы в нём начнутся заново,
-    отменённые объекты в него не попадут.</div>`,
+    <div class="dm-note">Исправления отправятся объектам, которые ещё не отменили запрос — сейчас их ${live}.
+    Если, скорректировав запрос, вы отправите его заново, статусы обновятся, но объекты,
+    отклонившие изначальный запрос, новый уже не получат.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
-     <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить ещё один запрос</button>
+     <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить новый запрос</button>
      <button class="btn btn-c" onclick="saveReqEdit('${esc(r.id)}')">Сохранить</button>`);
 }
 
@@ -932,13 +962,15 @@ function dm(title, body, foot){
 function dmEsc(e){ if (e.key === 'Escape') dmClose(); }
 function dmClose(){ document.getElementById('dmRoot').innerHTML = ''; document.removeEventListener('keydown', dmEsc); }
 
-/* ── визард подтверждения ── */
+/* ── визард «Мероприятие состоялось» ──
+   Отдельного шага «Мероприятие подтверждено» больше нет: количество участников
+   и даты, которые он спрашивал, уточняются здесь, в момент отметки. */
 let WZ = { tier: 0, dates: new Set() };
-function openConfirm(reqId, venueId){
+function markDone(reqId, venueId){
   WZ = { tier: 0, dates: new Set() };
   const v = ML.venueById(venueId);
-  dm('Мероприятие подтверждено', `
-    <p>Объект <b>${esc(v ? v.name : '')}</b> подтвердил мероприятие. Уточните детали —
+  dm('Мероприятие состоялось', `
+    <p>Отметьте, что мероприятие в объекте <b>${esc(v ? v.name : '')}</b> состоялось, и уточните детали —
     от количества участников зависит, сколько баллов вам начислят.</p>
     <label class="form-label">Название мероприятия</label>
     <input class="form-input" id="wzName" value="Конференция «Итоги полугодия»">
@@ -954,7 +986,7 @@ function openConfirm(reqId, venueId){
       ${dateCells()}</div>
     <div class="dm-note" id="wzHint">Выберите один или несколько дней.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
-     <button class="btn btn-c" onclick="saveConfirm('${esc(reqId)}',${venueId})">Подтвердить</button>`);
+     <button class="btn btn-c" onclick="saveDone('${esc(reqId)}',${venueId})">Отметить</button>`);
 }
 /* Сколько баллов даёт диапазон на текущем тарифе. Список ярусов берём
    из модели: изменится ML.FEE_TIERS — изменится и визард. */
@@ -964,17 +996,18 @@ function tierPoints(t){
   return pts.toLocaleString('ru') + ' ' + ML.plural(pts, ['балл','балла','баллов']);
 }
 
-/* Шахматка на три недели от ближайшего понедельника. */
+/* Шахматка на три недели, последняя — текущая: мероприятие уже прошло,
+   поэтому закрыты будущие дни, а не прошедшие. */
 function dateCells(){
   const today = new Date(); today.setHours(0,0,0,0);
   const start = new Date(today);
-  start.setDate(start.getDate() - ((start.getDay() + 6) % 7));   // понедельник текущей недели
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - 14);   // понедельник две недели назад
   let out = '';
   for (let i = 0; i < 21; i++){
     const d = new Date(start); d.setDate(start.getDate() + i);
     const key = d.toLocaleDateString('ru');
-    const past = d < today;
-    out += `<button class="dcell${past ? ' past' : ''}" ${past ? 'disabled' : ''}
+    const future = d > today;
+    out += `<button class="dcell${future ? ' past' : ''}" ${future ? 'disabled' : ''}
       data-d="${key}" onclick="pickDate(this)">${d.getDate()}</button>`;
   }
   return out;
@@ -996,19 +1029,12 @@ function pickTier(i){
     el.querySelector('input').checked = on;
   });
 }
-function saveConfirm(reqId, venueId){
+function saveDone(reqId, venueId){
   if (!WZ.dates.size) { MH.toast('Выберите даты мероприятия', 'error'); return; }
   const tier = ML.FEE_TIERS[WZ.tier];
   const guests = tier.max === Infinity ? tier.min : tier.max;
-  const ok = ML.setStatus(reqId, venueId, 'confirmed', { guests, dates: [...WZ.dates].join(', ') });
+  const ok = ML.setStatus(reqId, venueId, 'done', { guests, dates: [...WZ.dates].join(', ') });
   dmClose();
-  MH.toast(ok ? 'Мероприятие подтверждено' : 'Статус изменить нельзя', ok ? 'success' : 'error');
-  renderPage();
-}
-
-/* ── состоялось ── */
-function markDone(reqId, venueId){
-  const ok = ML.setStatus(reqId, venueId, 'done');
   MH.toast(ok ? 'Отмечено: мероприятие состоялось' : 'Статус изменить нельзя', ok ? 'success' : 'error');
   renderPage();
 }
@@ -1064,7 +1090,7 @@ function openReview(reqId, venueId){
     <label class="form-label" style="margin-top:14px;display:block">Что понравилось и что нет</label>
     <textarea class="form-input" id="rvText" rows="4" placeholder="Коротко о площадке, зале и работе менеджера"></textarea>
     <div class="dm-note">${pts
-      ? `За отзыв начислим <b>${pts} ${ML.plural(pts,['балл','балла','баллов'])}</b> — их можно потратить на услуги партнёров.`
+      ? `За отзыв начислим <b>${pts} ${ML.plural(pts,['балл','балла','баллов'])}</b>.`
       : 'На тарифе «СТАРТ» баллы за отзывы не начисляются.'}</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="saveReview('${esc(reqId)}',${venueId})">Отправить отзыв</button>`);
@@ -1091,7 +1117,7 @@ function saveReview(reqId, venueId){
 /* ── избранное ── */
 function favToCompare(hallId){
   const r = ML.toggleCompare(hallId);
-  if (!r.ok) { MH.toast(r.reason, 'error'); return; }
+  if (!r.ok) { r.need ? MH.paywall(r.need, r.reason) : MH.toast(r.reason, 'error'); return; }
   MH.toast(ML.inCompare(hallId) ? 'Зал добавлен в сравнение' : 'Зал убран из сравнения', 'success');
   renderPage();
 }
@@ -1122,6 +1148,7 @@ function shopItemById(id){ return ML.shopCatalog().find(s => String(s.id) === St
 function buyShop(id){
   const item = shopItemById(id);
   if (!item) return;
+  if (item.premiumMonths) { MH.buyPremium(() => { renderNav(); renderPage(); }); return; }
   const P = ML.state.points;
   if (P.free < item.pts) { MH.toast('Не хватает баллов', 'error'); return; }
   dm('Заказ за баллы',
@@ -1132,8 +1159,8 @@ function buyShop(id){
      </table>
      <label class="form-label">Комментарий партнёру</label>
      <textarea class="form-input" id="bsNote" rows="3" placeholder="Даты, количество человек, пожелания"></textarea>
-     <div class="dm-note">Баллы спишутся сразу. Партнёр подтвердит заказ и свяжется с вами через ресурс.
-     Если заказ отклонят, баллы вернутся на счёт.</div>`,
+     <div class="dm-note">Баллы спишутся сразу. Партнёр подтвердит заказ и свяжется с вами.
+     Если заказ будет отклонен, баллы вернутся на счёт.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="confirmShop('${jt(String(item.id))}')">Оформить заказ</button>`);
 }
@@ -1193,7 +1220,7 @@ const VENUE_STEPS=[
    {k:'cat',l:'Категория объекта',ty:'select',optFn:()=>ML.VENUE_CATS,req:1},
    {k:'stars',l:'Звёздность',ty:'select',opt:['3 звезды','4 звезды','5 звёзд'],
     when:()=>ML.STARRED_CATS.includes(WIZ.data.cat),
-    hint:'Поле есть только у категорий, где звёздность присваивается. Она видна пользователю даже на бесплатном тарифе «СТАРТ».'},
+    hint:'Поле есть только у категорий, где звёздность присваивается. Звёздность видна пользователям всех тарифов (включая бесплатные).'},
    {k:'about',l:'Описание объекта',ty:'area',ph:'Чем площадка удобна для деловых мероприятий'},
  ]},
  {t:'Локация',f:[
@@ -1204,7 +1231,7 @@ const VENUE_STEPS=[
  {t:'Проживание',f:[
    {k:'twin',l:'Номеров TWIN',ty:'num'},
    {k:'sngl',l:'Номеров SNGL',ty:'num'},
-   {ty:'note',text:'Заполняют только отели. Фильтр по TWIN пользователю доступен с тарифа «ПРЕМИУМ», по SNGL — с «БИЗНЕС».'},
+   {ty:'note',text:'Заполняют только отели. Фильтры по TWIN/SNGL доступны пользователям на тарифе «ПРЕМИУМ».'},
  ]},
  {t:'Характеристики',f:[{ty:'features'}]},
  {t:'Фото объекта',f:[
@@ -1221,10 +1248,7 @@ const VENUE_STEPS=[
    {k:'bank',l:'Реквизиты для платежей',ty:'area',req:1},
  ]},
  {t:'Договоры',f:[
-   {k:'contracts',l:'Подписываются отдельно от регистрации',ty:'checks',
-    opt:['Партнёрский договор с агентским вознаграждением',
-         'Договор по бонусной программе',
-         'Доп. соглашение на повышенную комиссию']},
+   {k:'contracts',l:'Подписываются отдельно от регистрации',ty:'contracts-ro'},
    {ty:'feenote'},
  ]},
  {t:'Проверка',f:[{ty:'preview'}]},
@@ -1234,7 +1258,7 @@ const HALL_STEPS=[
  {t:'Зал и тип',f:[
    {k:'name',l:'Название зала',ty:'text',ph:'Большой зал',req:1},
    {k:'type',l:'Тип зала',ty:'select',optFn:()=>ML.HALL_TYPES,req:1},
-   {k:'floor',l:'Этаж и корпус',ty:'text',ph:'2 этаж, главный корпус'},
+   {k:'floor',l:'Этаж и корпус',ty:'text',ph:'2-й этаж, главный корпус'},
  ]},
  {t:'Параметры',f:[
    {k:'area',l:'Площадь, м²',ty:'num',req:1},
@@ -1251,13 +1275,13 @@ const HALL_STEPS=[
    {k:'priceDay',l:'Аренда за день, ₽',ty:'num'},
    {k:'priceHour',l:'Аренда за час, ₽',ty:'num'},
    {k:'agree',ty:'checks',opt:['Стоимость по договорённости']},
-   {ty:'note',text:'Залы «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
+   {ty:'note',text:'Залы с ценой «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
  ]},
  {t:'Медиа и планы',f:[
    {k:'photos',l:'Фотографии зала',ty:'photo'},
    {k:'schemes',l:'Схемы рассадки',ty:'photo'},
    {k:'plan',l:'Точный план пространства',ty:'photo',
-    hint:'Плана нет — замер можно заказать у нас, стоимость считается по общей площади пространств.'},
+    hint:'Планы/схемы зала отсутствуют (NB: замеры и подготовку планов можно заказать у Micelist; стоимость формируется исходя из общей площади залов).'},
  ]},
 ];
 
@@ -1356,7 +1380,7 @@ function wfield(f){
     case 'feenote': {
       const t=ML.FEE_TIERS.filter(x=>x.fee).map(x=>`${ML.money(x.fee)} за ${x.label.toLowerCase()}`).join(', ');
       return `<div class="wz-note">Размещение объекта бесплатное. Объект платит фиксированную сумму
-        только за состоявшееся мероприятие: ${esc(t)}. Свыше — по договорённости.</div>`;
+        только за состоявшееся мероприятие, рассчитанную исходя из минимального числа участников.</div>`;
     }
     case 'text': case 'num':
       return `<div class="wf${bad}">${L}<input type="${f.ty==='num'?'number':'text'}"
@@ -1384,6 +1408,9 @@ function wfield(f){
         <input type="checkbox" ${a.includes(o)?'checked':''} onchange="wizToggle('${f.k}','${jt(o)}')">
         <span>${esc(o)}</span></label>`).join('')}</div>${H}</div>`;
     }
+    case 'contracts-ro':
+      return `<div class="wf">${L}${contractStatusList(v||[])}
+        ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}</div>`;
     case 'features':
       // четыре группы удобств строго по ML.FEATURE_GROUPS
       return ML.FEATURE_GROUPS.map(g=>{
@@ -1407,8 +1434,8 @@ function wfield(f){
           ${pin?`<span class="wmap-pin" style="left:${pin.x}%;top:${pin.y}%"></span>`
                :'<span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span>'}</div>
         <input type="text" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value">
-        <div class="hint">Когда подключим 2ГИС, адрес будет подставляться по точке автоматически.
-          Пока координаты можно поправить вручную. Без них объект не появится на карте подбора.</div>
+        <div class="hint">Без координат объект не появится на карте подбора.</div>
+        ${MH.protoNote('Когда подключим 2ГИС, адрес будет подставляться по точке автоматически. Пока координаты можно поправить вручную.')}
       </div>`;
     }
     case 'photo':
@@ -1576,6 +1603,21 @@ function updateReq(who){
 }
 
 /* ── отметка «мероприятие состоялось» со стороны объекта ── */
+function venueDecline(reqId,venueId){
+  dm('Отклонить запрос',
+    `<p>Пользователь увидит, что объект отклонил запрос. Строка уйдёт в архив.</p>
+     <label class="form-label" for="vdReason">Причина</label>
+     <select class="form-input" id="vdReason"><option>Нет свободных дат</option><option>Не подходит формат мероприятия</option>
+       <option>Не подходит количество участников</option><option>Другое</option></select>`,
+    `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
+     <button class="btn btn-c" onclick="saveVenueDecline('${esc(reqId)}',${venueId})">Отклонить</button>`);
+}
+function saveVenueDecline(reqId,venueId){
+  const ok=ML.venueDecline(reqId,venueId,(document.getElementById('vdReason')||{}).value);
+  dmClose();
+  MH.toast(ok?'Запрос отклонён и перенесён в архив':'Этот запрос уже нельзя отклонить',ok?'info':'error');
+  renderNav();renderPage();
+}
 function venueDone(reqId,venueId){
   const r=ML.requestById(reqId);
   const o=r&&r.objects.find(x=>x.venueId===+venueId);
@@ -1626,27 +1668,36 @@ function delMyVenue(i){
      <button class="btn btn-c" onclick="ML.removeMyVenue(${i});dmClose();MH.toast('Объект удалён','info');renderNav();renderPage()">Удалить</button>`);
 }
 
+/* Договоры площадки — только чтение: статус приходит извне, не из кабинета. */
+const CONTRACT_TYPES=['Партнёрский договор с агентским вознаграждением','Договор по бонусной программе','Доп. соглашение на повышенную комиссию'];
+function contractStatusList(signed){
+  return `<div class="ctr-list">${CONTRACT_TYPES.map(t=>{const on=signed.includes(t);
+    return `<div class="ctr-row"><span>${esc(t)}</span><span class="st ${on?'done':'cancelled'}">${on?'подписан':'не подписан'}</span></div>`;}).join('')}</div>`;
+}
+
 /* ── строка входящего запроса ── */
 function incomingRow(x){
   const {req,obj,venue}=x;
   const flow=ML.REQUEST_FLOW[obj.status]||{label:obj.status};
-  const dead=obj.status==='cancelled';
+  const dead=obj.status==='cancelled'||obj.status==='declined';
   const both=ML.bothConfirmed(obj);
   const fee=both?ML.venueFee(obj):null;
 
   let action;
-  if(dead) action=`<span class="wait">запрос отменён</span>`;
+  if(obj.status==='declined') action=`<span class="wait">вы отклонили запрос</span>`;
+  else if(dead) action=`<span class="wait">запрос отменён</span>`;
   else if(both) action=`<span class="paid">${fee!=null?'к оплате '+ML.money(fee):'сумма по договорённости'}</span>`;
   else if(obj.venueDone) action=`<span class="wait">ждём подтверждения пользователя</span>`;
   else if(obj.status==='done'||obj.status==='reviewed')
     action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>`;
-  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>`;
+  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>
+    <button class="btn-xs danger" style="margin-top:6px" onclick="venueDecline('${esc(req.id)}',${obj.venueId})">Отклонить</button>`;
 
   // подпись про вторую сторону
   let note='';
   if(!dead&&!both){
     if(obj.venueDone) note='<div class="wait">объект отметил, ждём пользователя</div>';
-    else if(obj.status==='done'||obj.status==='reviewed') note='<div class="wait">пользователь отметил, ждём объект</div>';
+    else if(obj.status==='done'||obj.status==='reviewed') note='<div class="wait">пользователь отметил, ждём подтверждения от объекта</div>';
   }
   if(both) note='<div class="wait">баллы пользователю разблокированы</div>';
 
@@ -1740,13 +1791,15 @@ function shopPage(owner){
   const who=owner==='supplier'?'услуги поставщика':'услуги объекта';
   return `
   <h1 class="page-title">Витрина</h1>
-  <p class="page-sub">${who}, которые пользователи заказывают за баллы бонусной программы</p>
+  <p class="page-sub">${who}, которые пользователи могут заказать за баллы бонусной программы</p>
 
+  <!-- REMOVED BY CLIENT: пояснение о скидке по договору бонусной программы — механика уточняется
   <div class="wz-note" style="margin-bottom:20px">
-    По договору бонусной программы ресурс получает скидку ${Math.round(ML.LOYALTY_DISCOUNT*100)}%
-    от розничной цены: вы получаете ${100-Math.round(ML.LOYALTY_DISCOUNT*100)}% деньгами,
+    По договору бонусной программы ресурс получает скидку \${Math.round(ML.LOYALTY_DISCOUNT*100)}%
+    от розничной цены: вы получаете \${100-Math.round(ML.LOYALTY_DISCOUNT*100)}% деньгами,
     а с пользователя списываются баллы в эквиваленте полной розничной цены.
   </div>
+  -->
 
   <div class="card" style="margin-bottom:26px;max-width:680px">
     <div class="section-label" style="margin-bottom:14px">Добавить позицию</div>
@@ -1781,8 +1834,7 @@ function shopPage(owner){
     </tr>`).join('')}</tbody>
    </table></div>
   </div>
-  <div class="dm-note" style="margin-top:16px">На боевом сервисе позицию публикует модератор —
-  в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.</div>`
+  ${MH.protoNote('На боевом сервисе позицию публикует модератор — в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.','margin-top:16px')}`
    : `<div class="card empty-state"><div class="empty-text">На витрине пока пусто</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте позицию — она появится в разделе
       «Мои баллы» у пользователей после публикации.</p></div>`}`;
@@ -1839,7 +1891,7 @@ const PAGES={
 /* ── ОБЗОР ── */
 dash:()=>{
   const t=ML.tariff(), P=ML.state.points;
-  const active=ML.state.requests.filter(r=>r.objects.some(o=>o.status!=='cancelled'&&o.status!=='reviewed')).length;
+  const active=ML.activeRequests().length;
   const lim=t.compare===Infinity?'∞':t.compare;
   const last=ML.state.requests[0];
   return `
@@ -1850,22 +1902,22 @@ dash:()=>{
     <div class="lk-tile">
       <div class="lbl">Тариф</div>
       <div class="val">${esc(t.name)}</div>
-      <div class="sub">действует до ${esc(SUB_UNTIL)}</div>
+      <div class="sub">действует до ${esc(subUntil())}</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Доступно баллов</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
-      <div class="sub">можно потратить на услуги партнёров</div>
+      <div class="sub">Тратятся на услуги партнёров</div>
     </div>
     <div class="lk-tile">
-      <div class="lbl">Сгорают</div>
+      <div class="lbl">Используйте</div>
       <div class="val">${P.expiring.toLocaleString('ru')}</div>
       <div class="sub">до ${esc(P.expiresAt)}</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">В сравнении</div>
-      <div class="val">${ML.state.compare.size} / ${lim}</div>
-      <div class="sub">${ML.state.compare.size?'<a href="compare.html" style="color:var(--c)">перейти в сравнение</a>':'залы не выбраны'}</div>
+      <div class="val">${ML.compareVenueCount()} / ${lim}</div>
+      <div class="sub">${ML.state.compare.size?`объектов · залов ${ML.state.compare.size} — <a href="compare.html" style="color:var(--c)">перейти в сравнение</a>`:'объекты не выбраны'}</div>
     </div>
     <div class="lk-tile">
       <div class="lbl">Активных запросов</div>
@@ -1874,20 +1926,31 @@ dash:()=>{
     </div>
   </div>
 
-  <div class="adslot"><div class="adslot-t">Реклама</div></div>
+  ${t.key==='prem'?'':`<div class="adslot">${MH.adMark()}</div>`}
 
   <div class="section-head" style="margin-bottom:14px">
     <div class="section-label">Последний запрос</div>
     ${ML.state.requests.length?'<button class="btn btn-o" onclick="goPage(\'requests\')">Вся история</button>':''}
   </div>
-  ${last?reqBlock(last):`<div class="card empty-state">
+  ${last?reqBlock(last, last.objects.some(o=>!ML.isClosedRow(o))?'active':'archived'):`<div class="card empty-state">
     <div class="empty-text">Запросов пока нет</div>
     <a class="btn btn-c" style="margin-top:14px;display:inline-block" href="search.html">Перейти к подбору</a></div>`}`;
 },
 
 /* ── ИСТОРИЯ ЗАПРОСОВ ── */
 requests:()=>{
-  const list=sortedRequests();
+  const all=sortedRequests();
+  const list=all.filter(r=>REQ_TAB==='archive'?r.objects.some(ML.isClosedRow):r.objects.some(o=>!ML.isClosedRow(o)));
+  const part=REQ_TAB==='archive'?'archived':'active';
+  const tabs=`<div class="rq-tabs" role="tablist">
+    <button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${ML.activeRequests().length})</button>
+    <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${ML.archivedRequests().length})</button></div>`;
+  const rule=`<div class="dm-note" style="margin-bottom:16px">В архив попадают объекты запроса, по которым обе стороны отметили «Мероприятие состоялось»
+    (баллы начислены), которые отклонил объект или которые вы отменили.</div>`;
+  if(all.length&&!list.length) return `
+    <h1 class="page-title">История запросов</h1>
+    <p class="page-sub">Запросы в отделы продаж и их статусы</p>${tabs}${rule}
+    <div class="card empty-state"><div class="empty-text">${REQ_TAB==='archive'?'В архиве пока пусто':'Активных запросов нет'}</div></div>`;
   if(!list.length) return `
     <h1 class="page-title">История запросов</h1>
     <p class="page-sub">Запросы в отделы продаж и их статусы</p>
@@ -1898,13 +1961,15 @@ requests:()=>{
     </div>`;
   return `
   <h1 class="page-title">История запросов</h1>
-  <p class="page-sub">${list.length} ${ML.plural(list.length,['запрос','запроса','запросов'])} · статусы обновляете вы</p>
+  <p class="page-sub">${all.length} ${ML.plural(all.length,['запрос','запроса','запросов'])} · Статусы обновляете вы</p>
+  ${tabs}${rule}
   <div class="sortbar">
     <span>Сортировка:</span>
     <button class="btn-xs${REQ_SORT==='date'?' ':''}" style="${REQ_SORT==='date'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('date')">По дате</button>
     <button class="btn-xs" style="${REQ_SORT==='title'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('title')">По названию</button>
   </div>
-  ${list.map(r=>reqBlock(r)).join('')}`;
+  ${list.map(r=>reqBlock(r,part)).join('')}
+  <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
 },
 
 /* ── ИЗБРАННОЕ ── */
@@ -1959,10 +2024,10 @@ points:()=>{
     <div class="lk-tile">
       <div class="lbl">Нельзя потратить</div>
       <div class="val">${P.locked.toLocaleString('ru')}</div>
-      <div class="sub">Станут доступны после поступления оплаты от объекта за состоявшееся мероприятие</div>
+      <div class="sub">Станут доступны после того, как менеджмент объекта подтвердит прошедшее мероприятие.</div>
     </div>
     <div class="lk-tile">
-      <div class="lbl">Сгорают</div>
+      <div class="lbl">Используйте</div>
       <div class="val">${P.expiring.toLocaleString('ru')}</div>
       <div class="sub">до ${esc(P.expiresAt)}</div>
     </div>
@@ -1995,7 +2060,7 @@ points:()=>{
           <div class="scard-name">${esc(s.title)}</div>
           <div class="scard-prov">${esc(s.provider)}</div>
           <div class="scard-pts">${s.pts.toLocaleString('ru')} Б</div>
-          <button class="btn btn-c scard-btn" ${can?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">Оставить заявку</button>
+          <button class="btn btn-c scard-btn" ${can||s.premiumMonths?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">${s.premiumMonths?(ML.tariff().key==='prem'?'Продлить сразу':'Подключить сразу'):'Отправить запрос'}</button>
           ${can?'':`<div class="scard-lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} ${ML.plural(s.pts-P.free,['балла','баллов','баллов'])}</div>`}
         </div>
       </article>`;
@@ -2064,7 +2129,7 @@ billing:()=>{
         <div class="stat-label">Текущий тариф</div>
         <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">${esc(t.name)}</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
-          ${t.price?ML.money(t.price)+' в месяц':'бесплатно'} · действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
+          ${t.price?ML.money(t.price)+' в месяц':'бесплатно'} · действует до <b style="color:var(--sd)">${esc(subUntil())}</b>
         </div>
         <label class="opt" style="margin-top:14px;max-width:280px">
           <input type="checkbox" checked onchange="MH.toast(this.checked?'Автопродление включено':'Автопродление выключено','info')">
@@ -2121,7 +2186,7 @@ odash:()=>{
 
   <div class="lk-tiles">
     <div class="lk-tile">
-      <div class="lbl">Заявок за месяц</div>
+      <div class="lbl">Запросов за месяц</div>
       <div class="val">${inc.length}</div>
       <div class="sub">из них состоялось: ${done.length}</div>
     </div>
@@ -2164,7 +2229,7 @@ odash:()=>{
   ${ML.state.myVenues.length
     ? `<div class="card" style="padding:4px 20px">${ML.state.myVenues.slice(0,2).map((v,i)=>venueRow(v,i)).join('')}</div>`
     : `<div class="card empty-state"><div class="empty-text">Объектов пока нет</div>
-       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте объект и залы — в подбор попадают именно залы.</p>
+       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте объект и залы. Объектами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
        <button class="btn btn-c" style="margin-top:16px" onclick="openWiz('venue')">Добавить объект</button></div>`}`;
 },
 
@@ -2177,8 +2242,7 @@ ovenues:()=>{
     <div class="card empty-state">
       <div class="empty-text">Ни одного объекта не добавлено</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto">
-      Визард проведёт по девяти шагам: от названия и координат до залов, реквизитов и договоров.
-      В подбор попадают залы, поэтому без них объект в выдаче не появится.</p>
+      Визард проведёт по девяти шагам регистрации объекта и залов. Объектами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
       <button class="btn btn-c" style="margin-top:18px" onclick="openWiz('venue')">Добавить объект</button>
     </div>`;
   return `
@@ -2193,15 +2257,21 @@ ovenues:()=>{
 
 /* ── Входящие запросы ── */
 oreqs:()=>{
-  const inc=venueIncoming();
+  const all=venueIncoming();
+  const inc=all.filter(x=>REQ_TAB==='archive'?ML.isClosedRow(x.obj):!ML.isClosedRow(x.obj));
+  const nA=all.filter(x=>!ML.isClosedRow(x.obj)).length, nZ=all.length-nA;
+  const tabs=`<div class="rq-tabs"><button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${nA})</button>
+    <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${nZ})</button></div>`;
   const orders=bonusOrdersBlock(ownVenue().name);
   if(!inc.length) return `
     <h1 class="page-title">Входящие запросы</h1>
-    <div class="card empty-state"><div class="empty-text">Запросов пока нет</div></div>
+    ${all.length?tabs:''}
+    <div class="card empty-state"><div class="empty-text">${all.length?(REQ_TAB==='archive'?'В архиве пока пусто':'Активных запросов нет'):'Запросов пока нет'}</div></div>
     ${orders}`;
   return `
   <h1 class="page-title">Входящие запросы</h1>
   <p class="page-sub">Групповые запросы пользователей. Контакты пользователя объекту не передаются</p>
+  ${tabs}
   <div class="card" style="padding:0;overflow:hidden">
    <div class="dscroll"><table class="dtbl">
     <thead><tr><th>ID запроса</th><th>Дата</th><th>Мероприятие</th><th>Человек</th><th>Статус</th><th>Действие</th></tr></thead>
@@ -2210,6 +2280,7 @@ oreqs:()=>{
   </div>
   <div class="dm-note" style="margin-top:16px">Отчёт по состоявшимся мероприятиям с ID запросов приходит
   в конце отчётного периода одним платежом.</div>
+  <div class="dm-note" style="margin-top:16px">Отметки сторон разошлись или мероприятие сорвалось? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
   ${orders}`;
 },
 
@@ -2221,26 +2292,25 @@ ostats:()=>{
   const own=ownVenue(), st=ML.venueStats(OWN_VENUE_ID);
   return `
   <h1 class="page-title">Статистика</h1>
-  <p class="page-sub">Как карточка ${esc(own.name)} работает в подборе</p>
+  <p class="page-sub">Эффективность карточки ${esc(own.name)}</p>
   <div class="lk-tiles">
     <div class="lk-tile"><div class="lbl">Просмотры карточки</div><div class="val">${st.views}</div>
-      <div class="sub">показы в выдаче подбора</div></div>
+      <div class="sub">показы в выдаче</div></div>
     <div class="lk-tile"><div class="lbl">Запросов</div><div class="val coral">${st.requests}</div>
       <div class="sub">доведено до отдела продаж</div></div>
     <div class="lk-tile"><div class="lbl">Конверсия в запросы</div><div class="val">${st.conversion}%</div>
       <div class="sub">от числа просмотров</div></div>
-    <div class="lk-tile"><div class="lbl">Доходят до мероприятия</div><div class="val">${st.toEvent}%</div>
-      <div class="sub">состоялось ${st.done} из ${st.requests}</div></div>
+    <div class="lk-tile"><div class="lbl">Реализовано</div><div class="val">${st.toEvent}%</div>
+      <div class="sub">состоявшихся мероприятий</div></div>
     <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
       <div class="sub">оплачено баллами бонусной программы</div></div>
   </div>
   <div class="card">
     <div class="section-label" style="margin-bottom:12px">Как читать эти числа</div>
     <p style="font-size:13.5px;line-height:1.65;color:var(--sm)">
-    Объект узнаёт о просмотре карточки только в момент получения запроса: до этого пользователь
-    остаётся анонимным, а его контакты не передаются. Просмотры — агрегированная статистика ресурса,
-    она нужна, чтобы понимать, доходит ли карточка до отдела продаж. Конверсия считается от просмотров,
-    доля состоявшихся — от полученных запросов.</p>
+    Просмотры и клики — агрегированная статистика платформы по карточкам ваших объектов и залов,
+    она нужна, чтобы понимать общую эффективность размещения. Конверсия: соотношение просмотров
+    и запросов. В блоке «Реализовано» показана доля состоявшихся мероприятий от числа полученных запросов.</p>
   </div>`;
 },
 
@@ -2273,10 +2343,9 @@ oprofile:()=>{
     <div class="form-group"><label class="form-label">Реквизиты для платежей</label>
       <textarea class="form-input" rows="3" placeholder="Расчётный счёт, банк, БИК">${esc(c.bank||'')}</textarea></div>
 
-    <div class="form-group"><label class="form-label">Подписанные договоры</label>
-      ${['Партнёрский договор с агентским вознаграждением','Договор по бонусной программе','Доп. соглашение на повышенную комиссию']
-        .map(t=>{const on=(v&&(v.contracts||[]).includes(t));
-        return `<label class="opt${on?' sel':''}"><input type="checkbox" ${on?'checked':''}><span>${esc(t)}</span></label>`;}).join('')}
+    <div class="form-group"><label class="form-label">Статус договоров</label>
+      ${contractStatusList((v&&v.contracts)||[])}
+      ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}
     </div>
     <button class="btn btn-c" onclick="MH.toast('Реквизиты сохранены','success')">Сохранить</button>
   </div>`;
@@ -2291,12 +2360,12 @@ sdash:()=>{
   const own=ownSupplier(), st=ML.supplierStats(OWN_SUPPLIER_ID);
   return `
   <h1 class="page-title">Обзор</h1>
-  <p class="page-sub">Размещение платное: один тариф по образцу пользовательского «ПРЕМИУМ»</p>
+  <p class="page-sub">Поставщик может оплатить приоритетное положение карточки в результатах выдачи.</p>
 
   <div class="lk-tiles">
     <div class="lk-tile"><div class="lbl">Услуг в карточке</div><div class="val">${list.length}</div>
       <div class="sub">в бонусной программе: ${inLoy}</div></div>
-    <div class="lk-tile"><div class="lbl">Заявок за месяц</div><div class="val">${st.requests}</div>
+    <div class="lk-tile"><div class="lbl">Запросов за месяц</div><div class="val">${st.requests}</div>
       <div class="sub">внутри одной категории</div></div>
     <div class="lk-tile"><div class="lbl">Переходов в карточку</div><div class="val">${st.views}</div>
       <div class="sub">${esc(own.name)} — в каталоге поставщиков</div></div>
@@ -2305,7 +2374,7 @@ sdash:()=>{
     <div class="lk-tile"><div class="lbl">Заказов с витрины</div><div class="val">${st.orders}</div>
       <div class="sub">оплачено баллами бонусной программы</div></div>
     <div class="lk-tile"><div class="lbl">Подписка</div><div class="val" style="font-size:19px">активна</div>
-      <div class="sub">до ${esc(SUB_UNTIL)}</div></div>
+      <div class="sub">до ${esc(subUntil())}</div></div>
   </div>
 
   <div class="btn-row" style="margin-bottom:26px">
@@ -2365,8 +2434,7 @@ sreqs:()=>`
     </tbody>
    </table></div>
   </div>
-  <div class="dm-note" style="margin-top:16px">Контакты пользователя поставщику не передаются —
-  переписка идёт через площадку.</div>
+  <div class="dm-note" style="margin-top:16px">Никакие личные контакты пользователя, кроме адреса электронной почты, не передаются поставщику платформой.</div>
   ${bonusOrdersBlock(ownSupplier().name)}`,
 
 /* ── Витрина поставщика ── */
@@ -2377,15 +2445,15 @@ ssub:()=>{
   const t=ML.TARIFFS.prem;
   return `
   <h1 class="page-title">Подписка</h1>
-  <p class="page-sub">Размещение в каталоге поставщиков платное</p>
+  <p class="page-sub">Добавление карточки в каталог бесплатно; приоритетное положение в результатах оплачивается отдельно</p>
   <div class="card" style="margin-bottom:20px">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap">
       <div>
         <div class="stat-label">Текущий тариф</div>
-        <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">Размещение поставщика</div>
+        <div style="font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-top:4px">Приоритетное размещение карточки</div>
         <div style="font-size:13px;color:var(--sx);margin-top:6px">
           ${ML.money(t.price)} в месяц · по образцу пользовательского «${esc(t.name)}» ·
-          действует до <b style="color:var(--sd)">${esc(SUB_UNTIL)}</b>
+          действует до <b style="color:var(--sd)">${esc(subUntil())}</b>
         </div>
         <label class="opt" style="margin-top:14px;max-width:280px">
           <input type="checkbox" checked onchange="MH.toast(this.checked?'Автопродление включено':'Автопродление выключено','info')">
@@ -2416,7 +2484,7 @@ ssub:()=>{
     <table class="ptbl">
       <thead><tr><th>Дата</th><th>Назначение</th><th>Сумма</th></tr></thead>
       <tbody>${['01.04.2027','01.03.2027','01.02.2027'].map(d=>`<tr>
-        <td>${d}</td><td>Размещение поставщика, месяц</td><td class="num">${ML.money(t.price)}</td></tr>`).join('')}</tbody>
+        <td>${d}</td><td>Приоритетная выдача карточки, месяц</td><td class="num">${ML.money(t.price)}</td></tr>`).join('')}</tbody>
     </table>
   </div>
   <div class="dm-note" style="margin-top:16px">Юридическим лицам доступна оплата по счёту —
@@ -2476,7 +2544,7 @@ guest:()=>`
       {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,t:'Найдите',d:'Используйте фильтры и карту'},
       {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,t:'Сравните',d:'Чеклист поможет выбрать'},
       {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,t:'Свяжитесь',d:'Запросите предложение'},
-      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,t:'Забронируйте',d:'Проведите мероприятие'},
+      {e:`<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,t:'Согласуйте бронирование вне платформы',d:'Проведите мероприятие'},
     ].map((s,i)=>`<div class="card" style="text-align:center;padding:24px;position:relative">
       <div style="position:absolute;top:12px;left:16px;font-size:11px;font-weight:700;color:var(--sp)">${i+1}</div>
       <div style="margin-bottom:10px;color:var(--c)">${s.e}</div>
@@ -2517,7 +2585,7 @@ function addHall(){
   const list=document.getElementById('hallsList');
   if(!list)return;
   const existing=list.querySelectorAll('.hall-card').length;
-  if(existing>=10){alert('Максимум 10 залов');return;}
+  if(existing>=10){MH.toast('В карточке объекта — не больше 10 залов','error');return;}
   const card=document.createElement('div');
   card.className='hall-card';
   card.dataset.hall=hallCounter;
@@ -2566,7 +2634,7 @@ function addHall(){
 function removeHall(btn){
   const card=btn.closest('.hall-card');
   const list=card.parentElement;
-  if(list.querySelectorAll('.hall-card').length<=1){alert('Необходим минимум 1 зал');return;}
+  if(list.querySelectorAll('.hall-card').length<=1){MH.toast('Необходим минимум 1 зал','error');return;}
   card.style.opacity='0';card.style.transform='translateX(-20px)';card.style.transition='all .3s';
   setTimeout(()=>{card.remove();renumberHalls();},300);
 }
@@ -2662,7 +2730,11 @@ document.addEventListener('click',e=>{
   const _page=_sp.get('page');
   // ?role=owner — старое имя роли объекта, оставлено ради ссылок из index.html
   const _alias={owner:'venue',venue:'venue',supplier:'supplier',user:'user',guest:'guest'};
-  const _want=_alias[_role]||(sess.role==='venue'?'venue':sess.role==='supplier'?'supplier':null);
+  const _sessRole=MH.sessionRole();
+  /* Роли — отдельные аккаунты: кабинет открывается в роли сессии. Ссылка
+     с другой ?role= (сервисная панель, отчёт) входит в демо-аккаунт этой роли. */
+  if(_alias[_role]&&_alias[_role]!=='guest'&&_alias[_role]!==_sessRole){MH.demoRole(_alias[_role],_page);return;}
+  const _want=_alias[_role]||_sessRole;
   if(_want&&NAVS[_want]){
     currentRole=_want;
     currentPage=NAVS[_want][0].id;

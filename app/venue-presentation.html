@@ -232,7 +232,7 @@ function render(){
 
   root.innerHTML = `
   <div class="bar">
-    <button class="btn pri" onclick="window.print()">Печать или PDF</button>
+    <button class="btn pri" onclick="window.print()">Скачать PDF</button>
     <a class="btn" href="compare.html">Вернуться в сравнение</a>
     <a class="btn" href="search.html">К подбору</a>
   </div>
@@ -251,8 +251,8 @@ function render(){
   ${ads}
   ${cards}
 
-  <div class="foot-note">Стоимость указана по данным объектов на дату подготовки файла и не является офертой.
-  Залы с ценой «по договорённости» обсуждаются напрямую с отделом продаж объекта.</div>`;
+  <div class="foot-note">Ориентировочная стоимость может быть указана на основе данных, предоставленных менеджерами объекта. Предложение не является офертой.
+  Любые цены обсуждаются и утверждаются напрямую с отделом продаж.</div>`;
 }
 
 render();

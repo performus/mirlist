@@ -107,6 +107,8 @@ button{font-family:inherit;cursor:pointer;}
   padding:16px 20px;margin-bottom:10px;box-shadow:var(--sh-sm);}
 .faq-item h3{font-size:14.5px;font-weight:700;color:var(--slate-deep);margin-bottom:7px;}
 .faq-item p{font-size:13px;line-height:1.65;color:var(--slate-muted);}
+.faq-item a{color:var(--coral);font-weight:600;}
+.faq-item a:hover{text-decoration:underline;text-underline-offset:3px;}
 
 @media(max-width:900px){
   .plans{grid-template-columns:1fr;}
@@ -137,19 +139,32 @@ const IC_NO  = '<svg width="15" height="15" fill="none" viewBox="0 0 16 16"><pat
    на страницу тарифов четвёртой колонкой. */
 const ORDER = ML.plans().map(t => t.key);
 const NOTES = {
-  start: 'Посмотреть, что есть на площадке',
-  biz:   'Рабочий набор для подбора площадок',
-  prem:  'Когда подбор — это поток мероприятий',
+  start: 'Для разовых задач или знакомства с платформой',
+  biz:   'Рабочий инструмент для подбора залов',
+  prem:  'Для потоковой работы в организации мероприятий',
 };
 let PERIOD = 'month';   // month | half | year
 
 /* ── человекочитаемые значения строк сравнения ── */
 function filtersLabel(t){
   const f = t.filters;
-  if (f === 'all') return 'все, включая рассадку и TWIN';
-  if (f === 'all-except-seating-twin') return 'все, кроме рассадки и TWIN';
-  if (Array.isArray(f)) return 'категории, город, гости';
+  if (f === 'all') return 'все';
+  if (f === 'all-except-seating-roomsplit') return 'все, кроме фильтра по схемам рассадки';
+  if (Array.isArray(f)) return 'категории залов, город, кол-во гостей';
   return '—';
+}
+/* Доступ к группе фильтров на тарифе — по полю filters, как в подборе.
+   БИЗНЕС: все, кроме рассадки и разбивки номеров на SNGL/TWIN; ПРЕМИУМ: все. */
+function canFilter(t, g){
+  const f = t.filters;
+  if (f === 'all') return true;
+  if (f === 'all-except-seating-roomsplit') return g !== 'seats' && g !== 'twin' && g !== 'sngl';
+  return Array.isArray(f) && f.includes(g);
+}
+function seatsLabel(t){ return canFilter(t, 'seats') ? 'есть' : null; }
+function roomsLabel(t){
+  const s = canFilter(t, 'sngl'), w = canFilter(t, 'twin');
+  return s && w ? 'SNGL и TWIN' : s ? 'SNGL' : w ? 'TWIN' : null;
 }
 function presLabel(t){
   if (!t.presentation) return null;
@@ -166,9 +181,11 @@ function bonusLabel(t){
 
 const ROWS = [
   ['Фильтры подбора',        t => filtersLabel(t)],
-  ['Залов в сравнении',      t => t.compare === Infinity ? 'без ограничения' : String(t.compare)],
+  ['Дополнительные фильтры по возможностям рассадки участников', t => seatsLabel(t)],
+  ['Возможность подбора объекта по количеству номеров SNGL и TWIN', t => roomsLabel(t)],
+  ['Объектов в сравнении',   t => t.compare === Infinity ? 'без ограничения' : String(t.compare)],
   ['Презентации',            t => presLabel(t)],
-  ['Полная информация по объекту', t => t.fullInfo ? 'адрес, оснащение, рассадка' : null],
+  ['Полная информация по объекту', t => t.fullInfo ? 'точный адрес, оснащение залов, схемы рассадки участников' : null],
   ['Групповые запросы',      t => groupLabel(t)],
   ['Блэк-лист объектов',     t => t.blacklist ? 'есть' : null],
   ['Начисление баллов',      t => bonusLabel(t)],
@@ -238,9 +255,8 @@ function render(){
 
   document.getElementById('root').innerHTML = `
   <div class="hero">
-    <h1>Подбор площадок под ваш объём</h1>
-    <p>Размещение для объектов бесплатное — платит тот, кто ищет. Чем больше мероприятий,
-    тем нужнее фильтры по рассадке, групповые запросы и презентации.</p>
+    <h1>Тарифы МАЙСЛИСТ</h1>
+    <p>Подбирайте залы для мероприятий быстрее и точнее.</p>
     <div class="periods">
       <button class="${PERIOD==='month'?'on':''}" onclick="setPeriod('month')">Месяц</button>
       <button class="${PERIOD==='half'?'on':''}" onclick="setPeriod('half')">Полгода${saveBadge('half')}</button>
@@ -250,19 +266,20 @@ function render(){
 
   <div class="plans">${plans}</div>
 
+  <!-- REMOVED BY CLIENT: таблица «Что входит в тарифы» дублирует карточки тарифов
   <h2 class="sec-title">Что входит в тарифы</h2>
   <div class="panel"><div class="tscroll"><table class="cmp">
-    <thead><tr><th>Возможность</th>${head}</tr></thead>
-    <tbody>${body}</tbody>
+    <thead><tr><th>Возможность</th>\${head}</tr></thead>
+    <tbody>\${body}</tbody>
   </table></div></div>
+  -->
 
-  <div class="note">Тариф меняется в любой момент: при понижении лишние залы автоматически
-  убираются из сравнения до нового лимита. Оплата по счёту для юрлиц — счёт и закрывающие
-  документы формируются после выбора периода.</div>
+  <div class="note">Тариф можно изменить в любой момент. При переходе на более низкий уровень лимиты снижаются соответственно: в списке сравнения окажется только то количество объектов, которое позволяет выбранный вами тариф. При выбранной опции «Оплата по счёту для юрлиц» счёт и закрывающие
+  документы формируются после окончания оплаченного периода.</div>
 
   <div class="faq">
     <h2 class="sec-title">Частые вопросы</h2>
-    ${faq().map(f => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`).join('')}
+    ${faq().map(f => `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${faqText(f)}</p></div>`).join('')}
   </div>`;
 }
 
@@ -275,21 +292,32 @@ function saveBadge(period){
   return `<span class="off">−${off}%</span>`;
 }
 
+/* Текст ответа экранируется целиком, ссылки ставятся поверх по точной фразе. */
+function faqText(f){
+  let h = esc(f.a);
+  (f.links || []).forEach(([text, href]) => { h = h.replace(esc(text), `<a href="${href}">${esc(text)}</a>`); });
+  return h;
+}
 function faq(){
   const b = ML.TARIFFS.biz, p = ML.TARIFFS.prem, s = ML.TARIFFS.start;
   return [
     { q: 'Сколько стоит размещение объекта?',
-      a: 'Размещение бесплатное. Объект платит фиксированную сумму только за состоявшееся мероприятие — '
-       + ML.FEE_TIERS.filter(x => x.fee).map(x => ML.money(x.fee) + ' за ' + x.label.toLowerCase()).join(', ') + '.' },
+      a: 'Размещение информации о залах и объектах бесплатное. Объект платит фиксированную сумму только '
+       + 'за состоявшееся мероприятие. Размер такого платежа рассчитывается исходя из минимального количества '
+       + 'участников и не превышает суммарной стоимости одной чашки кофе для каждого из них.',
+      links: [['Размещение информации о залах и объектах', 'list-venue.html']] },
     { q: 'Что именно закрыто на «' + s.name + '»?',
       a: 'Доступны только категории объектов, город и количество гостей. Схемы рассадки, стоимость, '
-       + 'проживание и удобства закрыты, в сравнение помещается ' + s.compare + ' зала, презентации и групповые запросы недоступны.' },
+       + 'проживание и удобства закрыты, в сравнение помещаются залы ' + s.compare + ' ' + ML.plural(s.compare, ['объекта', 'объектов', 'объектов']) + ', презентации и групповые запросы недоступны.' },
     { q: 'Чем «' + p.name + '» отличается от «' + b.name + '»?',
-      a: 'Открываются фильтры по схемам рассадки и TWIN, в сравнении ' + p.compare + ' залов вместо ' + b.compare
+      a: 'Открываются фильтры по схемам рассадки и возможностям размещения в номерах SNGL/TWIN, в сравнении ' + p.compare + ' ' + ML.plural(p.compare, ['объект', 'объекта', 'объектов']) + ' вместо ' + b.compare
        + ', презентация собирается без рекламного блока, появляется блэк-лист, а баллы начисляются с коэффициентом ×' + p.bonusRate.toLocaleString('ru') + '.' },
     { q: 'Как работают баллы?',
-      a: 'Часть агентского вознаграждения возвращается баллами за состоявшиеся мероприятия и отзывы. '
-       + 'Потратить их можно на услуги объектов и поставщиков внутри ресурса и на подписку.' },
+      a: 'Бонусные баллы начисляются пользователям за состоявшиеся мероприятия. '
+       + 'Вознаграждение можно потратить на платформе в разделе Поставщики. Баллы также начисляются за отзывы '
+       + 'о залах, объектах и подрядчиках. Изучить условия начисления и возможности использования баллов '
+       + 'можно в разделе Бонусы.',
+      links: [['разделе Поставщики', 'suppliers.html'], ['разделе Бонусы', 'bonus.html']] },
   ];
 }
 

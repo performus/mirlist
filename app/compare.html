@@ -94,15 +94,22 @@ button{font-family:inherit;cursor:pointer;}
 .rh-seat{display:inline-flex;align-items:center;gap:6px;}
 
 /* ── прокрутка таблицы стрелками ── */
-.cmp-nav{display:flex;align-items:center;gap:8px;margin:0 0 10px;}
+.cmp-nav{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 12px;}
 .cmp-arrow{
-  width:36px;height:36px;flex-shrink:0;border-radius:50%;
-  border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);
+  width:44px;height:44px;flex-shrink:0;border-radius:50%;
+  border:none;background:var(--coral);color:#fff;box-shadow:var(--sh-coral, 0 4px 14px rgba(232,132,106,.28));
   display:flex;align-items:center;justify-content:center;transition:all .2s;
 }
-.cmp-arrow:hover:not(:disabled){border-color:var(--coral);color:var(--coral);}
-.cmp-arrow:disabled{opacity:.35;cursor:default;}
-.cmp-nav-hint{font-size:12px;color:var(--slate-muted);}
+.cmp-arrow:hover:not(:disabled){background:var(--coral-hover);transform:translateY(-1px);}
+.cmp-arrow:disabled{background:var(--white);color:var(--slate-pale);box-shadow:none;border:1.5px solid rgba(197,227,225,.6);cursor:default;}
+.cmp-nav-hint{font-size:12.5px;color:var(--slate-muted);margin-right:auto;}
+/* п.28: общая шапка объекта над его залами */
+.ch-grp{margin:-12px -16px 12px;padding:8px 16px;min-height:36px;background:var(--aqua-pale);
+  border-bottom:2px solid var(--aqua-3);display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:visible;}
+.ch-grp a{font-size:13px;font-weight:700;color:var(--slate-deep);}
+.ch-grp a:hover{color:var(--coral);}
+.ch-grp span{font-size:11.5px;color:var(--slate-muted);}
+.cmp .gstart{border-left:2px solid var(--aqua-3);}
 .tscroll:focus-visible{outline:2px solid var(--coral);outline-offset:2px;}
 .cmp-stars{color:#F0B95A;letter-spacing:1px;}
 .rowhead{
@@ -197,6 +204,7 @@ button{font-family:inherit;cursor:pointer;}
 .fl{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-muted);margin:16px 0 7px;}
 .fl:first-child{margin-top:0;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fl-sub{display:block;font-size:12px;color:var(--slate-muted);margin:0 0 5px;}
 .fi{
   width:100%;padding:10px 14px;border-radius:var(--r-sm);
   border:1.5px solid rgba(197,227,225,.5);background:var(--bg);
@@ -291,7 +299,7 @@ function buildRows() {
   rows.push(
     { g: 'Условия' },
     ['Аренда за день',    h => h.priceDay ? ML.money(h.priceDay) : 'по договорённости'],
-    ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'не сдаётся почасово'],
+    ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'Нет почасовой аренды'],
     ['Номерной фонд объекта', (h, v) => (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
     ['Точный план пространства', h => h.plan ? 'есть' : 'нет'],
     ['Рейтинг объекта',   (h, v) => `${v.rating} (${v.reviews})`],
@@ -308,7 +316,7 @@ function render() {
   const root = document.getElementById('root');
 
   const head = `<div class="crumbs">
-      <a href="search.html">Подбор площадок</a><span class="sep">→</span><span class="cur">Сравнение залов</span>
+      <a href="search.html">Подбор залов</a><span class="sep">→</span><span class="cur">Сравнение залов</span>
     </div>`;
 
   /* Гостю сравнение недоступно целиком: показываем экран с объяснением
@@ -330,39 +338,49 @@ function render() {
   }
 
   const rows = buildRows();
+  /* Залы одного объекта — подряд, в порядке первого появления объекта. */
+  const order = [];
+  ML.compareHalls().forEach(h => { if (!order.includes(h.venueId)) order.push(h.venueId); });
+  halls.sort((a, b) => order.indexOf(a.venueId) - order.indexOf(b.venueId));
   const venues = halls.map(h => ML.hallVenue(h));
+  const gpos = halls.map((h, i) => ({
+    first: i === 0 || halls[i - 1].venueId !== h.venueId,
+    last: i === halls.length - 1 || halls[i + 1].venueId !== h.venueId,
+  }));
+  const gsize = (vid) => halls.filter(h => h.venueId === vid).length;
 
   const cols = halls.map((h, i) => {
-    const v = venues[i];
-    return `<th class="colhead">
+    const v = venues[i], g = gpos[i];
+    return `<th class="colhead${g.first ? ' gstart' : ''}">
+      <div class="ch-grp${g.first ? ' first' : ''}${g.last ? ' last' : ''}">${g.first
+        ? `<a href="venue.html?id=${v.id}">${esc(v.name)}</a><span>${gsize(v.id)} ${ML.plural(gsize(v.id), ['зал', 'зала', 'залов'])}</span>` : ''}</div>
       <div class="ch-img"><img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy"></div>
       <a class="ch-name" href="hall.html?id=${h.id}">${esc(h.name)}</a>
-      <a class="ch-venue" href="venue.html?id=${v.id}">${esc(v.name)}</a>
       <button class="ch-remove" onclick="removeHall(${h.id})">Убрать</button>
     </th>`;
   }).join('');
 
   const body = rows.map(r => {
-    if (r.g) return `<tr class="grp-row"><th class="rowhead grp">${esc(r.g)}</th>${halls.map(() => '<td></td>').join('')}</tr>`;
+    if (r.g) return `<tr class="grp-row"><th class="rowhead grp">${esc(r.g)}</th>${halls.map((h, i) => `<td class="${gpos[i].first ? 'gstart' : ''}"></td>`).join('')}</tr>`;
     const [label, fn] = r.raw ? [r.raw, r.fn] : r;
     return `<tr><th class="rowhead">${r.raw ? label : esc(label)}</th>${halls.map((h, i) => {
       const val = fn(h, venues[i]);
-      const dim = val === '—' || val === 'нет' || val === 'не сдаётся почасово';
-      return `<td class="${dim ? 'dim' : ''}">${val}</td>`;
+      const dim = val === '—' || val === 'нет' || val === 'Нет почасовой аренды';
+      return `<td class="${dim ? 'dim' : ''}${gpos[i].first ? ' gstart' : ''}">${val}</td>`;
     }).join('')}</tr>`;
   }).join('');
 
-  const limitTxt = t.compare === Infinity ? 'без ограничения' : `до ${t.compare} ${ML.plural(t.compare, ['зала','залов','залов'])}`;
+  const limitTxt = t.compare === Infinity ? 'без ограничения' : `до ${t.compare} ${ML.plural(t.compare, ['объекта','объектов','объектов'])}`;
 
   root.innerHTML = head + `
   <div class="dhead">
     <div>
       <h1 class="d-title">Сравнение залов</h1>
-      <div class="d-limit">Тариф <b>«${esc(t.name)}»</b> — ${limitTxt}. Сейчас: <b>${halls.length}</b>.</div>
+      <div class="d-limit">Тариф <b>«${esc(t.name)}»</b> — ${limitTxt}. Сейчас: <b>${ML.compareVenueCount()}</b>.</div>
     </div>
     <div class="d-actions">
       <button class="btn" onclick="clearAll()">Очистить список</button>
-      <button class="btn" ${t.presentation ? '' : 'disabled title="Недоступно на тарифе «СТАРТ»"'} onclick="openPresentation()">Сформировать презентацию</button>
+      <button class="btn${t.presentation ? '' : ' locked'}" ${t.presentation ? '' : 'title="Доступно с тарифа «БИЗНЕС»"'} onclick="openPresentation()">Сформировать презентацию</button>
       <button class="btn pri" onclick="openRequest()">Отправить запрос</button>
     </div>
   </div>
@@ -370,18 +388,18 @@ function render() {
   ${!t.presentation ? `<div class="note">
       <span>Выгрузка презентаций недоступна на тарифе <b>«СТАРТ»</b>.
       На «БИЗНЕС» файл собирается с рекламным блоком, на «ПРЕМИУМ» — без него.</span>
-      <a class="btn sm" href="pricing.html">Тарифы</a></div>` : ''}
+      <a class="btn sm" href="pricing.html" ${MH.payAttr('biz', 'Выгрузка презентации')}>Перейти на «БИЗНЕС»</a></div>` : ''}
 
   ${MH.seatLegend()}
 
   <div class="cmp-nav">
-    <button class="cmp-arrow" id="cmpPrev" onclick="cmpScroll(-1)" aria-label="Прокрутить влево">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <button class="cmp-arrow" id="cmpNext" onclick="cmpScroll(1)" aria-label="Прокрутить вправо">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
     <span class="cmp-nav-hint" id="cmpHint"></span>
+    <button class="cmp-arrow" id="cmpPrev" onclick="cmpScroll(-1)" aria-label="Прокрутить таблицу влево">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="cmp-arrow" id="cmpNext" onclick="cmpScroll(1)" aria-label="Прокрутить таблицу вправо">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
 
   <div class="tscroll" id="tscroll" tabindex="0" role="region" aria-label="Таблица сравнения залов">
@@ -433,7 +451,12 @@ function bindCmpScroll() {
 }
 
 function removeHall(id) { ML.toggleCompare(id); render(); }
-function clearAll() { ML.clearCompare(); MH.toast('Список сравнения очищен', 'info'); render(); }
+function clearAll() {
+  const n = ML.state.compare.size;
+  MH.confirmDialog('Очистить сравнение?',
+    `Из таблицы будут убраны все залы — <b>${n}</b> ${ML.plural(n, ['зал', 'зала', 'залов'])} из ${ML.compareVenueCount()} ${ML.plural(ML.compareVenueCount(), ['объекта', 'объектов', 'объектов'])}. Отменить это действие нельзя.`,
+    'Очистить', () => { ML.clearCompare(); MH.toast('Список сравнения очищен', 'info'); render(); });
+}
 
 /* ══════════════════════════════════════════════
    МОДАЛКИ
@@ -461,7 +484,7 @@ function closeModal() {
 /* ── презентация ── */
 function openPresentation() {
   const t = ML.tariff();
-  if (!t.presentation) { MH.toast('Выгрузка презентаций доступна с тарифа «БИЗНЕС»', 'error'); return; }
+  if (!t.presentation) { MH.paywall('biz', 'Выгрузка презентации'); return; }
   const halls = ML.compareHalls();
   const venues = [...new Set(halls.map(h => h.venueId))];
   const params = ML.filtersSummary(ML.loadFilters());
@@ -469,18 +492,18 @@ function openPresentation() {
   modal('Презентация сформирована', `
     <p>В файл вошли <b>${halls.length}</b> ${ML.plural(halls.length, ['зал','зала','залов'])}
     из <b>${venues.length}</b> ${ML.plural(venues.length, ['объекта','объектов','объектов'])}
-    с полной информацией, фото и картой.</p>
+    с полной информацией, фото и точкой на карте.</p>
     <table class="mtbl">
       <tr><th>Залов в файле</th><td>${halls.length}</td></tr>
-      <tr><th>Шаблон</th><td>Корпоративный шаблон заказчика</td></tr>
+      <!-- REMOVED BY CLIENT: строка «Шаблон» в окне презентации | <tr><th>Шаблон</th><td>Корпоративный шаблон заказчика</td></tr> -->
       <tr><th>Рекламный блок</th><td>${t.presentation === 'ads'
         ? 'включён (тариф «БИЗНЕС»)' : 'отсутствует (тариф «ПРЕМИУМ»)'}</td></tr>
-      <tr><th>Параметры подбора в файле</th><td>${params.length ? esc(params.join(' · ')) : 'фильтры не задавались'}</td></tr>
+      <tr><th>Параметры подбора</th><td>${params.length ? esc(params.join(' · ')) : 'фильтры не задавались'}</td></tr>
     </table>
-    <div class="mnote">Печатная версия открывается отдельной страницей — оттуда её можно
-    отправить на печать или сохранить в PDF средствами браузера.</div>`,
+    <div class="mnote">Презентацию можно
+    скачать в PDF.</div>`,
     `<button class="btn" onclick="closeModal()">Закрыть</button>
-     <a class="btn pri" href="venue-presentation.html">Открыть презентацию</a>`);
+     <a class="btn pri" href="venue-presentation.html">Скачать презентацию в PDF</a>`);
 }
 
 /* ── групповой запрос ── */
@@ -499,26 +522,25 @@ function openRequest() {
   // лимит тарифа проверяет сама модель
   const chk = ML.canGroupRequest(objs.length);
   if (!chk.ok) {
-    modal('Групповой запрос недоступен',
-      `<p>${esc(chk.reason)}.</p>
-       <p>Сейчас в сравнении ${objs.length} ${ML.plural(objs.length, ['объект','объекта','объектов'])}.
-       Уберите лишние залы или повысьте тариф.</p>`,
-      `<button class="btn" onclick="closeModal()">Закрыть</button>
-       <a class="btn pri" href="pricing.html">Перейти к тарифам</a>`);
+    // п.6: недоступно на тарифе — единый пейвол
+    MH.paywall(ML.tariff().key === 'biz' ? 'prem' : 'biz',
+      `${chk.reason}. Сейчас в сравнении ${objs.length} ${ML.plural(objs.length, ['объект','объекта','объектов'])}`);
     return;
   }
 
   modal('Групповой запрос', `
-    <label class="fl">Запрос уйдёт в отделы продаж</label>
+    <label class="fl">Будет направлен в отделы продаж следующих объектов</label>
     <div class="obj-list">${objs.map(o => `<div class="obj">
       <b>${esc(o.venue.name)}</b>
       <span>${o.halls.map(h => esc(h.name)).join(', ')}</span>
     </div>`).join('')}</div>
 
-    <label class="fl">Параметры мероприятия</label>
+    <label class="fl">Детали</label>
     <div class="row2">
-      <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты">
-      <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек">
+      <div><label class="fl-sub" for="rqDates">Даты и время проведения</label>
+        <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты"></div>
+      <div><label class="fl-sub" for="rqGuests">Количество участников</label>
+        <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек"></div>
     </div>
 
     <label class="fl">Сопроводительное письмо</label>
@@ -528,8 +550,7 @@ function openRequest() {
     </div>
     <textarea class="fi" id="rqLetter" placeholder="Текст письма"></textarea>
 
-    <div class="mnote">Контакты пользователя объектам не передаются. Дальнейшая переписка идёт
-    через площадку — история запроса остаётся в личном кабинете.</div>`,
+    <div class="mnote">Кроме рабочего адреса электронной почты никакие контакты не передаются.</div>`,
     `<button class="btn" onclick="closeModal()">Отмена</button>
      <button class="btn pri" onclick="sendRequest()">Отправить запрос</button>`);
 }
