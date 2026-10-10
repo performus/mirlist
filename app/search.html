@@ -64,8 +64,10 @@ a { text-decoration:none; color:inherit; }
 button { font-family:inherit; cursor:pointer; }
 h1,h2,h3 { font-weight:700; }
 
-@keyframes pageIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-.page-wrap { animation: pageIn .5s ease both; }
+/* Конец анимации — transform:none: иначе обёртка остаётся отдельным слоем, и выдвижная
+   панель фильтров (position:fixed внутри неё) уходит под затемнение и шапку. */
+@keyframes pageIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+.page-wrap { animation: pageIn .5s ease backwards; }   /* backwards: после анимации transform не остаётся */
 
 /* ══════════════════════════════════════════════
    CONTROL BAR — параметры запроса
@@ -407,7 +409,6 @@ h1,h2,h3 { font-weight:700; }
 .fd-paywall::after { content:''; position:absolute; inset:0; z-index:2; }
 .fd-paywall .fd-lock { color:var(--coral); }
 .fd-paywall:hover .fd-lock { text-decoration:underline; text-underline-offset:3px; }
-.fd-pricenote { margin-top:10px; font-size:11.5px; line-height:1.5; color:var(--slate-muted); }
 .fd-mini.locked input { background:var(--bg); }
 .fd-note {
   margin:14px 18px 16px; padding:12px 14px;
@@ -636,13 +637,6 @@ h1,h2,h3 { font-weight:700; }
 }
 .res-empty button:hover { background:var(--coral-hover); }
 
-.res-note-unused {
-  margin-top:16px; padding:13px 16px;
-  background:var(--white); border:1px solid rgba(197,227,225,.3);
-  border-radius:var(--r-md);
-  font-size:11.5px; line-height:1.6; color:var(--slate-muted);
-}
-
 /* ══════════════════════════════════════════════
    MAP
    ══════════════════════════════════════════════ */
@@ -774,7 +768,7 @@ h1,h2,h3 { font-weight:700; }
   /* фильтры уезжают в выдвижную панель */
   .fd-panel {
     position:fixed; top:0; left:0; bottom:0;
-    width:min(340px,88vw); border-radius:0; z-index:600;
+    width:min(340px,88vw); border-radius:0; z-index:700;
     transform:translateX(-100%);
     transition:transform .35s cubic-bezier(.22,1,.36,1);
     box-shadow:0 8px 40px rgba(53,78,99,.18);
@@ -782,7 +776,7 @@ h1,h2,h3 { font-weight:700; }
   .fd-panel.open { transform:translateX(0); }
   .fd-body { max-height:calc(100vh - 62px); }
   .fd-backdrop {
-    position:fixed; inset:0; z-index:599;
+    position:fixed; inset:0; z-index:690;
     background:rgba(53,78,99,.35); backdrop-filter:blur(4px);
     opacity:0; pointer-events:none; transition:opacity .3s;
   }
@@ -791,6 +785,27 @@ h1,h2,h3 { font-weight:700; }
   .cb-field input, .cb-field select { min-width:0; width:100%; }
   .cb-field { flex:1 1 132px; }
 }
+/* Вид «На карте» (по умолчанию при открытии «Площадок»): карта на всю ширину,
+   фильтры выезжают по кнопке «Фильтр» — так же, как на мобильном. */
+body.map-view .grid3.map-mode { grid-template-columns:minmax(0,1fr); }
+body.map-view .filter-toggle { display:flex; }
+body.map-view .fd-close { display:flex; }
+body.map-view .fd-panel {
+  position:fixed; top:0; left:0; bottom:0;
+  width:min(340px,88vw); border-radius:0; z-index:700;
+  transform:translateX(-100%);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 8px 40px rgba(53,78,99,.18);
+}
+body.map-view .fd-panel.open { transform:translateX(0); }
+body.map-view .fd-body { max-height:calc(100vh - 62px); }
+body.map-view .fd-backdrop {
+  position:fixed; inset:0; z-index:690;
+  background:rgba(53,78,99,.35); backdrop-filter:blur(4px);
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+body.map-view .fd-backdrop.open { opacity:1; pointer-events:auto; }
+
 @media(max-width:560px) {
   .res-count { font-size:18px; }
   .hc { flex:0 0 178px; }
@@ -879,7 +894,7 @@ h1,h2,h3 { font-weight:700; }
       </div>
       <div class="map-canvas" id="mapCanvas">
         <div class="map-hint" id="mapHint" hidden><b>Все объекты на карте</b>Примените хотя бы один фильтр —
-          появится список залов по объектам.</div>
+          станет доступен вид «Списком» с залами по объектам.</div>
         <div class="map-scale" id="mapScale"></div>
         <div class="map-card" id="mapCard" hidden></div>
         <div class="map-zoom">
@@ -914,8 +929,12 @@ let F = ML.loadFilters();   // выборка переживает уход на
 /* Вид отображения держим в sessionStorage: возврат с карточки объекта
    не должен сбрасывать выбранный режим. */
 let VIEW = (() => {
-  try { return sessionStorage.getItem('ml_search_view') === 'map' ? 'map' : 'list'; }
-  catch (e) { return 'list'; }
+  const nav = ((performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}).type;
+  if (nav === 'back_forward' || nav === 'reload') {
+    try { const v = sessionStorage.getItem('ml_search_view'); if (v) return v === 'list' ? 'list' : 'map'; } catch (e) { /* приватный режим */ }
+  }
+  const q = new URLSearchParams(location.search);
+  return q.get('view') === 'list' || ['city', 'people', 'guests', 'type'].some(k => q.get(k)) ? 'list' : 'map';
 })();
 let HOVER = null;                 // id объекта, подсвеченного на карте
 let SORT = 'rel';
@@ -1050,12 +1069,10 @@ function renderFilters() {
     (F.halls || []).filter(r => r.seating || +r.min).length);
 
   // Стоимость
-  // п.18: подсказка про «по договорённости» — под фильтром цены
   h += fgroup('price', 'Стоимость аренды зала',
-    (canUse('priceDay')
+    canUse('priceDay')
       ? dualPrice()
-      : payWrap('priceDay', `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b> →</div>`))
-    + '<div class="fd-pricenote">Залы с ценой «по договорённости» остаются в выдаче всегда.</div>',
+      : payWrap('priceDay', `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b> →</div>`),
     (F.priceDay[0] > 0 || F.priceDay[1] < 200000) ? 1 : 0);
 
   // Группы удобств — список берём из ML.FEATURE_GROUPS / ML.FEATURES
@@ -1411,6 +1428,12 @@ function applyView() {
   document.getElementById('viewList').disabled = start;
   document.getElementById('viewList').title = start ? 'Список появится после применения фильтра' : '';
   document.getElementById('mapHint').hidden = !start;
+  document.body.classList.toggle('map-view', view === 'map');
+  if (view !== 'map') {   // панель фильтров снова в колонке — закрываем выдвижной режим
+    document.getElementById('filterDrawer').classList.remove('open');
+    document.getElementById('fdBackdrop').classList.remove('open');
+    document.getElementById('filterToggle').classList.remove('open');
+  }
 }
 
 function zoom(dir) {

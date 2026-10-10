@@ -633,7 +633,7 @@ function goSearch(){
   F.people = +document.getElementById('sPeople').value || 0;
   F.eventType = document.getElementById('sEvent').value;
   ML.saveFilters(F);
-  MH.go('search.html');
+  MH.go('search.html?view=list');   // поиск с главной — сразу список; просто «Площадки» открываются картой
 }
 function goCity(city){
   const F = ML.loadFilters();
