@@ -544,6 +544,10 @@ const MH = (() => {
         font-size: 13px; line-height: 1.65; color: #8A9DAA;
         max-width: 190px; margin-bottom: 20px;
       }
+      /* Описание — ровно две строки без переносов по дефису (дефисы неразрывные) */
+      .mh-ft-brand p.mh-ft-desc {
+        max-width: none; white-space: nowrap;
+      }
       .mh-ft-contacts { display: flex; flex-direction: column; gap: 8px; }
       .mh-ft-contact {
         display: flex; align-items: center; gap: 8px;
@@ -606,7 +610,7 @@ const MH = (() => {
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
             <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="20" style="display:block"></div>
-            <p>B2B-платформа для ивент-менеджеров, MICE-агентств и их подрядчиков.</p>
+            <p class="mh-ft-desc">B2B‑платформа для ивент‑менеджеров,<br>MICE‑агентств и их подрядчиков.</p>
             <div class="mh-ft-contacts">
               <a class="mh-ft-contact" href="mailto:info@micelist.ru">${ICON_MAIL} info@micelist.ru</a>
               <a class="mh-ft-contact" href="tel:+79166704905">${ICON_PHONE} +79166704905 (Алексей)</a>
