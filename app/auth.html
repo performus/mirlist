@@ -175,10 +175,7 @@ function render(){
       <input class="fi" id="fMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
     <div class="fg"><label for="fPass">Пароль</label>
       <input class="fi" id="fPass" type="password" placeholder="Ваш пароль" autocomplete="current-password"></div>
-    <button class="forgot" onclick="forgot()">Забыли пароль?</button>
-    ${MH.protoNote(`Демо-аккаунты: почта <b>demo@micelist.ru</b>, пароль зависит от роли —
-      <code>user1234</code> пользователь, <code>venue1234</code> площадка, <code>supp1234</code> поставщик.
-      Один адрес в трёх ролях — три разных аккаунта.`)}`;
+    <button class="forgot" onclick="forgot()">Забыли пароль?</button>`;
 
   document.getElementById('root').innerHTML = `
   <div class="head">
@@ -433,7 +430,6 @@ function drawForgot(){
       <div class="modal-b">
         <p style="margin-bottom:12px">Ссылка отправлена на <b>${esc(FG.mail)}</b>. Новый пароль будет установлен
           только для роли «${esc(MH.ROLE_NAMES[FG.role])}» — пароли других ролей этой почты не изменятся.</p>
-        ${MH.protoNote('Письма в прототипе не уходят, поэтому шаг из письма показан здесь же: задайте новый пароль.')}
         <div class="fg"><label for="fgPass">Новый пароль</label>
           <input class="fi" id="fgPass" type="password" placeholder="Не короче ${PW_MIN} символов" autocomplete="new-password"></div>
       </div>

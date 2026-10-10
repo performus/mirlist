@@ -340,20 +340,6 @@ const MH = (() => {
       .ml-ad-frame { position: relative; outline: 2px solid #E8C9BC; outline-offset: -2px; }
       .ml-ad-frame > .ml-ad-pin { position: absolute; top: 10px; right: 10px; z-index: 3; }
 
-      /* Сервисные пояснения прототипа — не контент сайта */
-      .proto-note {
-        position: relative; margin: 12px 0; padding: 12px 14px 11px;
-        border: 1.5px dashed #B4C3CC; border-radius: 12px; background: rgba(244,247,248,.85);
-        font-family: 'Onest', system-ui, sans-serif; font-size: 12.5px; line-height: 1.55; color: #6B8191;
-      }
-      .proto-note-l {
-        display: inline-block; margin-right: 8px; padding: 1px 7px; border-radius: 50px;
-        background: #E3EAEE; color: #5E7688; vertical-align: 1px;
-        font-size: 9.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
-      }
-      .proto-note b { color: #46627A; }
-      .proto-note code { font-size: 11.5px; background: #E9EEF1; padding: 1px 5px; border-radius: 4px; }
-
       /* Модальное окно сайта: подтверждения и пейвол */
       .mh-dlg-ovl {
         position: fixed; inset: 0; z-index: 9500; padding: 20px;
@@ -1058,11 +1044,7 @@ const MH = (() => {
   /** Пометка «Реклама» — одинаковая для баннеров и мест в выдаче. */
   function adMark(cls) { injectNavCSS(); return `<span class="ml-ad${cls ? ' ' + cls : ''}">Реклама</span>`; }
 
-  /** Сервисный текст прототипа: объясняет работу демо, а не является контентом сайта. */
-  function protoNote(html, style) {
-    injectNavCSS();
-    return `<div class="proto-note"${style ? ` style="${style}"` : ''}><span class="proto-note-l">Пояснение</span>${html}</div>`;
-  }
+
 
   /* ══════════════════════════════════════════════════════════════════
      ГАЛЕРЕЯ ФОТО С ЛАЙТБОКСОМ
@@ -1453,11 +1435,8 @@ const MH = (() => {
       .mh-seg-i svg { width: 14px; height: 14px; flex-shrink: 0; }
       .mh-seg-i:hover { background: #2E4252; color: #fff; }
       .mh-seg-i.on { background: #E98667; color: #fff; font-weight: 600; }
-      .mh-demo-note { margin-left: auto; font-size: 10.5px; color: #5E7688; }
-      .mh-demo .proto-note-l { background: #34495A; color: #C2D2DC; margin: 0; }
       @media (max-width: 900px) {
         .mh-demo { padding: 6px 14px; gap: 6px 14px; }
-        .mh-demo-note { margin-left: 0; width: 100%; }
       }
       @media (max-width: 560px) {
         .mh-seg-i span { display: none; }
@@ -1481,13 +1460,11 @@ const MH = (() => {
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${x.ic}</svg>
          <span>${x.l}</span>
        </a>`).join('');
-    return `<div class="mh-demo proto-note-host" id="mh-demo">
-      <span class="proto-note-l">Пояснение</span>
+    return `<div class="mh-demo" id="mh-demo">
       <span class="mh-demo-l">Уровень доступа</span>
       <div class="mh-demo-g">${lv}</div>
-      <span class="mh-demo-l">Роль (демо-аккаунт)</span>
+      <span class="mh-demo-l">Роль</span>
       <div class="mh-seg">${rl}</div>
-      <span class="mh-demo-note">Сервисная панель прототипа — в рабочей версии её нет: роль у аккаунта одна, тариф меняется оплатой</span>
     </div>`;
   }
 
@@ -1575,7 +1552,7 @@ const MH = (() => {
   return {
     getSession, setSession, clearSession, renderNav, init, toast, go,
     renderFooter, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
-    sessionFor, logout, demoRole, buyPremium, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark, protoNote,
+    sessionFor, logout, demoRole, buyPremium, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
     getFavs, toggleFav, isFav, feedback,
     isLocked, lock, blurOnly, lockBar, lockScreen,
     seatIcon, seatIconLabel, seatLegend,

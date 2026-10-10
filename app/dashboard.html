@@ -1409,8 +1409,7 @@ function wfield(f){
         <span>${esc(o)}</span></label>`).join('')}</div>${H}</div>`;
     }
     case 'contracts-ro':
-      return `<div class="wf">${L}${contractStatusList(v||[])}
-        ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}</div>`;
+      return `<div class="wf">${L}${contractStatusList(v||[])}</div>`;
     case 'features':
       // четыре группы удобств строго по ML.FEATURE_GROUPS
       return ML.FEATURE_GROUPS.map(g=>{
@@ -1435,7 +1434,6 @@ function wfield(f){
                :'<span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span>'}</div>
         <input type="text" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value">
         <div class="hint">Без координат объект не появится на карте подбора.</div>
-        ${MH.protoNote('Когда подключим 2ГИС, адрес будет подставляться по точке автоматически. Пока координаты можно поправить вручную.')}
       </div>`;
     }
     case 'photo':
@@ -1834,7 +1832,7 @@ function shopPage(owner){
     </tr>`).join('')}</tbody>
    </table></div>
   </div>
-  ${MH.protoNote('На боевом сервисе позицию публикует модератор — в прототипе кнопка «Опубликовать» заменяет этот шаг, чтобы витрину было видно со стороны пользователя.','margin-top:16px')}`
+`
    : `<div class="card empty-state"><div class="empty-text">На витрине пока пусто</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте позицию — она появится в разделе
       «Мои баллы» у пользователей после публикации.</p></div>`}`;
@@ -2345,7 +2343,6 @@ oprofile:()=>{
 
     <div class="form-group"><label class="form-label">Статус договоров</label>
       ${contractStatusList((v&&v.contracts)||[])}
-      ${MH.protoNote('Статус договоров площадка не меняет: в боевой версии он приходит из CRM.')}
     </div>
     <button class="btn btn-c" onclick="MH.toast('Реквизиты сохранены','success')">Сохранить</button>
   </div>`;
