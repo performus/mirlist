@@ -266,26 +266,52 @@ test('лимит сравнения по объектам: на СТАРТ (2 о
   assert.strictEqual(third.need, 'biz', 'пейвол предлагает БИЗНЕС');
 });
 
-test('архив: строка закрыта, если обе стороны отметили «состоялось», объект отклонил или пользователь отменил', () => {
+test('архив (R2 стр.25): у пользователя — сразу после его отметки «состоялось», у площадки — после её отметки', () => {
   const { ML } = load();
   const reqs = ML.state.requests;
-  // тестовые данные: в активных нет состоявшихся
-  ML.activeRequests().forEach(q => ML.splitRequest(q).active.forEach(o => assert.ok(!ML.bothConfirmed(o), q.id)));
   const q = reqs.find(x => x.id === 'RQ-260714-0031');
   const live = q.objects.find(o => o.venueId === 1);
   assert.strictEqual(ML.isClosedRow(live), false);
   ML.setStatus(q.id, 1, 'done', { guests: 120 });
-  assert.strictEqual(ML.isClosedRow(live), false, 'отметил только пользователь — ещё активен');
+  assert.strictEqual(ML.isClosedRow(live), true, 'пользователь отметил — у него в архиве');
+  assert.strictEqual(ML.waitingVenue(live), true, 'статус «Ждёт подтверждения площадки»');
+  assert.strictEqual(ML.accrualFor(q, live).state, 'waiting', 'баллы — после подтверждения площадкой');
+  assert.strictEqual(ML.isClosedRow(live, 'venue'), false, 'у площадки ещё активен');
   ML.venueMarkDone(q.id, 1, 120);
-  assert.strictEqual(ML.isClosedRow(live), true, 'обе стороны — в архиве');
+  assert.strictEqual(ML.isClosedRow(live, 'venue'), true, 'площадка отметила — у неё в архиве');
+  assert.strictEqual(ML.waitingVenue(live), false);
+  assert.strictEqual(ML.accrualFor(q, live).state, 'done', 'баллы начислены');
+  // отклонение объектом и отмена пользователем — без изменений: закрывают строку у обеих сторон
   assert.ok(ML.venueDecline(q.id, 11, 'Нет свободных дат'));
-  assert.strictEqual(q.objects.find(o => o.venueId === 11).status, 'declined');
-  assert.strictEqual(ML.splitRequest(q).active.length, 0);
-  assert.ok(ML.archivedRequests().some(x => x.id === q.id));
+  const dec = q.objects.find(o => o.venueId === 11);
+  assert.ok(ML.isClosedRow(dec) && ML.isClosedRow(dec, 'venue'));
   assert.ok(!ML.activeRequests().some(x => x.id === q.id), 'все строки закрыты — запрос целиком в архиве');
   const q2 = reqs.find(x => x.id === 'RQ-260703-0018');
   ML.setStatus(q2.id, 7, 'cancelled', { reason: 'Передумали' });
-  assert.strictEqual(ML.isClosedRow(q2.objects.find(o => o.venueId === 7)), true, 'отмена пользователем — в архив');
+  const can = q2.objects.find(o => o.venueId === 7);
+  assert.ok(ML.isClosedRow(can) && ML.isClosedRow(can, 'venue'), 'отмена пользователем — в архив у обеих сторон');
+});
+
+test('запрос без дат или участников не создаётся (R2 стр.19); у тестовых запросов даты и участники есть', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  ML.state.requests.forEach(r => { assert.ok(String(r.dates || '').trim(), r.id + ' даты'); assert.ok(+r.guests > 0, r.id + ' участники'); });
+  [101, 401].forEach(id => ML.toggleCompare(id));
+  const n = ML.state.requests.length;
+  assert.strictEqual(ML.createRequest('Т', '', { guests: 50 }), null, 'без дат');
+  assert.strictEqual(ML.createRequest('Т', '', { dates: '01.11.2026' }), null, 'без участников');
+  assert.strictEqual(ML.createRequest('Т', '', { dates: '01.11.2026', guests: 0 }), null, 'ноль участников');
+  assert.strictEqual(ML.createDirectRequest([101], { dates: '', guests: 10 }), null, 'прямой без дат');
+  assert.strictEqual(ML.createDirectRequest([101], { dates: '01.11.2026' }), null, 'прямой без участников');
+  assert.strictEqual(ML.state.requests.length, n, 'ничего не создано');
+  assert.strictEqual(ML.requestFieldsError({ guests: 5 }).field, 'dates');
+  assert.strictEqual(ML.requestFieldsError({ dates: 'x' }).field, 'guests');
+  const ok = ML.createRequest('Т', '', { dates: '01.11.2026', guests: 50 });
+  assert.ok(ok && ok.dates === '01.11.2026' && +ok.guests === 50);
+  const d = ML.createDirectRequest([102], { dates: '02.11.2026', guests: 20 });
+  assert.ok(d);
+  assert.strictEqual(ML.repeatRequest(ok.id, { dates: '', guests: 50 }), null, 'повтор без дат');
+  assert.strictEqual(ML.updateRequest(ok.id, { guests: 0 }), false, 'корректировка: ноль участников');
+  assert.strictEqual(ML.createSupplierRequest([1], { dates: '01.11.2026' }), null, 'поставщику без участников');
 });
 
 test('ПРЕМИУМ на 6 месяцев за баллы: списание, активация, продление и нехватка баллов', () => {

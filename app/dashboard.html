@@ -502,6 +502,8 @@ button{font-family:inherit;cursor:pointer;}
 .dcell{padding:8px 2px;border:1.5px solid rgba(197,227,225,.4);border-radius:8px;background:var(--w);font-size:12.5px;color:var(--s);transition:all .15s;}
 .dcell:hover{border-color:var(--aq);}
 .dcell.on{background:var(--c);border-color:var(--c);color:#fff;font-weight:700;}
+.dcell.mid{background:var(--cs);border-color:var(--cs);color:var(--c8,#B14A32);font-weight:600;}
+.dcell.prev:not(.on){background:#FDF3EF;border-color:rgba(235,116,84,.25);}
 .dcell.past{opacity:.3;cursor:not-allowed;}
 
 .orow-stars{color:#F0B95A;letter-spacing:1px;}
@@ -645,7 +647,7 @@ const NAV_BADGES={
   compare:()=>ML.state.compare.size||null,
   favs:()=>ML.state.favs.size||null,
   ovenues:()=>ML.state.myVenues.length||null,
-  oreqs:()=>venueIncoming().filter(x=>!ML.isClosedRow(x.obj)).length||null,
+  oreqs:()=>venueIncoming().filter(x=>!ML.isClosedRow(x.obj,'venue')).length||null,
   oshop:()=>ML.myShopItems('venue').length||null,
   sservices:()=>ML.state.myServices.length||null,
   sshop:()=>ML.myShopItems('supplier').length||null,
@@ -757,7 +759,7 @@ function reqBlock(r, part){
   const key = r.id + ':' + (part || 'all');
   const open = RQ_OPEN.has(key);
   const sum = {};
-  rows.forEach(o => { const l = (ML.bothConfirmed(o) ? 'Состоялось, баллы начислены' : (ML.REQUEST_FLOW[o.status] || {}).label || o.status); sum[l] = (sum[l] || 0) + 1; });
+  rows.forEach(o => { const l = ML.bothConfirmed(o) ? 'Состоялось, баллы начислены' : ML.waitingVenue(o) ? 'Ждёт подтверждения площадки' : ((ML.REQUEST_FLOW[o.status] || {}).label || o.status); sum[l] = (sum[l] || 0) + 1; });
   return `<div class="rq" data-rq="${esc(r.id)}">
     <div class="rq-head">
       <div>
@@ -789,7 +791,7 @@ function reqBlock(r, part){
 
 function reqObjRow(r, o){
   const v = ML.venueById(o.venueId);
-  const flow = ML.REQUEST_FLOW[o.status] || { label: o.status };
+  const flow = ML.waitingVenue(o) ? { label: 'Ждёт подтверждения площадки' } : (ML.REQUEST_FLOW[o.status] || { label: o.status });
   const dead = o.status === 'cancelled';
   // активность каждой кнопки — только по модели
   const canRefresh   = ML.canSetStatus(o, 'cancelled');   // активна, пока объект не отменён
@@ -827,7 +829,7 @@ function accrualChip(r, o){
   if (!a) return '';
   const pts = a.pts.toLocaleString('ru') + ' Б';
   const text = a.state === 'done' ? 'начислено ' + pts
-    : a.state === 'waiting' ? pts + ' · ожидает подтверждения объекта'
+    : a.state === 'waiting' ? pts + ' — начислятся после подтверждения площадкой'
     : 'будет начислено ' + pts;
   return `<span class="acc ${a.state}">${esc(text)}</span>`;
 }
@@ -939,6 +941,7 @@ function edVals(){
 }
 
 function saveReqEdit(id){
+  if (!MH.requireRequestFields(document.getElementById('edDates'), document.getElementById('edGuests'))) return;
   const ok = ML.updateRequest(id, edVals());
   dmClose();
   MH.toast(ok ? 'Запрос скорректирован' : 'Не удалось сохранить', ok ? 'success' : 'error');
@@ -946,6 +949,7 @@ function saveReqEdit(id){
 }
 
 function repeatReq(id){
+  if (!MH.requireRequestFields(document.getElementById('edDates'), document.getElementById('edGuests'))) return;
   const req = ML.repeatRequest(id, edVals());
   dmClose();
   if (!req) { MH.toast('Все объекты в запросе отменены — повторять нечего', 'error'); return; }
@@ -972,9 +976,9 @@ function dmClose(){ document.getElementById('dmRoot').innerHTML = ''; document.r
 /* ── визард «Мероприятие состоялось» ──
    Отдельного шага «Мероприятие подтверждено» больше нет: количество участников
    и даты, которые он спрашивал, уточняются здесь, в момент отметки. */
-let WZ = { tier: 0, dates: new Set() };
+let WZ = { tier: 0, dates: new Set(), from: null, to: null };
 function markDone(reqId, venueId){
-  WZ = { tier: 0, dates: new Set() };
+  WZ = { tier: 0, dates: new Set(), from: null, to: null };
   const v = ML.venueById(venueId);
   dm('Мероприятие состоялось', `
     <p>Отметьте, что мероприятие в объекте <b>${esc(v ? v.name : '')}</b> состоялось, и уточните детали —
@@ -991,7 +995,7 @@ function markDone(reqId, venueId){
     <label class="form-label" style="margin-top:16px;display:block">Даты мероприятия</label>
     <div class="dgrid">${['пн','вт','ср','чт','пт','сб','вс'].map(d => `<div class="dg-h">${d}</div>`).join('')}
       ${dateCells()}</div>
-    <div class="dm-note" id="wzHint">Выберите один или несколько дней.</div>`,
+    <div class="dm-note" id="wzHint">Выберите первый и последний день мероприятия.</div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-c" onclick="saveDone('${esc(reqId)}',${venueId})">Отметить</button>`);
 }
@@ -1015,18 +1019,40 @@ function dateCells(){
     const key = d.toLocaleDateString('ru');
     const future = d > today;
     out += `<button class="dcell${future ? ' past' : ''}" ${future ? 'disabled' : ''}
-      data-d="${key}" onclick="pickDate(this)">${d.getDate()}</button>`;
+      data-d="${key}" data-t="${d.getTime()}" onclick="pickDate(this)" onmouseenter="hoverDate(this)" onmouseleave="hoverDate(null)">${d.getDate()}</button>`;
   }
   return out;
 }
+/* стр.74: диапазон — первый клик начало, второй конец; дни между ними закрашены.
+   Третий клик начинает новый диапазон. После первой даты при наведении виден
+   предварительный диапазон. */
 function pickDate(btn){
-  const k = btn.dataset.d;
-  if (WZ.dates.has(k)) { WZ.dates.delete(k); btn.classList.remove('on'); }
-  else { WZ.dates.add(k); btn.classList.add('on'); }
+  const t = +btn.dataset.t;
+  if (WZ.from === null || WZ.to !== null) { WZ.from = t; WZ.to = null; }
+  else { WZ.to = t; if (WZ.to < WZ.from) [WZ.from, WZ.to] = [WZ.to, WZ.from]; }
+  WZ.dates = new Set();
+  document.querySelectorAll('.dgrid .dcell').forEach(c => {
+    const ct = +c.dataset.t, hi = WZ.to === null ? WZ.from : WZ.to;
+    if (ct >= WZ.from && ct <= hi) WZ.dates.add(c.dataset.d);
+  });
+  paintDates(null);
   const h = document.getElementById('wzHint');
-  if (h) h.textContent = WZ.dates.size
-    ? 'Выбрано: ' + [...WZ.dates].join(', ')
-    : 'Выберите один или несколько дней.';
+  const list = [...WZ.dates];
+  if (h) h.textContent = !list.length ? 'Выберите первый и последний день мероприятия.'
+    : WZ.to === null ? 'Начало: ' + list[0] + '. Выберите последний день или нажмите «Отметить» для одного дня.'
+    : 'Выбрано: ' + (list.length > 1 ? list[0] + ' – ' + list[list.length - 1] + ' (' + list.length + ' ' + ML.plural(list.length, ['день', 'дня', 'дней']) + ')' : list[0]);
+}
+function hoverDate(btn){ if (WZ.from !== null && WZ.to === null) paintDates(btn ? +btn.dataset.t : null); }
+function paintDates(hoverT){
+  const a = WZ.from, b = WZ.to !== null ? WZ.to : (hoverT !== null && hoverT !== undefined ? hoverT : WZ.from);
+  const lo = Math.min(a, b), hi = Math.max(a, b);
+  document.querySelectorAll('.dgrid .dcell').forEach(c => {
+    const t = +c.dataset.t, inR = a !== null && t >= lo && t <= hi;
+    const edge = inR && (t === lo || t === hi);
+    c.classList.toggle('on', edge && (WZ.to !== null || t === a));
+    c.classList.toggle('mid', inR && !edge);
+    c.classList.toggle('prev', inR && WZ.to === null && t !== a);
+  });
 }
 function pickTier(i){
   WZ.tier = i;
@@ -1040,7 +1066,8 @@ function saveDone(reqId, venueId){
   if (!WZ.dates.size) { MH.toast('Выберите даты мероприятия', 'error'); return; }
   const tier = ML.FEE_TIERS[WZ.tier];
   const guests = tier.max === Infinity ? tier.min : tier.max;
-  const ok = ML.setStatus(reqId, venueId, 'done', { guests, dates: [...WZ.dates].join(', ') });
+  const ds = [...WZ.dates];
+  const ok = ML.setStatus(reqId, venueId, 'done', { guests, dates: ds.length > 1 ? ds[0] + ' – ' + ds[ds.length - 1] : ds[0] });
   dmClose();
   MH.toast(ok ? 'Отмечено: мероприятие состоялось' : 'Статус изменить нельзя', ok ? 'success' : 'error');
   renderPage();
@@ -1950,8 +1977,8 @@ requests:()=>{
   const tabs=`<div class="rq-tabs" role="tablist">
     <button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${ML.activeRequests().length})</button>
     <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${ML.archivedRequests().length})</button></div>`;
-  const rule=`<div class="dm-note" style="margin-bottom:16px">В архив попадают объекты запроса, по которым обе стороны отметили «Мероприятие состоялось»
-    (баллы начислены), которые отклонил объект или которые вы отменили.</div>`;
+  const rule=`<div class="dm-note" style="margin-bottom:16px">В архив попадают объекты запроса, по которым вы отметили «Мероприятие состоялось»
+    (баллы начислятся после подтверждения площадкой), которые отклонил объект или которые вы отменили.</div>`;
   if(all.length&&!list.length) return `
     <h1 class="page-title">История запросов</h1>
     <p class="page-sub">Запросы в отделы продаж и их статусы</p>${tabs}${rule}
@@ -2263,8 +2290,8 @@ ovenues:()=>{
 /* ── Входящие запросы ── */
 oreqs:()=>{
   const all=venueIncoming();
-  const inc=all.filter(x=>REQ_TAB==='archive'?ML.isClosedRow(x.obj):!ML.isClosedRow(x.obj));
-  const nA=all.filter(x=>!ML.isClosedRow(x.obj)).length, nZ=all.length-nA;
+  const inc=all.filter(x=>REQ_TAB==='archive'?ML.isClosedRow(x.obj,'venue'):!ML.isClosedRow(x.obj,'venue'));
+  const nA=all.filter(x=>!ML.isClosedRow(x.obj,'venue')).length, nZ=all.length-nA;
   const tabs=`<div class="rq-tabs"><button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${nA})</button>
     <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${nZ})</button></div>`;
   const orders=bonusOrdersBlock(ownVenue().name);

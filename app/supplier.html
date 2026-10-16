@@ -270,8 +270,8 @@ function openRequest() {
       <div class="modal-body">
         <p>Запрос уйдёт поставщику <b>${esc(s.name)}</b> (${esc(s.parent)} · ${esc(s.child)}).</p>
         <div class="row2">
-          <div><label class="fl">Даты</label><input class="fi" id="rqDates" value="14–16.10.2026"></div>
-          <div><label class="fl">Количество человек</label><input class="fi" id="rqGuests" type="number" value="120"></div>
+          <div><label class="fl" for="rqDates">Даты</label><input class="fi" id="rqDates" value="" placeholder="Например, 14–16.10.2026" aria-required="true"></div>
+          <div><label class="fl" for="rqGuests">Количество человек</label><input class="fi" id="rqGuests" type="number" min="1" value="" placeholder="Человек" aria-required="true"></div>
         </div>
         <label class="fl">Сопроводительное письмо</label>
         <textarea class="fi" id="rqLetter" placeholder="Что нужно от поставщика"></textarea>
@@ -290,6 +290,8 @@ function closeRequest() {
   document.removeEventListener('keydown', escClose);
 }
 function sendRequest() {
+  // стр.19: без дат и участников запрос не уходит
+  if (!MH.requireRequestFields(document.getElementById('rqDates'), document.getElementById('rqGuests'))) return;
   // запрос кладём в модель — иначе у поставщика не считается конверсия
   const req = ML.createSupplierRequest([S.id], {
     title: 'Запрос поставщику',

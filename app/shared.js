@@ -429,6 +429,9 @@ const MH = (() => {
         line-height: 1.5; letter-spacing: .02em; white-space: nowrap;
       }
       .ml-ad-host, .adslot { position: relative; }
+      /* Ошибка обязательного поля */
+      .mh-fbad { border-color: #D9534F !important; background: #FFF6F5 !important; }
+      .mh-ferr { margin-top: 5px; font-family: 'Onest', system-ui, sans-serif; font-size: 12px; line-height: 1.4; color: #C7463F; }
       /* Рамка объекта с выделением: 2 px в цвет акцента, скругление как у карточки */
       .ml-ad-frame { outline: 2px solid var(--c, var(--coral, #E8846A)); outline-offset: -2px; }
 
@@ -1204,6 +1207,40 @@ const MH = (() => {
       } }] });
   }
 
+  /**
+   * Обязательные поля формы: под пустым полем — сообщение, фокус — на первое незаполненное.
+   * @param {Array<{el:HTMLElement, ok:boolean, text:string}>} list
+   * @returns {boolean} всё заполнено
+   */
+  function requireFields(list) {
+    injectNavCSS();
+    let first = null;
+    list.forEach(({ el, ok, text }) => {
+      if (!el) return;
+      const holder = el.parentElement;
+      let msg = holder.querySelector(':scope > .mh-ferr');
+      el.classList.toggle('mh-fbad', !ok);
+      el.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      if (!ok) {
+        if (!msg) { msg = document.createElement('div'); msg.className = 'mh-ferr'; msg.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', msg); }
+        msg.textContent = text;
+        if (!first) first = el;
+        el.addEventListener('input', function clr() { el.classList.remove('mh-fbad'); el.setAttribute('aria-invalid', 'false'); const m = holder.querySelector(':scope > .mh-ferr'); if (m) m.remove(); el.removeEventListener('input', clr); });
+      } else if (msg) msg.remove();
+    });
+    if (first) first.focus();
+    return !first;
+  }
+  /** Даты и участники запроса — единая проверка форм запросов (стр.19). */
+  function requireRequestFields(datesEl, guestsEl) {
+    const d = String((datesEl || {}).value || '').trim();
+    const g = +String((guestsEl || {}).value || '').replace(/\s+/g, '');
+    return requireFields([
+      { el: datesEl, ok: !!d, text: 'Укажите даты мероприятия' },
+      { el: guestsEl, ok: Number.isInteger(g) && g > 0, text: 'Укажите количество участников' },
+    ]);
+  }
+
   /** Пометка «Реклама» — одинаковая для баннеров и мест в выдаче. */
   function adMark(cls) { injectNavCSS(); return `<span class="ml-ad${cls ? ' ' + cls : ''}">Реклама</span>`; }
 
@@ -1734,7 +1771,7 @@ const MH = (() => {
   return {
     getSession, setSession, clearSession, renderNav, init, toast, go,
     renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
-    sessionFor, logout, demoRole, buyPremium, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
+    sessionFor, logout, demoRole, buyPremium, requireFields, requireRequestFields, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
     getFavs, toggleFav, isFav, feedback,
     isLocked, lock, blurOnly, lockBar, lockScreen,
     seatIcon, seatIconLabel, seatLegend,

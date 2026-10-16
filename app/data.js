@@ -636,15 +636,18 @@
     requests: migrateRequests(read(K.requests, [
       {
         id: 'RQ-260714-0031', date: '14.07.2026', title: 'Конференция «Итоги полугодия», 120 чел.',
+        dates: '24–25.07.2026', guests: 120,
         objects: [{ venueId: 1, status: 'sent' }, { venueId: 11, status: 'sent' },
           { venueId: 4, status: 'done', venueDone: true, guests: 120, dates: '10.07.2026' }],
       },
       {
         id: 'RQ-260703-0018', date: '03.07.2026', title: 'Выездной тимбилдинг, 60 чел.',
+        dates: '08.08.2026', guests: 60,
         objects: [{ venueId: 7, status: 'sent' }, { venueId: 10, status: 'cancelled', reason: 'Не устроила стоимость' }],
       },
       {
         id: 'RQ-260612-0007', date: '12.06.2026', title: 'Летний корпоратив, 80 чел.',
+        dates: '20.06.2026', guests: 80,
         objects: [{ venueId: 2, status: 'reviewed', venueDone: true, guests: 80, dates: '20.06.2026' },
           { venueId: 6, status: 'declined', reason: 'Нет свободных дат' }],
       },
@@ -652,7 +655,14 @@
   };
 
   function migrateRequests(list) {
-    return (Array.isArray(list) ? list : []).map(r => Object.assign({}, r, {
+    /* Даты и участники тестовых запросов — для посетителей, у которых запросы уже сохранены без них. */
+    const SEED_REQ_FIELDS = {
+      'RQ-260714-0031': { dates: '24–25.07.2026', guests: 120 },
+      'RQ-260703-0018': { dates: '08.08.2026', guests: 60 },
+      'RQ-260612-0007': { dates: '20.06.2026', guests: 80 },
+    };
+    return (Array.isArray(list) ? list : []).map(r => Object.assign({}, r,
+      SEED_REQ_FIELDS[r.id] && !(r.dates && +r.guests) ? SEED_REQ_FIELDS[r.id] : {}, {
       objects: (r.objects || []).map(o => o.status === 'confirmed' ? Object.assign({}, o, { status: 'sent' }) : o),
     }));
   }
@@ -892,9 +902,20 @@
     return `RQ-${stamp}-${seq}`;
   }
 
+  /* стр.19: запрос без дат или количества участников не создаётся.
+     Возвращает {field, text} первой ошибки или null, если всё заполнено. */
+  function requestFieldsError(opts) {
+    opts = opts || {};
+    if (!String(opts.dates || '').trim()) return { field: 'dates', text: 'Укажите даты мероприятия' };
+    const g = +String(opts.guests || '').replace(/\s+/g, '');
+    if (!(Number.isInteger(g) && g > 0)) return { field: 'guests', text: 'Укажите количество участников' };
+    return null;
+  }
+
   /** Создаёт запрос из текущего сравнения. Возвращает объект запроса или null. */
   function createRequest(title, letter, opts) {
     opts = opts || {};
+    if (requestFieldsError(opts)) return null;
     const halls = compareHalls();
     const venueIds = [...new Set(halls.map(h => h.venueId))];
     const chk = canGroupRequest(venueIds.length);
@@ -921,6 +942,7 @@
   }
   function createDirectRequest(hallIds, opts) {
     opts = opts || {};
+    if (requestFieldsError(opts)) return null;
     const halls = (hallIds || []).map(hallById).filter(Boolean);
     if (!halls.length) return null;
     if (!canDirectRequest().ok) return null;
@@ -956,6 +978,7 @@
   /** Корректировка запроса. Отменённые объекты не воскрешаются. */
   function updateRequest(reqId, patch) {
     const r = requestById(reqId); if (!r) return false;
+    if (('dates' in patch || 'guests' in patch) && requestFieldsError(Object.assign({ dates: r.dates, guests: r.guests }, patch))) return false;
     ['title', 'letter', 'dates', 'guests'].forEach(k => { if (k in patch) r[k] = patch[k]; });
     r.updatedAt = new Date().toLocaleDateString('ru');
     persist.requests();
@@ -966,6 +989,7 @@
   function repeatRequest(reqId, opts) {
     const src = requestById(reqId); if (!src) return null;
     opts = opts || {};
+    if (requestFieldsError(opts)) return null;
     const live = src.objects.filter(o => o.status !== 'cancelled');
     if (!live.length) return null;
     const req = {
@@ -1253,18 +1277,25 @@
     return true;
   }
 
-  /* — активные и архив —
-     Строка запроса (объект группового запроса) закрыта и уходит в архив, когда:
-     обе стороны отметили «мероприятие состоялось» (баллы начислены), объект
-     отклонил запрос или пользователь его отменил. Остальные — активные. */
-  const isClosedRow = (o) => o.status === 'cancelled' || o.status === 'declined' || bothConfirmed(o);
-  /** Запрос, разложенный на активную и архивную части. */
-  const splitRequest = (r) => ({
-    active: r.objects.filter(o => !isClosedRow(o)),
-    archived: r.objects.filter(isClosedRow),
+  /* — активные и архив (стр.25) —
+     Строка запроса (объект группового запроса) уходит в архив той стороны,
+     которая сама отметила «Мероприятие состоялось»: у пользователя — после его
+     отметки (до подтверждения площадкой статус «Ждёт подтверждения площадки»,
+     баллы начислятся после подтверждения), у площадки — после её отметки.
+     Отклонение объектом и отмена пользователем закрывают строку у обеих сторон. */
+  function isClosedRow(o, side) {
+    if (o.status === 'cancelled' || o.status === 'declined') return true;
+    return side === 'venue' ? !!o.venueDone : (o.status === 'done' || o.status === 'reviewed');
+  }
+  /** Отметка пользователя есть, площадка ещё не подтвердила. */
+  const waitingVenue = (o) => (o.status === 'done' || o.status === 'reviewed') && !o.venueDone;
+  /** Запрос, разложенный на активную и архивную части (по умолчанию — для пользователя). */
+  const splitRequest = (r, side) => ({
+    active: r.objects.filter(o => !isClosedRow(o, side)),
+    archived: r.objects.filter(o => isClosedRow(o, side)),
   });
-  const activeRequests = () => state.requests.filter(r => r.objects.some(o => !isClosedRow(o)));
-  const archivedRequests = () => state.requests.filter(r => r.objects.some(isClosedRow));
+  const activeRequests = (side) => state.requests.filter(r => r.objects.some(o => !isClosedRow(o, side)));
+  const archivedRequests = (side) => state.requests.filter(r => r.objects.some(o => isClosedRow(o, side)));
 
   /** Что объект должен ресурсу за это мероприятие. */
   function venueFee(o) {
@@ -1395,6 +1426,7 @@
     opts = opts || {};
     const ids = (supplierIds || []).map(Number).filter(id => SUPPLIERS.some(s => s.id === id));
     if (!ids.length) return null;
+    if (requestFieldsError(opts)) return null;
     const chk = canGroupSupplierRequest(ids);
     if (!chk.ok) return null;
     const req = {
@@ -1460,7 +1492,7 @@
     ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,
     createSupplierRequest, venueStats, supplierStats,
     addReview, reviewsFor, reviewsLatest, reviewScore,
-    bothConfirmed, venueMarkDone, venueFee, venueDecline, isClosedRow, splitRequest, activeRequests, archivedRequests,
+    bothConfirmed, venueMarkDone, venueFee, venueDecline, isClosedRow, waitingVenue, splitRequest, activeRequests, archivedRequests, requestFieldsError,
     photoUrl: (n) => `../assets/photos/v${((n - 1) % 16) + 1}.jpg`,
     money: (n) => n > 0 ? n.toLocaleString('ru') + ' ₽' : 'по договорённости',
     plural: (n, f) => { const a = n % 10, b = n % 100; return b > 11 && b < 15 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; },

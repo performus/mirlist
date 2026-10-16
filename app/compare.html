@@ -538,9 +538,9 @@ function openRequest() {
     <label class="fl">Детали</label>
     <div class="row2">
       <div><label class="fl-sub" for="rqDates">Даты и время проведения</label>
-        <input class="fi" id="rqDates" value="14–16.10.2026" placeholder="Даты"></div>
+        <input class="fi" id="rqDates" value="" placeholder="Например, 14–16.10.2026" aria-required="true"></div>
       <div><label class="fl-sub" for="rqGuests">Количество участников</label>
-        <input class="fi" id="rqGuests" type="number" min="1" value="120" placeholder="Человек"></div>
+        <input class="fi" id="rqGuests" type="number" min="1" value="${ML.loadFilters().people || ''}" placeholder="Человек" aria-required="true"></div>
     </div>
 
     <label class="fl">Сопроводительное письмо</label>
@@ -561,6 +561,8 @@ function clearLetter() { const el = document.getElementById('rqLetter'); el.valu
 function sendRequest() {
   const halls = ML.compareHalls();
   const objCount = new Set(halls.map(h => h.venueId)).size;
+  // стр.19: без дат и участников запрос не уходит — сообщение под полем, фокус на него
+  if (!MH.requireRequestFields(document.getElementById('rqDates'), document.getElementById('rqGuests'))) return;
   const dates = (document.getElementById('rqDates').value || '').trim();
   const guests = (document.getElementById('rqGuests').value || '').trim();
   const letter = (document.getElementById('rqLetter').value || '').trim();
@@ -569,7 +571,7 @@ function sendRequest() {
     + (dates ? `, ${dates}` : '') + (guests ? `, ${guests} чел.` : '');
 
   // createRequest сам проверяет лимит, присваивает номер и очищает сравнение
-  const req = ML.createRequest(title, letter);
+  const req = ML.createRequest(title, letter, { dates, guests: +guests });
   if (!req) {
     const chk = ML.canGroupRequest(objCount);
     MH.toast(chk.reason || 'Не удалось создать запрос', 'error');
