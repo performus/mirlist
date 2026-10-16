@@ -880,6 +880,9 @@ const MH = (() => {
     if (el) renderNav(el, active);
     if (el && B2B_PAGES.some(p => p.key === active) && !document.querySelector('.mh-b2b-tabs')) {
       el.insertAdjacentHTML('afterend', b2bTabs(active));
+      /* На узком экране ряд прокручивается вбок — активный таб должен быть виден. */
+      const on = document.querySelector('.mh-b2b-tabs a.on'), row = on && on.parentElement;
+      if (on && row.scrollWidth > row.clientWidth) row.scrollLeft += on.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - on.offsetWidth) / 2;
     }
     const fel = document.getElementById('mh-footer');
     if (fel) renderFooter(fel);
