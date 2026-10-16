@@ -1533,7 +1533,10 @@ function pagerHTML(total) {
 /* Вместимость живёт и в URL — ссылкой на подбор можно поделиться. */
 function syncUrl() {
   const q = new URLSearchParams(location.search);
-  ['people', 'peopleTo', 'guests', 'view'].forEach(k => q.delete(k));
+  ['people', 'peopleTo', 'guests', 'view', 'city'].forEach(k => q.delete(k));
+  /* город и тип из ссылки с главной: после сброса они не должны вернуться при перезагрузке */
+  if (F.city) q.set('city', F.city);
+  if (!F.eventType) q.delete('type');
   if (F.people) q.set('people', F.people);
   if (F.peopleTo) q.set('peopleTo', F.peopleTo);
   const s = q.toString();
