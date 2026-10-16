@@ -336,6 +336,13 @@ test('оплата по счёту для юрлиц (R2 стр.15): ИНН с �
   assert.strictEqual(ML.payInvoice(), null, 'неоплаченных больше нет');
 });
 
+test('склонение: 1 зал, 2 зала, 5, 11–14 и 111 залов, 21 зал', () => {
+  const { ML } = load();
+  const f = ['зал', 'зала', 'залов'];
+  assert.strictEqual([1, 2, 5, 11, 12, 14, 21, 22, 111].map(n => n + ' ' + ML.plural(n, f)).join(', '),
+    '1 зал, 2 зала, 5 залов, 11 залов, 12 залов, 14 залов, 21 зал, 22 зала, 111 залов');
+});
+
 test('ПРЕМИУМ на 6 месяцев за баллы: списание, активация, продление и нехватка баллов', () => {
   const { ML, storage } = load({ ml_tariff: 'biz', ml_points: { free: 50000, locked: 0, expiring: 0, expiresAt: '' } });
   const price = ML.premiumItem().pts;

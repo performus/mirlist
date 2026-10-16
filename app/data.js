@@ -1556,7 +1556,7 @@
     bothConfirmed, venueMarkDone, venueFee, venueDecline, isClosedRow, waitingVenue, splitRequest, activeRequests, archivedRequests, requestFieldsError,
     photoUrl: (n) => `../assets/photos/v${((n - 1) % 16) + 1}.jpg`,
     money: (n) => n > 0 ? n.toLocaleString('ru') + ' ₽' : 'по договорённости',
-    plural: (n, f) => { const a = n % 10, b = n % 100; return b > 11 && b < 15 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; },
+    plural: (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; },
   };
 
 })();
