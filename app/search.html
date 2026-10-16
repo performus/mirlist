@@ -113,14 +113,6 @@ h1,h2,h3 { font-weight:700; }
   display:flex; align-items:center; justify-content:center;
 }
 .cb-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
-/* п.21: тариф — в верхней строке, отдельно от переключателя «Списком / На карте» */
-.cb-plan {
-  align-self:center; display:inline-flex; align-items:center; gap:6px;
-  padding:6px 13px; border-radius:var(--r-full); background:var(--aqua-pale);
-  font-size:12px; color:var(--slate-muted); white-space:nowrap; text-decoration:none;
-}
-.cb-plan b { color:var(--slate-deep); font-weight:700; }
-.cb-plan:hover { background:#E2F0EF; }
 /* п.17: город — поле с автоподсказкой */
 .cb-city { position:relative; }
 .cb-ac {
@@ -481,8 +473,8 @@ h1,h2,h3 { font-weight:700; }
 }
 .vb.hi { border-color:var(--coral); box-shadow:0 0 0 2px var(--coral-glow), var(--sh-lg); }
 /* п.25: реклама в выдаче */
-.vb.ml-ad-frame { outline-offset:-1px; }
-.vb-admark { display:inline-flex; vertical-align:2px; margin-left:8px; }
+/* ярлык «Реклама» в правом верхнем углу — кнопку «скрыть» сдвигаем левее */
+.vb.has-ad .vb-head { padding-right:74px; }
 /* п.22: пагинация */
 .pager { display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:20px; }
 .pager button {
@@ -825,7 +817,6 @@ body.map-view .fd-backdrop.open { opacity:1; pointer-events:auto; }
       Фильтр
       <span class="ft-count" id="ftCount">0</span>
     </button>
-    <a class="cb-plan" href="pricing.html" title="Сравнить тарифы">Тариф: <b id="cbTariff">—</b></a>
     <div class="cb-field cb-city">
       <label for="cbCity">Город</label>
       <input id="cbCity" type="text" role="combobox" autocomplete="off" placeholder="Любой город"
@@ -1268,11 +1259,12 @@ function venueBlock(x) {
   const cap = ML.venueCapacity(v);
   const promo = v.promo || {};
   const isAd = !!(promo.highlight || promo.top === 3);   // рамка — у выделенных, пометка — у них и у Топ-3
-  return `<section class="vb${HOVER === v.id ? ' hi' : ''}${promo.highlight ? ' ml-ad-frame' : ''}" data-vid="${v.id}"
+  return `<section class="vb${HOVER === v.id ? ' hi' : ''}${promo.highlight ? ' ml-ad-frame' : ''}${isAd ? ' ml-ad-host has-ad' : ''}" data-vid="${v.id}"
       onmouseenter="setHover(${v.id})" onmouseleave="setHover(null)">
+    ${isAd ? MH.adMark() : ''}
     <div class="vb-head">
       <div>
-        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>${isAd ? MH.adMark('vb-admark') : ''}
+        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
         ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
         <div class="vb-meta">
           <span>${esc(v.cat)}</span>
@@ -1563,7 +1555,6 @@ function syncBar() {
   ev.innerHTML = `<option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>` + ML.EVENT_TYPES.map(e =>
     `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
   document.getElementById('cbPeople').value = F.people || '';
-  document.getElementById('cbTariff').textContent = ML.tariff().name;
   document.getElementById('resSort').value = SORT;
 }
 

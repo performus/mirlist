@@ -144,21 +144,50 @@ const MH = (() => {
         font-family: 'Onest', system-ui, sans-serif;
       }
       .mh-logo {
-        text-decoration: none; white-space: nowrap; margin-right: 32px; flex-shrink: 0;
+        text-decoration: none; white-space: nowrap; margin-right: 24px; flex-shrink: 0;
         display: flex; align-items: center;
       }
-      .mh-logo-img { display: block; height: 34px; width: auto; }
-      @media (max-width: 860px) { .mh-logo-img { height: 30px; } }
+      .mh-logo-img { display: block; height: 44px; width: auto; }
+      @media (max-width: 860px) { .mh-logo-img { height: 36px; } }
       .mh-nav {
         display: flex; align-items: center; gap: 4px; flex: 1;
       }
-      .mh-nav a {
-        font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
-        color: #3D5A6E; padding: 8px 12px; border-radius: 6px;
+      .mh-nav a, .mh-nav-dd > button {
+        font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+        color: #3D5A6E; padding: 8px 10px; border-radius: 6px;
         text-decoration: none; white-space: nowrap; transition: color .18s, background .18s;
       }
-      .mh-nav a:hover { color: #E8846A; background: rgba(232,132,106,.06); }
-      .mh-nav a.active { color: #E8846A; }
+      .mh-nav a:hover, .mh-nav-dd > button:hover { color: #E8846A; background: rgba(232,132,106,.06); }
+      .mh-nav a.active, .mh-nav-dd > button.active { color: #E8846A; }
+      /* Меню B2B (стр.38/86): по наведению, на касании — по тапу */
+      .mh-nav-dd { position: relative; }
+      .mh-nav-dd > button {
+        display: inline-flex; align-items: center; gap: 5px; border: none; background: none; cursor: pointer;
+        font-family: inherit; white-space: nowrap;
+      }
+      .mh-nav-dd > button svg { width: 9px; height: 9px; transition: transform .18s; }
+      .mh-nav-dd.open > button svg { transform: rotate(180deg); }
+      .mh-nav-sub {
+        position: absolute; top: calc(100% + 6px); left: -6px; min-width: 210px; z-index: 700;
+        display: none; flex-direction: column; padding: 8px; border-radius: 14px; background: #fff;
+        border: 1px solid rgba(197,227,225,.6); box-shadow: 0 14px 40px rgba(53,78,99,.14);
+      }
+      .mh-nav-sub::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+      .mh-nav-dd.open .mh-nav-sub { display: flex; }
+      @media (hover: hover) { .mh-nav-dd:hover .mh-nav-sub, .mh-nav-dd:focus-within .mh-nav-sub { display: flex; } }
+      .mh-nav-sub a {
+        text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 500; padding: 9px 12px; border-radius: 9px;
+      }
+      .mh-nav-sub a.active { background: #FCEAE4; }
+      .mh-drawer .mh-drawer-dd {
+        border: none; background: none; text-align: left; cursor: pointer; font-family: inherit;
+        font-size: 14px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+        color: #3D5A6E; padding: 12px 14px; border-radius: 8px;
+      }
+      .mh-drawer .mh-drawer-dd.active { color: #E8846A; }
+      .mh-drawer-dsub { display: none; flex-direction: column; padding-left: 12px; }
+      .mh-drawer-dsub.open { display: flex; }
+      .mh-drawer-dsub a { text-transform: none !important; letter-spacing: 0 !important; font-size: 14px !important; padding: 10px 14px !important; }
       .mh-divider {
         width: 1px; height: 32px; background: #e8e0d8;
         margin: 0 20px; flex-shrink: 0;
@@ -257,7 +286,7 @@ const MH = (() => {
       .mh-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
       .mh-drawer {
-        display: none; position: fixed; top: 64px; left: 0; right: 0;
+        display: none; position: fixed; top: 64px; left: 0; right: 0; max-height: calc(100vh - 64px); overflow-y: auto;
         background: #fff; border-bottom: 1px solid #e8e0d8;
         box-shadow: 0 8px 32px rgba(53,78,99,.10);
         padding: 16px 24px 24px; z-index: 640;
@@ -285,6 +314,54 @@ const MH = (() => {
         letter-spacing: 0 !important; box-shadow: 0 3px 12px rgba(232,132,106,.28);
       }
       .mh-drawer-cta:hover { background: #d4704f !important; }
+
+      /* Значок сравнения в шапке (стр.4): виден везде, активен с двух залов */
+      .mh-cmp {
+        position: relative; display: inline-flex; align-items: center; justify-content: center;
+        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+        background: #EDF6F5; color: #354E63; text-decoration: none; transition: background .18s, color .18s;
+      }
+      .mh-cmp svg { width: 19px; height: 19px; }
+      .mh-cmp:hover { background: #FCEAE4; color: #E8846A; }
+      .mh-cmp.off { color: #9DB0BC; background: #F3F5F6; cursor: default; }
+      .mh-cmp.off:hover { background: #F3F5F6; color: #9DB0BC; }
+      .mh-cmp-n {
+        position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px;
+        border-radius: 50px; background: #E8846A; color: #fff; border: 2px solid #fff;
+        font: 700 10.5px/14px 'Onest', system-ui, sans-serif; text-align: center;
+      }
+      .mh-cmp.off .mh-cmp-n { background: #B4C3CC; }
+      .mh-cmp.off[data-tip]:hover::after {
+        content: attr(data-tip); position: absolute; top: calc(100% + 8px); right: -6px; z-index: 720;
+        width: max-content; max-width: 220px; padding: 8px 11px; border-radius: 10px;
+        background: #354E63; color: #fff; font: 500 12px/1.4 'Onest', system-ui, sans-serif; white-space: normal;
+        box-shadow: 0 8px 24px rgba(53,78,99,.2);
+      }
+      .mh-cmp.mob { display: none; margin-left: auto; margin-right: 8px; }
+      /* Плашка тарифа (стр.45) — одна отметка, у Премиума с ромбом */
+      .mh-plan {
+        display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 50px;
+        background: #EDF6F5; color: #3E596F; text-decoration: none; white-space: nowrap;
+        font: 700 11px/1.4 'Onest', system-ui, sans-serif; letter-spacing: .06em;
+      }
+      .mh-plan:hover { background: #E2F0EF; }
+      .mh-plan.prem { background: #FCEAE4; color: #E8846A; }
+      .mh-plan .mh-dia { width: 12px; height: 12px; }
+
+      /* Табы B2B-страниц: на мобильном ряд прокручивается по горизонтали */
+      .mh-b2b-tabs { background: #fff; border-bottom: 1px solid rgba(197,227,225,.45); }
+      .mh-b2b-tabs-in {
+        max-width: 1200px; margin: 0 auto; padding: 10px 24px; display: flex; gap: 6px;
+        overflow-x: auto; scrollbar-width: none;
+      }
+      .mh-b2b-tabs-in::-webkit-scrollbar { display: none; }
+      .mh-b2b-tabs a {
+        flex-shrink: 0; padding: 9px 18px; border-radius: 50px; white-space: nowrap; text-decoration: none;
+        font: 600 13.5px/1.3 'Onest', system-ui, sans-serif; color: #46627A; border: 1.5px solid rgba(197,227,225,.7); background: #fff;
+      }
+      .mh-b2b-tabs a:hover { border-color: #E8846A; color: #E8846A; }
+      .mh-b2b-tabs a.on { background: #E8846A; border-color: #E8846A; color: #fff; }
+      @media (max-width: 560px) { .mh-b2b-tabs-in { padding: 10px 14px; } }
 
       /* Меню пользователя: на мыши — по наведению, на касании — по тапу */
       .mh-umenu { position: relative; }
@@ -321,24 +398,39 @@ const MH = (() => {
       .mh-drawer-msub { display: none; flex-direction: column; }
       .mh-drawer-msub.open { display: flex; }
 
-      @media (max-width: 860px) {
+      /* Ширины: ≥1440 — всё целиком; 1240–1439 — без имени пользователя (только аватар); <1240 — бургер */
+      @media (max-width: 1439px) {
+        .mh-header { padding: 0 24px; }
+        .mh-divider { margin: 0 14px; }
+        .mh-umenu .mh-uname { display: none; }
+        .mh-umenu .mh-avatar-wrap { padding-right: 8px; }
+        .mh-right { gap: 8px; }
+        .mh-login { padding: 9px 18px; font-size: 13.5px; }
+        .mh-cta { padding: 10px 18px; font-size: 13.5px; }
+        .mh-prem { font-size: 13.5px; }
+      }
+      @media (max-width: 1239px) {
         .mh-nav { display: none !important; }
         .mh-divider { display: none !important; }
         .mh-right { display: none !important; }
-        .mh-burger { display: flex !important; }
+        .mh-burger { display: flex !important; margin-left: auto; }
+        .mh-cmp.mob + .mh-burger { margin-left: 0; }
+        .mh-cmp.mob { display: inline-flex; }
         .mh-header { padding: 0 14px; }
       }
 
       /* Пометка рекламы — одна на весь сайт */
+      /* Пометка «Реклама» — одинаковая везде: маленький ярлык в правом верхнем углу блока */
       .ml-ad {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 3px 9px; border-radius: 50px;
-        background: rgba(53,78,99,.08); color: #5E7688;
-        font-family: 'Onest', system-ui, sans-serif; font-size: 10.5px; font-weight: 700;
-        letter-spacing: .08em; text-transform: uppercase; line-height: 1.4; white-space: nowrap;
+        position: absolute; top: 10px; right: 10px; z-index: 4; pointer-events: none;
+        padding: 2px 8px; border-radius: 6px;
+        background: rgba(255,255,255,.86); color: var(--sx, #7A919F);
+        font-family: 'Onest', system-ui, sans-serif; font-size: 11px; font-weight: 500;
+        line-height: 1.5; letter-spacing: .02em; white-space: nowrap;
       }
-      .ml-ad-frame { position: relative; outline: 2px solid #E8C9BC; outline-offset: -2px; }
-      .ml-ad-frame > .ml-ad-pin { position: absolute; top: 10px; right: 10px; z-index: 3; }
+      .ml-ad-host, .adslot { position: relative; }
+      /* Рамка объекта с выделением: 2 px в цвет акцента, скругление как у карточки */
+      .ml-ad-frame { outline: 2px solid var(--c, var(--coral, #E8846A)); outline-offset: -2px; }
 
       /* Модальное окно сайта: подтверждения и пейвол */
       .mh-dlg-ovl {
@@ -394,6 +486,33 @@ const MH = (() => {
     return typeof ML !== 'undefined' && ML.tariff && ML.tariff().key === 'prem';
   }
 
+  /** Значок сравнения (стр.4). Сравнение есть у гостя и у пользователя; у площадки и поставщика — нет. */
+  const IC_CMP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"/></svg>';
+  function hasCompare(session) { return !session || sessionRole() === 'user'; }
+  function cmpHTML(mob) {
+    const n = (typeof ML !== 'undefined' && ML.state) ? ML.state.compare.size : 0;
+    const on = n >= 2;
+    const tip = 'Добавьте в сравнение хотя бы два зала';
+    return on
+      ? `<a class="mh-cmp${mob ? ' mob' : ''}" data-cmp href="compare.html" title="Сравнение" aria-label="Сравнение: ${n} ${plural(n, ['зал', 'зала', 'залов'])}">${IC_CMP}<span class="mh-cmp-n">${n}</span></a>`
+      : `<span class="mh-cmp off${mob ? ' mob' : ''}" data-cmp role="link" aria-disabled="true" data-tip="${tip}" title="${tip}" aria-label="Сравнение недоступно: ${tip.toLowerCase()}">${IC_CMP}${n ? `<span class="mh-cmp-n">${n}</span>` : ''}</span>`;
+  }
+  const plural = (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; };
+  /** Перерисовать значок после изменения сравнения — без перезагрузки страницы. */
+  function refreshCompare() {
+    document.querySelectorAll('[data-cmp]').forEach(el => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cmpHTML(el.classList.contains('mob'));
+      el.replaceWith(tmp.firstElementChild);
+    });
+  }
+  /** Плашка тарифа (стр.45): у пользователя; гостю — нет. Премиум — с ромбом, одной отметкой. */
+  function planHTML() {
+    if (typeof ML === 'undefined' || !ML.tariff || (ML.isGuest && ML.isGuest())) return '';
+    const t = ML.tariff();
+    return `<a class="mh-plan${t.key === 'prem' ? ' prem' : ''}" href="pricing.html" title="Ваш тариф — сравнить тарифы">${t.key === 'prem' ? IC_DIAMOND : ''}${esc(t.name)}</a>`;
+  }
+
   function buildRight(session) {
     if (session) {
       // Баллы рядом с кабинетом — из модели, если она подключена на странице
@@ -403,11 +522,12 @@ const MH = (() => {
       const pts = (!guest && sessionRole() === 'user' && typeof ML !== 'undefined' && ML.state && ML.state.points)
         ? ML.state.points.free : null;
       const backNext = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-      return `${guest
+      const user = sessionRole() === 'user';
+      return `${hasCompare(session) ? cmpHTML() : ''}
+      ${guest
         ? `<a class="mh-login" href="auth.html?next=${backNext}">Войти</a>`
-        : pts !== null
-        ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}
-      ${isPrem() ? `<span class="mh-prem-mark" title="Тариф «ПРЕМИУМ»">${IC_DIAMOND}</span>` : ''}
+        : `${user ? planHTML() : ''}${pts !== null
+        ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}`}
       <div class="mh-umenu" id="mh-umenu">
         <button type="button" class="mh-avatar-wrap" id="mh-ubtn" aria-haspopup="true" aria-expanded="false">
           <div class="mh-avatar">${esc(session.initials || 'АК')}</div>
@@ -419,7 +539,7 @@ const MH = (() => {
       </div>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing.html">Тарифы</a>
+    return `${cmpHTML()}<a class="mh-prem" href="pricing.html">Тарифы</a>
       <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
       <a class="mh-cta" href="auth.html?mode=signup">Регистрация</a>`;
   }
@@ -445,11 +565,33 @@ const MH = (() => {
       document.addEventListener('click', e => { if (!box.contains(e.target)) { box.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
       document.addEventListener('keydown', e => { if (e.key === 'Escape') { box.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
     }
+    const b2b = document.getElementById('mh-b2b');
+    if (b2b) {
+      const bb = b2b.querySelector('button');
+      bb.addEventListener('click', e => { e.stopPropagation(); const o = b2b.classList.toggle('open'); bb.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+      document.addEventListener('click', e => { if (!b2b.contains(e.target)) { b2b.classList.remove('open'); bb.setAttribute('aria-expanded', 'false'); } });
+    }
+    const db2b = document.getElementById('mh-drawer-b2b'), db2bs = document.getElementById('mh-drawer-b2bsub');
+    if (db2b && db2bs) db2b.addEventListener('click', () => { const o = db2bs.classList.toggle('open'); db2b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
     const dbtn = document.getElementById('mh-drawer-ubtn'), dsub = document.getElementById('mh-drawer-msub');
     if (dbtn && dsub) dbtn.addEventListener('click', () => {
       const open = dsub.classList.toggle('open');
       dbtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
+  }
+
+  /* B2B-страницы: пункт меню «B2B» и ряд табов наверху каждой из них. */
+  const B2B_PAGES = [
+    { label: 'Для площадок',    href: 'list-venue.html',     key: 'venues' },
+    { label: 'Для агентств',    href: 'for-organizers.html', key: 'agencies' },
+    { label: 'Для поставщиков', href: 'for-suppliers.html',  key: 'b2b-suppliers' },
+    { label: 'Для артистов',    href: 'for-artists.html',    key: 'b2b-artists' },
+  ];
+  /** Ряд табов B2B-страниц. Активный — текущая страница. */
+  function b2bTabs(active) {
+    injectNavCSS();
+    return `<nav class="mh-b2b-tabs" aria-label="Разделы для бизнеса"><div class="mh-b2b-tabs-in">${B2B_PAGES.map(p =>
+      `<a href="${p.href}"${p.key === active ? ' class="on" aria-current="page"' : ''}>${p.label}</a>`).join('')}</div></nav>`;
   }
 
   function renderNav(targetEl, active) {
@@ -464,14 +606,20 @@ const MH = (() => {
       { label: 'FAQ',             href: 'faq.html',       key: 'faq' },
       { label: 'О ПРОЕКТЕ',       href: 'about.html',     key: 'about' },
       { label: 'КАК ЭТО РАБОТАЕТ', href: 'how.html',      key: 'how' },
-      { label: 'ДЛЯ ПЛОЩАДОК',    href: 'list-venue.html', key: 'listvenue' },
+      { label: 'B2B', key: 'b2b', children: B2B_PAGES },
     ];
-    const navLinks = links.map(l =>
-      `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
+    const isActive = (l) => active === l.key || (l.children && l.children.some(c => c.key === active));
+    const ICD = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>';
+    const navLinks = links.map(l => l.children
+      ? `<div class="mh-nav-dd" id="mh-b2b"><button type="button"${isActive(l) ? ' class="active"' : ''} aria-haspopup="true" aria-expanded="false">${l.label}${ICD}</button>
+          <div class="mh-nav-sub" role="menu">${l.children.map(c => `<a role="menuitem" href="${c.href}"${active === c.key ? ' class="active"' : ''}>${c.label}</a>`).join('')}</div></div>`
+      : `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
     ).join('');
 
-    const drawerLinks = links.map(l =>
-      `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
+    const drawerLinks = links.map(l => l.children
+      ? `<button type="button" class="mh-drawer-dd${isActive(l) ? ' active' : ''}" id="mh-drawer-b2b" aria-expanded="false">${l.label} ▾</button>
+          <div class="mh-drawer-dsub" id="mh-drawer-b2bsub">${l.children.map(c => `<a href="${c.href}"${active === c.key ? ' class="active"' : ''}>${c.label}</a>`).join('')}</div>`
+      : `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
     ).join('');
     /* На мобильном меню пользователя раскрывается по тапу на имя внутри шторки. */
     const drawerRight = session
@@ -490,6 +638,7 @@ const MH = (() => {
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
+        ${hasCompare(session) ? cmpHTML(true) : ''}
         <button class="mh-burger" id="mh-burger" aria-label="Меню">
           <span></span><span></span><span></span>
         </button>
@@ -500,6 +649,13 @@ const MH = (() => {
       ${mountDemo()}`;
 
     document.body.classList.add('has-mh-nav');
+    if (typeof ML !== 'undefined' && !ML.__cmpHooked) {
+      ML.__cmpHooked = true;
+      ['toggleCompare', 'clearCompare', 'reloadState', 'setTariff'].forEach(k => {
+        const fn = ML[k]; if (typeof fn !== 'function') return;
+        ML[k] = function () { const res = fn.apply(this, arguments); refreshCompare(); return res; };
+      });
+    }
     bindUserMenu();
     bindDemo();
 
@@ -640,7 +796,7 @@ const MH = (() => {
           <div class="mh-ft-col">
             <h4>Документы</h4>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="#">Условия использования</a>
+            <a href="terms.html">Условия использования</a>
             <a href="#">Оферта</a>
           </div>
         </div>
@@ -652,7 +808,7 @@ const MH = (() => {
           <span>© 2026 ООО «МАЙСЛИСТ»</span>
           <div>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="#">Условия</a>
+            <a href="terms.html">Условия</a>
           </div>
         </div>
       </footer>`;
@@ -719,6 +875,9 @@ const MH = (() => {
     injectSkeletonCSS();
     const el = document.getElementById('mh-nav');
     if (el) renderNav(el, active);
+    if (el && B2B_PAGES.some(p => p.key === active) && !document.querySelector('.mh-b2b-tabs')) {
+      el.insertAdjacentHTML('afterend', b2bTabs(active));
+    }
     const fel = document.getElementById('mh-footer');
     if (fel) renderFooter(fel);
     if (!document.getElementById('mh-toasts')) {
@@ -1464,9 +1623,13 @@ const MH = (() => {
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${x.ic}</svg>
          <span>${x.l}</span>
        </a>`).join('');
+    const onHome = page === 'homepage.html' || page === '' || page === 'index.html';
+    const bgCur = heroBg();
+    const bg = onHome ? `<span class="mh-demo-l">Фон поиска</span>
+      <div class="mh-demo-g">${[1, 2, 3].map(n => `<button type="button" data-demo-bg="${n}"${bgCur === n ? ' class="on"' : ''}>${n}</button>`).join('')}</div>` : '';
     return `<div class="mh-demo" id="mh-demo">
       <span class="mh-demo-l">Уровень доступа</span>
-      <div class="mh-demo-g">${lv}</div>
+      <div class="mh-demo-g">${lv}</div>${bg}
       <span class="mh-demo-l">Роль</span>
       <div class="mh-seg">${rl}</div>
     </div>`;
@@ -1535,9 +1698,24 @@ const MH = (() => {
         location.reload();     // состояние уже в localStorage, страница перерисовывается целиком
       });
     });
+    bar.querySelectorAll('[data-demo-bg]').forEach(b => {
+      b.addEventListener('click', () => {
+        try { localStorage.setItem(HERO_BG_KEY, b.dataset.demoBg); } catch (e) { /* приватный режим */ }
+        location.href = 'homepage.html?bg=' + b.dataset.demoBg;
+      });
+    });
     restoreDemoScroll();
     demoOffset();
     window.addEventListener('resize', demoOffset);
+  }
+
+  /** Вариант подложки поиска на главной: ?bg=1|2|3, иначе выбор из сервисной панели, иначе 1. */
+  const HERO_BG_KEY = 'mh_hero_bg';
+  function heroBg() {
+    const q = +new URLSearchParams(location.search).get('bg');
+    if ([1, 2, 3].includes(q)) return q;
+    let v = 0; try { v = +localStorage.getItem(HERO_BG_KEY); } catch (e) { v = 0; }
+    return [1, 2, 3].includes(v) ? v : 1;
   }
 
   /** Демо: войти в демо-аккаунт роли и открыть его кабинет. */
@@ -1555,7 +1733,7 @@ const MH = (() => {
 
   return {
     getSession, setSession, clearSession, renderNav, init, toast, go,
-    renderFooter, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
+    renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
     sessionFor, logout, demoRole, buyPremium, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
     getFavs, toggleFav, isFav, feedback,
     isLocked, lock, blurOnly, lockBar, lockScreen,

@@ -281,7 +281,7 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 
 /* Отраслевые события: в модели их нет, правятся редактором. */
 /* Вариант подложки блока поиска: ?bg=1|2|3, по умолчанию 1. */
-const HERO_BG = (() => { const b = +new URLSearchParams(location.search).get('bg'); return [1, 2, 3].includes(b) ? b : 1; })();
+const HERO_BG = MH.heroBg();   // ?bg=1|2|3, иначе выбор в сервисной панели, иначе 1
 
 const EVENTS = [
   { date: '05.12.2026', kind: 'Выставка', name: 'Событийный туризм: регионы России — Сочи', url: 'https://example.org/events/sobytiyny-turizm-sochi' },

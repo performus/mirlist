@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Условия использования — МАЙСЛИСТ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
+  --aq:#79B9C3;--aq-p:#EDF6F5;
+  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
+  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
+  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);
+  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
+.nav{height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
+.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}
+.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
+.nav-links a:hover{color:var(--s);background:var(--aq-p);}
+.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;}
+
+.hero{padding:56px 48px 44px;background:linear-gradient(175deg,var(--cs) 0%,var(--bg) 55%);}
+.hero-label{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rf);background:var(--w);border:1px solid rgba(235,116,84,.15);font-size:12.5px;font-weight:600;color:var(--c);margin-bottom:16px;}
+.hero h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(30px,3.5vw,46px);color:var(--sd);letter-spacing:-.005em;margin-bottom:10px;}
+.hero-meta{font-size:13.5px;color:var(--sx);}
+.hero-meta span{font-weight:600;color:var(--sm);}
+
+.layout{max-width:1060px;margin:0 auto;padding:48px 48px 96px;display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;}
+
+.toc{position:sticky;top:88px;}
+.toc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sp);margin-bottom:12px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+.toc-list a{display:block;font-size:13.5px;font-weight:500;color:var(--sx);padding:7px 12px;border-radius:var(--r);transition:all .2s;border-left:2px solid transparent;}
+.toc-list a:hover{color:var(--sd);background:var(--aq-p);}
+.toc-list a.active{color:var(--c);background:var(--cs);border-left-color:var(--c);}
+
+.content{min-width:0;}
+.section{margin-bottom:52px;scroll-margin-top:96px;}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--cs);color:var(--c);font-size:12px;font-weight:700;margin-bottom:12px;}
+.section h2{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);margin-bottom:16px;line-height:1.3;}
+.section p{font-size:15px;line-height:1.75;color:var(--sm);margin-bottom:12px;}
+.section p:last-child{margin-bottom:0;}
+
+.card{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:28px 32px;margin-bottom:16px;box-shadow:var(--sh);}
+.card-title{font-size:15px;font-weight:700;color:var(--sd);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card-title svg{color:var(--c);flex-shrink:0;}
+.card p{font-size:14px;line-height:1.7;color:var(--sx);margin-bottom:0;}
+
+.data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px;}
+.data-item{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rm);padding:18px 20px;}
+.data-item-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sp);margin-bottom:6px;}
+.data-item-text{font-size:13.5px;color:var(--sm);line-height:1.6;}
+
+.rights-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.rights-list li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;color:var(--sm);line-height:1.6;}
+.rights-list li::before{content:'';flex-shrink:0;width:20px;height:20px;border-radius:6px;background:var(--cs);background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' fill='none' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 6.5l2.5 2.5 5.5-6' stroke='%23EB7454' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;margin-top:1px;}
+
+.cookie-row{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(197,227,225,.2);}
+.cookie-row:last-child{border-bottom:none;}
+.cookie-name{font-size:13.5px;font-weight:700;color:var(--sd);min-width:120px;flex-shrink:0;}
+.cookie-desc{font-size:13.5px;color:var(--sx);line-height:1.6;}
+.cookie-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-bottom:4px;}
+.cookie-tag.required{background:var(--cs);color:var(--c);}
+.cookie-tag.optional{background:var(--aq-p);color:#5a9eaa;}
+
+.contact-card{background:linear-gradient(135deg,var(--sd),var(--sm));border-radius:var(--rl);padding:36px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.contact-card h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:22px;color:#fff;margin-bottom:8px;}
+.contact-card p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.6;}
+.contact-btn{padding:13px 28px;border-radius:var(--rm);background:var(--c);color:#fff;font-family:'Onest',system-ui,sans-serif;font-size:14.5px;font-weight:600;border:none;cursor:pointer;transition:all .25s;white-space:nowrap;}
+.contact-btn:hover{background:var(--c6);transform:translateY(-1px);}
+
+.footer{background:var(--sd);color:rgba(255,255,255,.5);padding:48px 48px 28px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;max-width:1060px;margin:0 auto 32px;}
+.footer-brand p{font-size:13px;line-height:1.7;margin-top:10px;color:rgba(255,255,255,.3);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.22);margin-bottom:12px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:7px;transition:color .2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1060px;margin:0 auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.18);}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;padding:32px 24px 64px;}
+  .toc{display:none;}
+  .hero{padding:40px 24px 32px;}
+  .data-grid{grid-template-columns:1fr;}
+  .contact-card{flex-direction:column;}
+}
+@media(max-width:600px){
+  .nav{padding:0 20px;}
+  .nav-links a:not(.nav-cta){display:none;}
+  .footer{padding:32px 20px 20px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:20px;}
+}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<div class="hero">
+  <div style="max-width:1060px;margin:0 auto;">
+    <div class="hero-label">📄 Документы</div>
+    <h1>Условия использования</h1>
+    <p class="hero-meta">Редакция от <span>1 января 2026 г.</span> &nbsp;·&nbsp; Действуют для всех ролей: пользователя, площадки и поставщика</p>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <p class="toc-title">Содержание</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="active">1. Общие положения</a></li>
+      <li><a href="#s2">2. Регистрация и аккаунт</a></li>
+      <li><a href="#s3">3. Роли: пользователь, площадка, поставщик</a></li>
+      <li><a href="#s4">4. Тарифы и оплата</a></li>
+      <li><a href="#s5">5. Бонусная программа</a></li>
+      <li><a href="#s6">6. Запросы в отделы продаж</a></li>
+      <li><a href="#s7">7. Ответственность сторон</a></li>
+      <li><a href="#s8">8. Изменение условий</a></li>
+      <li><a href="#s9">9. Контакты</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <div class="content">
+
+    <div class="section" id="s1">
+      <div class="section-num">1</div>
+      <h2>Общие положения</h2>
+      <p>Настоящие Условия использования регулируют доступ к платформе МАЙСЛИСТ (micelist.ru) и работу с ней. Регистрируясь или пользуясь платформой, вы подтверждаете, что прочитали Условия и согласны с ними.</p>
+      <p>МАЙСЛИСТ — информационная платформа для подбора и сравнения залов и объектов для мероприятий, а также поставщиков услуг. Платформа не оказывает услуги бронирования и не является стороной договоров между пользователями, площадками и поставщиками.</p>
+    </div>
+
+    <div class="section" id="s2">
+      <div class="section-num">2</div>
+      <h2>Регистрация и аккаунт</h2>
+      <p>Для работы с подбором, сравнением и запросами нужна регистрация. Указывайте достоверные данные и поддерживайте их в актуальном состоянии.</p>
+      <p>Вы отвечаете за сохранность пароля и за действия, совершённые под вашим аккаунтом. Если вы подозреваете, что доступ получил кто-то другой, смените пароль и напишите в поддержку.</p>
+    </div>
+
+    <div class="section" id="s3">
+      <div class="section-num">3</div>
+      <h2>Роли: пользователь, площадка, поставщик</h2>
+      <div class="data-grid">
+        <div class="data-item"><div class="data-item-label">Пользователь</div><div class="data-item-text">Ищет и сравнивает залы, отправляет запросы в отделы продаж, получает бонусные баллы за состоявшиеся мероприятия.</div></div>
+        <div class="data-item"><div class="data-item-label">Площадка</div><div class="data-item-text">Размещает объекты и залы, получает запросы пользователей, отмечает состоявшиеся мероприятия.</div></div>
+        <div class="data-item"><div class="data-item-label">Поставщик</div><div class="data-item-text">Размещает услуги в каталоге поставщиков и получает запросы пользователей.</div></div>
+      </div>
+      <p style="margin-top:12px">Каждая роль — отдельный аккаунт. Один адрес электронной почты можно использовать в нескольких ролях, у каждой роли свой пароль.</p>
+    </div>
+
+    <div class="section" id="s4">
+      <div class="section-num">4</div>
+      <h2>Тарифы и оплата</h2>
+      <p>Объём доступных функций зависит от тарифа пользователя: «СТАРТ», «БИЗНЕС» или «ПРЕМИУМ». Состав тарифов и цены опубликованы на странице <a href="pricing.html" style="color:var(--c);font-weight:600;">Тарифы</a>.</p>
+      <p>Подписка оплачивается картой или по счёту для юридических лиц. При оплате по счёту тариф включается после поступления оплаты. Тариф можно изменить в любой момент; при переходе на более низкий уровень лимиты снижаются соответственно.</p>
+    </div>
+
+    <div class="section" id="s5">
+      <div class="section-num">5</div>
+      <h2>Бонусная программа</h2>
+      <p>Пользователям начисляются бонусные баллы за состоявшиеся мероприятия и за отзывы. Баллы за мероприятие становятся доступны после того, как и пользователь, и площадка подтвердят его проведение.</p>
+      <p>Баллы можно потратить на услуги в витрине бонусной программы и на подписку. Баллы не являются денежными средствами, не обмениваются на деньги и не выводятся. Условия программы описаны на странице <a href="bonus.html" style="color:var(--c);font-weight:600;">Бонусная программа</a>.</p>
+    </div>
+
+    <div class="section" id="s6">
+      <div class="section-num">6</div>
+      <h2>Запросы в отделы продаж</h2>
+      <p>Пользователь может отправить запрос менеджерам выбранных объектов: даты, количество участников и описание мероприятия. Площадка получает запрос и отвечает пользователю по электронной почте.</p>
+      <p>Условия, смета и бронирование обсуждаются сторонами напрямую, вне платформы. Платформа передаёт площадке только адрес электронной почты пользователя — никаких других личных данных.</p>
+    </div>
+
+    <div class="section" id="s7">
+      <div class="section-num">7</div>
+      <h2>Ответственность сторон</h2>
+      <ul class="rights-list">
+        <li>Площадки и поставщики отвечают за достоверность сведений о своих объектах, залах и услугах.</li>
+        <li>Пользователи отвечают за достоверность сведений в запросах и отметках о проведении мероприятий.</li>
+        <li>Платформа не отвечает за исполнение договорённостей, достигнутых сторонами вне платформы.</li>
+        <li>Спорные ситуации по факту мероприятия рассматриваются через раздел <a href="support.html" style="color:var(--c);font-weight:600;">Поддержка и арбитраж</a>.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s8">
+      <div class="section-num">8</div>
+      <h2>Изменение условий</h2>
+      <p>Мы можем обновлять настоящие Условия. О существенных изменениях мы уведомим вас по электронной почте или через уведомление на платформе не позднее чем за 7 дней до вступления изменений в силу.</p>
+      <p>Актуальная версия всегда доступна по адресу micelist.ru/terms. Дата последнего обновления указана в шапке документа.</p>
+    </div>
+
+    <div class="section" id="s9">
+      <div class="section-num">9</div>
+      <h2>Контакты</h2>
+      <div class="contact-card">
+        <div>
+          <h3>Есть вопросы по условиям?</h3>
+          <p>Напишите нам — ответим в течение 1 рабочего дня.</p>
+        </div>
+        <button class="contact-btn" onclick="MH.feedback()">Написать нам</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="mh-footer"></div>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('.section[id]');
+
+  function onScroll(){
+    var scrollY = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s){
+      if(s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function(l){
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  links.forEach(function(l){
+    l.addEventListener('click', function(e){
+      e.preventDefault();
+      var target = document.querySelector(l.getAttribute('href'));
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+})();
+</script>
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>MH.init();</script>
+</body>
+</html>
