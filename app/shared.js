@@ -759,7 +759,7 @@ const MH = (() => {
         font-size: 12.5px; color: #A8B8C2;
       }
       .mh-ft-bottom a {
-        color: #A8B8C2; text-decoration: none; margin-left: 20px;
+        color: #A8B8C2; text-decoration: none; margin-left: 20px; white-space: nowrap;
         transition: color .18s;
       }
       .mh-ft-bottom a:hover { color: #354E63; }
@@ -767,6 +767,8 @@ const MH = (() => {
         .mh-ft-main { grid-template-columns: 1fr 1fr; padding: 36px 20px 28px; gap: 28px; }
         .mh-ft-social-row { padding: 16px 20px 20px; }
         .mh-ft-bottom { padding: 16px 20px; flex-direction: column; gap: 10px; text-align: center; }
+        .mh-ft-bottom div { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; }
+        .mh-ft-bottom a { margin-left: 0; }
       }
       @media (max-width: 560px) {
         .mh-ft-main { grid-template-columns: 1fr; }
@@ -815,7 +817,9 @@ const MH = (() => {
           <div class="mh-ft-col">
             <h4>Документы</h4>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="terms.html">Условия использования</a>
+            <a href="terms.html">Пользовательское соглашение</a>
+            <a href="consent-personal-data.html">Согласие на обработку персональных данных</a>
+            <a href="consent-ads.html">Согласие на получение рекламы</a>
             <a href="#">Оферта</a>
           </div>
         </div>
@@ -827,7 +831,7 @@ const MH = (() => {
           <span>© 2026 ООО «МАЙСЛИСТ»</span>
           <div>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="terms.html">Условия</a>
+            <a href="terms.html">Пользовательское соглашение</a>
           </div>
         </div>
       </footer>`;
