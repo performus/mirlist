@@ -613,7 +613,7 @@
     black: 'ml_blacklist', points: 'ml_points', requests: 'ml_requests',
     myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews',
     shopItems: 'ml_shop_items', bonusOrders: 'ml_bonus_orders', supplierRequests: 'ml_supplier_requests',
-    filters: 'ml_filters', sfilters: 'ml_supplier_filters',
+    filters: 'ml_filters', sfilters: 'ml_supplier_filters', invoices: 'ml_invoices',
   };
   const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
@@ -621,6 +621,7 @@
   const state = {
     tariff: read(K.tariff, 'guest'),   // первый заход — незарегистрированный посетитель
     premUntil: read(K.premUntil, null),
+    invoices: read(K.invoices, []),
     filters: unpackFilters(read(K.filters, null)),
     myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: v.features.map(renameFeature) }) : v),
     shopItems: read(K.shopItems, []),
@@ -669,6 +670,7 @@
 
   const persist = {
     tariff: () => write(K.tariff, state.tariff),
+    invoices: () => write(K.invoices, state.invoices),
     filters: () => write(K.filters, packFilters(state.filters)),
     myVenues: () => write(K.myVenues, state.myVenues),
     shopItems: () => write(K.shopItems, state.shopItems),
@@ -866,6 +868,7 @@
       очистить сравнение, а объект state в памяти остался прежним. */
   function reloadState() {
     state.tariff = read(K.tariff, state.tariff);
+    state.invoices = read(K.invoices, state.invoices);
     state.compare = new Set(read(K.compare, []));
     state.favs = new Set(read(K.favs, []));
     state.blacklist = new Set(read(K.black, []));
@@ -1466,6 +1469,63 @@
       conversion: views ? +((requests + orders) / views * 100).toFixed(1) : 0 };
   }
 
+  /* — оплата по счёту для юрлиц (R2 стр.15) —
+     Настоящего выставления счетов нет: счёт хранится в localStorage со статусом
+     «ожидает оплаты», тариф включается, когда счёт отмечен оплаченным
+     (в демо — кнопка «Счёт оплачен» в сервисной панели). */
+  const BILL_PERIODS = {
+    month: { months: 1,  l: 'месяц',     total: t => t.price },
+    half:  { months: 6,  l: '6 месяцев', total: t => t.priceHalf },
+    year:  { months: 12, l: 'год',       total: t => t.priceYear },
+  };
+  /** ИНН: 10 цифр (организация) или 12 (ИП) с контрольными цифрами. */
+  function innValid(inn) {
+    const s = String(inn || '').replace(/\s+/g, '');
+    if (!/^(\d{10}|\d{12})$/.test(s)) return false;
+    const d = s.split('').map(Number);
+    const ctl = (w) => w.reduce((a, k, i) => a + k * d[i], 0) % 11 % 10;
+    if (s.length === 10) return ctl([2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[9];
+    return ctl([7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[10] && ctl([3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[11];
+  }
+  /** Ошибки реквизитов счёта: [{ field, text }], пусто — всё заполнено верно. */
+  function invoiceErrors(f) {
+    f = f || {};
+    const inn = String(f.inn || '').replace(/\s+/g, '');
+    const kpp = String(f.kpp || '').replace(/\s+/g, '');
+    const out = [];
+    if (!String(f.org || '').trim()) out.push({ field: 'org', text: 'Укажите название организации' });
+    if (!/^(\d{10}|\d{12})$/.test(inn)) out.push({ field: 'inn', text: 'ИНН — 10 цифр у организации или 12 у ИП' });
+    else if (!innValid(inn)) out.push({ field: 'inn', text: 'Проверьте ИНН: контрольная цифра не совпадает' });
+    if (kpp && !/^\d{9}$/.test(kpp)) out.push({ field: 'kpp', text: 'КПП — 9 цифр' });
+    if (!String(f.addr || '').trim()) out.push({ field: 'addr', text: 'Укажите юридический адрес' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(f.email || '').trim())) out.push({ field: 'email', text: 'Укажите e-mail, на который отправить счёт' });
+    return out;
+  }
+  /** Выставить счёт: тариф не меняется, пока счёт не оплачен. */
+  function createInvoice(o) {
+    o = o || {};
+    const t = TARIFFS[o.plan], per = BILL_PERIODS[o.period];
+    if (!t || !t.price || !per || invoiceErrors(o).length) return null;
+    const inv = {
+      no: String(1041 + state.invoices.length), date: fmtDmy(new Date()),
+      plan: o.plan, period: o.period, sum: per.total(t),
+      org: String(o.org).trim(), inn: String(o.inn).replace(/\s+/g, ''), kpp: String(o.kpp || '').replace(/\s+/g, ''),
+      addr: String(o.addr).trim(), email: String(o.email).trim(), status: 'pending',
+    };
+    state.invoices.unshift(inv); persist.invoices();
+    return inv;
+  }
+  const invoices = () => state.invoices.slice();
+  const pendingInvoices = () => state.invoices.filter(i => i.status === 'pending');
+  /** Отметить счёт оплаченным (по номеру, иначе последний неоплаченный) и включить тариф. */
+  function payInvoice(no) {
+    const inv = no ? state.invoices.find(i => i.no === String(no) && i.status === 'pending') : pendingInvoices()[0];
+    if (!inv) return null;
+    inv.status = 'paid'; inv.paidAt = fmtDmy(new Date()); persist.invoices();
+    setTariff(inv.plan);
+    return inv;
+  }
+
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
@@ -1475,6 +1535,7 @@
     VENUES, SUPPLIERS, SHOP,
     state, persist,
     tariff, setTariff,
+    BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
     venueById, allHalls, hallById, hallVenue,
     hallCapacity, venueCapacity, venueMinPrice, venueRooms, seatingByKey, hallsSatisfy,
     emptyFilters, filterVenues, facetCount,

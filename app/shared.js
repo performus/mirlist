@@ -1649,7 +1649,9 @@ const MH = (() => {
     const page = location.pathname.split('/').pop();
     const role = new URLSearchParams(location.search).get('role');
     const lv = DEMO_LEVELS.map(x =>
-      `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('');
+      `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('')
+      + ((typeof ML !== 'undefined' && ML.pendingInvoices && ML.pendingInvoices().length)
+        ? '<button type="button" data-demo-invoice>Счёт оплачен</button>' : '');
     const sessRole = getSession() ? sessionRole() : '';
     const onRole = page === 'dashboard.html' ? (role || sessRole) : sessRole;
     /* Роли — отдельные аккаунты. Переключатель входит в демо-аккаунт нужной
@@ -1733,6 +1735,14 @@ const MH = (() => {
         ML.setTariff(b.dataset.demoLevel);
         saveDemoScroll();
         location.reload();     // состояние уже в localStorage, страница перерисовывается целиком
+      });
+    });
+    bar.querySelectorAll('[data-demo-invoice]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (typeof ML === 'undefined' || !ML.payInvoice) return;
+        ML.payInvoice();
+        saveDemoScroll();
+        location.reload();
       });
     });
     bar.querySelectorAll('[data-demo-bg]').forEach(b => {

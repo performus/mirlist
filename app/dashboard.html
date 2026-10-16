@@ -727,12 +727,19 @@ const subUntil = () => ML.state.premUntil || '01.05.2027';
 const SESS_NAME = () => (window._mhSess && window._mhSess.name) || 'Анна Козлова';
 const SESS_INI  = () => (window._mhSess && window._mhSess.initials) || 'АК';
 
-/* История платежей в модели не хранится — показываем текущий тариф по его же цене. */
+/* История платежей в модели не хранится — показываем текущий тариф по его же цене.
+   Счета для юрлиц (R2 стр.15) — из модели, сверху: неоплаченный — «ожидает оплаты». */
 function payments(){
+  const inv = ML.invoices().map(i => {
+    const pend = i.status === 'pending';
+    return { date: i.date, rub: i.sum, pending: pend,
+      html: `<b style="color:var(--sd)">Счёт № ${esc(i.no)}</b> — <span style="color:${pend ? 'var(--c)' : 'var(--sx)'};font-weight:600">${pend ? 'ожидает оплаты' : 'оплачен'}</span>
+        <div style="font-size:12px;color:var(--sx);margin-top:3px">Подписка «${esc(ML.TARIFFS[i.plan].name)}», ${esc(ML.BILL_PERIODS[i.period].l)} · ${esc(i.org)}</div>` };
+  });
   const t = ML.tariff();
-  if (!t.price) return [];
-  return ['01.04.2027','01.03.2027','01.02.2027'].map(d =>
-    ({ date: d, what: `Подписка «${t.name}», месяц`, rub: t.price }));
+  if (!t.price) return inv;
+  return inv.concat(['01.04.2027','01.03.2027','01.02.2027'].map(d =>
+    ({ date: d, what: `Подписка «${t.name}», месяц`, rub: t.price })));
 }
 
 function setReqSort(k){ REQ_SORT = k; renderPage(); }
@@ -2193,7 +2200,7 @@ billing:()=>{
     <table class="ptbl">
       <thead><tr><th>Дата</th><th>Назначение</th><th>Сумма</th></tr></thead>
       <tbody>${payments().map(p=>`<tr>
-        <td>${esc(p.date)}</td><td>${esc(p.what)}</td><td class="num">${ML.money(p.rub)}</td></tr>`).join('')}</tbody>
+        <td>${esc(p.date)}</td><td>${p.html || esc(p.what)}</td><td class="num">${ML.money(p.rub)}</td></tr>`).join('')}</tbody>
     </table>
   </div>
   <div class="dm-note" style="margin-top:16px">Юридическим лицам доступна оплата по счёту: счёт и закрывающие документы

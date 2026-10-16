@@ -314,6 +314,28 @@ test('запрос без дат или участников не создаёт
   assert.strictEqual(ML.createSupplierRequest([1], { dates: '01.11.2026' }), null, 'поставщику без участников');
 });
 
+test('оплата по счёту для юрлиц (R2 стр.15): ИНН с контрольной цифрой, счёт ждёт оплаты, оплата включает тариф', () => {
+  const { ML } = load({ ml_tariff: 'start' });
+  assert.ok(ML.innValid('7707083893'), 'ИНН организации, 10 цифр');
+  assert.ok(ML.innValid('500100732259'), 'ИНН ИП, 12 цифр');
+  assert.ok(!ML.innValid('7707083894'), 'неверная контрольная цифра');
+  assert.ok(!ML.innValid('77070838'), 'не та длина');
+  const ok = { org: 'ООО «Тест»', inn: '7707083893', kpp: '', addr: 'Москва, ул. Тестовая, 1', email: 'buh@test.ru' };
+  assert.strictEqual(ML.invoiceErrors(ok).length, 0);
+  const bad = ML.invoiceErrors({ org: '', inn: '7707083894', kpp: '12', addr: '', email: 'нет' }).map(e => e.field);
+  assert.strictEqual(bad.join(), 'org,inn,kpp,addr,email');
+  assert.strictEqual(ML.createInvoice(Object.assign({ plan: 'prem', period: 'half' }, ok, { inn: '123' })), null, 'с ошибкой — счёт не выставлен');
+  const inv = ML.createInvoice(Object.assign({ plan: 'prem', period: 'half' }, ok));
+  assert.ok(inv && inv.status === 'pending' && inv.sum === ML.TARIFFS.prem.priceHalf);
+  assert.strictEqual(ML.tariff().key, 'start', 'до оплаты тариф прежний');
+  assert.strictEqual(ML.pendingInvoices().length, 1);
+  assert.ok(ML.payInvoice());
+  assert.strictEqual(ML.tariff().key, 'prem', 'после оплаты счёта тариф включён');
+  assert.strictEqual(ML.pendingInvoices().length, 0);
+  assert.strictEqual(ML.invoices()[0].status, 'paid');
+  assert.strictEqual(ML.payInvoice(), null, 'неоплаченных больше нет');
+});
+
 test('ПРЕМИУМ на 6 месяцев за баллы: списание, активация, продление и нехватка баллов', () => {
   const { ML, storage } = load({ ml_tariff: 'biz', ml_points: { free: 50000, locked: 0, expiring: 0, expiresAt: '' } });
   const price = ML.premiumItem().pts;
