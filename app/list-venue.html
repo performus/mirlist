@@ -15,108 +15,185 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
-  --aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;
-  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
-  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
-  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);
-  --r:10px;--rm:14px;--rl:20px;--rf:50px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
-a{text-decoration:none;color:inherit;}
-button{font-family:inherit;cursor:pointer;}
-.serif{font-family:'Literata',Georgia,serif;font-weight:600;}
+:root{--c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;--pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;--sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);--r:10px;--rm:14px;--rl:20px;--rf:50px;}
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}a{text-decoration:none;color:inherit;}button{font-family:inherit;cursor:pointer;}
 
-/* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(197,227,225,.25);transition:background .3s;}
-.nav-logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
-.nav-logo i{font-style:normal;color:var(--c);}
-.nav-links{display:flex;gap:8px;margin-left:auto;}
-.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
-.nav-links a:hover{color:var(--s);background:var(--aq-p);}
-.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;box-shadow:var(--shc);}
-.nav-cta:hover{background:var(--c6)!important;}
+.logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}.nav-links a:hover{color:var(--s);background:var(--aq-p);}.nav-links a.active{color:var(--c);background:var(--cs);font-weight:600;}.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;box-shadow:var(--shc);}
 
 /* HERO */
-.hero{position:relative;min-height:86vh;display:flex;align-items:center;padding:72px 48px 72px;overflow:hidden;}
-/* Содержимое первого экрана — в общем контейнере сайта (1200px по центру), как секции ниже. */
-.hero-in{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:60px;}
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;padding:120px 80px 80px;gap:60px;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;z-index:0;}
-.hero-bg-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.08) 0%,rgba(248,245,242,.6) 30%,rgba(237,246,245,.4) 60%,rgba(246,221,211,.3) 100%);}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.3;}
-.hero-orb-1{width:600px;height:600px;background:var(--c);top:-15%;right:-10%;animation:float 25s ease-in-out infinite;}
-.hero-orb-2{width:450px;height:450px;background:var(--aq);bottom:-10%;left:-5%;animation:float 20s ease-in-out infinite reverse;}
-.hero-orb-3{width:300px;height:300px;background:var(--pc);top:30%;left:40%;animation:float 18s ease-in-out infinite 5s;}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-25px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.96)}}
-.hero-grid{position:absolute;inset:0;opacity:.025;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.06) 0%,rgba(248,245,242,.6) 30%,rgba(237,246,245,.35) 60%,rgba(246,221,211,.25) 100%);}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.25;}
+.orb-1{width:550px;height:550px;background:var(--c);top:-12%;left:-8%;animation:fl 22s ease-in-out infinite;}
+.orb-2{width:400px;height:400px;background:var(--aq);bottom:-8%;right:-5%;animation:fl 18s ease-in-out infinite reverse;}
+.orb-3{width:300px;height:300px;background:var(--pc);top:35%;right:30%;animation:fl 20s ease-in-out infinite 4s;}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(25px,-20px) scale(1.04)}66%{transform:translate(-18px,15px) scale(.97)}}
+.hero-grid{position:absolute;inset:0;opacity:.02;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
 
 .hero-content{position:relative;z-index:1;max-width:600px;flex:1;}
 .hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:32px;backdrop-filter:blur(8px);animation:fadeUp .7s ease both;}
 .hero-h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:var(--sd);letter-spacing:-.005em;margin-bottom:20px;animation:fadeUp .7s ease .1s both;}
-.hero-h1 em{font-style:italic;color:var(--c);position:relative;}
-.hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:520px;margin-bottom:40px;animation:fadeUp .7s ease .2s both;}
+.hero-h1 em{font-style:italic;color:var(--c);}
+.hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:500px;margin-bottom:40px;animation:fadeUp .7s ease .2s both;}
 .hero-actions{display:flex;gap:14px;align-items:center;margin-bottom:40px;animation:fadeUp .7s ease .3s both;}
-.btn-hero{padding:16px 36px;border-radius:var(--rm);font-size:16px;font-weight:600;border:none;transition:all .3s;}
-.btn-hero.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}
-.btn-hero.primary:hover{background:var(--c6);transform:translateY(-2px);box-shadow:0 8px 28px rgba(235,116,84,.3);}
-.btn-hero.secondary{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}
-.btn-hero.secondary:hover{border-color:var(--c);color:var(--c);}
-.hero-trust{display:flex;gap:32px;animation:fadeUp .7s ease .4s both;}
-.trust-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--sx);}
-.trust-num{font-size:22px;font-weight:700;color:var(--c);}
+.btn-h{padding:16px 36px;border-radius:var(--rm);font-size:16px;font-weight:600;border:none;transition:all .3s;}
+.btn-h.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}.btn-h.primary:hover{background:var(--c6);transform:translateY(-2px);}
+.btn-h.secondary{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}.btn-h.secondary:hover{border-color:var(--c);color:var(--c);}
+.hero-trust{display:flex;gap:28px;animation:fadeUp .7s ease .4s both;}
+.trust-i{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--sx);}
+.trust-n{font-size:20px;font-weight:700;color:var(--c);}
 
-/* Hero right illustration */
+/* Hero right — feature preview cards */
 .hero-right{flex:0 0 420px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;animation:fadeUp .8s ease .3s both;}
-.hero-card-stack{position:relative;}
-.hc{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);overflow:hidden;}
-.hc-1{width:390px;top:0;right:0;z-index:3;animation:cardFloat 6s ease-in-out infinite;}
-.hc-2{width:310px;top:75px;right:88px;z-index:2;opacity:.7;animation:cardFloat 6s ease-in-out 2s infinite;}
-.hc-3{width:265px;top:138px;right:156px;z-index:1;opacity:.45;animation:cardFloat 6s ease-in-out 4s infinite;}
-@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hc-img{height:170px;overflow:hidden;position:relative;}
-.hc-img svg{width:100%;height:100%;}
-.hc-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;}
-.hc-1 .hc-img img{animation:kenBurns 18s ease-in-out infinite alternate;}
-@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.06) translate(-1%,.5%)}100%{transform:scale(1.03) translate(.5%,-1%)}}
-.hc-body{padding:16px 18px;}
-.hc-name{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
-.hc-meta{font-size:12px;color:var(--sx);display:flex;gap:10px;}
-.hc-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;background:rgba(255,255,255,.9);color:var(--s);backdrop-filter:blur(6px);}
+.preview-stack{position:relative;height:360px;width:100%;}
+.pv{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:24px;width:320px;}
+.pv-1{top:0;right:0;z-index:3;animation:cf 5s ease-in-out infinite;}
+.pv-2{top:80px;right:60px;z-index:2;opacity:.6;animation:cf 5s ease-in-out 1.5s infinite;}
+.pv-3{top:150px;right:110px;z-index:1;opacity:.35;animation:cf 5s ease-in-out 3s infinite;}
+@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pv-icon{width:44px;height:44px;border-radius:12px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+.pv-title{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.pv-text{font-size:13px;color:var(--sx);line-height:1.5;}
+.pv-bar{height:6px;border-radius:3px;background:var(--bg);margin-top:12px;overflow:hidden;}
+.pv-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--c),var(--c6));}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}.reveal.vis{opacity:1;transform:translateY(0);}
 
 /* SECTIONS */
 .section{padding:100px 48px;}.section.alt{background:var(--w);}
+.container{max-width:1200px;margin:0 auto;}
 .section-center{text-align:center;max-width:640px;margin:0 auto 56px;}
 .section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c);margin-bottom:14px;}
 .section-label::before{content:'';width:20px;height:2px;background:var(--c);border-radius:2px;}
 .section-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.005em;line-height:1.15;margin-bottom:12px;}
 .section-desc{font-size:16px;color:var(--sx);line-height:1.65;max-width:520px;margin:0 auto;}
 
-.container{max-width:1200px;margin:0 auto;}
-
 /* HOW IT WORKS */
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
-.step-card{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
-.step-card:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
-.step-num{position:absolute;top:16px;left:20px;font-size:42px;font-weight:700;color:var(--cg);font-family:'Literata',Georgia,serif;line-height:1;}
-.step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:28px;}
-.step-title{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
-.step-text{font-size:13.5px;color:var(--sx);line-height:1.55;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.step{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
+.step:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.step-n{position:absolute;top:14px;left:18px;font-size:40px;font-weight:700;color:var(--cg);font-family:'Literata',Georgia,serif;}
+.step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;}
+.step-t{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.step-d{font-size:13.5px;color:var(--sx);line-height:1.55;}
 
-/* BENEFITS */
-.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.benefit-card{padding:32px 28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);transition:all .35s;position:relative;overflow:hidden;}
-.benefit-card:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
-.benefit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
-.benefit-card:hover::before{transform:scaleX(1);}
-.benefit-icon{width:52px;height:52px;border-radius:14px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px;}
-.benefit-title{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:8px;}
-.benefit-text{font-size:14px;color:var(--sx);line-height:1.6;}
+/* KEY FEATURES — large cards */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.feat{padding:40px 36px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);transition:all .35s;position:relative;overflow:hidden;}
+.feat:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .35s;}.feat:hover::before{transform:scaleX(1);}
+.feat-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;}
+.feat-icon.coral{background:var(--cs);}
+.feat-icon.aqua{background:var(--aq-p);}
+.feat-icon.peach{background:var(--pc);}
+.feat-t{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--sd);margin-bottom:8px;}
+.feat-d{font-size:14.5px;color:var(--sx);line-height:1.65;margin-bottom:16px;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.feat-list li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--sm);}
+.feat-list li svg{color:var(--c);flex-shrink:0;}
 
-/* VENUES EXAMPLES */
+/* COMPARISON PREVIEW */
+.cmp-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.cmp-visual{background:var(--w);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);border:1px solid rgba(197,227,225,.15);}
+.cmp-row{display:flex;align-items:center;border-bottom:1px solid rgba(197,227,225,.12);padding:12px 0;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-param{width:120px;font-size:13px;font-weight:500;color:var(--sx);flex-shrink:0;}
+.cmp-bars{flex:1;display:flex;gap:8px;}
+.cmp-bar{height:24px;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:600;color:#fff;}
+.cmp-bar.a{background:var(--c);}.cmp-bar.b{background:var(--aq);}.cmp-bar.c{background:var(--sp);}
+.cmp-text h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.cmp-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+.cmp-text .feat-list{margin-bottom:24px;}
+.cmp-btn{padding:14px 32px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;display:inline-flex;align-items:center;gap:8px;}
+.cmp-btn:hover{background:var(--c6);transform:translateY(-2px);}
+
+/* PDF SECTION */
+.pdf-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.pdf-visual{position:relative;}
+.pdf-page{background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:32px;position:relative;max-width:340px;}
+.pdf-page-2{position:absolute;top:20px;left:30px;right:-30px;bottom:-20px;background:var(--w);border-radius:var(--rl);box-shadow:var(--sh);z-index:-1;opacity:.5;}
+.pdf-page-3{position:absolute;top:40px;left:60px;right:-60px;bottom:-40px;background:var(--w);border-radius:var(--rl);box-shadow:0 2px 10px rgba(53,78,99,.04);z-index:-2;opacity:.25;}
+/* На узком экране «стопка» страниц уходила за правый край и давала горизонтальный скролл */
+@media(max-width:600px){.pdf-page-2{right:-10px;left:10px;}.pdf-page-3{right:-18px;left:18px;}.pdf-page{margin-right:18px;}}
+.pdf-mock-header{height:12px;width:60%;border-radius:6px;background:var(--sd);margin-bottom:16px;}
+.pdf-mock-sub{height:8px;width:40%;border-radius:4px;background:var(--sp);margin-bottom:24px;}
+.pdf-mock-img{height:100px;border-radius:var(--rm);background:var(--aq-p);margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--aq);}
+.pdf-mock-row{display:flex;gap:12px;margin-bottom:10px;}
+.pdf-mock-line{height:7px;border-radius:4px;background:var(--bg);flex:1;}
+.pdf-mock-line.short{flex:.6;}
+.pdf-mock-price{height:10px;width:30%;border-radius:5px;background:var(--cs);margin-top:16px;}
+.pdf-badge{position:absolute;top:-12px;right:-12px;padding:8px 18px;border-radius:var(--rf);background:var(--c);color:#fff;font-size:12px;font-weight:700;box-shadow:var(--shc);}
+.pdf-text h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.pdf-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+
+/* BENEFITS GRID */
+.ben-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.ben{padding:32px 28px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.12);text-align:center;transition:all .3s;}
+.ben:hover{background:var(--cs);border-color:rgba(235,116,84,.1);transform:translateY(-3px);}
+.ben-icon{display:flex;justify-content:center;align-items:center;height:36px;margin-bottom:14px;}
+.ben-t{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.ben-d{font-size:13px;color:var(--sx);line-height:1.55;}
+
+/* TESTIMONIALS */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.test{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
+.test-q{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
+.test-q::before{content:'«';font-family:'Literata',Georgia,serif;font-weight:600;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
+.test-author{display:flex;align-items:center;gap:12px;}
+.test-av{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
+.test-name{font-size:14px;font-weight:600;color:var(--sd);}
+.test-role{font-size:12px;color:var(--sx);}
+
+/* FINAL CTA */
+.cta-block{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
+.cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
+.cta-inner{position:relative;z-index:1;}
+.cta-h{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(26px,4vw,42px);color:var(--sd);margin-bottom:12px;}
+.cta-p{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
+.cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
+.cta-btn:hover{background:var(--c6);transform:translateY(-2px);}
+.cta-note{font-size:13px;color:var(--sx);margin-top:16px;}
+
+/* FOOTER */
+.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:64px 48px 32px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
+.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
+
+@media(max-width:1100px){.hero-right{display:none;}.hero{gap:0;padding:120px 48px 80px;}.features,.cmp-preview,.pdf-preview{grid-template-columns:1fr;}}
+@media(max-width:900px){.steps,.ben-grid,.test-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.nav{padding:0 20px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-h{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps,.ben-grid,.test-grid,.features{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}}
+
+/* Первый экран лендингов B2B — одна серия: контейнер 1200 px по центру, одинаковые отступы */
+.hero{min-height:82vh;padding:72px 48px;}
+.hero-in{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:60px;}
+@media(max-width:1100px){.hero{padding:64px 48px;}.hero-in{gap:0;}}
+@media(max-width:600px){.hero{padding:44px 20px 52px;min-height:auto;}}
+
+/* ── блоки, которых нет у «Агентствам» ── */
+/* Карточки-превью в первом экране */
+.hero-card-stack{position:relative;}
+.hc{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);overflow:hidden;}
+.hc-1{width:390px;top:0;right:0;z-index:3;animation:cardFloat 6s ease-in-out infinite;}
+.hc-2{width:310px;top:75px;right:88px;z-index:2;opacity:.7;animation:cardFloat 6s ease-in-out 2s infinite;}
+.hc-3{width:265px;top:138px;right:156px;z-index:1;opacity:.45;animation:cardFloat 6s ease-in-out 4s infinite;}
+.hc-img{height:170px;overflow:hidden;position:relative;}
+.hc-img svg{width:100%;height:100%;}
+.hc-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;}
+.hc-1 .hc-img img{animation:kenBurns 18s ease-in-out infinite alternate;}
+.hc-body{padding:16px 18px;}
+.hc-name{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.hc-meta{font-size:12px;color:var(--sx);display:flex;gap:10px;}
+.hc-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;background:rgba(255,255,255,.9);color:var(--s);backdrop-filter:blur(6px);}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.06) translate(-1%,.5%)}100%{transform:scale(1.03) translate(.5%,-1%)}}
+/* Площадки на платформе */
 .venues-scroll{display:flex;gap:20px;overflow-x:auto;padding:4px 0 24px;scrollbar-width:none;}
 .venues-scroll::-webkit-scrollbar{display:none;}
 .ex-card{flex:0 0 280px;border-radius:var(--rl);overflow:hidden;background:var(--w);border:1px solid rgba(197,227,225,.12);cursor:pointer;transition:all .35s;}
@@ -131,8 +208,7 @@ button{font-family:inherit;cursor:pointer;}
 .ex-foot{display:flex;align-items:center;justify-content:space-between;}
 .ex-price{font-size:12px;color:var(--sx);}.ex-price strong{font-size:16px;font-weight:700;color:var(--sd);}
 .ex-cap{font-size:12px;color:var(--sx);display:flex;align-items:center;gap:4px;}
-
-/* CATEGORIES */
+/* Какие площадки подходят */
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .cat-item{padding:24px 20px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .3s;}
 .cat-item:hover{border-color:var(--c);background:var(--cs);transform:translateY(-2px);}
@@ -141,55 +217,11 @@ button{font-family:inherit;cursor:pointer;}
 .cat-item:hover .cat-icon svg{stroke:#fff;}
 .cat-name{font-size:15px;font-weight:600;color:var(--sd);}
 .cat-desc{font-size:12.5px;color:var(--sx);margin-top:2px;}
-
-/* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.feat-card{padding:28px 24px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.15);text-align:center;transition:all .3s;}
-.feat-card:hover{background:var(--cs);border-color:rgba(235,116,84,.12);transform:translateY(-3px);}
-.feat-icon{display:flex;justify-content:center;align-items:center;height:36px;margin-bottom:14px;}
-.feat-title{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:6px;}
-.feat-text{font-size:13px;color:var(--sx);line-height:1.55;}
-
-/* TESTIMONIALS */
-.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.test-card{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
-.test-quote{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
-.test-quote::before{content:'«';font-family:'Literata',Georgia,serif;font-weight:600;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
-.test-author{display:flex;align-items:center;gap:12px;}
-.test-avatar{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
-.test-name{font-size:14px;font-weight:600;color:var(--sd);}
-.test-role{font-size:12px;color:var(--sx);}
-.test-rating{display:flex;gap:2px;margin-top:4px;}
-.test-rating svg{color:var(--c);}
-
-/* FINAL CTA */
-.cta-section{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
-.cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
-.cta-inner{position:relative;z-index:1;}
-.cta-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,4vw,42px);color:var(--sd);margin-bottom:12px;}
-.cta-desc{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
-.cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
-.cta-btn:hover{background:var(--c6);transform:translateY(-2px);box-shadow:0 8px 32px rgba(235,116,84,.3);}
-.cta-note{font-size:13px;color:var(--sx);margin-top:16px;}
-
-/* FOOTER */
-.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:64px 48px 32px;}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
-.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
-.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
-.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}
-.footer-col a:hover{color:#fff;}
-.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
-
-/* Reveal animation */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
-.reveal.vis{opacity:1;transform:translateY(0);}
-
-@media(max-width:1100px){.hero-right{display:none;}.hero{padding:64px 48px 64px;}.hero-in{gap:0;}}
-/* после скрытия трёх карточек в «Функциях платформы» их нечётное число: в две колонки последняя — на всю строку */
-@media(min-width:601px) and (max-width:900px){.features-grid .feat-card:last-child:nth-child(odd){grid-column:1/-1;}}
-@media(max-width:900px){.steps-grid,.benefits-grid,.features-grid,.test-grid{grid-template-columns:1fr 1fr;}.cat-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.nav{padding:0 20px;height:60px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:44px 20px 52px;min-height:auto;}.hero-h1{font-size:32px;}.hero-sub{font-size:16px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-hero{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps-grid,.benefits-grid,.features-grid,.test-grid,.cat-grid{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}.cta-section{padding:48px 20px;}}
+/* Функции платформы — три карточки в ряд, как карточки «Возможностей» */
+.features.feats3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:1100px){.features.feats3{grid-template-columns:1fr 1fr;}}
+@media(max-width:900px){.cat-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.features.feats3,.cat-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -199,10 +231,10 @@ button{font-family:inherit;cursor:pointer;}
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg">
-    <div class="hero-bg-grad"></div>
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
-    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-grad"></div>
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+    <div class="hero-orb orb-3"></div>
     <div class="hero-grid"></div>
   </div>
 
@@ -215,13 +247,13 @@ button{font-family:inherit;cursor:pointer;}
     <h1 class="hero-h1">Получайте <em>запросы</em> на&nbsp;проведение мероприятий</h1>
     <p class="hero-sub">Добавьте ваши объекты и залы в каталог, получайте запросы от пользователей МАЙСЛИСТ.</p>
     <div class="hero-actions">
-      <button class="btn-hero primary" onclick="location.href='auth.html?mode=venue'">Добавить объект</button>
-      <button class="btn-hero secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Как это работает</button>
+      <button class="btn-h primary" onclick="location.href='auth.html?mode=venue'">Добавить объект</button>
+      <button class="btn-h secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Как это работает</button>
     </div>
     <div class="hero-trust">
-      <div class="trust-item"><span class="trust-num">1 000+</span> площадок</div>
-      <div class="trust-item"><span class="trust-num">10 000+</span> мероприятий</div>
-      <div class="trust-item"><span class="trust-num">120</span> городов</div>
+      <div class="trust-i"><span class="trust-n">1 000+</span> площадок</div>
+      <div class="trust-i"><span class="trust-n">10 000+</span> мероприятий</div>
+      <div class="trust-i"><span class="trust-n">120</span> городов</div>
     </div>
   </div>
 
@@ -251,11 +283,11 @@ button{font-family:inherit;cursor:pointer;}
     <p class="section-desc">Четыре шага от регистрации до первого запроса</p>
   </div>
   <div class="container">
-    <div class="steps-grid">
-      <div class="step-card reveal"><div class="step-num">1</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div><div class="step-title">Добавьте объект</div><div class="step-text">Зарегистрируйтесь и создайте карточку объекта</div></div>
-      <div class="step-card reveal"><div class="step-num">2</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="step-title">Заполните параметры</div><div class="step-text">Постарайтесь описать вашу площадку как можно более качественно. Укажите вместимость, цены, добавьте информацию об оснащении и дополнительных услугах, загрузите фото.</div></div>
-      <div class="step-card reveal"><div class="step-num">3</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="step-title">Получайте запросы</div><div class="step-text">Пользователи находят залы объекта и отправляют запросы</div></div>
-      <div class="step-card reveal"><div class="step-num">4</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="step-title">Отвечайте по электронной почте</div><div class="step-text">Отвечайте пользователям по электронной почте и согласовывайте условия. Бронирование оформляется вне платформы.</div></div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-n">1</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div><div class="step-t">Добавьте объект</div><div class="step-d">Зарегистрируйтесь и создайте карточку объекта</div></div>
+      <div class="step reveal"><div class="step-n">2</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="step-t">Заполните параметры</div><div class="step-d">Постарайтесь описать вашу площадку как можно более качественно. Укажите вместимость, цены, добавьте информацию об оснащении и дополнительных услугах, загрузите фото.</div></div>
+      <div class="step reveal"><div class="step-n">3</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="step-t">Получайте запросы</div><div class="step-d">Пользователи находят залы объекта и отправляют запросы</div></div>
+      <div class="step reveal"><div class="step-n">4</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="step-t">Отвечайте по электронной почте</div><div class="step-d">Отвечайте пользователям по электронной почте и согласовывайте условия. Бронирование оформляется вне платформы.</div></div>
     </div>
   </div>
 </section>
@@ -268,13 +300,13 @@ button{font-family:inherit;cursor:pointer;}
     <p class="section-desc">Инструменты для работы с карточками и входящими запросами</p>
   </div>
   <div class="container">
-    <div class="benefits-grid">
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="benefit-title">Запросы от пользователей</div><div class="benefit-text">Пользователи находят залы по параметрам мероприятия и отправляют запросы менеджеру объекта.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="benefit-title">Заинтересованные стороны поддерживают прямую связь по электронной почте.</div><div class="benefit-text">Отвечайте на запросы как можно скорее. Платформа не взимает комиссию с пользователя. Объект оплачивает платформе вознаграждение только за состоявшееся мероприятие.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div><div class="benefit-title">Работа с запросами</div><div class="benefit-text">Запросы и статусы доступны в личном кабинете. Личные контакты не раскрываются автоматически.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="benefit-title">МАЙСЛИСТ — дополнительный канал получения профильных лидов — профессионалов MICE- и Event-индустрии.</div><div class="benefit-text">Покажите залы пользователям, чьё мероприятие ваш зал может вместить.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="benefit-title">Аналитика и статистика</div><div class="benefit-text">Отслеживайте просмотры, конверсию и эффективность вашего профиля.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="benefit-title">Публикация после модерации</div><div class="benefit-text">Заполните карточку объекта и добавьте залы. После отправки данные пройдут модерацию.</div></div>
+    <div class="ben-grid">
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="ben-t">Запросы от пользователей</div><div class="ben-d">Пользователи находят залы по параметрам мероприятия и отправляют запросы менеджеру объекта.</div></div>
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="ben-t">Заинтересованные стороны поддерживают прямую связь по электронной почте.</div><div class="ben-d">Отвечайте на запросы как можно скорее. Платформа не взимает комиссию с пользователя. Объект оплачивает платформе вознаграждение только за состоявшееся мероприятие.</div></div>
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div><div class="ben-t">Работа с запросами</div><div class="ben-d">Запросы и статусы доступны в личном кабинете. Личные контакты не раскрываются автоматически.</div></div>
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="ben-t">МАЙСЛИСТ — дополнительный канал получения профильных лидов — профессионалов MICE- и Event-индустрии.</div><div class="ben-d">Покажите залы пользователям, чьё мероприятие ваш зал может вместить.</div></div>
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="ben-t">Аналитика и статистика</div><div class="ben-d">Отслеживайте просмотры, конверсию и эффективность вашего профиля.</div></div>
+      <div class="ben reveal"><div class="ben-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="ben-t">Публикация после модерации</div><div class="ben-d">Заполните карточку объекта и добавьте залы. После отправки данные пройдут модерацию.</div></div>
     </div>
   </div>
 </section>
@@ -318,13 +350,13 @@ button{font-family:inherit;cursor:pointer;}
     <!-- REMOVED BY CLIENT: подзаголовок «Функции платформы» | <p class="section-desc">Инструменты для эффективного управления площадкой</p> -->
   </div>
   <div class="container">
-    <div class="features-grid">
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="feat-title">Управление запросами</div><div class="feat-text">Статусы запросов, шаблоны быстрых ответов</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="feat-title">Редактирование профиля</div><div class="feat-text">Описания залов, фото, цены</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="feat-title">Статистика просмотров</div><div class="feat-text">Динамика эффективности</div></div>
-      <!-- REMOVED BY CLIENT: карточка «Быстрые ответы» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="feat-title">Быстрые ответы</div><div class="feat-text">Шаблоны сообщений для отклика</div></div> -->
-      <!-- REMOVED BY CLIENT: карточка «Календарь дат» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="feat-title">Календарь дат</div><div class="feat-text">Управление доступностью и загруженностью</div></div> -->
-      <!-- REMOVED BY CLIENT: карточка «Уведомления» | <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="feat-title">Уведомления</div><div class="feat-text">Уведомления о новых запросах и изменениях</div></div> -->
+    <div class="features feats3">
+      <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="feat-t">Управление запросами</div><div class="feat-d">Статусы запросов, шаблоны быстрых ответов</div></div>
+      <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="feat-t">Редактирование профиля</div><div class="feat-d">Описания залов, фото, цены</div></div>
+      <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="feat-t">Статистика просмотров</div><div class="feat-d">Динамика эффективности</div></div>
+      <!-- REMOVED BY CLIENT: карточка «Быстрые ответы» | <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="feat-t">Быстрые ответы</div><div class="feat-d">Шаблоны сообщений для отклика</div></div> -->
+      <!-- REMOVED BY CLIENT: карточка «Календарь дат» | <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="feat-t">Календарь дат</div><div class="feat-d">Управление доступностью и загруженностью</div></div> -->
+      <!-- REMOVED BY CLIENT: карточка «Уведомления» | <div class="feat reveal"><div class="feat-icon coral"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="feat-t">Уведомления</div><div class="feat-d">Уведомления о новых запросах и изменениях</div></div> -->
     </div>
   </div>
 </section>
@@ -355,11 +387,11 @@ button{font-family:inherit;cursor:pointer;}
 </section> -->
 
 <!-- FINAL CTA -->
-<section class="cta-section">
+<section class="cta-block">
   <div class="cta-bg"></div>
   <div class="cta-inner reveal">
-    <h2 class="cta-title">Добавьте объект в каталог</h2>
-    <p class="cta-desc">Добавление информации про объекты и залы бесплатно. Заполненные карточки залов появятся в каталоге после модерации.</p>
+    <h2 class="cta-h">Добавьте объект в каталог</h2>
+    <p class="cta-p">Добавление информации про объекты и залы бесплатно. Заполненные карточки залов появятся в каталоге после модерации.</p>
     <button class="cta-btn" onclick="location.href='auth.html?mode=venue'">Добавить объект</button>
     <div class="cta-note">Добавьте объект бесплатно · Оплата только за состоявшееся мероприятие</div>
   </div>

@@ -1310,23 +1310,23 @@ const MH = (() => {
   /* ══════════════════════════════════════════════════════════════════
      ИКОНКИ СХЕМ РАССАДКИ
 
-     Заглушки: рисуем по полю shape из ML.SEATING. Настоящие иконки
-     придут позже — менять нужно будет только SEAT_SHAPES, страницы
-     обращаются сюда и ничего о фигурах не знают.
+     Иконки клиента (SEAT_ICONS), по ключу схемы из ML.SEATING. Страницы
+     обращаются сюда и ничего о фигурах не знают — менять только здесь.
 
      У каждой иконки title и aria-label с названием схемы: без подписи
      ряд из семи фигур нечитаем.
      ══════════════════════════════════════════════════════════════════ */
 
-  const SEAT_SHAPES = {
-    triangle:   '<path d="M12 4.5 20.5 19.5H3.5z"/>',
-    square:     '<rect x="4.5" y="4.5" width="15" height="15" rx="1.6"/>',
-    u:          '<path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
-    circle:     '<circle cx="12" cy="12" r="7.6"/>',
-    dots:       '<circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="8" r="2.1"/><circle cx="17" cy="8" r="2.1"/>'
-                + '<circle cx="7" cy="16" r="2.1"/><circle cx="12" cy="16" r="2.1"/><circle cx="17" cy="16" r="2.1"/>',
-    halfcircle: '<path d="M3.6 17.5a8.4 8.4 0 0 1 16.8 0z"/>',
-    rect:       '<rect x="3" y="7.6" width="18" height="8.8" rx="1.6"/>',
+  /* Иконки схем рассадки — из файла клиента «Подбор площадок и поставщиков —
+     прототип фильтров» (SEAT_ICONS), рисуются в viewBox 0 0 16 16. Ключи — ML.SEATING. */
+  const SEAT_ICONS = {
+    theatre:   '<rect x="2" y="3" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1"/><rect x="2" y="11" width="12" height="2" rx="1"/>',
+    class:     '<circle cx="4" cy="4" r="1.6"/><circle cx="12" cy="4" r="1.6"/><circle cx="4" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/>',
+    ushape:    '<path d="M4 3 v5 a4 4 0 0 0 8 0 V3" fill="none" stroke="currentColor" stroke-width="2"/>',
+    banquet:   '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2"/>',
+    reception: '<circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="8" cy="5" r="1.5"/><circle cx="8" cy="11" r="1.5"/>',
+    cabaret:   '<circle cx="8" cy="9" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="3" r="1.2"/>',
+    board:     '<rect x="3" y="6" width="10" height="4" rx="2"/>',
   };
 
   function seatingOf(key) {
@@ -1342,11 +1342,11 @@ const MH = (() => {
   function seatIcon(key, opts) {
     opts = opts || {};
     const s = seatingOf(key);
-    const shape = SEAT_SHAPES[(s && s.shape) || ''] || SEAT_SHAPES.square;
+    const shape = SEAT_ICONS[(s && s.k) || key] || SEAT_ICONS.board;
     const name = opts.label || (s ? s.l : key);
     const size = opts.size || 18;
     return `<svg class="ml-seat${opts.cls ? ' ' + opts.cls : ''}" width="${size}" height="${size}"`
-      + ` viewBox="0 0 24 24" fill="currentColor" role="img"`
+      + ` viewBox="0 0 16 16" fill="currentColor" role="img"`
       + ` aria-label="${String(name).replace(/"/g, '&quot;')}"><title>${String(name).replace(/</g, '&lt;')}</title>`
       + shape + '</svg>';
   }

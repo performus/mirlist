@@ -169,6 +169,12 @@
 @media(max-width:1100px){.hero-right{display:none;}.hero{gap:0;padding:120px 48px 80px;}.features,.cmp-preview,.pdf-preview{grid-template-columns:1fr;}}
 @media(max-width:900px){.steps,.ben-grid,.test-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.nav{padding:0 20px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-h{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps,.ben-grid,.test-grid,.features{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}}
+
+/* Первый экран лендингов B2B — одна серия: контейнер 1200 px по центру, одинаковые отступы */
+.hero{min-height:82vh;padding:72px 48px;}
+.hero-in{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:60px;}
+@media(max-width:1100px){.hero{padding:64px 48px;}.hero-in{gap:0;}}
+@media(max-width:600px){.hero{padding:44px 20px 52px;min-height:auto;}}
 </style>
 </head>
 <body>
@@ -177,6 +183,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg"><div class="hero-grad"></div><div class="hero-orb orb-1"></div><div class="hero-orb orb-2"></div><div class="hero-orb orb-3"></div><div class="hero-grid"></div></div>
+  <div class="hero-in">
   <div class="hero-content">
     <div class="hero-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Для организаторов мероприятий</div>
     <h1 class="hero-h1">Подберите <em>залы</em> для мероприятия</h1>
@@ -198,6 +205,7 @@
       <div class="pv pv-3"><div class="pv-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="pv-title">Прямая связь</div><!-- REMOVED BY CLIENT: подпись карточки «Прямая связь» | <div class="pv-text">Чат с площадкой без посредников</div> --></div>
     </div>
   </div>
+  </div><!-- /.hero-in -->
 </section>
 
 <!-- HOW IT WORKS -->
@@ -242,7 +250,7 @@
         <h3>Сопоставьте параметры в одной таблице</h3>
         <p>Добавьте залы в сравнение, чтобы сопоставить вместимость, стоимость, оснащение и условия питания в одной таблице.</p>
         <ul class="feat-list"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Единый набор параметров для сравнения</li><!-- REMOVED BY CLIENT: пункт списка | <li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Автоматический «Лучший выбор»</li> --><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Экспорт сравнения в PDF</li></ul>
-        <button class="cmp-btn">Попробовать сравнение</button>
+        <a class="cmp-btn" href="compare.html">Попробовать сравнение</a>
       </div>
     </div>
   </div>
@@ -257,7 +265,7 @@
         <h3>Подготовьте презентацию для согласования</h3>
         <p>Скачайте презентацию с фотографиями, параметрами и ценами выбранных залов. Используйте её для согласования с заказчиком или внутри команды.</p>
         <ul class="feat-list" style="margin-bottom:24px"><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Фото и описание площадки</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Вместимость, оснащение, стоимость</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Карта и сведения об объекте</li><li><svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M3 7.5l3 3 6-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Сравнительная таблица (для нескольких)</li></ul>
-        <button class="cmp-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v8M5 7.5L8 10.5 11 7.5M3 13h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Скачать пример PDF</button>
+        <a class="cmp-btn" href="venue-comparison.pdf" download="МАЙСЛИСТ — пример презентации.pdf"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2v8M5 7.5L8 10.5 11 7.5M3 13h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Скачать пример PDF</a>
       </div>
       <div class="pdf-visual">
         <div class="pdf-page">
