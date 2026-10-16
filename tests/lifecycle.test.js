@@ -206,13 +206,15 @@ test('гейтинг фильтров: СТАРТ — город, гости, к
   assert.deepStrictEqual(plain(open('prem')), groups);
 });
 
-test('звёздность (R2 стр.43): «Без звёзд», ★ … ★★★★★ отдельными пунктами; «Без звёзд», ★ и ★★ не пустые', () => {
+test('звёздность (R2 стр.43): «Без звёзд», ★ … ★★★★★ отдельными пунктами; ни один пункт не пустой', () => {
   const { ML } = load({ ml_tariff: 'biz' });
   assert.deepStrictEqual(plain(ML.STAR_OPTIONS.map(o => o.k)), [0, 1, 2, 3, 4, 5]);
-  const names = { 0: 'Бутик-отель «Гавань»', 1: 'Отель «Панорама»', 2: 'Отель «Лагуна»' };
-  for (const k of [0, 1, 2]) {
+  const names = { 0: 'Бутик-отель «Гавань»', 1: 'Отель «Причал»', 2: 'Отель «Лагуна»',
+    3: 'Отель «Панорама»', 4: 'Отель «Аврора»', 5: 'Отель «Флагман»' };
+  for (const k of [0, 1, 2, 3, 4, 5]) {
     const F = ML.emptyFilters(); F.stars = new Set([k]);
     const found = ML.filterVenues(F).map(x => x.venue.name);
+    assert.ok(found.length > 0, 'пункт ' + k + ' не пустой');
     assert.ok(found.includes(names[k]), 'вариант ' + k + ': ' + found.join(', '));
   }
   // логика «ИЛИ»: два пункта — объединение

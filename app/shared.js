@@ -193,8 +193,9 @@ const MH = (() => {
         margin: 0 20px; flex-shrink: 0;
       }
       .mh-right {
-        display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        display: flex; align-items: center; gap: 12px; flex-shrink: 1; min-width: 0;
       }
+      .mh-right > :not(.mh-umenu) { flex-shrink: 0; }
       .mh-prem {
         display: flex; align-items: center; gap: 6px;
         font-size: 14.5px; font-weight: 700; color: #E8846A;
@@ -228,7 +229,14 @@ const MH = (() => {
         background: #FCEAE4; display: flex; align-items: center; justify-content: center;
         font-size: 12px; font-weight: 800; color: #E8846A; flex-shrink: 0;
       }
-      .mh-uname { font-size: 13.5px; font-weight: 600; color: #354E63; }
+      /* Длинное имя обрезается многоточием; в узкой шапке колонка имени ещё и сжимается */
+      .mh-uname {
+        font-size: 13.5px; font-weight: 600; color: #354E63;
+        display: block; min-width: 0; max-width: 180px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .mh-umenu { display: flex; align-items: center; }
+      .mh-umenu, .mh-umenu .mh-avatar-wrap { min-width: 0; }
       .mh-prem-mark {
         display: inline-flex; align-items: center; justify-content: center;
         width: 26px; height: 26px; flex-shrink: 0;
@@ -366,7 +374,7 @@ const MH = (() => {
       /* Меню пользователя: на мыши — по наведению, на касании — по тапу */
       .mh-umenu { position: relative; }
       .mh-umenu .mh-avatar-wrap { border: none; background: none; font-family: inherit; }
-      .mh-umenu .mh-caret { width: 10px; height: 10px; color: #7A919F; transition: transform .18s; }
+      .mh-umenu .mh-caret { width: 10px; height: 10px; flex-shrink: 0; color: #7A919F; transition: transform .18s; }
       .mh-umenu.open .mh-caret { transform: rotate(180deg); }
       .mh-udrop {
         position: absolute; top: calc(100% + 6px); right: 0; min-width: 230px;
@@ -398,16 +406,24 @@ const MH = (() => {
       .mh-drawer-msub { display: none; flex-direction: column; }
       .mh-drawer-msub.open { display: flex; }
 
-      /* Ширины: ≥1440 — всё целиком; 1240–1439 — без имени пользователя (только аватар); <1240 — бургер */
+      /* Ширины: ≥1440 — всё целиком; 1240–1439 — плотнее меню, имя до 120 px с многоточием; <1240 — бургер */
       @media (max-width: 1439px) {
         .mh-header { padding: 0 24px; }
-        .mh-divider { margin: 0 14px; }
-        .mh-umenu .mh-uname { display: none; }
-        .mh-umenu .mh-avatar-wrap { padding-right: 8px; }
+        .mh-logo { margin-right: 16px; }
+        .mh-nav { gap: 2px; }
+        .mh-nav a, .mh-nav-dd > button { padding: 8px 7px; letter-spacing: .03em; }
+        .mh-divider { margin: 0 12px; }
+        .mh-uname { max-width: 120px; }
+        .mh-umenu .mh-avatar-wrap { padding-right: 8px; gap: 7px; }
+        .mh-points { padding: 6px 11px; }
         .mh-right { gap: 8px; }
         .mh-login { padding: 9px 18px; font-size: 13.5px; }
         .mh-cta { padding: 10px 18px; font-size: 13.5px; }
         .mh-prem { font-size: 13.5px; }
+      }
+      @media (max-width: 1300px) {
+        .mh-nav a, .mh-nav-dd > button { padding: 8px 5px; }
+        .mh-right { gap: 6px; }
       }
       @media (max-width: 1239px) {
         .mh-nav { display: none !important; }
