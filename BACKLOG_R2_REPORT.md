@@ -11,7 +11,7 @@
 - отменено заказчиком 10.10 — 39;
 - не сделано, на паузе — 48.
 
-**Скриншоты:** `C:\VibingE\mirhub\backlog-rows-r2\` (в git не входят): 76 PNG и `index.md`.
+**Скриншоты:** `C:\VibingE\mirhub\backlog-rows-r2\` (в git не входят): 79 PNG и `index.md`.
 
 ## Как включить тариф и роль
 
