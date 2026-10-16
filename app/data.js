@@ -22,20 +22,23 @@
 
   /* Звёздность — отдельное свойство объекта, а не категория: у отеля она
      есть, у лофта её не бывает. В визарде выбирается ниже категории. */
-  const VENUE_CATS = ['Отель', 'Бутик-отель', 'Конференц-площадка', 'Лофт',
-    'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг'];
+  /* Категории — как в файле клиента «фильтры сайт»: без «Конференц-площадки», «Другое» в конце
+     (в фильтре клиента «Другие», в визарде «Другое» — используем «Другое» в обоих местах). */
+  const VENUE_CATS = ['Отель', 'Бутик-отель', 'Лофт',
+    'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг', 'Другое'];
   const STARRED_CATS = ['Отель', 'Бутик-отель'];   // где звёздность вообще применима
-  /* Варианты фильтра звёздности. «Без звёзд» — отели и бутик-отели без
-     присвоенной категории; «1–2 звезды» — одним пунктом. */
+  /* Варианты фильтра звёздности: «Без звёзд» — отели и бутик-отели без присвоенной
+     категории, дальше по одной звезде. В фильтре звёзды рисуются значками. */
   const STAR_OPTIONS = [
     { k: 0, l: 'Без звёзд' },
-    { k: 2, l: '1–2 звезды' },
+    { k: 1, l: '1 звезда' },
+    { k: 2, l: '2 звезды' },
     { k: 3, l: '3 звезды' },
     { k: 4, l: '4 звезды' },
     { k: 5, l: '5 звёзд' },
   ];
   /** Ключ варианта звёздности объекта; null — звёздность к объекту неприменима. */
-  const starKey = (v) => !STARRED_CATS.includes(v.cat) ? null : !v.stars ? 0 : v.stars <= 2 ? 2 : v.stars;
+  const starKey = (v) => !STARRED_CATS.includes(v.cat) ? null : (v.stars || 0);
 
   const EVENT_TYPES = [
     { k: 'business', l: 'Деловое' },
@@ -366,7 +369,7 @@
           { reception: 150 }, 0, 0, false, 16),
       ],
     }),
-    V(11, 'Конференц-центр «Высота»', 'Конференц-площадка', 'Москва', 'Павелецкая пл., 2', {
+    V(11, 'Конференц-центр «Высота»', 'Конгрессно-выставочная', 'Москва', 'Павелецкая пл., 2', {
       coords: { lat: 55.7297, lng: 37.6392 }, rating: 4.7, reviews: 88, photo: 11, px: 54, py: 44,
       promo: { highlight: true, top: null, until: '15.10.2026' },
       eventTypes: ['business'],
@@ -433,9 +436,9 @@
     8: 168, 9: 295, 10: 141, 11: 674, 12: 233, 13: 389, 14: 512 };
   VENUES.forEach(v => { v.stats = { views: VIEWS[v.id] || 200 }; });
 
-  /* «Гавань» — бутик-отель без звёзд, «Лагуна» — 2★: на них проверяются
-     варианты фильтра «Без звёзд» и «1–2 звезды». */
-  const STARS = { 1: 4, 4: 5, 12: 2, 14: 3 };
+  /* «Гавань» — бутик-отель без звёзд, «Лагуна» — 2★, «Панорама» — 1★: на них
+     проверяются пункты «Без звёзд», ★ и ★★ фильтра звёздности. */
+  const STARS = { 1: 4, 4: 5, 12: 2, 14: 1 };
   VENUES.forEach(v => { v.stars = STARS[v.id] || 0; });
 
   /* Галереи (номера фото ../assets/photos/vN.jpg). У большинства объектов
@@ -715,7 +718,7 @@
   /** Пустой набор фильтров. */
   function emptyFilters() {
     return {
-      city: '', people: 0, eventType: '',
+      city: '', people: 0, peopleTo: 0, eventType: '',   // peopleTo 0 — без верхней границы
       cats: new Set(), stars: new Set(), priceDay: [0, 200000],
       rooms: 0,                        // общий номерной фонд, виден всем
       twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
@@ -785,7 +788,10 @@
 
       // Залы объекта, подходящие под ТЗ. Цена 0 («по договорённости») проходит всегда.
       const pool = v.halls.filter(h => {
-        if (F.people && hallCapacity(h) < F.people) return false;
+        // вместимость «от – до»: объект проходит, если в нём есть зал из этого диапазона
+        const lo = Math.min(F.people || 0, F.peopleTo || Infinity), hi = Math.max(F.people || 0, F.peopleTo || 0) || Infinity;
+        if (lo && hallCapacity(h) < lo) return false;
+        if (F.peopleTo && hallCapacity(h) > hi) return false;
         if (h.priceDay > 0 && (h.priceDay < F.priceDay[0] || h.priceDay > F.priceDay[1])) return false;
         return true;
       });
@@ -803,6 +809,15 @@
     const rank = (v) => (v.promo && v.promo.top) ? v.promo.top : 999;
     return out.sort((a, b) => rank(a.venue) - rank(b.venue));
   }
+
+  /** Подпись диапазона вместимости: «от 100 до 300 чел.», «от 100 чел.», «до 300 чел.» */
+  function peopleLabel(F) {
+    const a = F.people || 0, b = F.peopleTo || 0;
+    if (a && b) return `от ${Math.min(a, b)} до ${Math.max(a, b)} чел.`;
+    return a ? `от ${a} чел.` : b ? `до ${b} чел.` : '';
+  }
+  /** Верхняя граница ползунков вместимости — по самому большому залу базы, с округлением до сотни. */
+  const capacityMax = () => Math.ceil(Math.max(...VENUES.flatMap(v => v.halls.map(hallCapacity)), 100) / 100) * 100;
 
   /** Залы по цене дня по возрастанию; цена 0 («по договорённости») — в конце. */
   const sortHallsByPrice = (halls) => halls.slice().sort((a, b) => (a.priceDay || Infinity) - (b.priceDay || Infinity));
@@ -1149,7 +1164,7 @@
   function filtersSummary(F) {
     const out = [];
     if (F.city) out.push(F.city);
-    if (F.people) out.push('от ' + F.people + ' чел.');
+    if (F.people || F.peopleTo) out.push(peopleLabel(F));
     const et = EVENT_TYPES.find(e => e.k === F.eventType);
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
@@ -1422,7 +1437,7 @@
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
-    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, STARRED_CATS, STAR_OPTIONS, starKey, sortHallsByPrice, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
+    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, STARRED_CATS, STAR_OPTIONS, starKey, sortHallsByPrice, peopleLabel, capacityMax, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
     VENUES, SUPPLIERS, SHOP,

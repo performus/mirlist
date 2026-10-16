@@ -206,12 +206,50 @@ test('гейтинг фильтров: СТАРТ — город, гости, к
   assert.deepStrictEqual(plain(open('prem')), groups);
 });
 
-test('звёздность: «Без звёзд» и «1–2 звезды» дают непустую выдачу', () => {
+test('звёздность (R2 стр.43): «Без звёзд», ★ … ★★★★★ отдельными пунктами; «Без звёзд», ★ и ★★ не пустые', () => {
   const { ML } = load({ ml_tariff: 'biz' });
-  for (const k of [0, 2]) {
+  assert.deepStrictEqual(plain(ML.STAR_OPTIONS.map(o => o.k)), [0, 1, 2, 3, 4, 5]);
+  const names = { 0: 'Бутик-отель «Гавань»', 1: 'Отель «Панорама»', 2: 'Отель «Лагуна»' };
+  for (const k of [0, 1, 2]) {
     const F = ML.emptyFilters(); F.stars = new Set([k]);
-    assert.ok(ML.filterVenues(F).length > 0, 'вариант ' + k);
+    const found = ML.filterVenues(F).map(x => x.venue.name);
+    assert.ok(found.includes(names[k]), 'вариант ' + k + ': ' + found.join(', '));
   }
+  // логика «ИЛИ»: два пункта — объединение
+  const F = ML.emptyFilters(); F.stars = new Set([1, 2]);
+  assert.strictEqual(ML.filterVenues(F).length, 2);
+});
+
+test('вместимость «от – до» (R2 стр.69): в объекте есть зал из диапазона; «до» меньше «от» — меняются местами', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const cap = (v) => v.halls.map(ML.hallCapacity);
+  const F = ML.emptyFilters(); F.people = 100; F.peopleTo = 200;
+  const res = ML.filterVenues(F);
+  assert.ok(res.length > 0);
+  res.forEach(x => {
+    assert.ok(x.halls.length > 0);
+    x.halls.forEach(h => { const c = ML.hallCapacity(h); assert.ok(c >= 100 && c <= 200, x.venue.name + ' ' + c); });
+  });
+  // объекты без единого зала в диапазоне не проходят
+  ML.VENUES.filter(v => !cap(v).some(c => c >= 100 && c <= 200))
+    .forEach(v => assert.ok(!res.some(x => x.venue.id === v.id), v.name));
+  const G = ML.emptyFilters(); G.people = 200; G.peopleTo = 100;
+  assert.deepStrictEqual(plain(ML.filterVenues(G).map(x => x.venue.id)), plain(res.map(x => x.venue.id)), 'перевёрнутый диапазон');
+  const H = ML.emptyFilters(); H.peopleTo = 50;
+  ML.filterVenues(H).forEach(x => x.halls.forEach(h => assert.ok(ML.hallCapacity(h) <= 50)));
+  assert.strictEqual(ML.peopleLabel(F), 'от 100 до 200 чел.');
+  assert.strictEqual(ML.peopleLabel(H), 'до 50 чел.');
+  // счётчик категории учитывает оба порога
+  const n = ML.facetCount(F, 'cats', 'Отель');
+  assert.strictEqual(n, res.filter(x => x.venue.cat === 'Отель').length);
+});
+
+test('категории (R2 стр.62/63): без «Конференц-площадки», «Другое» в конце; «Высота» — конгрессно-выставочная', () => {
+  const { ML } = load();
+  assert.ok(!ML.VENUE_CATS.includes('Конференц-площадка'));
+  assert.strictEqual(ML.VENUE_CATS[ML.VENUE_CATS.length - 1], 'Другое');
+  assert.strictEqual(ML.VENUES.find(v => v.name === 'Конференц-центр «Высота»').cat, 'Конгрессно-выставочная');
+  ML.VENUES.forEach(v => assert.ok(ML.VENUE_CATS.includes(v.cat), v.name + ': ' + v.cat));
 });
 
 test('лимит сравнения по объектам: на СТАРТ (2 объекта) — 10 залов одного объекта и 5 второго, третий объект — нет', () => {
