@@ -536,5 +536,50 @@ test('тестовые данные: не меньше 45 объектов, в �
   ML.SUPPLIER_SECTIONS.forEach(s => s.kids.forEach(k => assert.ok(ML.supplierFacet(ML.emptySupplierFilters(), 'leaf', s.l + '·' + k.l) > 0, k.l)));
 });
 
+console.log('Бэклог R3');
+
+test('R3-B стр.120: у тестовых запросов у каждого объекта есть залы, у запроса — параметры поиска', () => {
+  const { ML } = load();
+  ML.state.requests.forEach(r => {
+    assert.ok((r.params || []).length > 0, r.id + ' параметры');
+    ML.requestByVenue(r).forEach(x => assert.ok(x.halls.length > 0, r.id + ': ' + x.venue.name));
+  });
+  const old = load({ ml_requests: [{ id: 'RQ-260703-0018', date: '03.07.2026', title: 'x', dates: '08.08.2026', guests: 60, objects: [{ venueId: 7, status: 'sent' }] }] }).ML;
+  assert.ok(old.state.requests[0].hallIds.length && old.state.requests[0].params.length, 'сохранённые раньше запросы дополняются');
+});
+
+test('R3-B стр.109: «Редактировать» обновляет тот же объект, «Добавить зал» — зал этого объекта', () => {
+  const { ML } = load();
+  assert.strictEqual(ML.state.myVenues.length, 1, 'демо-объект кабинета');
+  assert.strictEqual(ML.state.myVenues[0].status, 'published');
+  const d = ML.venueToWizard(ML.state.myVenues[0]);
+  d.name = 'Новое имя'; d.feats = d.feats.concat(['karaoke']);
+  ML.updateMyVenue(0, d);
+  assert.strictEqual(ML.state.myVenues.length, 1, 'новый объект не создан');
+  assert.strictEqual(ML.state.myVenues[0].name, 'Новое имя');
+  assert.ok(ML.state.myVenues[0].features.includes('karaoke'));
+  const n = ML.state.myVenues[0].halls.length;
+  ML.addHallToMyVenue(0, { name: 'Терраса', type: 'Открытая площадка', area: 100, seats: { reception: 80 }, priceHour: 3000 });
+  assert.strictEqual(ML.state.myVenues[0].halls.length, n + 1);
+  assert.strictEqual(ML.state.myVenues[0].halls[n].priceHour, 3000);
+});
+
+test('R3-B стр.123–124: обращения — по ролям, новое появляется первым со статусом «Отправлено»', () => {
+  const { ML } = load();
+  ['user', 'venue', 'supplier'].forEach(r => assert.ok(ML.appealsFor(r).length >= 2, r));
+  const a = ML.addAppeal({ role: 'venue', kind: 'dispute', topic: 'Спор', requestId: 'RQ-1', text: 'x' });
+  assert.strictEqual(ML.appealsFor('venue')[0].id, a.id);
+  assert.strictEqual(ML.APPEAL_STATUS[a.status], 'Отправлено');
+  assert.ok(!ML.appealsFor('user').some(x => x.id === a.id));
+});
+
+test('R3-B стр.106: отметка и фильтр «Есть отзывы» — по наличию отзывов', () => {
+  const { ML } = load();
+  const s17 = ML.SUPPLIERS.find(s => s.id === 17);
+  assert.ok(ML.reviewsFor('supplier', 17).length > 0 && ML.supplierHasReviews(s17));
+  const F = ML.emptySupplierFilters(); F.reviews = true;
+  ML.filterSuppliers(F).forEach(s => assert.ok(ML.reviewsFor('supplier', s.id).length > 0, s.name));
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

@@ -578,7 +578,6 @@ function openRequest() {
     <label class="fl">Сопроводительное письмо</label>
     <div class="row2" style="margin-bottom:9px">
       <button class="btn sm" onclick="useTemplate()">Взять шаблон</button>
-      <button class="btn sm" onclick="clearLetter()">Написать своё</button>
     </div>
     <textarea class="fi" id="rqLetter" placeholder="Текст письма"></textarea>
 
@@ -587,8 +586,13 @@ function openRequest() {
      <button class="btn pri" onclick="sendRequest()">Отправить запрос</button>`);
 }
 
-function useTemplate() { document.getElementById('rqLetter').value = LETTER_TEMPLATE; }
-function clearLetter() { const el = document.getElementById('rqLetter'); el.value = ''; el.focus(); }
+/* стр.92: «Взять шаблон» вставляет шаблон в пустое поле сразу; если текст уже есть — спрашиваем. */
+function useTemplate() {
+  const el = document.getElementById('rqLetter');
+  const put = () => { el.value = LETTER_TEMPLATE; el.focus(); };
+  if (!el.value.trim()) { put(); return; }
+  MH.confirmDialog('Заменить ваш текст шаблоном?', 'Текст, который вы написали в поле письма, будет заменён шаблоном.', 'Заменить', put);
+}
 
 function sendRequest() {
   const halls = ML.compareHalls();

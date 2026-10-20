@@ -1154,6 +1154,25 @@
     { id: 6, target: 'supplier', targetId: 6, author: 'Ольга П.', role: 'Прямой клиент', date: '28.06.2026', rating: 4, event: 'Кофе-брейки на трёхдневном форуме', text: 'По вкусу вопросов нет. Смену подач держат по таймингу, но на третий день ассортимент повторился.' },
   ];
 
+  /* R3-B, строка 106: у поставщиков с отметкой «Отзывы» должны быть отзывы — отметка и фильтр
+     «Есть отзывы» теперь считаются по наличию отзывов (supplierHasReviews), а не по флагу. */
+  const SUPPLIER_REVIEW_TEXTS = [
+    ['Мария И.', 'Event-агентство «Формат»', 5, 'Договорились за один звонок, на площадку приехали заранее, всё по таймингу. Будем работать ещё.'],
+    ['Олег Д.', 'Корпоративный клиент', 5, 'Сделали ровно то, что обсуждали на брифе. Гости потом спрашивали контакты.'],
+    ['Светлана Ж.', 'DMC', 4, 'Хороший уровень, но смету пришлось уточнять дважды: часть позиций добавили по ходу.'],
+    ['Артём П.', 'Фриланс-организатор', 5, 'Отвечают быстро, документы закрывающие прислали на следующий день после мероприятия.'],
+    ['Ирина К.', 'Прямой клиент', 4, 'Всё прошло спокойно. Единственное — в день мероприятия связь была только через менеджера.'],
+    ['Глеб С.', 'Event-агентство «Вектор»', 5, 'Работаем не первый раз: стабильное качество и понятные условия.'],
+  ];
+  const SUPPLIER_EVENTS = ['Корпоратив, 120 гостей', 'Конференция, 300 участников', 'Выездная сессия, 40 человек',
+    'Новогодний вечер, 200 гостей', 'Презентация продукта, 80 гостей', 'Свадьба, 90 гостей'];
+  SUPPLIERS.filter(s => s.reviews && !REVIEW_SEED.some(r => r.target === 'supplier' && r.targetId === s.id)).forEach((s, i) => {
+    const [author, role, rating, text] = SUPPLIER_REVIEW_TEXTS[(s.id + i) % SUPPLIER_REVIEW_TEXTS.length];
+    const d = String(1 + (s.id * 7) % 27).padStart(2, '0'), m = String(5 + (s.id % 5)).padStart(2, '0');
+    REVIEW_SEED.push({ id: 100 + s.id, target: 'supplier', targetId: s.id, author, role, date: `${d}.${m}.2026`, rating,
+      event: SUPPLIER_EVENTS[s.id % SUPPLIER_EVENTS.length], text });
+  });
+
   /* ─────────── 8. СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ─────────── */
   /* Ключи localStorage. mh_compare теперь хранит ID ЗАЛОВ, а не объектов —
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
@@ -1163,7 +1182,7 @@
     black: 'ml_blacklist', points: 'ml_points', requests: 'ml_requests',
     myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews',
     shopItems: 'ml_shop_items', bonusOrders: 'ml_bonus_orders', supplierRequests: 'ml_supplier_requests',
-    filters: 'ml_filters', sfilters: 'ml_supplier_filters', invoices: 'ml_invoices',
+    filters: 'ml_filters', sfilters: 'ml_supplier_filters', invoices: 'ml_invoices', appeals: 'ml_appeals',
   };
   const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
@@ -1173,7 +1192,11 @@
     premUntil: read(K.premUntil, null),
     invoices: read(K.invoices, []),
     filters: unpackFilters(read(K.filters, null)),
-    myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: migrateFeatures(v.features, v) }) : v),
+    /* R3-B, строка 109: у демо-кабинета площадки сразу есть опубликованный объект — его можно открыть
+       через «Редактировать» и дополнить через «Добавить зал». */
+    myVenues: (read(K.myVenues, null) || [seedOwnVenue()]).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: migrateFeatures(v.features, v) }) : v),
+    /* R3-B, строка 124: обращения в поддержку и арбитраж — по ролям кабинета. */
+    appeals: read(K.appeals, null) || appealSeed(),
     shopItems: read(K.shopItems, []),
     bonusOrders: read(K.bonusOrders, []),
     supplierRequests: read(K.supplierRequests, []),
@@ -1212,8 +1235,17 @@
       'RQ-260703-0018': { dates: '08.08.2026', guests: 60 },
       'RQ-260612-0007': { dates: '20.06.2026', guests: 80 },
     };
+    /* R3-B, строка 120: групповой запрос уходит из сравнения залов — у каждого объекта есть залы,
+       а у запроса — параметры поиска. Тестовые запросы, сохранённые без них, дополняем. */
+    const SEED_REQ_HALLS = {
+      'RQ-260714-0031': { hallIds: [101, 1101, 402], params: ['от 120 чел.', 'Деловое', 'зал 1: Театр от 120'] },
+      'RQ-260703-0018': { hallIds: [701, 1001], params: ['Подмосковье', 'от 60 чел.', 'Тимбилдинг'] },
+      'RQ-260612-0007': { hallIds: [201, 601], params: ['от 80 чел.', 'Банкет / фуршет'] },
+    };
     return (Array.isArray(list) ? list : []).map(r => Object.assign({}, r,
-      SEED_REQ_FIELDS[r.id] && !(r.dates && +r.guests) ? SEED_REQ_FIELDS[r.id] : {}, {
+      SEED_REQ_FIELDS[r.id] && !(r.dates && +r.guests) ? SEED_REQ_FIELDS[r.id] : {},
+      SEED_REQ_HALLS[r.id] && !(r.hallIds || []).length ? { hallIds: SEED_REQ_HALLS[r.id].hallIds } : {},
+      SEED_REQ_HALLS[r.id] && !(r.params || []).length ? { params: SEED_REQ_HALLS[r.id].params } : {}, {
       objects: (r.objects || []).map(o => o.status === 'confirmed' ? Object.assign({}, o, { status: 'sent' }) : o),
     }));
   }
@@ -1221,6 +1253,7 @@
   const persist = {
     tariff: () => write(K.tariff, state.tariff),
     invoices: () => write(K.invoices, state.invoices),
+    appeals: () => write(K.appeals, state.appeals),
     filters: () => write(K.filters, packFilters(state.filters)),
     myVenues: () => write(K.myVenues, state.myVenues),
     shopItems: () => write(K.shopItems, state.shopItems),
@@ -1779,8 +1812,8 @@
       || F.video || F.reviews || F.loyalty || F.cats.size || F.halal || F.kosher || F.delivery || F.installation || F.operator
       || (F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp)) || (F.hours && (F.hours[0] || F.hours[1])) || F.days);
   }
-  /** Групповой запрос поставщикам возможен только внутри одной категории. */
-  function canGroupSupplierRequest(supplierIds) {
+  /* R3-B, строки 102 и 126: группового запроса поставщикам нет — запрос уходит из карточки поставщика. */
+  function canGroupSupplierRequest_removed(supplierIds) {
     const cats = new Set(supplierIds.map(id => {
       const s = SUPPLIERS.find(x => x.id === +id); return s ? s.parent : null;
     }));
@@ -1905,6 +1938,45 @@
 
   const MODERATION = { draft: 'черновик', review: 'на модерации', published: 'опубликован', rejected: 'отклонён' };
 
+  /** Демо-объект кабинета площадки: Отель «Аврора» из каталога, опубликован. */
+  function seedOwnVenue() {
+    const v = VENUES[0];
+    return {
+      localId: 'v-seed-1', catalogId: v.id, name: v.name, cat: v.cat, stars: v.stars, city: v.city, addr: v.addr,
+      coords: v.coords ? v.coords.lat + ', ' + v.coords.lng : '', rooms: Object.assign({}, v.rooms), eventTypes: v.eventTypes.slice(),
+      features: v.features.slice(), cuisine: (v.cuisine || []).slice(), avgCheck: v.avgCheck || 0, wardrobe: v.wardrobe || 0,
+      parking: v.parking || '', parkingSpaces: v.parkingSpaces || 0, confPackage: v.confPackage || 0, dressingRooms: v.dressingRooms || 0,
+      menu: v.menu ? Object.assign({}, v.menu) : null, photos: ['aurora-facade.jpg', 'aurora-lobby.jpg', 'aurora-hall.jpg'], photoCount: 3,
+      halls: v.halls.map(h => ({ name: h.name, type: h.type, floor: '', area: h.area, height: h.height, seats: Object.assign({}, h.seats),
+        priceDay: h.priceDay, priceHour: h.priceHour, hourly: false, agree: !h.priceDay, plan: !!h.plan, planFiles: h.plan ? ['plan-' + h.id + '.pdf'] : [],
+        photos: [], schemes: [] })),
+      contacts: { person: 'Ирина Котова', phone: '+7 495 120-45-67', mail: 'sales@aurora-hotel.ru', inn: '7703123456', bank: 'р/с 40702810900000012345 в АО «Банк»' },
+      contracts: ['Договор размещения', 'Договор бонусной программы'], desc: '',
+      status: 'published', createdAt: '01.06.2026',
+    };
+  }
+  function appealSeed() { return [
+    { id: 'SR-260712-1048', date: '12.07.2026', role: 'user', kind: 'question', topic: 'Вопрос по работе платформы', text: 'Как перенести баллы на подписку?', status: 'done' },
+    { id: 'SR-260801-2215', date: '01.08.2026', role: 'user', kind: 'dispute', topic: 'Спор по факту состоявшегося мероприятия', requestId: 'RQ-260612-0007', text: 'Объект не отметил мероприятие как состоявшееся.', status: 'work' },
+    { id: 'SR-260905-3307', date: '05.09.2026', role: 'user', kind: 'tech', topic: 'Техническая проблема', text: 'Не скачивается презентация сравнения.', status: 'sent' },
+    { id: 'SR-260722-1190', date: '22.07.2026', role: 'venue', kind: 'question', topic: 'Вопрос по работе платформы', text: 'Как добавить второй объект?', status: 'done' },
+    { id: 'SR-260818-4402', date: '18.08.2026', role: 'venue', kind: 'dispute', topic: 'Спор по факту состоявшегося мероприятия', requestId: 'RQ-260714-0031', text: 'Пользователь не подтвердил мероприятие.', status: 'work' },
+    { id: 'SR-260730-5120', date: '30.07.2026', role: 'supplier', kind: 'complaint', topic: 'Жалоба на объект или поставщика', text: 'Пользователь не отвечает на письма.', status: 'sent' },
+    { id: 'SR-260910-6031', date: '10.09.2026', role: 'supplier', kind: 'question', topic: 'Вопрос по работе платформы', text: 'Как попасть в бонусную программу?', status: 'done' },
+  ]; }
+  const APPEAL_STATUS = { sent: 'Отправлено', work: 'В работе', done: 'Решено' };
+  /** Новое обращение со support.html — появляется в кабинете своей роли (R3-B, строки 123–124). */
+  function addAppeal(o) {
+    const d = new Date(), p2 = (n) => String(n).padStart(2, '0');
+    const a = Object.assign({
+      id: 'SR-' + String(d.getFullYear()).slice(2) + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + String(1000 + (state.appeals.length * 37) % 9000),
+      date: d.toLocaleDateString('ru'), status: 'sent',
+    }, o);
+    state.appeals.unshift(a); persist.appeals();
+    return a;
+  }
+  const appealsFor = (role) => state.appeals.filter(a => (a.role || 'user') === role);
+
   /* Фото и файлы из визарда: в прототипе на сервер не уходят — храним только имена и количество. */
   const fileNames = (list) => (Array.isArray(list) ? list : []).map(x => typeof x === 'string' ? x : (x && x.name) || '').filter(Boolean);
   function venueFromWizard(d, base) {
@@ -1920,15 +1992,26 @@
       confPackage: +d.confPackage || 0, dressingRooms: +d.dressingRooms || 0,
       menu: d.menu ? { name: d.menu.name, url: d.menu.url && !String(d.menu.url).startsWith('blob:') ? d.menu.url : '' } : null,
       photos: fileNames(d.photos), photoCount: fileNames(d.photos).length,
-      halls: (d.halls || []).map(h => ({
-        name: h.name || 'Без названия', type: h.type || '', floor: h.floor || '', area: +h.area || 0, height: +h.height || 0,
-        seats: h.seats || {}, priceDay: +h.priceDay || 0, priceHour: +h.priceHour || 0, hourly: !!h.hourly && !(+h.priceHour > 0),
-        agree: (h.agree || []).length > 0,
-        plan: fileNames(h.plan).length > 0, planFiles: fileNames(h.plan), photos: fileNames(h.photos), schemes: fileNames(h.schemes),
-      })),
+      halls: (d.halls || []).map(hallFromWizard),
       contacts: { person: d.person || '', phone: d.phone || '', mail: d.mail || '', inn: d.inn || '', bank: d.bank || '' },
       contracts: d.contracts || [], desc: d.about || '',
     });
+  }
+  function hallFromWizard(h) {
+    return {
+      name: h.name || 'Без названия', type: h.type || '', floor: h.floor || '', area: +h.area || 0, height: +h.height || 0,
+      seats: h.seats || {}, priceDay: +h.priceDay || 0, priceHour: +h.priceHour || 0, hourly: !!h.hourly && !(+h.priceHour > 0),
+      agree: Array.isArray(h.agree) ? h.agree.length > 0 : !!h.agree,
+      plan: fileNames(h.plan).length > 0 || (h.plan === true), planFiles: fileNames(h.planFiles || h.plan),
+      photos: fileNames(h.photos), schemes: fileNames(h.schemes),
+    };
+  }
+  /** «Добавить зал» у объекта кабинета — зал этого объекта, а не новый объект (R3-B, строка 109). */
+  function addHallToMyVenue(i, h) {
+    const v = state.myVenues[i]; if (!v) return null;
+    const x = hallFromWizard(h);
+    (v.halls = v.halls || []).push(x); v.updatedAt = new Date().toLocaleDateString('ru');
+    persist.myVenues(); return x;
   }
   function addMyVenue(d) {
     const v = venueFromWizard(d, { localId: 'v' + Date.now(), status: 'review', createdAt: new Date().toLocaleDateString('ru') });
@@ -1951,7 +2034,7 @@
       parking: v.parking || '', parkingSpaces: v.parkingSpaces || '', confPackage: v.confPackage || '', dressingRooms: v.dressingRooms || '',
       menu: v.menu ? Object.assign({}, v.menu) : null, photos: (v.photos || []).map(name => ({ name })),
       halls: (v.halls || []).map(h => Object.assign({}, h, {
-        agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })),
+        agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })), planFiles: undefined,
         photos: (h.photos || []).map(name => ({ name })), schemes: (h.schemes || []).map(name => ({ name })),
       })),
       person: (v.contacts || {}).person || '', phone: (v.contacts || {}).phone || '', mail: (v.contacts || {}).mail || '',
@@ -2150,16 +2233,14 @@
   }
 
   /* — запросы поставщикам —
-     Раньше их нельзя было создать: canGroupSupplierRequest существовал,
-     а хранилища не было. Без них у поставщика не считается конверсия. */
+     Запрос отправляется из карточки поставщика кнопкой «Отправить запрос».
+     Без них у поставщика не считается конверсия. */
 
   function createSupplierRequest(supplierIds, opts) {
     opts = opts || {};
     const ids = (supplierIds || []).map(Number).filter(id => SUPPLIERS.some(s => s.id === id));
     if (!ids.length) return null;
     if (requestFieldsError(opts)) return null;
-    const chk = canGroupSupplierRequest(ids);
-    if (!chk.ok) return null;
     const req = {
       id: 'SQ-' + String(state.supplierRequests.length + 1).padStart(4, '0'),
       date: new Date().toLocaleDateString('ru'),
@@ -2273,14 +2354,15 @@
     emptyFilters, filterVenues, facetCount,
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,
-    emptySupplierFilters, filterSuppliers, supplierFacet, supplierKey, canGroupSupplierRequest,
+    emptySupplierFilters, filterSuppliers, supplierFacet, supplierKey,
     inCompare, toggleCompare, clearCompare, compareHalls, reloadState, buyPremiumForPoints, premiumItem, compareVenueCount: () => compareVenueIds().size,
     isFav, toggleFav,
     addToBlacklist, removeFromBlacklist,
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
-    MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addMyService, removeMyVenue, removeMyService,
+    MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addHallToMyVenue, addMyService,
+    APPEAL_STATUS, addAppeal, appealsFor, removeMyVenue, removeMyService,
     addShopItem, removeShopItem, myShopItems, shopCatalog,
     ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,
     createSupplierRequest, venueStats, supplierStats,

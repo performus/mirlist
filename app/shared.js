@@ -108,6 +108,7 @@ const MH = (() => {
       { id: 'compare', label: 'Сравнение', href: 'compare.html' },
       { id: 'favs', label: 'Избранное' },
       { id: 'points', label: 'Мои баллы' },
+      { id: 'appeals', label: 'Обращения' },
       { id: 'profile', label: 'Профиль' },
       { id: 'billing', label: 'Подписка и оплата' },
     ],
@@ -117,6 +118,8 @@ const MH = (() => {
       { id: 'oreqs', label: 'Входящие запросы' },
       { id: 'oshop', label: 'Витрина' },
       { id: 'ostats', label: 'Статистика' },
+      { id: 'oappeals', label: 'Обращения' },
+      { id: 'ocompany', label: 'Профиль' },
       { id: 'oprofile', label: 'Реквизиты' },
     ],
     supplier: [
@@ -125,6 +128,8 @@ const MH = (() => {
       { id: 'sreqs', label: 'Входящие запросы' },
       { id: 'sshop', label: 'Витрина' },
       { id: 'ssub', label: 'Подписка' },
+      { id: 'sappeals', label: 'Обращения' },
+      { id: 'scompany', label: 'Профиль' },
       { id: 'sprofile', label: 'Реквизиты' },
     ],
   };

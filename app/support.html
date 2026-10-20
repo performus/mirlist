@@ -229,6 +229,17 @@ function send(){
   }
 
   const kind = KINDS.find(x => x.k === KIND);
+  /* R3-B, строки 123–124: обращение вошедшего попадает в кабинет его роли, раздел «Обращения» —
+     туда и переходим (а не на главную). У гостя кабинета нет — показываем экран «Обращение принято». */
+  const sess = MH.getSession();
+  if (sess) {
+    const role = MH.sessionRole();
+    const a = ML.addAppeal({ role, kind: KIND, topic: kind.t, requestId: id || '', text: text.slice(0, 160) });
+    const page = { user: 'appeals', venue: 'oappeals', supplier: 'sappeals' }[role] || 'appeals';
+    try { sessionStorage.setItem('mh_flash', 'Обращение ' + a.id + ' отправлено'); } catch (e) {}
+    location.href = `dashboard.html?role=${role}&page=${page}${KIND === 'dispute' ? '&tab=arb' : ''}`;
+    return;
+  }
   const num = 'SR-' + new Date().toISOString().slice(2,10).replace(/-/g,'') + '-'
     + String(1000 + Math.floor(Math.random() * 8999)).slice(0,4);
 

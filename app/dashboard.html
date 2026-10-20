@@ -612,6 +612,12 @@ button{font-family:inherit;cursor:pointer;}
   .wz-steps button span:not(.n){display:none;}
   .wz-steps button.on span:not(.n){display:inline;}
 }
+.ast{display:inline-block;padding:3px 10px;border-radius:var(--rf);font-size:11.5px;font-weight:600;white-space:nowrap;}
+.ast.sent{background:var(--aq-p);color:var(--sm);}
+.ast.work{background:#FFF4DE;color:#A86A12;}
+.ast.done{background:#E6F4EC;color:#3E9A6B;}
+.ap-tbl{min-width:560px;}
+.ledger-more{padding:12px 16px;border-top:1px solid rgba(197,227,225,.35);text-align:center;}
 </style>
 </head>
 <body>
@@ -655,7 +661,7 @@ const IC={
 /* ═══ NAV CONFIG ═══
    Состав пунктов — MH.CABINET_MENU (shared.js): из него же собирается
    выпадающее меню пользователя в шапке. Здесь только иконки и счётчики. */
-const NAV_ICONS={dash:IC.dash,requests:IC.req,compare:IC.check,favs:IC.fav,points:IC.star,profile:IC.user,billing:IC.stat,
+const NAV_ICONS={appeals:IC.req,oappeals:IC.req,sappeals:IC.req,ocompany:IC.user,scompany:IC.user,dash:IC.dash,requests:IC.req,compare:IC.check,favs:IC.fav,points:IC.star,profile:IC.user,billing:IC.stat,
   odash:IC.dash,ovenues:IC.venue,oreqs:IC.req,oshop:IC.shop,ostats:IC.stat,oprofile:IC.user,
   sdash:IC.dash,sservices:IC.venue,sreqs:IC.req,sshop:IC.shop,ssub:IC.stat,sprofile:IC.user};
 const NAV_BADGES={
@@ -668,6 +674,92 @@ const NAV_BADGES={
   sservices:()=>ML.state.myServices.length||null,
   sshop:()=>ML.myShopItems('supplier').length||null,
 };
+
+/* ── R3-B, строка 124: обращения в поддержку и арбитраж ── */
+let APPEAL_TAB = new URLSearchParams(location.search).get('tab') === 'arb' ? 'arb' : 'q';
+function appealsPage(role){
+  const all = ML.appealsFor(role);
+  const q = all.filter(a => a.kind !== 'dispute'), arb = all.filter(a => a.kind === 'dispute');
+  const list = APPEAL_TAB === 'arb' ? arb : q;
+  const tabs = `<div class="rq-tabs" role="tablist">
+    <button class="rq-tab${APPEAL_TAB === 'q' ? ' on' : ''}" role="tab" onclick="APPEAL_TAB='q';renderPage()">Вопросы и проблемы (${q.length})</button>
+    <button class="rq-tab${APPEAL_TAB === 'arb' ? ' on' : ''}" role="tab" onclick="APPEAL_TAB='arb';renderPage()">Арбитраж (${arb.length})</button></div>`;
+  return `
+  <h1 class="page-title">Обращения</h1>
+  <p class="page-sub">Вопросы, жалобы и технические проблемы — и споры по факту мероприятия</p>
+  <div class="btn-row" style="margin-bottom:16px"><a class="btn btn-c" href="support.html">Новое обращение</a></div>
+  ${tabs}
+  ${list.length ? `<div class="card" style="padding:0;overflow-x:auto"><table class="ptbl ap-tbl">
+      <thead><tr><th>Номер</th><th>Дата</th><th>Тема</th>${APPEAL_TAB === 'arb' ? '<th>ID запроса</th>' : ''}<th>Статус</th></tr></thead>
+      <tbody>${list.map(a => `<tr>
+        <td class="num">${esc(a.id)}</td><td>${esc(a.date)}</td>
+        <td>${esc(a.topic)}${a.text ? `<div class="wait">${esc(a.text)}</div>` : ''}</td>
+        ${APPEAL_TAB === 'arb' ? `<td class="num">${esc(a.requestId || '—')}</td>` : ''}
+        <td><span class="ast ${esc(a.status)}">${esc(ML.APPEAL_STATUS[a.status] || a.status)}</span></td></tr>`).join('')}</tbody>
+    </table></div>`
+    : `<div class="card empty-state"><div class="empty-text">${APPEAL_TAB === 'arb' ? 'Споров по мероприятиям нет' : 'Обращений пока нет'}</div></div>`}`;
+}
+
+/* ── R3-B, строка 95: профиль компании в кабинетах площадки и поставщика ── */
+const COMPANY_DEFAULT = {
+  venue: { name: 'ООО «Аврора Отель Групп»', person: 'Ирина Котова', phone: '+7 495 120-45-67', mail: 'demo@micelist.ru' },
+  supplier: { name: 'ИП Соколов Артём Игоревич', person: 'Артём Соколов', phone: '+7 916 555-12-34', mail: 'demo@micelist.ru' },
+};
+function companyData(role){
+  try { return Object.assign({}, COMPANY_DEFAULT[role], JSON.parse(localStorage.getItem('ml_company_' + role) || '{}')); }
+  catch (e) { return Object.assign({}, COMPANY_DEFAULT[role]); }
+}
+function companyPage(role){
+  const c = companyData(role);
+  return `
+  <h1 class="page-title">Профиль</h1>
+  <p class="page-sub">Контактные данные компании и вход в кабинет</p>
+  <div class="card" style="max-width:680px">
+    <div class="form-group"><label class="form-label" for="cpName">Название компании</label>
+      <input class="form-input" id="cpName" value="${esc(c.name)}"></div>
+    <div class="form-group"><label class="form-label" for="cpPerson">Контактное лицо</label>
+      <input class="form-input" id="cpPerson" value="${esc(c.person)}"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" for="cpPhone">Телефон</label>
+        <input class="form-input" id="cpPhone" type="tel" value="${esc(c.phone)}"></div>
+      <div class="form-group"><label class="form-label" for="cpMail">Почта</label>
+        <input class="form-input" id="cpMail" type="email" value="${esc(c.mail)}"></div>
+    </div>
+    <div class="section-label" style="margin:10px 0 12px">Смена пароля</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" for="cpOld">Текущий пароль</label>
+        <input class="form-input" id="cpOld" type="password" autocomplete="current-password"></div>
+      <div class="form-group"><label class="form-label" for="cpNew">Новый пароль</label>
+        <input class="form-input" id="cpNew" type="password" autocomplete="new-password" placeholder="не короче 8 символов"></div>
+    </div>
+    <div class="form-group"><label class="form-label" for="cpNew2">Повторите новый пароль</label>
+      <input class="form-input" id="cpNew2" type="password" autocomplete="new-password"></div>
+    ${role === 'venue' ? `<div class="dm-note" style="margin-bottom:16px">Название и адрес объекта меняются в разделе
+      <a href="dashboard.html?role=venue&page=ovenues" style="color:var(--c);font-weight:600" onclick="currentPage='ovenues';renderNav();renderPage();return false;">«Мои объекты»</a>.</div>` : ''}
+    <button class="btn btn-c" onclick="saveCompany('${role}')">Сохранить изменения</button>
+  </div>`;
+}
+function saveCompany(role){
+  const v = (id) => (document.getElementById(id).value || '').trim();
+  const pw = v('cpNew'), pw2 = v('cpNew2'), old = v('cpOld');
+  const checks = [
+    { el: document.getElementById('cpName'), ok: !!v('cpName'), text: 'Укажите название компании' },
+    { el: document.getElementById('cpMail'), ok: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('cpMail')), text: 'Укажите почту' },
+  ];
+  if (pw || pw2 || old) checks.push(
+    { el: document.getElementById('cpOld'), ok: !!old, text: 'Введите текущий пароль' },
+    { el: document.getElementById('cpNew'), ok: pw.length >= 8, text: 'Новый пароль — не короче 8 символов' },
+    { el: document.getElementById('cpNew2'), ok: pw === pw2, text: 'Пароли не совпадают' });
+  if (!MH.requireFields(checks)) return;
+  try { localStorage.setItem('ml_company_' + role, JSON.stringify({ name: v('cpName'), person: v('cpPerson'), phone: v('cpPhone'), mail: v('cpMail') })); } catch (e) {}
+  ['cpOld', 'cpNew', 'cpNew2'].forEach(id => { document.getElementById(id).value = ''; });
+  MH.toast(pw ? 'Изменения сохранены, пароль обновлён' : 'Изменения сохранены', 'success');
+}
+
+/* ── R3-B, строка 109: «Редактировать» и «Добавить зал» у объекта ── */
+function editMyVenue(i){ const v = ML.state.myVenues[i]; if (v) openWiz('venue', { data: ML.venueToWizard(v), edit: i }); }
+function addHallTo(i){ if (ML.state.myVenues[i]) openWiz('hall', { parent: i }); }
+
 const NAVS={guest:[{id:'guest',icon:IC.user,label:'Вход'}]};
 Object.keys(MH.CABINET_MENU).forEach(role=>{
   NAVS[role]=MH.CABINET_MENU[role].map(it=>({id:it.id,label:it.label,href:it.href||'',icon:NAV_ICONS[it.id]||IC.dash,badgeFn:NAV_BADGES[it.id]}));
@@ -675,6 +767,7 @@ Object.keys(MH.CABINET_MENU).forEach(role=>{
 
 /* ═══ RENDER SIDEBAR NAV ═══ */
 let currentRole='user', currentPage='dash';
+let LEDGER_ALL=false;
 
 function renderNav(){
   const nav=document.getElementById('sideNav');
@@ -793,9 +886,7 @@ function reqBlock(r, part){
         </div>
         <div class="rq-date">от ${esc(r.date)} · ${rows.length} ${ML.plural(rows.length,['объект','объекта','объектов'])}${part === 'archived' ? ' в архиве' : ''}${
           r.updatedAt ? ` · <span class="rq-upd">исправлен ${esc(r.updatedAt)}</span>` : ''}</div>
-        <div class="rq-params">${params.length
-          ? params.map(p => `<span class="rq-param">${esc(p)}</span>`).join('')
-          : '<span class="none">параметры поиска не сохранялись</span>'}</div>
+        ${params.length ? `<div class="rq-params">${params.map(p => `<span class="rq-param">${esc(p)}</span>`).join('')}</div>` : ''}
       </div>
       <div class="btn-row rq-acts">
         <button class="btn-xs" onclick="openReqView('${esc(r.id)}')">Посмотреть запрос</button>
@@ -903,9 +994,7 @@ function reqComposition(r){
           <span class="st ${x.obj.status}">${esc((ML.REQUEST_FLOW[x.obj.status]||{}).label || x.obj.status)}</span>
         </div>
       </div>
-      ${x.halls.length
-        ? `<div class="rv-halls">${x.halls.map(h => `<span class="rv-hall">${esc(h.name)}</span>`).join('')}</div>`
-        : '<div class="rv-none">Залы не отмечались — запрос по объекту целиком</div>'}
+      ${x.halls.length ? `<div class="rv-halls">${x.halls.map(h => `<span class="rv-hall">${esc(h.name)}</span>`).join('')}</div>` : ''}
     </div>`).join('');
 }
 
@@ -919,10 +1008,8 @@ function openReqView(id){
       <div><div class="rv-k">Участников</div><div class="rv-v">${esc(String(r.guests || '—'))}</div></div>
       <div><div class="rv-k">Отправлен</div><div class="rv-v">${esc(r.date)}${r.updatedAt ? ' · исправлен ' + esc(r.updatedAt) : ''}</div></div>
     </div>
-    <div class="rv-k">Параметры поиска</div>
-    <div class="rq-params" style="margin-bottom:14px">${params.length
-      ? params.map(x => `<span class="rq-param">${esc(x)}</span>`).join('')
-      : '<span class="none">параметры поиска не сохранялись</span>'}</div>
+    ${params.length ? `<div class="rv-k">Параметры поиска</div>
+    <div class="rq-params" style="margin-bottom:14px">${params.map(x => `<span class="rq-param">${esc(x)}</span>`).join('')}</div>` : ''}
     <div class="rv-k">Куда ушёл запрос</div>
     ${reqComposition(r)}
     <div class="rv-k" style="margin-top:14px">Сопроводительное письмо</div>
@@ -1183,8 +1270,18 @@ function dropFav(hallId){ ML.toggleFav(hallId); renderNav(); renderPage(); }
 /* ── баллы ──
    Журнала начислений в модели нет: собираем строки из того, что в ней есть —
    бонус за регистрацию, вознаграждения за состоявшиеся мероприятия и отзывы. */
+/* Операции, начисленные до текущих запросов (демо-история): по ним видно, как сворачивается
+   длинный список (стр.125). Порядок — от новых к старым, «ПРИВЕТ» за регистрацию — самая первая. */
+const LEDGER_HISTORY = [
+  { what: 'Отзыв о «Кейтеринг «Формат»»', state: 'начислены', pts: 150 },
+  { what: 'Мероприятие в «Ресторан «Терраса»»', state: 'начислены', pts: 1500 },
+  { what: 'Отзыв о «Ресторан «Терраса»»', state: 'начислены', pts: 150 },
+  { what: 'Мероприятие в «Конгресс-центр «Экспо-Волга»»', state: 'начислены', pts: 5000 },
+  { what: 'Отзыв о «Фотограф Мария Лебедева»', state: 'начислены', pts: 150 },
+  { what: 'Мероприятие в «Бутик-отель «Гавань»»', state: 'начислены', pts: 1500 },
+];
 function pointsLedger(){
-  const out = [{ what: 'Баллы «ПРИВЕТ» за регистрацию', state: 'начислены', pts: ML.POINTS_HELLO }];
+  const out = [];
   ML.state.requests.forEach(r => r.objects.forEach(o => {
     const v = ML.venueById(o.venueId);
     const name = v ? v.name : 'Объект #' + o.venueId;
@@ -1197,7 +1294,7 @@ function pointsLedger(){
       if (p) out.push({ what: `Отзыв о «${name}»`, state: 'начислены', pts: p });
     }
   }));
-  return out;
+  return out.concat(LEDGER_HISTORY, [{ what: 'Баллы «ПРИВЕТ» за регистрацию', state: 'начислены', pts: ML.POINTS_HELLO }]);
 }
 /* Заказ за баллы. Списание и номер заказа — целиком из ML.orderFromShop. */
 function shopItemById(id){ return ML.shopCatalog().find(s => String(s.id) === String(id)); }
@@ -1420,7 +1517,7 @@ const SERVICE_STEPS=[
 const stepFields = (st) => st.fFn ? st.fFn() : st.f;
 
 const WIZDEFS={
-  venue:{t:'Добавление объекта',s:VENUE_STEPS,fin:'Отправить на модерацию'},
+  venue:{t:'Добавление объекта',tEdit:'Редактирование объекта',s:VENUE_STEPS,fin:'Отправить на модерацию',finEdit:'Сохранить изменения'},
   hall:{t:'Добавление зала',s:HALL_STEPS,fin:'Сохранить зал'},
   service:{t:'Добавление услуги',s:SERVICE_STEPS,fin:'Отправить на модерацию'},
 };
@@ -1428,9 +1525,12 @@ const WIZDEFS={
 /* ── стек визардов: вложенный возвращается в родительский ── */
 let WIZ=null, WIZSTACK=[];
 
-function openWiz(kind){
+function openWiz(kind,o){
+  o=o||{};
   if(WIZ) WIZSTACK.push(WIZ);
-  WIZ={kind,step:0,max:0,bad:null,data:{},def:WIZDEFS[kind]};
+  const def=WIZDEFS[kind];
+  /* стр.109: правка — все шаги открыты, данные объекта уже в полях */
+  WIZ={kind,step:0,max:o.edit!=null?def.s.length-1:0,bad:null,data:o.data||{},def,edit:o.edit,parent:o.parent};
   drawWiz();
   document.addEventListener('keydown',wizEsc);
 }
@@ -1454,7 +1554,7 @@ function drawWiz(){
   <div class="wz-ovl" onclick="if(event.target===this)closeWiz()">
     <div class="wz" role="dialog" aria-modal="true">
       <div class="wz-head">
-        <h2>${esc(d.t)}</h2>
+        <h2>${esc(WIZ.edit!=null&&d.tEdit?d.tEdit:WIZ.parent!=null&&!WIZSTACK.length?'Новый зал · '+((ML.state.myVenues[WIZ.parent]||{}).name||''):d.t)}</h2>
         <span class="wz-cnt">Шаг ${WIZ.step+1} из ${d.s.length}</span>
         <button class="dm-x" onclick="closeWiz()" aria-label="Закрыть">✕</button>
       </div>
@@ -1696,6 +1796,24 @@ function wizValid(){
 
 function wizSave(){
   if(!wizValid()) return;
+  if(WIZ.kind==='hall'&&!WIZSTACK.length&&WIZ.parent!=null){
+    /* стр.109: «Добавить зал» у объекта — зал сохраняется в этот объект */
+    const h=WIZ.data, i=WIZ.parent;
+    ML.addHallToMyVenue(i,h);
+    closeAllWiz();
+    MH.toast('Зал «'+(h.name||'без названия')+'» добавлен в «'+((ML.state.myVenues[i]||{}).name||'')+'»','success');
+    renderNav(); renderPage();
+    return;
+  }
+  if(WIZ.kind==='venue'&&WIZ.edit!=null){
+    /* стр.109: сохранение обновляет этот же объект, без модерации и без нового объекта */
+    const v=ML.updateMyVenue(WIZ.edit,WIZ.data);
+    if(v){ v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?((ML.STAR_OPTIONS.find(o=>o.l===WIZ.data.stars)||{k:0}).k):0; ML.persist.myVenues(); }
+    closeAllWiz();
+    MH.toast('Изменения сохранены','success');
+    renderNav(); renderPage();
+    return;
+  }
   if(WIZ.kind==='hall'){
     const h=WIZ.data;
     WIZ=WIZSTACK.pop();                       // возврат в шаг 6 объекта
@@ -1758,13 +1876,13 @@ function wizPreview(){
 
 /* ── запрос на обновление информации ── */
 function updateReq(who){
-  dm('Запрос «Обновление информации»',
-    `<p>Изменения в опубликованной карточке ${who} вносит модератор — так данные в подборе
-     остаются проверенными. Опишите, что поправить.</p>
+  dm('Запрос на обновление информации',
+    `<p>Опишите, что нужно поправить в карточке ${who}, — запрос уйдёт команде МАЙСЛИСТ.${who === 'объекта'
+      ? ' Название, адрес, залы и характеристики объекта вы можете изменить сами — кнопкой «Редактировать».' : ''}</p>
      <label class="form-label">Что изменить</label>
      <textarea class="form-input" id="urText" rows="4" placeholder="Например: обновить цены на залы, заменить фото"></textarea>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
-     <button class="btn btn-c" onclick="dmClose();MH.toast('Запрос отправлен модератору','success')">Отправить</button>`);
+     <button class="btn btn-c" onclick="dmClose();MH.toast('Запрос отправлен','success')">Отправить</button>`);
 }
 
 /* ── отметка «мероприятие состоялось» со стороны объекта ── */
@@ -1819,8 +1937,8 @@ function venueRow(v,i){
     </div>
     <span class="mod ${v.status}">${esc(ML.MODERATION[v.status]||v.status)}</span>
     <div class="btn-row">
-      <button class="btn-xs" onclick="openWiz('venue')">Редактировать</button>
-      <button class="btn-xs" onclick="openWiz('venue')">Добавить зал</button>
+      <button class="btn-xs" onclick="editMyVenue(${i})">Редактировать</button>
+      <button class="btn-xs" onclick="addHallTo(${i})">Добавить зал</button>
       <button class="btn-xs danger" onclick="delMyVenue(${i})">Удалить</button>
     </div>
   </div>`;
@@ -2169,7 +2287,7 @@ favs:()=>{
 },
 
 /* ── МОИ БАЛЛЫ ── */
-points:()=>{
+points:()=>{   /* стр.125: LEDGER_ALL — показана вся история начислений */
   const P=ML.state.points;
   const rows=pointsLedger();
   /* Доступные по балансу — первыми: человек должен сразу видеть, что может взять. */
@@ -2202,11 +2320,12 @@ points:()=>{
   <div class="card" style="padding:0;overflow:hidden;margin-bottom:26px">
     <table class="ptbl">
       <thead><tr><th>Основание</th><th>Статус</th><th>Баллы</th></tr></thead>
-      <tbody>${rows.map(x=>`<tr>
+      <tbody>${rows.slice(0, LEDGER_ALL ? rows.length : 5).map(x=>`<tr>
         <td>${esc(x.what)}</td>
         <td style="color:var(--sx);font-size:12.5px">${esc(x.state)}</td>
         <td class="num plus">+${x.pts.toLocaleString('ru')}</td></tr>`).join('')}</tbody>
     </table>
+    ${rows.length > 5 ? `<div class="ledger-more"><button class="btn btn-o" onclick="LEDGER_ALL=!LEDGER_ALL;renderPage()">${LEDGER_ALL ? 'Свернуть историю' : 'Показать всю историю'}</button></div>` : ''}
   </div>
 
   <div class="section-head" style="margin-bottom:6px">
@@ -2244,6 +2363,12 @@ points:()=>{
     </table></div>`
    : `<div class="card empty-state"><div class="empty-text">Заказов за баллы пока нет</div></div>`}`;
 },
+
+appeals:()=>appealsPage('user'),
+oappeals:()=>appealsPage('venue'),
+sappeals:()=>appealsPage('supplier'),
+ocompany:()=>companyPage('venue'),
+scompany:()=>companyPage('supplier'),
 
 /* ── ПРОФИЛЬ ── */
 profile:()=>`
@@ -2384,7 +2509,7 @@ odash:()=>{
 
   <div class="btn-row" style="margin-bottom:26px">
     <button class="btn btn-c" onclick="openWiz('venue')">Добавить объект</button>
-    <button class="btn btn-o" onclick="updateReq('объекта')">Запрос «Обновление информации»</button>
+    <button class="btn btn-o" onclick="updateReq('объекта')">Запрос на обновление информации</button>
   </div>
 
   <div class="section-head" style="margin-bottom:14px">
@@ -2415,7 +2540,7 @@ ovenues:()=>{
   <p class="page-sub">${list.length} ${ML.plural(list.length,['объект','объекта','объектов'])}</p>
   <div class="btn-row" style="margin-bottom:18px">
     <button class="btn btn-c" onclick="openWiz('venue')">Добавить объект</button>
-    <button class="btn btn-o" onclick="updateReq('объекта')">Запрос «Обновление информации»</button>
+    <button class="btn btn-o" onclick="updateReq('объекта')">Запрос на обновление информации</button>
   </div>
   <div class="card" style="padding:4px 20px">${list.map((v,i)=>venueRow(v,i)).join('')}</div>`;
 },
@@ -2530,7 +2655,7 @@ sdash:()=>{
     <div class="lk-tile"><div class="lbl">Услуг в карточке</div><div class="val">${list.length}</div>
       <div class="sub">в бонусной программе: ${inLoy}</div></div>
     <div class="lk-tile"><div class="lbl">Запросов за месяц</div><div class="val">${st.requests}</div>
-      <div class="sub">внутри одной категории</div></div>
+      <div class="sub">из карточки поставщика</div></div>
     <div class="lk-tile"><div class="lbl">Переходов в карточку</div><div class="val">${st.views}</div>
       <div class="sub">${esc(own.name)} — в каталоге поставщиков</div></div>
     <div class="lk-tile"><div class="lbl">Конверсия в обращения</div><div class="val">${st.conversion}%</div>
@@ -2543,7 +2668,7 @@ sdash:()=>{
 
   <div class="btn-row" style="margin-bottom:26px">
     <button class="btn btn-c" onclick="openWiz('service')">Добавить услугу</button>
-    <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос «Обновление информации»</button>
+    <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос на обновление информации</button>
   </div>
 
   <div class="section-head" style="margin-bottom:14px">
@@ -2572,11 +2697,10 @@ sservices:()=>{
   <p class="page-sub">${list.length} ${ML.plural(list.length,['услуга','услуги','услуг'])}</p>
   <div class="btn-row" style="margin-bottom:18px">
     <button class="btn btn-c" onclick="openWiz('service')">Добавить услугу</button>
-    <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос «Обновление информации»</button>
+    <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос на обновление информации</button>
   </div>
   ${serviceTable(list)}
-  <div class="dm-note" style="margin-top:16px">Групповой запрос пользователи отправляют только внутри
-  одной категории — поэтому раздел каталога в визарде обязателен.</div>`;
+  <div class="dm-note" style="margin-top:16px">Раздел каталога обязателен — по нему пользователи находят услугу.</div>`;
 },
 
 /* ── Входящие запросы ── */
@@ -2907,6 +3031,7 @@ document.addEventListener('click',e=>{
   const _pg=_page==='ocreate'?'ovenues':_page;
   if(_pg&&NAVS[currentRole].some(x=>x.id===_pg)) currentPage=_pg;
   renderNav();renderPage();
+  try { const fl=sessionStorage.getItem('mh_flash'); if(fl){ sessionStorage.removeItem('mh_flash'); MH.toast(fl,'success'); } } catch(e){}
 })();
 </script>
 </body>
