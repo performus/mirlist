@@ -139,6 +139,8 @@ textarea.fi{min-height:88px;resize:vertical;}
   .d-title{font-size:26px;}
   .wrap{padding:18px 18px 48px;}
 }
+.tbl.props{margin-top:14px;min-width:0;width:100%;}
+.tbl.props th{width:55%;font-weight:500;color:var(--slate-muted,#7A919F);text-align:left;}
 </style>
 </head>
 <body>
@@ -183,6 +185,15 @@ function render() {
     <td class="${x.loyalty ? 'pts' : 'no'}">${x.loyalty ? ML.servicePoints(x.price).toLocaleString('ru') + ' Б' : '—'}</td>
   </tr>`).join('');
 
+  /* R3-A: свойства, по которым поставщика находят в фильтрах — те же названия, что в панели. */
+  const yes = (b) => b ? 'да' : 'нет';
+  const props = [['Цена за', ML.priceUnitLabel(s.priceUnit).replace(/^за /, '')], ['Выезд в другие города', yes(s.travel)]];
+  if (s.child === 'Кейтеринг') props.push(['Цена на человека', s.pricePerPerson ? 'от ' + ML.money(s.pricePerPerson) : '—'],
+    ['Халяльное меню', yes(s.halal)], ['Кошерное меню', yes(s.kosher)]);
+  if (s.parent === 'Аренда' && s.child === 'Оборудование') props.push(['Доставка', yes(s.delivery)], ['Монтаж', yes(s.installation)], ['Оператор включён', yes(s.operator)]);
+  if (s.parent === 'Фото и видео') props.push(['Минимальное количество часов', s.minHours ? s.minHours + ' ч' : '—'],
+    ['Срок готовности материалов', s.deliveryDays ? 'до ' + s.deliveryDays + ' ' + ML.plural(s.deliveryDays, ['дня', 'дней', 'дней']) : '—']);
+
   const tiles = same.map(x => `<a class="tile" href="supplier.html?id=${x.id}">
     <div class="tile-img"><img src="${ML.photoUrl(x.photo)}" alt="" loading="lazy"></div>
     <div class="tile-body">
@@ -202,10 +213,11 @@ function render() {
       <div class="d-meta">
         <span>${esc(s.city)}</span>
         <span>опыт <b>${s.exp}</b> ${ML.plural(s.exp, ['год','года','лет'])}</span>
-        <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price))}</span>
+        <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price) + ' ' + ML.priceUnitLabel(s.priceUnit))}</span>
+        ${s.travel ? '<span>выезд в другие города</span>' : ''}
         ${s.loyalty ? '<span class="tag solid">Принимает баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
-        ${s.reviews ? '<span class="tag">Отзывы</span>' : ''}
+        ${ML.supplierHasReviews(s) ? '<span class="tag">Отзывы</span>' : ''}
       </div>
     </div>
     <div class="d-actions">
@@ -226,6 +238,7 @@ function render() {
         <p>Категория «${esc(s.child)}» в разделе «${esc(s.parent)}». Работает в городе ${esc(s.city)} и области,
         опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}. Стоимость рассчитывается под задачу мероприятия,
         в карточке указана нижняя граница.</p>
+        ${props.length ? `<table class="tbl props">${props.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`).join('')}</table>` : ''}
       </div>
 
       <div class="sec-head">
