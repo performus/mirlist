@@ -165,6 +165,7 @@ button{font-family:inherit;cursor:pointer;}
 .flines{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--slate-mid);margin-bottom:10px;}
 .flines b{color:var(--slate-deep);}
 .menu-dl{display:inline-flex;margin-top:12px;}
+.star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12.5px;font-weight:700;vertical-align:1px;}
 </style>
 </head>
 <body>
@@ -256,7 +257,7 @@ function render() {
 
   // звёздность отделена от категории: строку показываем только там, где она применима
   const starRow = ML.STARRED_CATS.includes(v.cat)
-    ? [['Звёздность', v.stars ? '★'.repeat(v.stars) : 'не присвоена']] : [];
+    ? [['Звёздность', v.stars ? `${v.stars}★` : 'не присвоена']] : [];
 
   const rows = full
     ? [['Категория', v.cat], ...starRow, ['Город', v.city], ['Адрес', v.addr],
@@ -284,8 +285,8 @@ function render() {
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
         <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
         <span><b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</span>
-        ${v.stars ? `<span class="d-stars">${'★'.repeat(v.stars)}</span>` : ''}
-        <span class="d-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
+        ${v.stars ? `<span class="star-badge" aria-label="Звёздность ${v.stars}" title="Звёздность отеля">${v.stars}★</span>` : ''}
+        <span class="d-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
 
       </div>
     </div>
@@ -312,6 +313,7 @@ function render() {
         <span class="sec-sub">Единицей выборки является зал, а не объект</span>
       </div>
       ${MH.lockBar('Расчётные цены аренды и вместимость залов видны зарегистрированным пользователям (если указаны объектом).')}
+      ${full ? MH.seatLegend(ML.SEATING.filter(s => v.halls.some(h => h.seats[s.k])).map(s => s.k)) : ''}
       <div class="hrows">${hallRows}</div>
 
       ${full && featureBlocks ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}` : ''}

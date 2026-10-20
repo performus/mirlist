@@ -160,6 +160,7 @@ a.tag.dl:hover{filter:brightness(1.06);}
   .sec-title{font-size:19px;}
   .wrap{padding:18px 18px 48px;}
 }
+.star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12.5px;font-weight:700;vertical-align:1px;}
 </style>
 </head>
 <body>
@@ -245,7 +246,7 @@ function render() {
   <div class="dhead">
     <div>
       <div class="d-venue">${esc(h.type)} · <a href="venue.html?id=${v.id}">${esc(v.name)}</a>${
-        v.stars ? `<span class="d-vstars" aria-label="${v.stars} ${ML.plural(v.stars, ['звезда', 'звезды', 'звёзд'])}">${'★'.repeat(v.stars)}</span>` : ''}</div>
+        v.stars ? `<span class="star-badge" aria-label="Звёздность ${v.stars}" title="Звёздность отеля">${v.stars}★</span>` : ''}</div>
       <h1 class="d-title">${esc(h.name)}</h1>
       <div class="d-meta">
         <span><b>${h.area}</b> м²</span>
@@ -269,10 +270,9 @@ function render() {
     <div>
       <div class="sec-head first">
         <h2 class="sec-title">Вместимость по схемам рассадки</h2>
-        <span class="sec-sub">${full ? 'Количество человек в каждом из вариантов' : ''}</span>
       </div>
       ${full
-        ? (seatTiles ? `<div class="seats">${seatTiles}</div>${MH.seatLegend(ML.SEATING.filter(s => h.seats[s.k]).map(s => s.k))}`
+        ? (seatTiles ? `<div class="seats">${seatTiles}</div>`
             : '<div class="panel pad">Схемы рассадки для этого зала не указаны.</div>')
         : MH.isLocked()
         ? MH.lock(`<div class="seats">${seatTiles}</div>`, 'Вместимость при разных схемах рассадки доступна после регистрации')
@@ -303,7 +303,7 @@ function render() {
         <div class="vcard-body">
           <div class="eyebrow">Объект</div>
           <a class="vcard-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
-          <div class="vcard-sub">${esc(v.cat)}${v.stars ? ' <span class="vcard-stars">' + '★'.repeat(v.stars) + '</span>' : ''} · ${esc(v.city)}</div>
+          <div class="vcard-sub">${esc(v.cat)}${v.stars ? ' <span class="star-badge" aria-label="Звёздность ' + v.stars + '">' + v.stars + '★</span>' : ''} · ${esc(v.city)}</div>
           <div class="vcard-sub">${IC.star} <b>${v.rating}</b> (${v.reviews}) · ${MH.blurOnly('до <b>' + ML.venueCapacity(v) + '</b> чел.')} · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
           <a class="btn sm" style="display:block;text-align:center;margin-top:12px" href="venue.html?id=${v.id}">Карточка объекта</a>
         </div>

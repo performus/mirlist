@@ -243,6 +243,18 @@ textarea.fi{min-height:110px;resize:vertical;line-height:1.55;}
   .colhead.corner{width:150px;min-width:150px;max-width:150px;}
   .row2{grid-template-columns:1fr;}
 }
+.star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12px;font-weight:700;}
+.one{max-width:720px;}
+.one-card{display:flex;gap:16px;align-items:center;margin-top:20px;background:var(--white,#fff);border:1px solid rgba(197,227,225,.35);border-radius:var(--r-lg,20px);box-shadow:var(--sh-md);padding:14px;}
+.one-img{width:160px;height:110px;flex:none;border-radius:var(--r-md,14px);overflow:hidden;background:var(--aqua-pale);}
+.one-img img{width:100%;height:100%;object-fit:cover;}
+.one-b{min-width:0;}
+.one-name{display:block;font-size:17px;font-weight:700;color:var(--slate-deep);}
+.one-venue{display:block;font-size:13px;color:var(--coral);margin-top:3px;}
+.one-meta{font-size:13px;color:var(--slate-muted);margin-top:8px;}
+.one-note{margin-top:16px;}
+.one-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+@media(max-width:600px){.one-card{flex-direction:column;align-items:stretch;}.one-img{width:100%;height:160px;}}
 </style>
 </head>
 <body>
@@ -281,7 +293,7 @@ function buildRows() {
     ['Объект',            (h, v) => `<a href="venue.html?id=${v.id}" style="color:var(--coral)">${esc(v.name)}</a>`],
     ['Категория объекта', (h, v) => esc(v.cat)],
     ['Звёздность', (h, v) => ML.STARRED_CATS.includes(v.cat)
-      ? (v.stars ? '<span class="cmp-stars">' + '★'.repeat(v.stars) + '</span>' : 'не присвоена')
+      ? (v.stars ? `<span class="star-badge" aria-label="Звёздность ${v.stars}">${v.stars}★</span>` : 'не присвоена')
       : 'не применимо'],
     ['Город',             (h, v) => esc(v.city)],
     { g: 'Зал' },
@@ -333,6 +345,28 @@ function render() {
       <p>Отметьте залы значком <span class="ic-hint">${IC.cmp}</span> на странице подбора — здесь появится таблица параметров,
       кнопки выгрузки презентации и отправки группового запроса в отделы продаж.</p>
       <a class="btn pri" href="search.html">Перейти к подбору</a>
+    </div>`;
+    return;
+  }
+
+  /* стр.98: сравнивать можно от двух залов. С одним залом — его карточка и подсказка. */
+  if (halls.length === 1) {
+    const h = halls[0], v = ML.hallVenue(h);
+    root.innerHTML = head + `<div class="one">
+      <h1 class="d-title">Сравнение залов</h1>
+      <div class="one-card">
+        <div class="one-img"><img src="${ML.photoUrl(h.photo)}" alt=""></div>
+        <div class="one-b">
+          <a class="one-name" href="hall.html?id=${h.id}">${esc(h.name)}</a>
+          <a class="one-venue" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+          <div class="one-meta">${esc(h.type)} · ${h.area} м² · до ${ML.hallCapacity(h)} чел. · ${h.priceDay ? ML.money(h.priceDay) + ' / день' : 'по договорённости'}</div>
+        </div>
+      </div>
+      <div class="note one-note"><span>Для сравнения нужно хотя бы два зала.</span></div>
+      <div class="btn-row one-btns">
+        <a class="btn pri" href="search.html">Перейти к подбору</a>
+        <button class="btn" onclick="clearAll()">Очистить список</button>
+      </div>
     </div>`;
     return;
   }
@@ -389,8 +423,6 @@ function render() {
       <span>Выгрузка презентаций недоступна на тарифе <b>«СТАРТ»</b>.
       На «БИЗНЕС» файл собирается с рекламным блоком, на «ПРЕМИУМ» — без него.</span>
       <a class="btn sm" href="pricing.html" ${MH.payAttr('biz', 'Выгрузка презентации')}>Перейти на «БИЗНЕС»</a></div>` : ''}
-
-  ${MH.seatLegend()}
 
   <div class="cmp-nav">
     <span class="cmp-nav-hint" id="cmpHint"></span>

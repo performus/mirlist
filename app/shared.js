@@ -326,18 +326,28 @@ const MH = (() => {
       /* Значок сравнения в шапке (стр.4): виден везде, активен с двух залов */
       .mh-cmp {
         position: relative; display: inline-flex; align-items: center; justify-content: center;
-        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+        height: 40px; padding: 0 12px; gap: 7px; border-radius: 50px; flex-shrink: 0;
         background: #EDF6F5; color: #354E63; text-decoration: none; transition: background .18s, color .18s;
+        font: 600 13px 'Onest', system-ui, sans-serif; white-space: nowrap;
+      }
+      .mh-cmp.mob { width: 40px; padding: 0; }
+      .mh-cmp.mob .mh-cmp-l { display: none; }
+      /* стр.4: подпись «Сравнение» — на широком экране; уже 1600 px она уступает место имени пользователя
+         (решение на согласование), остаётся круглая кнопка со счётчиком в углу */
+      @media (max-width: 1599px) {
+        .mh-right .mh-cmp { width: 40px; padding: 0; }
+        .mh-right .mh-cmp .mh-cmp-l { display: none; }
+        .mh-right .mh-cmp .mh-cmp-n { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; line-height: 18px; border: 2px solid #fff; }
       }
       .mh-cmp svg { width: 19px; height: 19px; }
       .mh-cmp:hover { background: #FCEAE4; color: #E8846A; }
       .mh-cmp.off { color: #9DB0BC; background: #F3F5F6; cursor: default; }
       .mh-cmp.off:hover { background: #F3F5F6; color: #9DB0BC; }
       .mh-cmp-n {
-        position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px;
-        border-radius: 50px; background: #E8846A; color: #fff; border: 2px solid #fff;
-        font: 700 10.5px/14px 'Onest', system-ui, sans-serif; text-align: center;
+        min-width: 22px; height: 22px; padding: 0 6px; border-radius: 50px; background: #E8846A; color: #fff;
+        font: 700 12px/22px 'Onest', system-ui, sans-serif; text-align: center;
       }
+      .mh-cmp.mob .mh-cmp-n { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; line-height: 18px; border: 2px solid #fff; }
       .mh-cmp.off .mh-cmp-n { background: #B4C3CC; }
       .mh-cmp.off[data-tip]:hover::after {
         content: attr(data-tip); position: absolute; top: calc(100% + 8px); right: -6px; z-index: 720;
@@ -449,7 +459,11 @@ const MH = (() => {
       .mh-fbad { border-color: #D9534F !important; background: #FFF6F5 !important; }
       .mh-ferr { margin-top: 5px; font-family: 'Onest', system-ui, sans-serif; font-size: 12px; line-height: 1.4; color: #C7463F; }
       /* Рамка объекта с выделением: 2 px в цвет акцента, скругление как у карточки */
-      .ml-ad-frame { outline: 2px solid var(--c, var(--coral, #E8846A)); outline-offset: -2px; }
+      /* стр.42 (R3): выделенный объект — рамка 3 px цвета акцента, лёгкая заливка и тень сильнее обычной */
+      .ml-ad-frame { outline: 3px solid var(--c, var(--coral, #E8846A)); outline-offset: -3px;
+        background: var(--cs, #FCEAE4) !important; box-shadow: 0 10px 34px rgba(233,134,103,.22) !important; }
+      .mh-toast-act { margin-left: 10px; padding: 5px 12px; border-radius: 50px; border: 1.5px solid currentColor;
+        background: none; color: inherit; font: 600 12.5px 'Onest', system-ui, sans-serif; cursor: pointer; white-space: nowrap; }
 
       /* Модальное окно сайта: подтверждения и пейвол */
       .mh-dlg-ovl {
@@ -510,11 +524,13 @@ const MH = (() => {
   function hasCompare(session) { return !session || sessionRole() === 'user'; }
   function cmpHTML(mob) {
     const n = (typeof ML !== 'undefined' && ML.state) ? ML.state.compare.size : 0;
-    const on = n >= 2;
+    /* стр.4 (R3): значок + подпись «Сравнение» (на ≥1240 px) + счётчик в кружке цвета акцента.
+       Активна уже с одним залом (compare.html покажет его и подскажет добавить второй), с нулём — приглушена. */
+    const on = n >= 1;
     const tip = 'Добавьте в сравнение хотя бы два зала';
     return on
-      ? `<a class="mh-cmp${mob ? ' mob' : ''}" data-cmp href="compare.html" title="Сравнение" aria-label="Сравнение: ${n} ${plural(n, ['зал', 'зала', 'залов'])}">${IC_CMP}<span class="mh-cmp-n">${n}</span></a>`
-      : `<span class="mh-cmp off${mob ? ' mob' : ''}" data-cmp role="link" aria-disabled="true" data-tip="${tip}" title="${tip}" aria-label="Сравнение недоступно: ${tip.toLowerCase()}">${IC_CMP}${n ? `<span class="mh-cmp-n">${n}</span>` : ''}</span>`;
+      ? `<a class="mh-cmp${mob ? ' mob' : ''}" data-cmp href="compare.html" title="Сравнение" aria-label="Сравнение: ${n} ${plural(n, ['зал', 'зала', 'залов'])}">${IC_CMP}<span class="mh-cmp-l">Сравнение</span><span class="mh-cmp-n">${n}</span></a>`
+      : `<span class="mh-cmp off${mob ? ' mob' : ''}" data-cmp role="link" aria-disabled="true" data-tip="${tip}" title="${tip}" aria-label="Сравнение недоступно: ${tip.toLowerCase()}">${IC_CMP}<span class="mh-cmp-l">Сравнение</span></span>`;
   }
   const plural = (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; };
   /** Перерисовать значок после изменения сравнения — без перезагрузки страницы. */
@@ -892,7 +908,14 @@ const MH = (() => {
     });
   }
 
+  /* стр.100 (R3): «Гость» — всегда «не вошёл». Сессия пользователя при гостевом уровне доступа
+     (например, после переключения в сервисной панели) снимается, чтобы в шапке не было «Войти» и аккаунта сразу. */
+  function normalizeGuest() {
+    const s = getSession();
+    if (s && sessionRole() === 'user' && typeof ML !== 'undefined' && ML.isGuest && ML.isGuest()) localStorage.removeItem(KEY);
+  }
   function init(active) {
+    normalizeGuest();
     injectSeatCSS();
     initTransition();
     injectSkeletonCSS();
@@ -913,8 +936,10 @@ const MH = (() => {
     }
   }
 
-  function toast(msg, type) {
-    type = type || 'success';
+  /* opts: { action: { label, fn }, ms } — кнопка в тосте (например «Вернуть»), время показа. */
+  const TOAST_FN = {};
+  function toast(msg, type, opts) {
+    type = type || 'success'; opts = opts || {};
     const icons = { success: '✓', error: '✕', info: 'ℹ' };
     let container = document.getElementById('mh-toasts');
     if (!container) {
@@ -925,13 +950,15 @@ const MH = (() => {
     }
     const el = document.createElement('div');
     el.className = `mh-toast ${type}`;
-    el.innerHTML = `<span class="mh-toast-icon">${icons[type] || icons.success}</span><span>${msg}</span>`;
+    const key = 't' + Date.now() + Math.random().toString(36).slice(2, 6);
+    if (opts.action) TOAST_FN[key] = opts.action.fn;
+    el.innerHTML = `<span class="mh-toast-icon">${icons[type] || icons.success}</span><span>${msg}</span>`
+      + (opts.action ? `<button type="button" class="mh-toast-act" data-k="${key}">${opts.action.label}</button>` : '');
+    const hide = () => { el.classList.remove('show'); delete TOAST_FN[key]; setTimeout(() => el.remove(), 250); };
+    if (opts.action) el.querySelector('.mh-toast-act').onclick = () => { const fn = TOAST_FN[key]; hide(); if (fn) fn(); };
     container.appendChild(el);
     requestAnimationFrame(() => el.classList.add('show'));
-    setTimeout(() => {
-      el.classList.remove('show');
-      setTimeout(() => el.remove(), 250);
-    }, 3000);
+    setTimeout(hide, opts.ms || 3000);
   }
 
   function feedback() {
@@ -1755,7 +1782,11 @@ const MH = (() => {
     bar.querySelectorAll('[data-demo-level]').forEach(b => {
       b.addEventListener('click', () => {
         if (typeof ML === 'undefined' || !ML.setTariff) return;
-        ML.setTariff(b.dataset.demoLevel);
+        const lvl = b.dataset.demoLevel;
+        /* стр.100: «Гость» — выход из аккаунта; платный или бесплатный уровень без входа — вход в демо-пользователя */
+        if (lvl === 'guest') { if (getSession() && sessionRole() === 'user') localStorage.removeItem(KEY); }
+        else if (!getSession()) setSession(sessionFor(DEMO_ACCOUNTS.find(a => a.role === 'user')));
+        ML.setTariff(lvl);
         saveDemoScroll();
         location.reload();     // состояние уже в localStorage, страница перерисовывается целиком
       });

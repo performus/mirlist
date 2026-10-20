@@ -507,13 +507,13 @@ h1,h2,h3 { font-weight:700; }
 .f-chip button:hover { background:#fff; }
 
 /* ── блок объекта ── */
-.vlist { display:flex; flex-direction:column; gap:16px; }
+.vlist { display:flex; flex-direction:column; gap:10px; }
 .vb {
   background:var(--white);
   border:1px solid rgba(197,227,225,.28);
   border-radius:var(--r-lg);
   box-shadow:var(--sh-md);
-  padding:18px 18px 12px;
+  padding:11px 16px 5px;
   transition:border-color .25s, box-shadow .25s;
 }
 .vb.hi { border-color:var(--coral); box-shadow:0 0 0 2px var(--coral-glow), var(--sh-lg); }
@@ -543,15 +543,15 @@ h1,h2,h3 { font-weight:700; }
 .map-hint[hidden] { display:none; }
 .vb-head {
   display:flex; align-items:flex-start; justify-content:space-between;
-  gap:14px; flex-wrap:wrap; margin-bottom:14px;
+  gap:14px; flex-wrap:wrap; margin-bottom:4px;
 }
 .vb-name {
-  font-size:17px; font-weight:700; color:var(--slate-deep);
+  font-size:16px; font-weight:700; color:var(--slate-deep);
   letter-spacing:-.2px; transition:color .2s;
 }
 .vb-name:hover { color:var(--coral); }
 .vb-meta {
-  display:flex; gap:14px; flex-wrap:wrap; margin-top:5px;
+  display:flex; gap:14px; flex-wrap:wrap; margin-top:2px;
   font-size:12.5px; color:var(--slate-muted);
 }
 .vb-meta b { color:var(--slate-deep); font-weight:700; }
@@ -571,7 +571,7 @@ h1,h2,h3 { font-weight:700; }
 /* Метка бонусной программы: выгода пользователя, поэтому акцентом. */
 .vb-loyal {
   display:inline-block; margin-left:10px; vertical-align:2px;
-  padding:4px 11px; border-radius:var(--r-full);
+  padding:2px 10px; border-radius:var(--r-full);
   background:var(--coral); color:#fff;
   font-size:11px; font-weight:700; letter-spacing:.02em; white-space:nowrap;
 }
@@ -587,7 +587,7 @@ h1,h2,h3 { font-weight:700; }
 .rail {
   display:flex; gap:12px; overflow-x:auto;
   scroll-snap-type:x proximity;
-  padding:2px 2px 10px;
+  padding:4px 2px 5px;
   scrollbar-width:thin; scrollbar-color:var(--aqua-2) transparent;
 }
 .rail::-webkit-scrollbar { height:6px; }
@@ -602,23 +602,32 @@ h1,h2,h3 { font-weight:700; }
   box-shadow:var(--sh-md); transition:all .2s; z-index:2;
 }
 .rail-btn:hover { background:#fff; color:var(--coral); border-color:var(--coral); }
+.rail-btn[hidden] { display:none; }
 .rail-btn.p { left:-10px; }
 .rail-btn.n { right:-10px; }
 
 /* ── карточка зала ── */
+/* стр.46/88: компактная горизонтальная плитка — на 1440×900 видно не меньше трёх объектов;
+   стр.104: плитки в ряду одной высоты, нижняя строка прижата к низу */
 .hc {
-  flex:0 0 208px; scroll-snap-align:start;
+  flex:0 0 272px; scroll-snap-align:start; display:flex;
   border:1px solid rgba(197,227,225,.32);
   border-radius:var(--r-md); overflow:hidden;
   background:var(--white);
   transition:border-color .25s, box-shadow .25s, transform .25s;
 }
+.hc .hc-body { display:flex; flex-direction:column; flex:1; min-width:0; }
+.hc .hc-foot { margin-top:auto; }
+.hc-per { font-size:11px; font-weight:600; color:var(--slate-muted); }
+.hc-hour { font-size:11px; line-height:13px; font-weight:600; color:var(--slate-mid); }
+.star-badge { display:inline-flex; align-items:center; padding:1px 7px; border-radius:var(--r-full); background:var(--bg);
+  border:1px solid rgba(180,195,204,.6); color:var(--slate-mid); font-size:11.5px; font-weight:700; letter-spacing:0; }
 .hc:hover { transform:translateY(-3px); box-shadow:var(--sh-lg); }
 .hc.picked { border-color:var(--coral); box-shadow:inset 0 0 0 1px var(--coral); }
-.hc-img { height:104px; position:relative; overflow:hidden; background:var(--aqua-pale); }
+.hc-img { width:92px; flex:none; position:relative; overflow:hidden; background:var(--aqua-pale); }
 .hc-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.22,1,.36,1); }
 .hc:hover .hc-img img { transform:scale(1.06); }
-.hc-tags { position:absolute; top:8px; left:8px; display:flex; gap:5px; flex-wrap:wrap; }
+.hc-tags { position:absolute; top:6px; left:6px; right:6px; display:flex; gap:4px; flex-wrap:wrap; }
 .hc-tag {
   padding:3px 9px; border-radius:var(--r-full);
   font-size:10px; font-weight:600;
@@ -626,9 +635,10 @@ h1,h2,h3 { font-weight:700; }
   backdrop-filter:blur(8px);
 }
 .hc-tag.plan { background:rgba(233,134,103,.9); color:#fff; }
-.hc-body { padding:11px 12px 12px; }
-.hc-name { font-size:13.5px; font-weight:700; color:var(--slate-deep); margin-bottom:8px; line-height:1.3; }
-.hc-caps { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:9px; min-height:20px; }
+.hc-body { padding:7px 9px; }
+.hc-name { font-size:13px; font-weight:700; color:var(--slate-deep); margin-bottom:3px; line-height:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hc-caps { display:flex; flex-wrap:nowrap; overflow:hidden; gap:4px; margin-bottom:4px; min-height:18px; }
+.hc .hc-cap { padding:2px 5px; font-size:10px; }
 .hc-cap {
   display:inline-flex; align-items:center; gap:4px;
   font-size:10.5px; font-weight:600;
@@ -636,12 +646,12 @@ h1,h2,h3 { font-weight:700; }
   border-radius:5px; padding:3px 6px;
 }
 .hc-cap .ml-seat { color:var(--slate-muted); }
-.hc-price { font-size:15px; font-weight:800; color:var(--slate-deep); margin-bottom:10px; }
+.hc-price { font-size:13.5px; line-height:17px; font-weight:800; color:var(--slate-deep); margin-bottom:5px; }
 .hc-price i { font-style:normal; font-size:11.5px; font-weight:500; color:var(--slate-muted); }
 .hc-foot { display:flex; align-items:center; justify-content:space-between; gap:6px; }
 .hc-acts { display:flex; gap:6px; }
 .hc-ic {
-  width:30px; height:30px; border-radius:50%;
+  width:24px; height:24px; border-radius:50%;
   background:var(--aqua-pale); border:none;
   display:flex; align-items:center; justify-content:center;
   color:var(--slate-muted); transition:all .2s;
@@ -651,7 +661,7 @@ h1,h2,h3 { font-weight:700; }
 .hc-ic.on svg { fill:currentColor; }
 .hc-ic:disabled { opacity:.35; cursor:not-allowed; }
 .hc-more {
-  padding:7px 12px; border-radius:var(--r-full);
+  padding:4px 10px; border-radius:var(--r-full);
   font-size:12px; font-weight:600;
   background:var(--aqua-pale); color:var(--slate);
   border:none; transition:all .2s; white-space:nowrap;
@@ -782,10 +792,21 @@ h1,h2,h3 { font-weight:700; }
 }
 .cmp-go:hover { background:var(--coral-hover); }
 .cmp-clear {
-  background:none; border:none; color:rgba(255,255,255,.6);
-  font-size:17px; line-height:1; padding:0 4px; transition:color .2s;
+  background:none; border:1.5px solid rgba(255,255,255,.35); color:rgba(255,255,255,.85);
+  font-size:12.5px; font-weight:600; padding:6px 14px; border-radius:var(--r-full); transition:all .2s;
 }
-.cmp-clear:hover { color:#fff; }
+.cmp-clear:hover { color:#fff; border-color:#fff; }
+.cmp-go:disabled { background:rgba(255,255,255,.18); color:rgba(255,255,255,.55); cursor:not-allowed; }
+.cmp-go-w { position:relative; display:inline-flex; }
+.cmp-go-w.tip:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%);
+  white-space:nowrap; background:#fff; color:var(--slate-deep); font-size:12px; font-weight:600; padding:7px 12px;
+  border-radius:var(--r-sm); box-shadow:var(--sh-md); }
+/* стр.103: обзор по городам */
+.map-city { position:absolute; transform:translate(-50%,-50%); z-index:3; padding:7px 13px; border-radius:var(--r-full);
+  border:2px solid #fff; background:var(--coral); color:#fff; font-size:12.5px; font-weight:600; white-space:nowrap;
+  box-shadow:0 4px 14px rgba(53,78,99,.25); cursor:pointer; transition:transform .2s; }
+.map-city:hover { transform:translate(-50%,-50%) scale(1.07); }
+.map-city b { font-weight:700; }
 
 /* ══════════════════════════════════════════════
    RESPONSIVE
@@ -944,8 +965,8 @@ h1,h2,h3 { font-weight:700; }
 
 <div class="cmp-bar" id="cmpBar">
   <span><b id="cmpCount">0</b> <span id="cmpWord">залов</span> в сравнении</span>
-  <button class="cmp-go" onclick="openCompare()">Сравнить</button>
-  <button class="cmp-clear" onclick="clearCompare()" aria-label="Очистить">✕</button>
+  <span class="cmp-go-w" id="cmpGoWrap"><button class="cmp-go" id="cmpGo" onclick="openCompare()">Сравнить</button></span>
+  <button class="cmp-clear" onclick="clearCompare(true)">Очистить</button>
 </div>
 
 <script src="data.js"></script>
@@ -967,7 +988,7 @@ let HOVER = null;                 // id объекта, подсвеченног
 let SORT = 'rel';
 let ZOOM = 1;
 const OPEN = new Set(['main', 'type']);   // раскрытые группы фильтров
-const PER_PAGE = 10;
+const PER_PAGE = 20;              // стр.46/88: 20 объектов на страницу
 let PAGE = 1, PAGE_SIG = '';
 /** Применён ли хоть один фильтр. Без фильтров — стартовая карта со всеми объектами. */
 function hasFilters() { return ML.filtersActive(F) || ML.state.blacklist.size > 0; }
@@ -1354,7 +1375,7 @@ function hallCard(h) {
   const fav = ML.isFav(h.id);
   // На «СТАРТ» вместо схем рассадки показываем площадь.
   const caps = t.fullInfo
-    ? ML.SEATING.filter(s => h.seats[s.k]).slice(0, 4)
+    ? ML.SEATING.filter(s => h.seats[s.k]).slice(0, 3)
         .map(s => `<span class="hc-cap">${MH.seatIcon(s.k, { size: 14 })}${h.seats[s.k]}</span>`).join('')
     : `<span class="hc-cap">${h.area} м²</span>`;
   return `<article class="hc${inC ? ' picked' : ''}">
@@ -1368,7 +1389,8 @@ function hallCard(h) {
     <div class="hc-body">
       <div class="hc-name">${esc(h.name)}</div>
       <div class="hc-caps">${MH.blurOnly(caps)}</div>
-      <div class="hc-price">${MH.blurOnly(h.priceDay ? ML.money(h.priceDay) : '<i>по договорённости</i>')}</div>
+      <div class="hc-price">${MH.blurOnly(h.priceDay ? ML.money(h.priceDay) + '<span class="hc-per"> / день</span>'
+        : h.priceHour ? '' : '<i>по договорённости</i>')}${h.priceHour ? `<div class="hc-hour">${MH.blurOnly('от ' + ML.money(h.priceHour) + ' / час')}</div>` : ''}</div>
       <div class="hc-foot">
         <div class="hc-acts">
           <button class="hc-ic${inC ? ' on' : ''}" onclick="toggleCmp(${h.id})" title="${inC ? 'Убрать из сравнения' : 'В сравнение'}">${IC.cmp}</button>
@@ -1397,8 +1419,8 @@ function venueBlock(x) {
           <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
           <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
-          ${v.stars ? `<span class="vb-stars">${'★'.repeat(v.stars)}</span>` : ''}
-          <span class="vb-rating">${IC.star} <b>${v.rating}</b> (${v.reviews})</span>
+          ${v.stars ? `<span class="star-badge" title="Звёздность отеля: ${v.stars}" aria-label="Звёздность ${v.stars}">${v.stars}★</span>` : ''}
+          <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
         </div>
       </div>
       ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})"
@@ -1407,16 +1429,27 @@ function venueBlock(x) {
     ${x.matched ? `<div class="vb-match">Требованиям отвечают: ${halls.map(h => esc(h.name)).join(' · ')}</div>` : ''}
     <div class="rail-wrap">
       <div class="rail" id="rail-${v.id}">${halls.map(hallCard).join('')}</div>
-      ${halls.length > 2 ? `<button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад">‹</button>
-      <button class="rail-btn n" onclick="scrollRail(${v.id},1)" aria-label="Вперёд">›</button>` : ''}
+      <button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад" hidden>‹</button>
+      <button class="rail-btn n" onclick="scrollRail(${v.id},1)" aria-label="Вперёд" hidden>›</button>
     </div>
   </section>`;
 }
 
 function scrollRail(id, d) {
   const el = document.getElementById('rail-' + id);
-  if (el) el.scrollBy({ left: d * 220, behavior: 'smooth' });
+  if (el) el.scrollBy({ left: d * 260, behavior: 'smooth' });
 }
+/* стр.89/113: стрелки — только когда залы не помещаются в карточку; левая — только если ряд прокручен. */
+function syncRails() {
+  document.querySelectorAll('.rail-wrap').forEach(w => {
+    const r = w.querySelector('.rail'); if (!r) return;
+    const over = r.scrollWidth > r.clientWidth + 2;
+    w.querySelector('.rail-btn.n').hidden = !over || r.scrollLeft + r.clientWidth >= r.scrollWidth - 2;
+    w.querySelector('.rail-btn.p').hidden = !over || r.scrollLeft <= 2;
+    if (!r._rs) { r._rs = true; r.addEventListener('scroll', () => syncRails(), { passive: true }); }
+  });
+}
+window.addEventListener('resize', () => syncRails());
 
 /* ══════════════════════════════════════════════
    КАРТА
@@ -1453,6 +1486,20 @@ const MAP_SVG = `<svg class="map-bg" viewBox="0 0 100 100" preserveAspectRatio="
 </svg>`;
 
 function renderMap(list) {
+  /* стр.103: объекты из нескольких городов — одна метка на город «Москва · 12»; клик выставляет город. */
+  const cities = [...new Set(list.map(x => x.venue.city))];
+  if (cities.length > 1) {
+    const marks = cities.map(c => {
+      const n = list.filter(x => x.venue.city === c).length, pt = CITY_OVERVIEW[c] || ML.CITY_MAP[c] || [50, 50];
+      return `<button class="map-city" style="left:${pt[0]}%;top:${pt[1]}%" onclick="pickCity('${jt(c)}')"
+        title="Показать объекты: ${esc(c)}"><b>${esc(c)}</b> · ${n}</button>`;
+    }).join('');
+    const sc0 = document.getElementById('mapScale');
+    sc0.innerHTML = MAP_SVG + marks + '<div class="pin-pop" id="pinPop" hidden></div>';
+    sc0.classList.remove('paged');
+    document.getElementById('mapCount').textContent = list.length;
+    return;
+  }
   const pins = list.map(x => {
     const v = x.venue;
     return `<button class="map-pin${HOVER === v.id ? ' hi' : ''}${PAGE_IDS.has(v.id) ? ' pg' : ''}" data-vid="${v.id}"
@@ -1472,6 +1519,11 @@ function renderMap(list) {
   document.getElementById('mapCount').textContent = list.length;
   paintHover();
 }
+
+/* Метки обзора по городам разнесены по вертикали, чтобы подписи не налезали в узкой колонке карты. */
+const CITY_OVERVIEW = { 'Санкт-Петербург': [36, 12], 'Подмосковье': [62, 25], 'Москва': [46, 38], 'Нижний Новгород': [62, 51],
+  'Казань': [38, 64], 'Самара': [60, 77], 'Сочи': [40, 89] };
+function pickCity(c) { F.city = c; PAGE = 1; syncBar(); renderFilters(); render(); }
 
 /* Подсветка: наведение на блок объекта ↔ пин на карте. Без перерисовки DOM. */
 function setHover(id) {
@@ -1571,10 +1623,17 @@ function addBlack(venueId) {
   MH.toast('Объект скрыт из выдачи', 'info');
   render();
 }
-function clearCompare() { ML.clearCompare(); render(); }
+/* стр.101: «Очистить» очищает сравнение без перехода; 5 секунд можно вернуть список. */
+function clearCompare(undo) {
+  const was = [...ML.state.compare];
+  ML.clearCompare(); render();
+  if (undo && was.length) MH.toast('Список сравнения очищен', 'info', { ms: 5000, action: { label: 'Вернуть', fn: () => {
+    was.forEach(id => { if (!ML.inCompare(id)) ML.toggleCompare(id); }); render();
+  } } });
+}
 function openCompare() {
   // compare.html читает список из состояния модели, параметры в URL не нужны
-  if (!ML.state.compare.size) { MH.toast('Сначала добавьте залы в сравнение', 'error'); return; }
+  if (ML.state.compare.size < 2) { MH.toast('Добавьте ещё хотя бы один зал', 'error'); return; }
   MH.go('compare.html');
 }
 function resetAll() {
@@ -1679,6 +1738,11 @@ function render() {
   bar.classList.toggle('show', n > 0);
   document.getElementById('cmpCount').textContent = n;
   document.getElementById('cmpWord').textContent = ML.plural(n, ['зал', 'зала', 'залов']);
+  /* стр.98: сравнивать можно от двух залов */
+  const go = document.getElementById('cmpGo'), gw = document.getElementById('cmpGoWrap');
+  go.disabled = n < 2; gw.dataset.tip = n < 2 ? 'Добавьте ещё хотя бы один зал' : '';
+  gw.classList.toggle('tip', n < 2);
+  syncRails();
   document.getElementById('resClear').hidden = n === 0;
 }
 
@@ -1703,10 +1767,12 @@ function cityMatches(q) {
   return ML.CITIES.filter(c => !n || c.toLowerCase().startsWith(n) || c.toLowerCase().split(/[\s-]+/).some(w => w.startsWith(n)));
 }
 /* стр.80: первой строкой всегда «Любой город» (пустое значение) — снять город можно в любой момент. */
-const ANY_CITY = 'Любой город';
+/* R3-A: первая строка подсказок — «Все города» (комментарий клиента в файле фильтров); плейсхолдер поля — «Любой город». */
+const ANY_CITY = ML.ALL_CITIES;
+const isAnyCity = (v) => ['все города', 'любой город'].includes(String(v || '').trim().toLowerCase());
 function cityDraw() {
   const inp = document.getElementById('cbCity'), ul = document.getElementById('cbCityList');
-  const q = inp.value.trim().toLowerCase() === ANY_CITY.toLowerCase() ? '' : inp.value;
+  const q = isAnyCity(inp.value) ? '' : inp.value;
   CITY_ITEMS = [''].concat(cityMatches(q));
   if (CITY_PICK >= CITY_ITEMS.length) CITY_PICK = CITY_ITEMS.length - 1;
   ul.innerHTML = CITY_ITEMS.map((c, i) => `<li role="option" id="cbc-${i}" class="${i === CITY_PICK ? 'on' : ''}" aria-selected="${i === CITY_PICK}"
@@ -1732,7 +1798,7 @@ function cityPick(i) {
 function cityCommit() {
   const inp = document.getElementById('cbCity');
   const v = inp.value.trim();
-  if (!v || v.toLowerCase() === ANY_CITY.toLowerCase()) { inp.value = ''; if (F.city) { F.city = ''; render(); } return; }
+  if (!v || isAnyCity(v)) { inp.value = ''; if (F.city) { F.city = ''; render(); } return; }
   const exact = ML.CITIES.find(c => c.toLowerCase() === v.toLowerCase());
   const only = cityMatches(v);
   const c = exact || (only.length === 1 ? only[0] : null);
