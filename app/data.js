@@ -16,91 +16,308 @@
 (function () {
   'use strict';
 
-  /* ─────────── 1. СПРАВОЧНИКИ ─────────── */
+  /* ─────────── 1. СПРАВОЧНИКИ И КОНФИГ ФИЛЬТРОВ ───────────
+     R3-A: единственный источник правды по фильтрам — файл клиента
+     «ФИЛЬТРЫ — редактура 20.10.xlsx», листы «Площадки» и «Поставщики».
+     Здесь он перенесён в конфиг VENUE_FILTERS / SUPPLIER_FILTERS; по нему строятся
+     панели фильтров (search.html, suppliers.html), визарды кабинетов и карточки.
+     code — служебный код из колонки L без префикса («venue.cuisine» → cuisine);
+     по коду tests/filters-xlsx.test.js сверяет конфиг с файлом.
+
+     control — как выбирается (колонка C), буквально:
+       city      поле с автоподсказкой           select    выпадающий список, один выбор
+       range2    2 поля + двойной ползунок        checks    чекбоксы со счётчиками (логика «ИЛИ»)
+       check     чекбокс (со счётчиком)           numFrom   числовое поле «от»
+       numTo     поле / ползунок «до»             fromTo    2 поля: от и до
+       multi     мультивыбор с поиском            segments  сегменты, один выбор
+       halls     повторяемый блок «схема + вместимость от»
+       sliderFrom поле / ползунок «от»            tree      дерево чекбоксов со счётчиками
+       null      фильтра на сайте нет («Удалить», «СЛ ЭТАП»)
+     events   — типы мероприятий, при которых фильтр виден (нет — виден всегда);
+                при «Любом типе» и «Комбинированном» видны все.
+     decision — решение редактора из колонки J как есть; '' — не проставлено.
+     card     — короткая подпись на карточке объекта, если отличается. */
 
   const CITIES = ['Москва', 'Санкт-Петербург', 'Сочи', 'Казань', 'Нижний Новгород', 'Самара', 'Подмосковье'];
+  /* Первая строка подсказок города в фильтре (комментарий клиента, строка 7 файла).
+     Плейсхолдер пустого поля остаётся «Любой город», как в текстах сайта. */
+  const ALL_CITIES = 'Все города';
 
-  /* Звёздность — отдельное свойство объекта, а не категория: у отеля она
-     есть, у лофта её не бывает. В визарде выбирается ниже категории. */
-  /* Категории — как в файле клиента «фильтры сайт»: без «Конференц-площадки», «Другое» в конце
-     (в фильтре клиента «Другие», в визарде «Другое» — используем «Другое» в обоих местах). */
-  const VENUE_CATS = ['Отель', 'Бутик-отель', 'Лофт',
-    'Конгрессно-выставочная', 'Ресторан', 'Уличная площадка', 'Клуб', 'Корабль', 'Глэмпинг', 'Другое'];
+  const OK = 'УТВЕРЖДЕНО';
+  const EV = { b: 'business', q: 'banquet', w: 'wedding', t: 'teambuilding' };
+  const evs = (s) => s.split(' ').map(x => EV[x]);
+
+  /* Категории объекта — 10 вариантов файла. В данных объекта хранится подпись (v.cat),
+     код — в конфиге: так карточки и визарды не зависят от переименований. */
+  const VENUE_CAT_OPTS = [
+    { code: 'hotel', l: 'Отель' }, { code: 'boutique_hotel', l: 'Бутик-отель' }, { code: 'restaurant', l: 'Ресторан' },
+    { code: 'loft', l: 'Лофт' }, { code: 'congress_exhibition', l: 'Конгрессно-выставочная площадка' },
+    { code: 'outdoor', l: 'Уличная площадка' }, { code: 'ship', l: 'Корабль' }, { code: 'glamping', l: 'Глэмпинг' },
+    { code: 'club', l: 'Клуб' }, { code: 'other', l: 'Другое' },
+  ];
+  const VENUE_CATS = VENUE_CAT_OPTS.map(o => o.l);
+  /* Категории, переименованные по файлу фильтров (сохранённые фильтры, объекты кабинета). */
+  const CAT_RENAMES = { 'Конгрессно-выставочная': 'Конгрессно-выставочная площадка' };
   const STARRED_CATS = ['Отель', 'Бутик-отель'];   // где звёздность вообще применима
-  /* Варианты фильтра звёздности: «Без звёзд» — отели и бутик-отели без присвоенной
-     категории, дальше по одной звезде. В фильтре звёзды рисуются значками. */
+  /* Звёздность по файлу: «Без звёзд», 2, 3, 4, 5. Варианта «1 звезда» в файле нет. */
   const STAR_OPTIONS = [
-    { k: 0, l: 'Без звёзд' },
-    { k: 1, l: '1 звезда' },
-    { k: 2, l: '2 звезды' },
-    { k: 3, l: '3 звезды' },
-    { k: 4, l: '4 звезды' },
-    { k: 5, l: '5 звёзд' },
+    { k: 0, code: '0', l: 'Без звёзд' },
+    { k: 2, code: '2', l: '2 звезды' },
+    { k: 3, code: '3', l: '3 звезды' },
+    { k: 4, code: '4', l: '4 звезды' },
+    { k: 5, code: '5', l: '5 звёзд' },
   ];
   /** Ключ варианта звёздности объекта; null — звёздность к объекту неприменима. */
   const starKey = (v) => !STARRED_CATS.includes(v.cat) ? null : (v.stars || 0);
 
+  /* Типы мероприятий. l — подписи как в текстах сайта (главная, строка параметров подбора),
+     lf — названия из файла фильтров (сам фильтр в панели). «Комбинированное» — объекты,
+     у которых указано несколько типов (комментарий в строке 5 файла); при нём видны все фильтры. */
   const EVENT_TYPES = [
-    { k: 'business', l: 'Деловое' },
-    { k: 'banquet', l: 'Банкет / фуршет' },
-    { k: 'wedding', l: 'Свадьба' },
-    { k: 'team', l: 'Тимбилдинг' },
+    { k: 'business', l: 'Деловое', lf: 'Деловое мероприятие' },
+    { k: 'banquet', l: 'Банкет / фуршет', lf: 'Банкет / фуршет' },
+    { k: 'wedding', l: 'Свадьба', lf: 'Свадьба' },
+    { k: 'teambuilding', l: 'Тимбилдинг', lf: 'Тимбилдинг/Спортивное' },
   ];
-  /* Ключи шести типов из промежуточной версии (сохранённые фильтры и ссылки) → «Деловое».
-     Пустой ключ — «Любой тип»: с него начинается подбор, на карте все объекты. */
-  const EVENT_TYPE_RENAMES = { forum: 'business', presentation: 'business', meeting: 'business', online: 'business' };
+  const EVENT_COMBINED = { k: 'combined', l: 'Комбинированное', lf: 'Комбинированное' };
+  /* Ключи из прошлых версий (сохранённые фильтры и ссылки): шесть типов промежуточной
+     версии → «Деловое», 'team' (до R3) → 'teambuilding'. Пустой ключ — «Любой тип». */
+  const EVENT_TYPE_RENAMES = { forum: 'business', presentation: 'business', meeting: 'business', online: 'business', team: 'teambuilding' };
   const normEventType = (k) => {
     k = EVENT_TYPE_RENAMES[k] || k || '';
-    return EVENT_TYPES.some(e => e.k === k) ? k : '';
+    return EVENT_TYPES.some(e => e.k === k) || k === 'combined' ? k : '';
   };
 
-  // Ключи совпадают с полем formats из старого compare.html — плюс U-shape.
-  /* shape — временная фигура-заглушка вместо иконки. Когда придут настоящие
-     иконки, менять только здесь: страницы рисуют по этому полю. */
+  /* Схемы рассадки. k — ключ в данных зала (seats), code — код файла; названия — из файла. */
   const SEATING = [
-    { k: 'theatre',   l: 'Театр',       shape: 'triangle' },
-    { k: 'class',     l: 'Класс',       shape: 'square' },
-    { k: 'ushape',    l: 'U-shape',     shape: 'u' },
-    { k: 'banquet',   l: 'Банкет',      shape: 'circle' },
-    { k: 'reception', l: 'Фуршет',      shape: 'dots' },
-    { k: 'cabaret',   l: 'Кабаре',      shape: 'halfcircle' },
-    { k: 'board',     l: 'Переговоры',  shape: 'rect' },
+    { k: 'theatre',   code: 'theatre',   l: 'Театр' },
+    { k: 'class',     code: 'classroom', l: 'Класс' },
+    { k: 'ushape',    code: 'ushape',    l: 'U-образная' },
+    { k: 'banquet',   code: 'banquet',   l: 'Банкет' },
+    { k: 'reception', code: 'reception', l: 'Фуршет' },
+    { k: 'cabaret',   code: 'cabaret',   l: 'Кабаре' },
+    { k: 'board',     code: 'boardroom', l: 'Переговорная' },
   ];
   const seatingByKey = (k) => SEATING.find(s => s.k === k) || null;
 
-  const HALL_TYPES = ['Конференц-зал', 'Банкетный зал', 'Трансформер', 'Ресторанный зал', 'Переговорная', 'Открытая площадка'];
+  /* Тип зала: фильтр удалён (решение редактора), поле остаётся подписью на карточке зала. */
+  const HALL_TYPES = ['Конференц-зал', 'Банкетный зал', 'Трансформер', 'Ресторанный зал', 'Переговорная', 'Амфитеатр', 'Фойе', 'Открытая площадка'];
 
-  // Группы удобств. Строки — они же подписи в фильтрах, отдельного словаря не нужно.
-  const FEATURES = {
-    food: ['Свой ресторан / кейтеринг', 'Возможен свой алкоголь (пробковый сбор)', 'Возможен кейтеринг заказчика',
-      'Зона Welcome', 'Дегустация меню', 'Сертификат халяль'],
-    opts: ['Звуковое оборудование', 'Световое оборудование', 'Экран', 'Стационарная сцена', 'Wi-Fi',
-      'Гримёрки', 'Силовое подключение', 'Грузовой лифт', 'Возможность подвеса', 'Завоз оборудования',
-      'Своя мебель', 'Без колонн', 'Свой декор', 'Затемнение', 'Наличие окон'],
-    other: ['Отдельная парковка', 'Кондиционер', 'Гардероб', 'Раздельный туалет М/Ж', 'Отдельный вход',
-      'Кальян', 'Фейерверки', 'Музыка после «часа тишины»', 'ЧОП', 'У водоёма / пляж', 'Молельная комната'],
-    sport: ['Футбольное поле', 'Волейбольная площадка', 'Теннисный корт', 'Настольный теннис',
-      'Бассейн', 'Прокат инвентаря', 'Медперсонал'],
-  };
-  const FEATURE_GROUPS = [
-    { k: 'food', l: 'Питание' },
-    { k: 'opts', l: 'Возможности для мероприятий' },
-    { k: 'other', l: 'Прочее' },
-    { k: 'sport', l: 'Спортивные объекты', onlyEvent: 'team' },
+  const CUISINE_OPTS = [
+    { code: 'russian', l: 'Русская' }, { code: 'european', l: 'Европейская' }, { code: 'italian', l: 'Итальянская' },
+    { code: 'caucasian', l: 'Кавказская' }, { code: 'asian', l: 'Азиатская' }, { code: 'pan_asian', l: 'Паназиатская' },
+    { code: 'middle_eastern', l: 'Ближневосточная' }, { code: 'chinese', l: 'Китайская' }, { code: 'japanese', l: 'Японская' },
+    { code: 'author', l: 'Авторская' }, { code: 'mixed', l: 'Смешанная' }, { code: 'other', l: 'Другая' },
+  ];
+  const PARKING_OPTS = [
+    { code: '', l: 'Любая' }, { code: 'private', l: 'Собственная', full: 'Собственная парковка' },
+    { code: 'city', l: 'Городская', full: 'Городская парковка рядом' },
   ];
 
-  const SUPPLIER_TREE = {
-    'Артисты': ['Ведущий', 'Диджей', 'Аниматор', 'Кавер-группа', 'Шоу-программа', 'Звёзды',
-      'Цирковые артисты', 'Иллюзионисты', 'Актёры театра и кино', 'Музыкант', 'Художник'],
-    'Аренда': ['Животные', 'Мебель', 'Шатёр', 'Костюмы', 'Оборудование'],
-    'Питание': ['Кейтеринг', 'Бары'],
-    'Фото / видео': ['Фотограф', 'Оператор', 'Онлайн-трансляция'],
-    'Персонал': ['Режиссёр мероприятия', 'Продюсер', 'Хостес', 'Хелпер', 'Гид', 'Переводчик',
-      'Технический директор', 'Стилист-визажист', 'Клининг', 'Модератор', 'ЧОП', 'Официант', 'Сценарист', 'Модель'],
-    'Транспорт': ['Автобусы', 'Водитель с авто'],
-    'Прочее': ['Мастер-класс', 'Застройщики', 'Типография', 'Сувенирная продукция', 'Оформители',
-      'Кальяны', 'Экскурсии', 'Авиа и ЖД', 'DMC', 'Production', 'Тимбилдинг'],
+  const VENUE_FILTER_GROUPS = [
+    { k: 'main', l: 'Основное' }, { k: 'type', l: 'Тип площадки' }, { k: 'rooms', l: 'Проживание' },
+    { k: 'halls', l: 'Залы' }, { k: 'price', l: 'Стоимость' }, { k: 'food', l: 'Питание' },
+    { k: 'equip', l: 'Оснащение зала' }, { k: 'space', l: 'Пространство' }, { k: 'infra', l: 'Инфраструктура' },
+    { k: 'rules', l: 'Правила' }, { k: 'sport', l: 'Спорт' },
+  ];
+
+  /* f(...) — строка конфига; ch(...) — чекбокс со счётчиком (самый частый случай). */
+  const f = (group, code, label, control, o) => Object.assign({ group, code, label, control, decision: OK }, o || {});
+  const ch = (group, code, label, o) => f(group, code, label, 'check', o);
+
+  const VENUE_FILTERS = [
+    f('main', 'city', 'Город', 'city', { fkey: 'city' }),
+    f('main', 'event_type', 'Тип мероприятия', 'select', { fkey: 'eventType',
+      opts: EVENT_TYPES.map(e => ({ code: e.k, l: e.lf })).concat([{ code: 'combined', l: 'Комбинированное', decision: '' }]) }),
+    f('main', 'guests', 'Количество гостей', 'range2', { fkey: 'people' }),
+    f('main', 'rating_min', 'Рейтинг от', null, { decision: 'СЛ ЭТАП', planned: 'select',
+      opts: [{ code: '4_0', l: '4,0 и выше' }, { code: '4_5', l: '4,5 и выше' }, { code: '4_8', l: '4,8 и выше' }] }),
+
+    f('type', 'category', 'Категория объекта', 'checks', { fkey: 'cats', opts: VENUE_CAT_OPTS }),
+    f('type', 'stars', 'Звёздность', 'checks', { fkey: 'stars', opts: STAR_OPTIONS.map(o => ({ code: o.code, l: o.l })) }),
+
+    ch('rooms', 'has_accommodation', 'Есть проживание'),
+    f('rooms', 'rooms_total', 'Всего номеров от', 'numFrom', { fkey: 'rooms' }),
+    f('rooms', 'rooms_twin', 'Номеров TWIN от', 'numFrom', { fkey: 'twin', tariff: 'prem' }),
+    f('rooms', 'rooms_single', 'Номеров SNGL от', 'numFrom', { fkey: 'sngl', tariff: 'prem' }),
+
+    f('halls', 'hall_requirements', 'Схема и вместимость', 'halls', { fkey: 'halls',
+      opts: SEATING.map(s => ({ code: s.code, l: s.l })) }),
+    f('halls', 'hall_type', 'Тип зала', null, { decision: 'Удалить', planned: 'checks',
+      opts: [{ code: 'conference', l: 'Конференц-зал' }, { code: 'banquet', l: 'Банкетный зал' }, { code: 'meeting_room', l: 'Переговорная' },
+        { code: 'transformer', l: 'Трансформер' }, { code: 'amphitheatre', l: 'Амфитеатр' }, { code: 'foyer', l: 'Фойе' }, { code: 'outdoor', l: 'Открытая площадка' }] }),
+    f('halls', 'hall_area_min', 'Площадь зала от, м²', 'numFrom', { fkey: 'hallArea', advanced: true }),
+    f('halls', 'ceiling_height_min', 'Высота потолка от, м', null, { decision: 'Удалить', planned: 'numFrom', advanced: true }),
+    ch('halls', 'has_floor_plan', 'Есть план зала', { advanced: true }),
+    f('halls', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing', advanced: true }),
+
+    f('price', 'price_day', 'Стоимость за день', 'range2', { fkey: 'priceDay', mode: 'day' }),
+    f('price', 'price_hour', 'Стоимость за час', 'range2', { fkey: 'priceHour', mode: 'hour' }),
+    f('price', 'conference_package_price_per_person', 'Конференц-пакет', 'range2', { fkey: 'confPkg', unit: 'Цена/чел., ₽', events: evs('b') }),
+    f('price', 'price_on_request', 'Показывать цены по запросу', null, { decision: 'Удалить', planned: 'check' }),
+    ch('price', 'loyalty', 'Начисляет баллы', { card: 'Участвует в бонусной программе' }),
+
+    f('food', 'avg_check', 'Средний чек до', 'numTo', { fkey: 'avgCheck' }),
+    ch('food', 'menu', 'Есть меню на сайте'),
+    f('food', 'cuisine', 'Кухня', 'multi', { fkey: 'cuisine', opts: CUISINE_OPTS }),
+    ch('food', 'inhouse_catering', 'Свой ресторан / кейтеринг'),
+    ch('food', 'external_alcohol', 'Можно со своим алкоголем', { decision: 'На проверке' }),
+    ch('food', 'external_catering', 'Возможен сторонний кейтеринг', { decision: 'На проверке' }),
+    ch('food', 'welcome_area', 'Фойе для кофе-брейка / велкома', { events: evs('b q w'), card: 'Фойе' }),
+    ch('food', 'menu_tasting', 'Возможна дегустация меню'),
+    ch('food', 'halal', 'Сертификат халяль'),
+    ch('food', 'kashrut_certificate', 'Сертификат кашрута'),
+    ch('food', 'michelin', 'Звезда Michelin', { events: evs('b q w') }),
+
+    ch('equip', 'sound', 'Звуковое оборудование'),
+    ch('equip', 'light', 'Световое оборудование'),
+    ch('equip', 'screen', 'Экран'),
+    ch('equip', 'led_screen', 'LED-экран'),
+    ch('equip', 'projector', 'Проектор'),
+    ch('equip', 'plasma_panel', 'Плазменная панель'),
+    ch('equip', 'internet', 'Выделенная линия интернета'),
+    ch('equip', 'wifi', 'Wi‑Fi'),
+    ch('equip', 'stage', 'Стационарная сцена'),
+    ch('equip', 'power', 'Силовое подключение'),
+    ch('equip', 'rigging', 'Точки подвеса'),
+    ch('equip', 'freight_elevator', 'Грузовой лифт'),
+    ch('equip', 'car_entry', 'Заезд автомобиля в зал', { events: evs('b q w') }),
+    ch('equip', 'equipment_load_in', 'Можно со своим тех. оснащением'),
+
+    ch('space', 'column_free', 'Без колонн'),
+    ch('space', 'blackout', 'Затемнение', { events: evs('b q w') }),
+    ch('space', 'windows', 'Окна', { events: evs('b q w') }),
+    ch('space', 'air_conditioning', 'Кондиционер'),
+    f('space', 'wardrobe', 'Гардероб', 'numFrom', { fkey: 'wardrobe', unit: 'мест' }),
+    ch('space', 'separate_restrooms', 'Раздельные туалеты'),
+    ch('space', 'separate_entrance', 'Отдельный вход'),
+    ch('space', 'external_furniture', 'Можно со своей мебелью'),
+    ch('space', 'external_decor', 'Можно со своим декором'),
+
+    f('infra', 'parking', 'Парковка', 'segments', { fkey: 'parking',
+      opts: [{ code: 'none', l: 'Нет парковки', decision: 'Удалить' }, { code: 'city', l: 'Городская парковка рядом' }, { code: 'private', l: 'Собственная парковка' }] }),
+    f('infra', 'parking_spaces_min', 'Парковочных мест от', 'numFrom', { fkey: 'parkingSpaces', dependsOn: { parking: 'private' } }),
+    ch('infra', 'security', 'Охрана / ЧОП'),
+    ch('infra', 'accessible', 'Доступная среда', { info: 'Пандус или лифт до зала, проходы шириной от 90 см без порогов и ступеней, доступный санузел. Уточняйте детали у площадки.' }),
+    ch('infra', 'prayer_room', 'Молельная комната'),
+    ch('infra', 'karaoke', 'Караоке'),
+    ch('infra', 'hookah', 'Кальян', { events: evs('q w t') }),
+    ch('infra', 'bridal_room', 'Комната невесты', { events: evs('w') }),
+    ch('infra', 'beach', 'Пляж', { events: evs('q w t') }),
+    ch('infra', 'waterfront', 'У водоёма'),
+    ch('infra', 'outdoor_area', 'Уличная площадка'),
+    ch('infra', 'spa', 'СПА'),
+
+    ch('rules', 'late_music', 'Музыка после «часа тишины»'),
+    ch('rules', 'fireworks', 'Можно запускать фейерверки', { events: evs('q w t') }),
+    ch('rules', 'confetti', 'Можно запускать конфетти', { codeNote: 'код в файле не указан' }),
+
+    ch('sport', 'football', 'Футбольное поле', { events: evs('t') }),
+    ch('sport', 'volleyball', 'Волейбольная площадка', { events: evs('t') }),
+    ch('sport', 'tennis', 'Теннисный корт', { events: evs('t') }),
+    ch('sport', 'table_tennis', 'Настольный теннис', { events: evs('t') }),
+    ch('sport', 'pool', 'Бассейн', { events: evs('t') }),
+    ch('sport', 'equipment_rental', 'Прокат инвентаря', { events: evs('t') }),
+    ch('sport', 'medical_staff', 'Медперсонал', { events: evs('t') }),
+    ch('sport', 'podium', 'Пьедестал', { events: evs('t') }),
+  ];
+  const venueFilter = (code) => VENUE_FILTERS.find(x => x.code === code) || null;
+  /* Чекбоксы-свойства объекта: хранятся кодами в v.features. Особые чекбоксы считаются
+     из других полей и в features не попадают. */
+  const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'menu', 'loyalty'];
+  const FEATURE_CODES = VENUE_FILTERS.filter(x => x.control === 'check' && !DERIVED_CHECKS.includes(x.code)).map(x => x.code);
+  const featureLabel = (code, short) => { const x = venueFilter(code); return x ? (short && x.card) || x.label : code; };
+
+  /** Виден ли фильтр при текущем выборе: тип мероприятия (events) и родитель (dependsOn). */
+  function venueFilterVisible(def, F) {
+    if (!def || !def.control) return false;
+    if (def.events && F && F.eventType && F.eventType !== 'combined' && !def.events.includes(F.eventType)) return false;
+    if (def.dependsOn && F) for (const k in def.dependsOn) if (F[k] !== def.dependsOn[k]) return false;
+    if (def.mode && F && (F.priceMode || 'day') !== def.mode) return false;
+    return true;
+  }
+
+  /* ── Поставщики ── */
+  /* Дерево «Услуги» по файлу. code — код раздела/пункта; l — подпись (в данных поставщика
+     хранятся подписи parent/child). partnerOnly — пункт есть в фильтре, но в визарде
+     поставщика недоступен: карточку создаёт только партнёр платформы (комментарий клиента). */
+  const SUPPLIER_SECTIONS = [
+    { code: 'artists', l: 'Артисты', kids: [
+      ['host', 'Ведущий'], ['dj', 'Диджей'], ['animator', 'Аниматор'], ['cover_band', 'Кавер-группа'], ['show', 'Шоу-программа'],
+      ['celebrity', 'Знаменитость'], ['circus', 'Цирковой артист'], ['illusionist', 'Иллюзионист'], ['comedian', 'Юморист / стендап-комик'],
+      ['actor', 'Актёр театра и кино'], ['musician', 'Музыкант'], ['artist', 'Художник'], ['other', 'Другое']] },
+    { code: 'rental', l: 'Аренда', kids: [
+      ['animals', 'Животные'], ['furniture', 'Мебель'], ['tent', 'Шатры'], ['costumes', 'Костюмы'], ['equipment', 'Оборудование'], ['other', 'Другое']] },
+    { code: 'food', l: 'Питание', kids: [['catering', 'Кейтеринг'], ['mobile_bar', 'Выездной бар'], ['other', 'Другое']] },
+    { code: 'media', l: 'Фото и видео', kids: [['photographer', 'Фотограф'], ['videographer', 'Видеооператор'], ['streaming', 'Онлайн-трансляция']] },
+    { code: 'staff', l: 'Персонал', kids: [
+      ['event_director', 'Режиссёр мероприятия'], ['producer', 'Продюсер'], ['hostess', 'Хостес'], ['assistant', 'Ассистент на мероприятие'],
+      ['helper', 'Хелпер'], ['coordinator', 'Координатор / сопровождение', { partnerOnly: true }], ['guide', 'Гид'], ['interpreter', 'Переводчик'],
+      ['technical_director', 'Технический директор'], ['stylist_makeup', 'Стилист'], ['makeup', 'Визажист'], ['cleaning', 'Клининг'],
+      ['moderator', 'Модератор'], ['security', 'Охрана / ЧОП'], ['waiter', 'Официант'], ['scriptwriter', 'Сценарист'], ['model', 'Модель'], ['other', 'Другие']] },
+    { code: 'transport', l: 'Транспорт', kids: [['bus', 'Автобусы'], ['car_with_driver', 'Автомобиль с водителем', { decision: 'Обсудить' }]] },
+    { code: 'other', l: 'Прочее', kids: [
+      ['workshop', 'Мастер-класс'], ['stand_building', 'Застройка'], ['printing', 'Типография'], ['souvenirs', 'Сувенирная продукция'],
+      ['decor_design', 'Оформление / дизайн'], ['hookah_service', 'Кальянный кейтеринг'], ['excursions', 'Экскурсионное обслуживание'],
+      ['tickets', 'Авиа- и ж/д-билеты'], ['dmc', 'DMC'], ['production', 'Продакшн'], ['teambuilding', 'Организация тимбилдинга']] },
+  ].map(s => Object.assign(s, { kids: s.kids.map(([code, l, o]) => Object.assign({ code, l, decision: OK }, o || {})) }));
+  /* Совместимость: SUPPLIER_TREE — { раздел: [пункты] } подписями, как раньше. */
+  const SUPPLIER_TREE = SUPPLIER_SECTIONS.reduce((a, s) => { a[s.l] = s.kids.map(k => k.l); return a; }, {});
+  const PARTNER_ONLY = SUPPLIER_SECTIONS.flatMap(s => s.kids.filter(k => k.partnerOnly).map(k => s.l + '·' + k.l));
+  /* Подписи из прошлых версий дерева → новые (данные кабинета, сохранённые фильтры, ссылки). */
+  const SUPPLIER_RENAMES = {
+    'Фото / видео': 'Фото и видео', 'Звёзды': 'Знаменитость', 'Цирковые артисты': 'Цирковой артист', 'Иллюзионисты': 'Иллюзионист',
+    'Актёры театра и кино': 'Актёр театра и кино', 'Шатёр': 'Шатры', 'Бары': 'Выездной бар', 'Оператор': 'Видеооператор',
+    'Стилист-визажист': 'Стилист', 'ЧОП': 'Охрана / ЧОП', 'Водитель с авто': 'Автомобиль с водителем', 'Застройщики': 'Застройка',
+    'Оформители': 'Оформление / дизайн', 'Кальяны': 'Кальянный кейтеринг', 'Экскурсии': 'Экскурсионное обслуживание',
+    'Авиа и ЖД': 'Авиа- и ж/д-билеты', 'Production': 'Продакшн', 'Тимбилдинг': 'Организация тимбилдинга',
   };
+  const supRename = (x) => SUPPLIER_RENAMES[x] || x;
+
+  const PRICE_UNITS = [
+    { code: 'hour', l: 'За час', card: 'за час', decision: 'Добавлено/Утвердить' },
+    { code: 'shift', l: 'За смену', card: 'за смену', decision: 'Добавлено/Утвердить' },
+    { code: 'person', l: 'За человека', card: 'за человека', decision: 'Удалить' },
+    { code: 'unit', l: 'За единицу', card: 'за единицу', decision: 'Добавлено/Утвердить' },
+    { code: 'project', l: 'За проект', card: 'за проект', decision: 'Добавлено/Утвердить' },
+  ];
+  const priceUnitLabel = (code) => (PRICE_UNITS.find(u => u.code === code) || {}).card || '';
+
+  const SUPPLIER_FILTER_GROUPS = [
+    { k: 'services', l: 'Услуги' }, { k: 'geo', l: 'География' }, { k: 'price', l: 'Стоимость и опыт' }, { k: 'media', l: 'Медиа и доверие' },
+  ];
+  const SUPPLIER_FILTERS = [
+    f('services', 'category', 'Услуги', 'tree', { fkey: 'cats' }),
+    f('services', 'catering.guests', 'Количество гостей', null, { decision: 'Удалить', planned: 'range2', parent: 'Питание·Кейтеринг' }),
+    f('services', 'catering.price_per_person', 'Цена на человека', 'range2', { fkey: 'ppp', parent: 'Питание·Кейтеринг' }),
+    f('services', 'catering.vegetarian_menu', 'Вегетарианское меню', null, { decision: 'Удалить', planned: 'check', parent: 'Питание·Кейтеринг' }),
+    f('services', 'catering.halal_menu', 'Халяльное меню', 'check', { fkey: 'halal', parent: 'Питание·Кейтеринг' }),
+    f('services', 'catering.kosher_menu', 'Кошерное меню', 'check', { fkey: 'kosher', parent: 'Питание·Кейтеринг' }),
+    f('services', 'rental.delivery', 'Доставка', 'check', { fkey: 'delivery', parent: 'Аренда·Оборудование' }),
+    f('services', 'rental.installation', 'Монтаж', 'check', { fkey: 'installation', parent: 'Аренда·Оборудование' }),
+    f('services', 'rental.operator_included', 'Оператор включён', 'check', { fkey: 'operator', parent: 'Аренда·Оборудование' }),
+    f('services', 'media.hours', 'Минимальное количество часов', 'fromTo', { fkey: 'hours', parentSection: 'Фото и видео' }),
+    f('services', 'media.delivery_days_max', 'Срок готовности материалов', 'numTo', { fkey: 'days', unit: 'дней', parentSection: 'Фото и видео' }),
+    f('services', 'transport.seats_min', 'Количество мест', null, { decision: 'Удалить', planned: 'numFrom', parentSection: 'Транспорт' }),
+    f('services', 'transport.class', 'Класс транспорта', null, { decision: 'Удалить', planned: 'checks', parentSection: 'Транспорт',
+      opts: [{ code: 'economy', l: 'Эконом' }, { code: 'comfort', l: 'Комфорт' }, { code: 'business', l: 'Бизнес' }, { code: 'premium', l: 'Премиум' }] }),
+    f('geo', 'city', 'Город', 'city', { fkey: 'city' }),
+    f('geo', 'travel', 'Выезд в другие города', 'check', { fkey: 'travel' }),
+    f('price', 'price', 'Стоимость услуги', 'range2', { fkey: 'price' }),
+    f('price', 'price_unit', 'Цена за', 'checks', { fkey: 'units', decision: 'Добавлено/Утвердить',
+      opts: PRICE_UNITS.map(u => ({ code: u.code, l: u.l, decision: u.decision })) }),
+    f('price', 'experience', 'Опыт от', 'sliderFrom', { fkey: 'expMin' }),
+    f('media', 'video', 'Есть видео', 'check', { fkey: 'video' }),
+    f('media', 'reviews', 'Есть отзывы', 'check', { fkey: 'reviews' }),
+    f('media', 'loyalty', 'Принимает баллы', 'check', { fkey: 'loyalty' }),
+  ];
+  /** Виден ли зависимый фильтр поставщиков: появляется только при выборе родителя. */
+  function supplierFilterVisible(def, F) {
+    if (!def || !def.control) return false;
+    if (def.parent) return !!(F && F.cats && F.cats.has(def.parent));
+    if (def.parentSection) return !!(F && F.cats && [...F.cats].some(k => k.split('·')[0] === def.parentSection));
+    return true;
+  }
 
   /* ─────────── 2. ТАРИФЫ ─────────── */
   /* Расхождение документов: каркас проекта — «2 / 6 / 15–20 ЗАЛОВ», приложение
@@ -120,14 +337,14 @@
       price: 0, priceHalf: 0, priceYear: 0,
       compare: 0, presentation: false, groupRequest: 0,
       fullInfo: false, blacklist: false, bonusRate: 0,
-      filters: ['cats', 'city', 'people'],
+      filters: ['city', 'event_type', 'guests', 'category', 'cats', 'people'],
     },
     start: {
       key: 'start', name: 'СТАРТ', plan: true, blur: false,
       price: 0, priceHalf: 0, priceYear: 0,
       compare: 2, presentation: false, groupRequest: 0,
       fullInfo: false, blacklist: false, bonusRate: 0,
-      filters: ['cats', 'city', 'people'],           // остальные заблокированы
+      filters: ['city', 'event_type', 'guests', 'category', 'cats', 'people'],   // остальные заблокированы
     },
     biz: {
       key: 'biz', name: 'БИЗНЕС', plan: true, blur: false,
@@ -144,14 +361,15 @@
       filters: 'all',
     },
   };
-  /** Открыта ли группа фильтров на тарифе. СТАРТ и гость — только город, гости
-      и категория объекта; БИЗНЕС — всё, кроме рассадки и разбивки номеров на
-      SNGL/TWIN; ПРЕМИУМ — всё. Страница подбора спрашивает только здесь. */
-  function canUseFilter(tariffKey, group) {
+  /** Открыт ли фильтр на тарифе (код из конфига; старые имена групп тоже понимает).
+      СТАРТ и гость — город, тип мероприятия, гости и категория объекта; БИЗНЕС — всё,
+      кроме схем рассадки и номеров TWIN/SNGL; ПРЕМИУМ — всё. Новые фильтры R3 — с «БИЗНЕСА». */
+  const PREM_FILTERS = ['rooms_twin', 'rooms_single', 'seating', 'seats', 'twin', 'sngl'];
+  function canUseFilter(tariffKey, code) {
     const f = (TARIFFS[tariffKey] || TARIFFS.start).filters;
     if (f === 'all') return true;
-    if (f === 'all-except-seating-roomsplit') return group !== 'seats' && group !== 'twin' && group !== 'sngl';
-    if (Array.isArray(f)) return f.includes(group);
+    if (f === 'all-except-seating-roomsplit') return !PREM_FILTERS.includes(code);
+    if (Array.isArray(f)) return f.includes(code);
     return false;
   }
   /** Только покупаемые тарифы — для pricing.html и checkout.html. */
@@ -441,6 +659,262 @@
       ],
     }),
   ];
+  /* ── R3-A: свойства объектов по конфигу фильтров ──
+     Удобства прежних версий хранились русскими строками; теперь — кодами из файла
+     фильтров. Таблица ниже переводит старые строки (в том числе из объектов,
+     заведённых в кабинете до R3) в коды и особые поля. */
+  const OLD_FEATURE_CODE = {
+    'Свой ресторан / кейтеринг': 'inhouse_catering', 'Возможен свой алкоголь (пробковый сбор)': 'external_alcohol',
+    'Можно привезти алкоголь': 'external_alcohol', 'Возможен кейтеринг заказчика': 'external_catering',
+    'Возможен свой кейтеринг': 'external_catering', 'Зона Welcome': 'welcome_area', 'Место для велкома': 'welcome_area',
+    'Дегустация меню': 'menu_tasting', 'Сертификат халяль': 'halal', 'Звуковое оборудование': 'sound',
+    'Световое оборудование': 'light', 'Экран': 'screen', 'Стационарная сцена': 'stage', 'Wi-Fi': 'wifi',
+    'Силовое подключение': 'power', 'Грузовой лифт': 'freight_elevator', 'Возможность подвеса': 'rigging',
+    'Завоз оборудования': 'equipment_load_in', 'Своя мебель': 'external_furniture', 'Без колонн': 'column_free',
+    'Свой декор': 'external_decor', 'Затемнение': 'blackout', 'Наличие окон': 'windows', 'Кондиционер': 'air_conditioning',
+    'Раздельный туалет М/Ж': 'separate_restrooms', 'Отдельный вход': 'separate_entrance', 'Кальян': 'hookah',
+    'Фейерверки': 'fireworks', 'Музыка после «часа тишины»': 'late_music', 'ЧОП': 'security', 'У водоёма / пляж': 'waterfront',
+    'Молельная комната': 'prayer_room', 'Футбольное поле': 'football', 'Волейбольная площадка': 'volleyball',
+    'Теннисный корт': 'tennis', 'Настольный теннис': 'table_tennis', 'Бассейн': 'pool', 'Прокат инвентаря': 'equipment_rental',
+    'Медперсонал': 'medical_staff',
+  };
+  /** Старые строки удобств → коды + особые поля (гардероб, парковка, гримёрки). */
+  function migrateFeatures(list, v) {
+    const out = new Set();
+    (list || []).forEach(x => {
+      if (FEATURE_CODES.includes(x)) out.add(x);
+      else if (OLD_FEATURE_CODE[x]) out.add(OLD_FEATURE_CODE[x]);
+      else if (x === 'Гардероб' && v && !v.wardrobe) v.wardrobe = 100;
+      else if ((x === 'Отдельная парковка' || x === 'Своя парковка') && v && !v.parking) v.parking = 'private';
+      else if (x === 'Гримёрки' && v && !v.dressingRooms) v.dressingRooms = 1;
+    });
+    return [...out];
+  }
+
+  const MENU_SAMPLE = { name: 'menu-sample.pdf', url: '../assets/menus/menu-sample.pdf' };
+
+  /* Свойства 15 объектов, которые были в базе до R3: добавки к их удобствам и новые поля. */
+  const VENUE_EXTRA = {
+    1: { add: 'led_screen projector internet accessible spa car_entry', cuisine: 'european russian', avgCheck: 3500, menu: 1, confPackage: 4500, wardrobe: 300, parking: 'private', parkingSpaces: 80, dressingRooms: 2, roomsTotal: 92 },
+    2: { add: 'projector plasma_panel karaoke confetti', cuisine: 'author', avgCheck: 2800, wardrobe: 120, parking: 'city', dressingRooms: 1 },
+    3: { add: 'led_screen projector internet accessible car_entry wifi', cuisine: 'european russian', avgCheck: 1800, confPackage: 3200, wardrobe: 1200, parking: 'private', parkingSpaces: 400, dressingRooms: 4 },
+    4: { add: 'led_screen projector plasma_panel internet accessible spa bridal_room michelin', cuisine: 'european russian japanese', avgCheck: 5500, menu: 1, confPackage: 6500, wardrobe: 450, parking: 'private', parkingSpaces: 120, dressingRooms: 3, roomsTotal: 190 },
+    5: { add: 'beach outdoor_area confetti bridal_room', cuisine: 'caucasian european', avgCheck: 4000, menu: 1, wardrobe: 60, parking: 'city' },
+    6: { add: 'karaoke led_screen confetti projector', cuisine: 'pan_asian mixed', avgCheck: 2200, wardrobe: 250, parking: 'city', dressingRooms: 2 },
+    7: { add: 'podium bridal_room outdoor_area beach confetti tennis', cuisine: 'russian european', avgCheck: 4500, menu: 1, wardrobe: 150, parking: 'private', parkingSpaces: 120, roomsTotal: 12, twin: 6, sngl: 2 },
+    8: { add: 'waterfront karaoke outdoor_area', cuisine: 'russian european', avgCheck: 3200, wardrobe: 120, parking: 'city' },
+    9: { add: 'projector accessible', cuisine: 'european italian', avgCheck: 3800, menu: 1, confPackage: 3900, wardrobe: 80, parking: 'city', roomsTotal: 38 },
+    10: { add: 'podium outdoor_area bridal_room spa', cuisine: 'russian mixed', avgCheck: 2500, parking: 'private', parkingSpaces: 60, roomsTotal: 24, twin: 16, sngl: 4 },
+    11: { add: 'led_screen projector plasma_panel internet accessible car_entry prayer_room wifi', cuisine: 'european mixed', avgCheck: 2000, confPackage: 2900, wardrobe: 400, parking: 'private', parkingSpaces: 150, dressingRooms: 2 },
+    12: { add: 'beach outdoor_area karaoke projector', cuisine: 'russian caucasian', avgCheck: 2200, confPackage: 2400, wardrobe: 100, parking: 'private', parkingSpaces: 40, roomsTotal: 64 },
+    13: { add: 'projector led_screen outdoor_area confetti', cuisine: 'author mixed', avgCheck: 3000, wardrobe: 300, parking: 'city', dressingRooms: 1 },
+    14: { add: 'projector internet accessible bridal_room', cuisine: 'middle_eastern russian european', avgCheck: 2600, menu: 1, confPackage: 3100, wardrobe: 220, parking: 'private', parkingSpaces: 60, roomsTotal: 85 },
+    15: { add: 'projector waterfront wifi', cuisine: 'russian', avgCheck: 1800, confPackage: 1900, wardrobe: 50, parking: 'city', roomsTotal: 30 },
+  };
+
+  /* ── Новые объекты R3 (бэклог, строки 46 и 88): чтобы без фильтров их было не меньше 45,
+     а в Москве — не меньше 22. Залы и свойства собираются по профилю площадки:
+     детерминированно (без Math.random), чтобы выдача и тесты не менялись от загрузки к загрузке. */
+  const NEW_VENUE_ROWS = [
+    // id, название, категория, город, адрес, звёзды, типы, рейтинг, отзывы, профиль
+    [16, 'Гранд-отель «Тверской»', 'Отель', 'Москва', 'ул. Тверская, 22', 5, 'b q w', 4.8, 214, 'hotel_big'],
+    [17, 'Отель «Белорусская»', 'Отель', 'Москва', 'ул. Лесная, 15', 4, 'b q', 4.5, 96, 'hotel_mid'],
+    [18, 'Бизнес-отель «Сити Тауэр»', 'Отель', 'Москва', 'Пресненская наб., 6', 4, 'b', 4.6, 141, 'hotel_mid'],
+    [19, 'Бутик-отель «Арбат 9»', 'Бутик-отель', 'Москва', 'ул. Арбат, 9', 0, 'b q w', 4.7, 58, 'boutique'],
+    [20, 'Ресторан «Белый рояль»', 'Ресторан', 'Москва', 'Никитский бул., 12', 0, 'q w', 4.8, 173, 'restaurant'],
+    [21, 'Ресторан «Сакура Холл»', 'Ресторан', 'Москва', 'ул. Новый Арбат, 21', 0, 'q b', 4.4, 88, 'restaurant_asia'],
+    [22, 'Лофт «Фабрика 7»', 'Лофт', 'Москва', 'ул. Электрозаводская, 21', 0, 'b q t', 4.5, 67, 'loft'],
+    [23, 'Лофт «Стрелка»', 'Лофт', 'Москва', 'Берсеневская наб., 14', 0, 'b q w', 4.7, 120, 'loft'],
+    [24, 'Конгресс-центр «Технопарк»', 'Конгрессно-выставочная площадка', 'Москва', 'Волгоградский просп., 42', 0, 'b', 4.6, 74, 'congress'],
+    [25, 'Экспоцентр «Северный»', 'Конгрессно-выставочная площадка', 'Москва', 'Ленинградское ш., 16', 0, 'b q', 4.3, 52, 'congress'],
+    [26, 'Клуб «Глобус»', 'Клуб', 'Москва', 'ул. Большая Дмитровка, 32', 0, 'q t', 4.2, 61, 'club'],
+    [27, 'Теплоход «Москва-река»', 'Корабль', 'Москва', 'Фрунзенская наб., причал 3', 0, 'q w t', 4.6, 83, 'ship'],
+    [28, 'Сад «Эрмитаж Парк»', 'Уличная площадка', 'Москва', 'ул. Каретный Ряд, 3', 0, 'q w t', 4.7, 109, 'outdoor'],
+    [29, 'Арт-кластер «Красный Октябрь»', 'Другое', 'Москва', 'Берсеневский пер., 5', 0, 'b q', 4.5, 77, 'other'],
+    [30, 'Отель «Измайлово Парк»', 'Отель', 'Москва', 'Измайловское ш., 71', 3, 'b q t', 4.1, 132, 'hotel_mid'],
+    [31, 'Ресторан «Чайхона на Покровке»', 'Ресторан', 'Москва', 'ул. Покровка, 17', 0, 'q w', 4.6, 154, 'restaurant_east'],
+    [32, 'Лофт «Цех»', 'Лофт', 'Москва', 'Хохловский пер., 7', 0, 'b q', 4.4, 45, 'loft'],
+    [33, 'Отель «Метрополь Холл»', 'Отель', 'Москва', 'Театральный пр., 2', 5, 'b q w', 4.9, 236, 'hotel_big'],
+    [34, 'Пространство «Атриум»', 'Другое', 'Москва', 'ул. Земляной Вал, 33', 0, 'b', 4.3, 39, 'other'],
+    [35, 'Клуб «Ритм»', 'Клуб', 'Москва', 'Пятницкая ул., 29', 0, 'q w', 4.4, 70, 'club'],
+    [36, 'Отель «Невский берег»', 'Отель', 'Санкт-Петербург', 'наб. реки Фонтанки, 40', 4, 'b q w', 4.6, 118, 'hotel_mid'],
+    [37, 'Лофт «Литейный»', 'Лофт', 'Санкт-Петербург', 'Литейный пр., 57', 0, 'b q t', 4.5, 63, 'loft'],
+    [38, 'Ресторан «Палкинъ Холл»', 'Ресторан', 'Санкт-Петербург', 'Невский пр., 47', 0, 'q w', 4.8, 190, 'restaurant'],
+    [39, 'Отель «Морская звезда»', 'Отель', 'Сочи', 'Курортный пр., 98', 3, 'q w t', 4.3, 101, 'hotel_sea'],
+    [40, 'Глэмпинг «Красная Поляна»', 'Глэмпинг', 'Сочи', 'Эстосадок, ул. Горная, 8', 0, 't w', 4.7, 57, 'glamping'],
+    [41, 'Конгресс-холл «Казань Экспо»', 'Конгрессно-выставочная площадка', 'Казань', 'ул. Выставочная, 1', 0, 'b', 4.6, 92, 'congress'],
+    [42, 'Ресторан «Тюбетей»', 'Ресторан', 'Казань', 'ул. Баумана, 64', 0, 'q w', 4.5, 84, 'restaurant_east'],
+    [43, 'Отель «Волжский откос»', 'Отель', 'Нижний Новгород', 'Верхне-Волжская наб., 2', 4, 'b q w', 4.5, 66, 'hotel_mid'],
+    [44, 'Лофт «Литера»', 'Лофт', 'Нижний Новгород', 'ул. Ильинская, 50', 0, 'b q t', 4.4, 41, 'loft'],
+    [45, 'Отель «Жигули»', 'Отель', 'Самара', 'ул. Куйбышева, 99', 3, 'b q', 4.2, 73, 'hotel_mid'],
+    [46, 'Яхт-клуб «Парус»', 'Корабль', 'Самара', 'Волжский пр., 2', 0, 'q w t', 4.6, 38, 'ship'],
+    [47, 'Загородный клуб «Завидово»', 'Отель', 'Подмосковье', 'Конаковский р-н, д. Мокшино', 5, 'b q w t', 4.8, 167, 'resort'],
+    [48, 'Усадьба «Архангельское Парк»', 'Уличная площадка', 'Подмосковье', 'Красногорский р-н, п. Архангельское', 0, 'w q', 4.7, 95, 'outdoor'],
+    [49, 'Глэмпинг «Лесная гавань»', 'Глэмпинг', 'Подмосковье', 'Истринский р-н, д. Лечищево', 0, 't w', 4.5, 44, 'glamping'],
+  ];
+  /* Точка города на схематичной карте подбора (проценты подложки) и разброс объектов вокруг. */
+  const CITY_MAP = { 'Москва': [54, 42, 9], 'Санкт-Петербург': [31, 21, 5], 'Сочи': [36, 84, 4], 'Казань': [27, 56, 4],
+    'Нижний Новгород': [39, 43, 4], 'Самара': [22, 63, 4], 'Подмосковье': [46, 27, 7] };
+  const CITY_LATLNG = { 'Москва': [55.7558, 37.6173], 'Санкт-Петербург': [59.9386, 30.3141], 'Сочи': [43.5855, 39.7231],
+    'Казань': [55.7963, 49.1088], 'Нижний Новгород': [56.3269, 44.0059], 'Самара': [53.1959, 50.1002], 'Подмосковье': [55.6, 37.2] };
+  /* Детерминированный «случай»: одно и то же число для пары (id, соль). */
+  const hash01 = (id, salt) => { const x = Math.sin(id * 97.13 + salt * 13.7) * 43758.5453; return x - Math.floor(x); };
+
+  /* Профили новых площадок: залы [название, тип, площадь, высота, схемы, день, час, план],
+     базовые свойства, пул необязательных свойств, кухни, чек, гардероб, парковка. */
+  const S = (t, c, u, b, r, k, bd) => { const o = {}; [['theatre', t], ['class', c], ['ushape', u], ['banquet', b], ['reception', r], ['cabaret', k], ['board', bd]].forEach(([key, n]) => { if (n) o[key] = n; }); return o; };
+  const PROFILES = {
+    hotel_big: { halls: [['Бальный зал', 'Банкетный зал', 820, 7.2, S(500, 260, 0, 380, 650, 300, 0), 260000, 0, 1],
+        ['Конференц-зал «Атлас»', 'Конференц-зал', 340, 4.5, S(220, 120, 56, 140, 260, 0, 40), 85000, 14000, 1],
+        ['Переговорная «Кабинет»', 'Переговорная', 54, 3.2, S(0, 0, 18, 0, 0, 0, 22), 0, 4500, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting sound light screen led_screen projector internet wifi stage power freight_elevator column_free air_conditioning separate_restrooms security accessible spa',
+      pool: 'plasma_panel kashrut_certificate michelin bridal_room car_entry prayer_room halal blackout windows rigging pool late_music karaoke',
+      cuisine: 'european russian author', avgCheck: 5200, wardrobe: 500, parking: 'private', spaces: 150, rooms: [240, 120, 60], conf: 6200, dressing: 2, menu: 1 },
+    hotel_mid: { halls: [['Конференц-зал', 'Конференц-зал', 260, 4.0, S(160, 90, 44, 110, 180, 70, 30), 52000, 9000, 1],
+        ['Банкетный зал', 'Банкетный зал', 210, 3.8, S(0, 0, 0, 120, 160, 80, 0), 45000, 0, 0],
+        ['Переговорная', 'Переговорная', 38, 3.0, S(0, 0, 14, 0, 0, 0, 16), 0, 2800, 0]],
+      base: 'inhouse_catering welcome_area sound screen projector wifi power air_conditioning separate_restrooms security',
+      pool: 'light led_screen plasma_panel internet stage menu_tasting halal windows blackout accessible late_music karaoke bridal_room spa column_free',
+      cuisine: 'european russian', avgCheck: 2600, wardrobe: 180, parking: 'private', spaces: 50, rooms: [120, 70, 30], conf: 3300, dressing: 0 },
+    hotel_sea: { halls: [['Зал «Бриз»', 'Банкетный зал', 240, 3.8, S(120, 0, 0, 110, 170, 70, 0), 48000, 0, 0],
+        ['Терраса у моря', 'Открытая площадка', 300, 0, S(0, 0, 0, 120, 220, 0, 0), 60000, 0, 0]],
+      base: 'inhouse_catering welcome_area sound light wifi air_conditioning beach waterfront outdoor_area pool late_music',
+      pool: 'hookah fireworks bridal_room karaoke confetti projector spa volleyball table_tennis equipment_rental medical_staff',
+      cuisine: 'european caucasian', avgCheck: 2400, wardrobe: 80, parking: 'private', spaces: 35, rooms: [90, 50, 20], dressing: 0 },
+    resort: { halls: [['Конгресс-холл', 'Конференц-зал', 600, 6.5, S(420, 220, 70, 300, 500, 200, 0), 180000, 0, 1],
+        ['Ресторан «Охотничий»', 'Ресторанный зал', 260, 4.0, S(0, 0, 0, 140, 200, 90, 0), 70000, 0, 0],
+        ['Переговорная «Озеро»', 'Переговорная', 60, 3.2, S(0, 0, 20, 0, 0, 0, 24), 0, 5000, 0],
+        ['Поляна у озера', 'Открытая площадка', 1500, 0, S(0, 0, 0, 0, 800, 0, 0), 0, 0, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting sound light screen led_screen projector internet wifi stage power column_free air_conditioning separate_restrooms security accessible spa waterfront outdoor_area beach pool tennis football volleyball table_tennis equipment_rental medical_staff podium fireworks late_music',
+      pool: 'bridal_room hookah karaoke car_entry confetti rigging',
+      cuisine: 'russian european author', avgCheck: 4800, wardrobe: 300, parking: 'private', spaces: 200, rooms: [180, 90, 40], conf: 5600, dressing: 2, menu: 1 },
+    boutique: { halls: [['Каминный зал', 'Ресторанный зал', 110, 3.6, S(0, 30, 0, 50, 70, 30, 20), 32000, 5500, 0],
+        ['Библиотека', 'Переговорная', 48, 3.4, S(0, 20, 14, 0, 0, 0, 18), 0, 3500, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting wifi screen air_conditioning windows separate_entrance',
+      pool: 'projector plasma_panel accessible bridal_room late_music spa',
+      cuisine: 'european italian', avgCheck: 3600, wardrobe: 60, parking: 'city', rooms: [28, 14, 8], conf: 3800, dressing: 0, menu: 1 },
+    restaurant: { halls: [['Главный зал', 'Ресторанный зал', 320, 4.2, S(0, 0, 0, 160, 240, 110, 0), 0, 0, 0],
+        ['VIP-зал', 'Ресторанный зал', 80, 3.4, S(0, 0, 0, 36, 50, 0, 18), 25000, 4000, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting sound light wifi air_conditioning windows late_music',
+      pool: 'stage karaoke bridal_room confetti hookah plasma_panel michelin kashrut_certificate separate_entrance external_alcohol',
+      cuisine: 'european russian author', avgCheck: 4200, wardrobe: 120, parking: 'city', dressing: 0, menu: 1 },
+    restaurant_asia: { halls: [['Зал «Сакура»', 'Ресторанный зал', 240, 3.8, S(0, 0, 0, 110, 160, 70, 0), 38000, 0, 0],
+        ['Кабинет «Токио»', 'Ресторанный зал', 60, 3.2, S(0, 0, 0, 24, 30, 0, 14), 0, 3500, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting wifi air_conditioning karaoke plasma_panel',
+      pool: 'sound light hookah late_music confetti',
+      cuisine: 'japanese chinese pan_asian asian', avgCheck: 3100, wardrobe: 90, parking: 'city', dressing: 0, menu: 1 },
+    restaurant_east: { halls: [['Главный зал', 'Ресторанный зал', 360, 4.0, S(0, 0, 0, 180, 260, 0, 0), 0, 0, 0],
+        ['Летняя веранда', 'Открытая площадка', 200, 0, S(0, 0, 0, 80, 140, 0, 0), 30000, 0, 0]],
+      base: 'inhouse_catering welcome_area menu_tasting halal hookah sound wifi air_conditioning outdoor_area prayer_room',
+      pool: 'light bridal_room late_music karaoke confetti kashrut_certificate',
+      cuisine: 'caucasian middle_eastern asian other', avgCheck: 2400, wardrobe: 150, parking: 'city', dressing: 0, menu: 1 },
+    loft: { halls: [['Основной зал', 'Трансформер', 420, 6.0, S(220, 110, 0, 140, 300, 100, 0), 70000, 9000, 1],
+        ['Малый зал', 'Трансформер', 120, 4.0, S(70, 40, 24, 50, 80, 0, 20), 26000, 4000, 0]],
+      base: 'external_catering external_alcohol sound light screen projector wifi rigging power external_furniture external_decor separate_entrance column_free',
+      pool: 'led_screen stage blackout windows karaoke confetti late_music outdoor_area equipment_load_in freight_elevator car_entry',
+      cuisine: 'mixed', avgCheck: 2900, wardrobe: 200, parking: 'city', dressing: 1 },
+    congress: { halls: [['Пленарный зал', 'Амфитеатр', 1100, 9.0, S(800, 400, 0, 450, 900, 0, 0), 150000, 0, 1],
+        ['Секционный зал A', 'Конференц-зал', 220, 4.5, S(140, 80, 40, 0, 0, 0, 30), 38000, 6500, 1],
+        ['Секционный зал B', 'Конференц-зал', 150, 4.5, S(90, 50, 30, 0, 0, 0, 24), 26000, 5000, 1],
+        ['Фойе второго этажа', 'Фойе', 600, 5.0, S(0, 0, 0, 0, 450, 0, 0), 0, 0, 0]],
+      base: 'inhouse_catering welcome_area sound light screen led_screen projector internet wifi stage power rigging freight_elevator car_entry column_free blackout air_conditioning separate_restrooms security accessible equipment_load_in',
+      pool: 'plasma_panel prayer_room windows halal',
+      cuisine: 'european russian mixed', avgCheck: 1700, wardrobe: 1500, parking: 'private', spaces: 500, conf: 2800, dressing: 4 },
+    club: { halls: [['Танцпол', 'Трансформер', 380, 6.5, S(220, 0, 0, 0, 450, 140, 0), 65000, 0, 0],
+        ['Лаунж', 'Ресторанный зал', 90, 3.4, S(0, 0, 0, 36, 60, 0, 0), 20000, 3500, 0]],
+      base: 'inhouse_catering sound light led_screen stage rigging power blackout air_conditioning security karaoke late_music confetti hookah',
+      pool: 'projector plasma_panel external_alcohol separate_entrance wifi',
+      cuisine: 'pan_asian mixed', avgCheck: 2300, wardrobe: 300, parking: 'city', dressing: 2 },
+    ship: { halls: [['Главная палуба', 'Банкетный зал', 240, 2.8, S(110, 0, 0, 100, 160, 0, 0), 85000, 12000, 0],
+        ['Открытая палуба', 'Открытая площадка', 160, 0, S(0, 0, 0, 0, 100, 0, 0), 0, 0, 0]],
+      base: 'inhouse_catering welcome_area sound light wifi air_conditioning waterfront outdoor_area late_music',
+      pool: 'karaoke hookah fireworks bridal_room confetti plasma_panel',
+      cuisine: 'russian european', avgCheck: 3400, wardrobe: 100, parking: 'city', dressing: 0 },
+    outdoor: { halls: [['Шатёр у пруда', 'Открытая площадка', 520, 0, S(260, 0, 0, 220, 380, 0, 0), 95000, 0, 0],
+        ['Летняя сцена', 'Открытая площадка', 900, 0, S(500, 0, 0, 0, 700, 0, 0), 0, 0, 0]],
+      base: 'external_catering external_alcohol welcome_area sound light outdoor_area waterfront fireworks bridal_room external_furniture external_decor separate_entrance',
+      pool: 'stage power rigging car_entry beach podium football volleyball medical_staff confetti late_music hookah',
+      cuisine: 'russian european', avgCheck: 3800, wardrobe: 120, parking: 'private', spaces: 90, dressing: 1 },
+    glamping: { halls: [['Купольный шатёр', 'Открытая площадка', 240, 0, S(120, 0, 0, 90, 160, 0, 0), 50000, 0, 0],
+        ['Костровая поляна', 'Открытая площадка', 400, 0, S(0, 0, 0, 0, 200, 0, 0), 0, 0, 0]],
+      base: 'external_catering external_alcohol outdoor_area waterfront football volleyball table_tennis equipment_rental medical_staff podium fireworks',
+      pool: 'tennis pool spa bridal_room beach hookah sound',
+      cuisine: 'russian mixed', avgCheck: 2600, wardrobe: 0, parking: 'private', spaces: 40, rooms: [30, 18, 6], dressing: 0 },
+    other: { halls: [['Атриум', 'Трансформер', 540, 8.0, S(300, 160, 0, 200, 420, 0, 0), 90000, 12000, 1],
+        ['Галерея', 'Фойе', 260, 4.5, S(0, 0, 0, 0, 200, 0, 0), 30000, 5000, 0],
+        ['Переговорная', 'Переговорная', 44, 3.0, S(0, 0, 16, 0, 0, 0, 18), 0, 3000, 0]],
+      base: 'external_catering welcome_area sound light screen led_screen projector internet wifi power rigging column_free air_conditioning separate_restrooms accessible',
+      pool: 'plasma_panel stage blackout windows freight_elevator car_entry external_decor external_furniture equipment_load_in',
+      cuisine: 'mixed', avgCheck: 2700, wardrobe: 350, parking: 'city', conf: 3500, dressing: 2 },
+  };
+  const PROFILE_TEXT = {
+    hotel_big: 'Отель с бальным залом и конференц-этажом: пленарная часть, секции и банкет проходят в одном здании, участников можно разместить здесь же.',
+    hotel_mid: 'Городской отель с конференц-залом и банкетным залом. Удобен для однодневных конференций и корпоративов с проживанием иногородних участников.',
+    hotel_sea: 'Отель на первой линии: терраса у моря для вечерних программ, банкетный зал для свадеб и корпоративов, пляж для тимбилдинга.',
+    resort: 'Загородный клуб с конгресс-холлом, ресторанами и спортивной инфраструктурой. Подходит для выездных стратегических сессий на несколько дней.',
+    boutique: 'Небольшой бутик-отель с каминным залом и библиотекой — для камерных встреч, презентаций и ужинов до 70 гостей.',
+    restaurant: 'Ресторан с главным залом и VIP-залом: банкеты, свадьбы, фуршеты. Меню можно скачать на карточке.',
+    restaurant_asia: 'Ресторан азиатской кухни с караоке и отдельным кабинетом. Хорош для неформальных корпоративов и банкетов.',
+    restaurant_east: 'Ресторан восточной кухни с летней верандой. Халяльная кухня, кальян, большие застолья и свадьбы.',
+    loft: 'Лофт-пространство с высокими потолками и точками подвеса: конференции, презентации и вечеринки. Кейтеринг и декор — ваши.',
+    congress: 'Конгрессно-выставочная площадка: пленарный зал-амфитеатр, секционные залы и фойе под выставку. Есть заезд техники.',
+    club: 'Клуб со сценой, светом и звуком: корпоративы, вечеринки, концертные программы. Работает после «часа тишины».',
+    ship: 'Теплоход с закрытой и открытой палубами: банкеты, свадьбы и выездные вечеринки на воде.',
+    outdoor: 'Площадка под открытым небом с шатром и летней сценой: свадьбы, фестивали, летние корпоративы.',
+    glamping: 'Глэмпинг в лесу: домики, купольный шатёр и спортивные площадки для тимбилдингов и выездных свадеб.',
+    other: 'Многофункциональное пространство с атриумом и галереей: конференции, выставки, презентации.',
+  };
+  const NEW_DESCRIPTIONS = {};
+  const NEW_VENUES = NEW_VENUE_ROWS.map(([id, name, cat, city, addr, stars, ev, rating, reviews, prof]) => {
+    const P = PROFILES[prof];
+    const [cx, cy, spread] = CITY_MAP[city];
+    const [la, lo] = CITY_LATLNG[city];
+    const pool = P.pool.split(' ').filter((c, i) => hash01(id, i + 1) > 0.45);
+    let hid = 0;
+    const halls = P.halls.map(([hn, ht, area, height, seats, day, hour, plan], i) =>
+      H(id * 100 + (++hid), id, hn, ht, area, height, seats, day, hour, plan, ((id + i * 3) % 16) + 1));
+    const rooms = P.rooms ? { total: P.rooms[0], twin: P.rooms[1], sngl: P.rooms[2] } : { total: 0, twin: 0, sngl: 0 };
+    NEW_DESCRIPTIONS[id] = PROFILE_TEXT[prof];
+    return V(id, name, cat, city, addr, {
+      stars, coords: { lat: +(la + (hash01(id, 31) - 0.5) * 0.08).toFixed(4), lng: +(lo + (hash01(id, 32) - 0.5) * 0.14).toFixed(4) },
+      rating, reviews, photo: ((id - 1) % 16) + 1,
+      px: Math.round(cx + (hash01(id, 21) - 0.5) * 2 * spread), py: Math.round(cy + (hash01(id, 22) - 0.5) * 2 * spread),
+      rooms, loyaltyContract: hash01(id, 41) > 0.55,
+      eventTypes: evs(ev), features: [...new Set(P.base.split(' ').concat(pool))],
+      cuisine: P.cuisine.split(' ').filter((c, i) => i < 2 || hash01(id, 50 + i) > 0.5),
+      avgCheck: Math.round(P.avgCheck * (0.85 + hash01(id, 61) * 0.3) / 100) * 100,
+      menu: P.menu && hash01(id, 62) > 0.3 ? MENU_SAMPLE : null,
+      confPackage: P.conf && ev.includes('b') ? Math.round(P.conf * (0.85 + hash01(id, 63) * 0.3) / 100) * 100 : 0,
+      wardrobe: P.wardrobe, parking: P.parking, parkingSpaces: P.parking === 'private' ? P.spaces : 0,
+      dressingRooms: P.dressing, halls,
+    });
+  });
+
+  VENUES.push(...NEW_VENUES);
+  /* Удобства — кодами, типы мероприятий — ключами файла, номерной фонд — с общим числом. */
+  VENUES.forEach(v => {
+    v.features = migrateFeatures(v.features, v);
+    v.eventTypes = [...new Set(v.eventTypes.map(e => normEventType(e)).filter(Boolean))];
+    v.cat = CAT_RENAMES[v.cat] || v.cat;
+    const x = VENUE_EXTRA[v.id];
+    if (x) {
+      x.add.split(' ').forEach(c => { if (!v.features.includes(c)) v.features.push(c); });
+      Object.assign(v, { cuisine: x.cuisine.split(' '), avgCheck: x.avgCheck, menu: x.menu ? MENU_SAMPLE : null,
+        confPackage: x.confPackage || 0, wardrobe: x.wardrobe || 0, parking: x.parking || '',
+        parkingSpaces: x.parkingSpaces || 0, dressingRooms: x.dressingRooms || 0 });
+      if (x.twin != null) v.rooms = { twin: x.twin, sngl: x.sngl };
+      if (x.roomsTotal) v.rooms.total = x.roomsTotal;
+    }
+    if (!v.rooms.total) v.rooms.total = (v.rooms.twin || 0) + (v.rooms.sngl || 0);
+    ['cuisine'].forEach(k => { if (!Array.isArray(v[k])) v[k] = []; });
+  });
+  const roundUp = (n, step) => Math.ceil(Math.max(n, step) / step) * step;
+  /* Верхние границы ползунков — по базе, с округлением. */
+  const PRICE_DAY_MAX = roundUp(Math.max(...VENUES.flatMap(v => v.halls.map(h => h.priceDay || 0))), 10000);
+  const PRICE_HOUR_MAX = roundUp(Math.max(...VENUES.flatMap(v => v.halls.map(h => h.priceHour || 0))), 1000);
+  const CONF_MAX = roundUp(Math.max(...VENUES.map(v => v.confPackage || 0)), 500);
+  const AVG_CHECK_MAX = roundUp(Math.max(...VENUES.map(v => v.avgCheck || 0)), 500);
+  const LIMITS = { priceDay: PRICE_DAY_MAX, priceHour: PRICE_HOUR_MAX, confPkg: CONF_MAX, avgCheck: AVG_CHECK_MAX };
 
   /* Просмотры карточки. В прототипе заданы, на разработке считаются
      счётчиком. Объект узнаёт о просмотре только в момент запроса —
@@ -449,11 +923,10 @@
     8: 168, 9: 295, 10: 141, 11: 674, 12: 233, 13: 389, 14: 512, 15: 126 };
   VENUES.forEach(v => { v.stats = { views: VIEWS[v.id] || 200 }; });
 
-  /* По отелю на каждый пункт фильтра звёздности, ни один не пустой:
-     «Гавань» — без звёзд, «Причал» — 1★, «Лагуна» — 2★, «Панорама» — 3★,
-     «Аврора» — 4★, «Флагман» — 5★. */
-  const STARS = { 1: 4, 4: 5, 12: 2, 14: 3, 15: 1 };
-  VENUES.forEach(v => { v.stars = STARS[v.id] || 0; });
+  /* По отелю на каждый пункт фильтра звёздности: «Гавань» — без звёзд, «Лагуна» и «Причал» — 2★,
+     «Панорама» — 3★, «Аврора» — 4★, «Флагман» — 5★; у новых объектов R3 звёзды заданы в строке. */
+  const STARS = { 1: 4, 4: 5, 12: 2, 14: 3, 15: 2 };   // «Причал» — 2★: варианта «1 звезда» в файле фильтров нет
+  VENUES.forEach(v => { if (v.id in STARS) v.stars = STARS[v.id]; });
 
   /* Галереи (номера фото ../assets/photos/vN.jpg). У большинства объектов
      семь фото — чтобы было видно «+N»; у глэмпинга три — короткая галерея.
@@ -542,6 +1015,79 @@
     18: [{ name: 'Тимбилдинг на 50 человек', price: 95000, loyalty: true },
          { name: 'Квест на территории площадки', price: 60000, loyalty: true }],
   };
+  /* ── R3-A: поставщики по новому дереву «Услуги» ──
+     Подписи разделов и пунктов приведены к файлу фильтров (supRename). У каждой услуги
+     появилась единица цены (priceUnit); у кейтеринга — цена на человека и меню,
+     у аренды оборудования — доставка, монтаж и оператор, у фото и видео — минимальное
+     количество часов и срок готовности материалов. */
+  const SUPPLIER_EXTRA = {
+    1: { priceUnit: 'project' }, 2: { priceUnit: 'shift' }, 3: { priceUnit: 'project' }, 4: { priceUnit: 'project' },
+    5: { priceUnit: 'hour' }, 6: { priceUnit: 'project', pricePerPerson: 2500, halal: true },
+    7: { priceUnit: 'shift' }, 8: { priceUnit: 'shift', minHours: 3, deliveryDays: 5 }, 9: { priceUnit: 'project', minHours: 4, deliveryDays: 14 },
+    10: { priceUnit: 'project', minHours: 2, deliveryDays: 1 }, 11: { priceUnit: 'unit' }, 12: { priceUnit: 'unit' },
+    13: { priceUnit: 'shift', delivery: true, installation: true, operator: true }, 14: { priceUnit: 'shift' },
+    15: { priceUnit: 'shift' }, 16: { priceUnit: 'hour' }, 17: { priceUnit: 'hour' }, 18: { priceUnit: 'project' },
+  };
+  /* Новые поставщики R3: по одному на пункт дерева, где раньше никого не было,
+     и ещё два кейтеринга — чтобы у «Халяльного» и «Кошерного меню» были счётчики. */
+  const NEW_SUPPLIER_ROWS = [
+    // id, раздел, пункт, название, город, цена, единица, опыт, флаги (v видео, r отзывы, t выезд), [услуга 1, услуга 2], доп. поля
+    [19, 'Артисты', 'Знаменитость', 'Агентство звёзд «Афиша Live»', 'Москва', 450000, 'project', 15, 'v t', ['Выступление артиста, 40 минут', 'Ведение вечера известным ведущим']],
+    [20, 'Артисты', 'Цирковой артист', 'Цирковая труппа «Арена»', 'Москва', 60000, 'project', 11, 'v r t', ['Цирковое шоу, 20 минут', 'Воздушная гимнастика на банкете']],
+    [21, 'Артисты', 'Иллюзионист', 'Иллюзионист Марк Белов', 'Санкт-Петербург', 50000, 'project', 9, 'v r t', ['Сценическое шоу иллюзий', 'Микромагия для гостей, 2 часа']],
+    [22, 'Артисты', 'Юморист / стендап-комик', 'Стендап-комик Илья Орлов', 'Москва', 120000, 'project', 7, 'v t', ['Стендап-программа, 30 минут', 'Стендап с импровизацией по брифу']],
+    [23, 'Артисты', 'Актёр театра и кино', 'Актёрское агентство «Сцена»', 'Москва', 90000, 'project', 13, 'v r', ['Интерактивный спектакль', 'Ростовые персонажи и мизансцены']],
+    [24, 'Артисты', 'Музыкант', 'Саксофонист Денис Волков', 'Казань', 25000, 'hour', 10, 'v r t', ['Саксофон на велкоме, 1 час', 'Живая музыка весь вечер']],
+    [25, 'Артисты', 'Художник', 'Арт-студия «Шарж за минуту»', 'Москва', 18000, 'hour', 6, 'r', ['Шаржи гостей, 2 часа', 'Живописный портрет на сцене']],
+    [26, 'Артисты', 'Другое', 'Песочная анимация «Дюна»', 'Нижний Новгород', 35000, 'project', 5, 'v', ['Песочное шоу на экране', 'Песочная история компании']],
+    [27, 'Аренда', 'Животные', 'Ферма «Альпака-тур»', 'Подмосковье', 30000, 'hour', 4, 'r', ['Альпаки на празднике, 2 часа', 'Контактный зоопарк']],
+    [28, 'Аренда', 'Костюмы', 'Прокат костюмов «Гардероб эпох»', 'Санкт-Петербург', 3500, 'unit', 12, 'r', ['Костюм на вечер', 'Тематический образ под ключ']],
+    [29, 'Аренда', 'Другое', 'Прокат фотозон «Рамка»', 'Москва', 22000, 'unit', 6, 'r', ['Фотозона на мероприятие', 'Неоновая вывеска на заказ']],
+    [30, 'Питание', 'Кейтеринг', 'Кейтеринг «Восток»', 'Казань', 120000, 'project', 9, 'r', ['Банкет, цена за гостя', 'Фуршет с халяльным меню'], { pricePerPerson: 1800, halal: true }],
+    [31, 'Питание', 'Кейтеринг', 'Кошер-кейтеринг «Шалом»', 'Москва', 180000, 'project', 14, 'r t', ['Кошерный банкет, цена за гостя', 'Кофе-брейк под надзором'], { pricePerPerson: 3900, kosher: true }],
+    [32, 'Питание', 'Другое', 'Кондитерская «Торт-Event»', 'Москва', 15000, 'unit', 8, 'r', ['Торт на 50 гостей', 'Кенди-бар']],
+    [33, 'Персонал', 'Режиссёр мероприятия', 'Режиссёр Анна Мельникова', 'Москва', 80000, 'project', 14, 'r t', ['Режиссура мероприятия', 'Сценарий и прогон']],
+    [34, 'Персонал', 'Продюсер', 'Продюсерский центр «Эфир»', 'Москва', 150000, 'project', 12, 'v r t', ['Продюсирование мероприятия', 'Подбор артистов под бюджет']],
+    [35, 'Персонал', 'Ассистент на мероприятие', 'Агентство «Правая рука»', 'Санкт-Петербург', 6000, 'shift', 5, 'r', ['Ассистент, смена 8 часов', 'Команда ассистентов на форум']],
+    [36, 'Персонал', 'Хелпер', 'Команда хелперов «Помощь+»', 'Москва', 4000, 'shift', 4, '', ['Хелпер, смена 8 часов', 'Регистрация и навигация гостей']],
+    [37, 'Персонал', 'Координатор / сопровождение', 'ЛУКМАЙС — координация мероприятий', 'Москва', 45000, 'shift', 10, 'r t', ['Координатор на площадке', 'Сопровождение группы']],
+    [38, 'Персонал', 'Гид', 'Гид-экскурсовод Ольга Сергеева', 'Санкт-Петербург', 12000, 'hour', 9, 'r', ['Обзорная экскурсия, 3 часа', 'Экскурсия для иностранных гостей']],
+    [39, 'Персонал', 'Стилист', 'Стилист Вера Ланская', 'Москва', 15000, 'hour', 8, 'r t', ['Образ для спикера', 'Стилист на съёмку']],
+    [40, 'Персонал', 'Визажист', 'Визаж-студия «Лицо»', 'Москва', 7000, 'unit', 6, 'r', ['Макияж к выходу на сцену', 'Визажист на весь день']],
+    [41, 'Персонал', 'Клининг', 'Клининг «Чистый зал»', 'Москва', 25000, 'shift', 7, '', ['Уборка во время мероприятия', 'Уборка после демонтажа']],
+    [42, 'Персонал', 'Модератор', 'Модератор Сергей Иванов', 'Москва', 60000, 'project', 11, 'v r t', ['Модерация дискуссии', 'Модерация стратегической сессии']],
+    [43, 'Персонал', 'Охрана / ЧОП', 'ЧОП «Щит»', 'Москва', 3500, 'hour', 15, 'r', ['Охранник, 1 час', 'Пост охраны на мероприятии']],
+    [44, 'Персонал', 'Официант', 'Агентство официантов «Сервис»', 'Самара', 2500, 'hour', 6, '', ['Официант, 1 час', 'Бармен на банкет']],
+    [45, 'Персонал', 'Сценарист', 'Сценарист Ксения Рябова', 'Москва', 40000, 'project', 7, 'r t', ['Сценарий корпоратива', 'Сценарий конференции']],
+    [46, 'Персонал', 'Модель', 'Модельное агентство «Профиль»', 'Москва', 9000, 'hour', 10, 'v', ['Промо-модель, 1 час', 'Модели для стенда']],
+    [47, 'Персонал', 'Другие', 'Сурдопереводчики «Жест»', 'Москва', 5000, 'hour', 8, 'r t', ['Сурдоперевод, 1 час', 'Сурдоперевод трансляции']],
+    [48, 'Транспорт', 'Автомобиль с водителем', 'Трансфер «Премьер»', 'Санкт-Петербург', 3500, 'hour', 9, 'r', ['Автомобиль бизнес-класса', 'Встреча в аэропорту']],
+    [49, 'Прочее', 'Мастер-класс', 'Студия мастер-классов «Руки»', 'Москва', 2500, 'unit', 6, 'v r', ['Мастер-класс по керамике', 'Кулинарный мастер-класс']],
+    [50, 'Прочее', 'Застройка', 'Выставочная застройка «Стенд-Про»', 'Москва', 300000, 'project', 13, 'r t', ['Стенд 36 м²', 'Застройка сцены']],
+    [51, 'Прочее', 'Типография', 'Типография «Оттиск»', 'Москва', 9000, 'unit', 16, '', ['Бейджи, 100 шт.', 'Пресс-волл']],
+    [52, 'Прочее', 'Сувенирная продукция', 'Мерч-студия «Логотип»', 'Санкт-Петербург', 50000, 'project', 8, 'r', ['Наборы участника', 'Брендированный мерч']],
+    [53, 'Прочее', 'Оформление / дизайн', 'Декор-студия «Флора»', 'Москва', 80000, 'project', 9, 'v r t', ['Оформление зала цветами', 'Декор свадебной церемонии']],
+    [54, 'Прочее', 'Кальянный кейтеринг', 'Кальянный кейтеринг «Дым»', 'Москва', 12000, 'unit', 5, 'r', ['Кальян на мероприятие', 'Кальянная зона на вечер']],
+    [55, 'Прочее', 'Экскурсионное обслуживание', 'Экскурсионное бюро «Маршрут»', 'Казань', 35000, 'project', 10, 'r', ['Экскурсия по Казани для группы', 'Трансфер с гидом']],
+    [56, 'Прочее', 'Авиа- и ж/д-билеты', 'Бизнес-тревел «Трэвел Деск»', 'Москва', 1500, 'unit', 12, 'r t', ['Оформление билетов', 'Групповое бронирование']],
+    [57, 'Прочее', 'DMC', 'DMC «Волга Инсентив»', 'Нижний Новгород', 250000, 'project', 11, 'v r t', ['Инсентив-программа под ключ', 'Логистика группы']],
+    [58, 'Прочее', 'Продакшн', 'Продакшн «Сцена 360»', 'Москва', 400000, 'project', 14, 'v r t', ['Техническое продакшн-сопровождение', 'Постановка шоу']],
+    [59, 'Фото и видео', 'Фотограф', 'Фотограф Никита Громов', 'Сочи', 20000, 'hour', 7, 'r t', ['Фотосъёмка, 1 час', 'Съёмка выездной свадьбы'], { minHours: 2, deliveryDays: 7 }],
+    [60, 'Аренда', 'Оборудование', 'Прокат техники «Звук и свет»', 'Санкт-Петербург', 45000, 'shift', 9, 'r', ['Звуковой комплект на 100 человек', 'Проектор и экран'], { delivery: true }],
+  ];
+  const FLAG = (s, k) => s.split(' ').includes(k);
+  NEW_SUPPLIER_ROWS.forEach(([id, parent, child, name, city, price, unit, exp, flags, svc, extra]) => {
+    SUPPLIERS.push(Object.assign({ id, parent, child, name, city, price, exp,
+      video: FLAG(flags, 'v'), reviews: FLAG(flags, 'r'), travel: FLAG(flags, 't'), loyalty: false,
+      photo: ((id + 5) % 16) + 1, priceUnit: unit, stats: { views: 60 + (id * 37) % 300 } }, extra || {}));
+    SERVICES[id] = [{ name: svc[0], price, loyalty: id % 3 === 0 }, { name: svc[1], price: Math.round(price * 1.6 / 500) * 500, loyalty: false }];
+  });
+  SUPPLIERS.forEach(s => {
+    s.parent = supRename(s.parent); s.child = supRename(s.child);
+    Object.assign(s, SUPPLIER_EXTRA[s.id] || {});
+    if (!s.priceUnit) s.priceUnit = 'project';
+  });
+
   SUPPLIERS.forEach(s => {
     s.services = SERVICES[s.id] || [];
     if (s.services.length) s.price = Math.min(...s.services.map(x => x.price));
@@ -569,6 +1115,8 @@
     14: 'Отель в центре с большим залом на 280 человек театром и халяльной кухней. Есть молельная комната — важно для мероприятий с гостями из региона и стран Залива.',
   };
   VENUES.forEach(v => { v.desc = DESCRIPTIONS[v.id] || ''; });
+
+  Object.assign(DESCRIPTIONS, NEW_DESCRIPTIONS);
 
   /* ─────────── 7. ВИТРИНА БАЛЛОВ ─────────── */
   /* rub — розничная цена. pts считается через servicePoints, стоимость для
@@ -607,18 +1155,6 @@
   ];
 
   /* ─────────── 8. СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ─────────── */
-  /* Удобства переименованы по корректуре клиента (сентябрь 2026). Старые названия
-     остаются в сохранённых фильтрах посетителей и в объектах, заведённых в кабинете:
-     переводим их при чтении, чтобы выбор не сбрасывался и объекты находились. */
-  const FEATURE_RENAMES = {
-    'Место для велкома': 'Зона Welcome',
-    'Своя парковка': 'Отдельная парковка',
-    'Можно привезти алкоголь': 'Возможен свой алкоголь (пробковый сбор)',
-    'Возможен свой кейтеринг': 'Возможен кейтеринг заказчика',
-  };
-  const renameFeature = (x) => FEATURE_RENAMES[x] || x;
-  const hasOldFeature = (v) => Object.keys(FEATURE_RENAMES).some(k => JSON.stringify(v || '').includes(JSON.stringify(k)));
-
   /* Ключи localStorage. mh_compare теперь хранит ID ЗАЛОВ, а не объектов —
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
 
@@ -637,7 +1173,7 @@
     premUntil: read(K.premUntil, null),
     invoices: read(K.invoices, []),
     filters: unpackFilters(read(K.filters, null)),
-    myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: v.features.map(renameFeature) }) : v),
+    myVenues: read(K.myVenues, []).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: migrateFeatures(v.features, v) }) : v),
     shopItems: read(K.shopItems, []),
     bonusOrders: read(K.bonusOrders, []),
     supplierRequests: read(K.supplierRequests, []),
@@ -700,9 +1236,10 @@
     requests: () => write(K.requests, state.requests),
   };
 
-  // Однократная миграция: если в хранилище были старые названия удобств, сразу сохраняем новые
-  if (hasOldFeature(read(K.filters, null))) persist.filters();
-  if (hasOldFeature(read(K.myVenues, null))) persist.myVenues();
+  // Однократная миграция: фильтры и объекты кабинета со старыми удобствами (русские строки) сохраняем кодами
+  const oldShape = (x) => !!x && ['food', 'opts', 'other', 'sport'].some(k => k in x);
+  if (oldShape(read(K.filters, null))) persist.filters();
+  if (JSON.stringify(read(K.myVenues, null) || '').match(/"features":\[[^\]]*[А-Яа-я]/)) persist.myVenues();
   if (JSON.stringify(read(K.requests, null) || '').includes('"status":"confirmed"')) persist.requests();
 
   /* ─────────── 9. СЕЛЕКТОРЫ И ЛОГИКА ─────────── */
@@ -741,22 +1278,6 @@
     return p.length ? Math.min(...p) : 0;
   };
 
-  /** Пустой набор фильтров. */
-  function emptyFilters() {
-    return {
-      city: '', people: 0, peopleTo: 0, eventType: '',   // peopleTo 0 — без верхней границы
-      cats: new Set(), stars: new Set(), priceDay: [0, 200000],
-      rooms: 0,                        // общий номерной фонд, виден всем
-      twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
-      /* Требования к залам. Каждый элемент — ОТДЕЛЬНЫЙ зал объекта:
-         {seating:'theatre', min:250} плюс {seating:'banquet', min:120}
-         найдёт объект, где есть И зал-театр на 250, И другой зал-банкет
-         на 120. Пустой seating означает любую схему. */
-      halls: [],
-      food: new Set(), opts: new Set(), other: new Set(), sport: new Set(),
-    };
-  }
-
   /**
    * Можно ли закрыть все требования РАЗНЫМИ залами объекта.
    * Требований и залов единицы, поэтому обычный перебор с возвратом:
@@ -789,36 +1310,82 @@
     return { ok: true, used: reqs.map((_, i) => pick[i]) };
   }
 
+  /** Пустой набор фильтров. Ключи — fkey из VENUE_FILTERS. */
+  function emptyFilters() {
+    return {
+      city: '', people: 0, peopleTo: 0, eventType: '',   // peopleTo 0 — без верхней границы
+      cats: new Set(), stars: new Set(),
+      feats: new Set(),                // чекбоксы-свойства по кодам (логика «И»)
+      cuisine: new Set(),              // кухня — мультивыбор, логика «ИЛИ»
+      rooms: 0,                        // всего номеров от — виден всем с «БИЗНЕСА»
+      twin: 0, sngl: 0,                // разбивка, только ПРЕМИУМ
+      /* Требования к залам. Каждый элемент — ОТДЕЛЬНЫЙ зал объекта:
+         {seating:'theatre', min:250} плюс {seating:'banquet', min:120}
+         найдёт объект, где есть И зал-театр на 250, И другой зал-банкет
+         на 120. Пустой seating означает любую схему. */
+      halls: [],
+      hallArea: 0, dressing: 0,
+      priceMode: 'day',                // переключатель «За день / За час»
+      priceDay: [0, PRICE_DAY_MAX], priceHour: [0, PRICE_HOUR_MAX], confPkg: [0, CONF_MAX],
+      avgCheck: 0, wardrobe: 0, parking: '', parkingSpaces: 0,
+    };
+  }
+  const rangeOn = (F, k) => !!(F[k] && (F[k][0] > 0 || F[k][1] < LIMITS[k]));
+
+  /** Есть ли у объекта чекбокс-свойство (has_floor_plan — свойство залов, считается отдельно). */
+  function venueHas(v, code) {
+    if (code === 'has_accommodation') return venueRooms(v) > 0;
+    if (code === 'menu') return !!v.menu;
+    if (code === 'loyalty') return !!v.loyaltyContract;
+    if (code === 'has_floor_plan') return v.halls.some(h => h.plan);
+    return (v.features || []).includes(code);
+  }
+  const eventOk = (v, et) => !et || (et === 'combined' ? v.eventTypes.length > 1 : v.eventTypes.includes(et));
+
   /**
    * Отбор залов по фильтрам. Возвращает объекты с УЖЕ отфильтрованными залами:
    * [{venue, halls:[...]}] — в выдаче показываются только подходящие залы.
-   * excludeGroup — имя группы, которую не учитывать (для фасетных счётчиков
-   * по логике «ИЛИ»: иначе группа блокирует сама себя).
+   * exclude — код фильтра, который не учитывать (фасетные счётчики по логике «ИЛИ»:
+   * иначе группа блокирует сама себя).
    */
-  function filterVenues(F, excludeGroup) {
+  function filterVenues(F, exclude) {
     const out = [];
+    const feats = [...(F.feats || [])].filter(c => c !== 'has_floor_plan');
+    const planOnly = F.feats && F.feats.has('has_floor_plan');
+    const mode = F.priceMode || 'day';
+    const dayOn = mode === 'day' && rangeOn(F, 'priceDay'), hourOn = mode === 'hour' && rangeOn(F, 'priceHour');
     for (const v of VENUES) {
       if (state.blacklist.has(v.id)) continue;
-      if (F.eventType && !v.eventTypes.includes(F.eventType)) continue;
-      if (F.city && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
-      if (excludeGroup !== 'cats' && F.cats.size && !F.cats.has(v.cat)) continue;
-      if (excludeGroup !== 'stars' && F.stars.size && !F.stars.has(starKey(v))) continue;
+      if (!eventOk(v, F.eventType)) continue;
+      if (F.city && F.city !== ALL_CITIES && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
+      if (exclude !== 'category' && F.cats.size && !F.cats.has(v.cat)) continue;
+      if (exclude !== 'stars' && F.stars.size && !F.stars.has(starKey(v))) continue;
       if (F.rooms && venueRooms(v) < F.rooms) continue;
-      if (F.twin && v.rooms.twin < F.twin) continue;
-      if (F.sngl && v.rooms.sngl < F.sngl) continue;
+      if (F.twin && (v.rooms.twin || 0) < F.twin) continue;
+      if (F.sngl && (v.rooms.sngl || 0) < F.sngl) continue;
+      // Чекбоксы-свойства — логика «И»: должны присутствовать все отмеченные.
+      if (!feats.every(c => venueHas(v, c))) continue;
+      if (exclude !== 'cuisine' && F.cuisine && F.cuisine.size && !(v.cuisine || []).some(c => F.cuisine.has(c))) continue;
+      if (F.avgCheck && !(v.avgCheck && v.avgCheck <= F.avgCheck)) continue;
+      if (rangeOn(F, 'confPkg') && !(v.confPackage && v.confPackage >= F.confPkg[0] && v.confPackage <= F.confPkg[1])) continue;
+      if (F.dressing && (v.dressingRooms || 0) < F.dressing) continue;
+      if (F.wardrobe && (v.wardrobe || 0) < F.wardrobe) continue;
+      if (exclude !== 'parking' && F.parking && v.parking !== F.parking) continue;
+      if (F.parkingSpaces && !(v.parking === 'private' && (v.parkingSpaces || 0) >= F.parkingSpaces)) continue;
 
-      // Удобства объекта — логика «И»: должны присутствовать все отмеченные.
-      const featuresOk = ['food', 'opts', 'other', 'sport'].every(g =>
-        g === excludeGroup || [...F[g]].every(a => v.features.includes(a)));
-      if (!featuresOk) continue;
-
-      // Залы объекта, подходящие под ТЗ. Цена 0 («по договорённости») проходит всегда.
+      // Залы объекта, подходящие под ТЗ. «По договорённости» (цена 0) проходит всегда.
       const pool = v.halls.filter(h => {
         // вместимость «от – до»: объект проходит, если в нём есть зал из этого диапазона
         const lo = Math.min(F.people || 0, F.peopleTo || Infinity), hi = Math.max(F.people || 0, F.peopleTo || 0) || Infinity;
         if (lo && hallCapacity(h) < lo) return false;
         if (F.peopleTo && hallCapacity(h) > hi) return false;
-        if (h.priceDay > 0 && (h.priceDay < F.priceDay[0] || h.priceDay > F.priceDay[1])) return false;
+        if (dayOn && h.priceDay > 0 && (h.priceDay < F.priceDay[0] || h.priceDay > F.priceDay[1])) return false;
+        if (hourOn) {
+          const agree = !h.priceDay && !h.priceHour;
+          if (!agree && !(h.priceHour > 0 && h.priceHour >= F.priceHour[0] && h.priceHour <= F.priceHour[1])) return false;
+        }
+        if (F.hallArea && (h.area || 0) < F.hallArea) return false;
+        if (planOnly && !h.plan) return false;
         return true;
       });
       if (!pool.length) continue;
@@ -836,6 +1403,33 @@
     return out.sort((a, b) => rank(a.venue) - rank(b.venue));
   }
 
+  /**
+   * Зависимые фильтры: если фильтр скрыт при текущем типе мероприятия, режиме цены
+   * или родителе, его значение сбрасывается, чтобы скрытый фильтр не сужал выдачу.
+   * Возвращает список кодов, которые пришлось сбросить.
+   */
+  function pruneFilters(F) {
+    const dropped = [];
+    const E = emptyFilters();
+    for (const d of VENUE_FILTERS) {
+      if (!d.control || venueFilterVisible(d, F)) continue;
+      if (d.control === 'check') { if (F.feats.has(d.code)) { F.feats.delete(d.code); dropped.push(d.code); } continue; }
+      const k = d.fkey; if (!k) continue;
+      const cur = JSON.stringify(F[k] instanceof Set ? [...F[k]] : F[k]);
+      const def = JSON.stringify(E[k] instanceof Set ? [...E[k]] : E[k]);
+      if (cur !== def) { F[k] = E[k]; dropped.push(d.code); }
+    }
+    return dropped;
+  }
+
+  /** Применён ли хоть один фильтр (для «Сбросить всё» и стартового состояния подбора). */
+  function filtersActive(F) {
+    return !!(F.city || F.people || F.peopleTo || F.eventType || F.cats.size || F.stars.size || F.feats.size
+      || (F.cuisine && F.cuisine.size) || F.rooms || F.twin || F.sngl || F.hallArea || F.dressing || F.avgCheck
+      || F.wardrobe || F.parking || F.parkingSpaces || (F.halls || []).some(r => r.seating || +r.min)
+      || rangeOn(F, 'priceDay') || rangeOn(F, 'priceHour') || rangeOn(F, 'confPkg') || (F.priceMode || 'day') !== 'day');
+  }
+
   /** Подпись диапазона вместимости: «от 100 до 300 чел.», «от 100 чел.», «до 300 чел.» */
   function peopleLabel(F) {
     const a = F.people || 0, b = F.peopleTo || 0;
@@ -848,13 +1442,17 @@
   /** Залы по цене дня по возрастанию; цена 0 («по договорённости») — в конце. */
   const sortHallsByPrice = (halls) => halls.slice().sort((a, b) => (a.priceDay || Infinity) - (b.priceDay || Infinity));
 
-  /** Фасетный счётчик: сколько объектов останется, если добавить это условие. */
-  function facetCount(F, group, value) {
-    const or = group === 'cats' || group === 'stars';
-    const base = filterVenues(F, or ? group : null);
-    if (group === 'cats') return base.filter(x => x.venue.cat === value).length;
-    if (group === 'stars') return base.filter(x => starKey(x.venue) === +value).length;
-    return base.filter(x => x.venue.features.includes(value)).length;
+  /** Фасетный счётчик: сколько объектов останется, если добавить это условие.
+      Старые имена групп ('cats') принимаются для совместимости. */
+  function facetCount(F, code, value) {
+    if (code === 'cats') code = 'category';
+    if (code === 'category') return filterVenues(F, 'category').filter(x => x.venue.cat === value).length;
+    if (code === 'stars') return filterVenues(F, 'stars').filter(x => starKey(x.venue) === +value).length;
+    if (code === 'cuisine') return filterVenues(F, 'cuisine').filter(x => (x.venue.cuisine || []).includes(value)).length;
+    if (code === 'parking') return filterVenues(F, 'parking').filter(x => !value || x.venue.parking === value).length;
+    const base = filterVenues(F);
+    if (code === 'has_floor_plan') return base.filter(x => x.halls.some(h => h.plan)).length;
+    return base.filter(x => venueHas(x.venue, code)).length;
   }
 
   /* — сравнение и избранное работают по ID ЗАЛОВ, а лимит тарифа считается
@@ -1097,43 +1695,89 @@
   /* — поставщики — */
 
   function emptySupplierFilters() {
-    const maxPrice = Math.max(...SUPPLIERS.map(s => s.price));
+    const maxPrice = roundUp(Math.max(...SUPPLIERS.map(s => s.price)), 5000);
     const maxExp = Math.max(...SUPPLIERS.map(s => s.exp));
+    const maxPpp = roundUp(Math.max(...SUPPLIERS.map(s => s.pricePerPerson || 0)), 500);
     return {
       city: '', travel: false,
-      price: [0, maxPrice], expMin: 0,
+      price: [0, maxPrice], units: new Set(), expMin: 0,
       video: false, reviews: false, loyalty: false,
       cats: new Set(),                 // ключи вида 'Артисты·Ведущий'
-      _maxPrice: maxPrice, _maxExp: maxExp,
+      // зависимые: кейтеринг, аренда оборудования, фото и видео
+      ppp: [0, maxPpp], halal: false, kosher: false,
+      delivery: false, installation: false, operator: false,
+      hours: [0, 0], days: 0,
+      _maxPrice: maxPrice, _maxExp: maxExp, _maxPpp: maxPpp,
     };
   }
   const supplierKey = (s) => s.parent + '·' + s.child;
+  const isCatering = (s) => supplierKey(s) === 'Питание·Кейтеринг';
+  const isEquipment = (s) => supplierKey(s) === 'Аренда·Оборудование';
+  const isMedia = (s) => s.parent === 'Фото и видео';
+  /** Есть ли у поставщика отзывы (R3-B, строка 106: отметка зависит от отзывов, а не от флага). */
+  const supplierHasReviews = (s) => state.reviews.some(r => r.target === 'supplier' && r.targetId === s.id);
 
   /** excludeGroup='cats' — не учитывать дерево категорий (для фасетов по «ИЛИ»). */
   function filterSuppliers(F, excludeGroup) {
+    const pppOn = F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp);
+    const [hFrom, hTo] = F.hours || [0, 0];
     return SUPPLIERS.filter(s => {
       /* Город: поставщик показывается, если он в этом городе, либо если
-         отмечена галочка «готов к командировкам» и он к ним готов.
+         отмечен «Выезд в другие города» и он выезжает.
          Без выбранного города галочка работает как самостоятельный фильтр. */
-      if (F.city) {
+      if (F.city && F.city !== ALL_CITIES) {
         const here = s.city.toLowerCase().includes(F.city.toLowerCase());
         if (!here && !(F.travel && s.travel)) return false;
       } else if (F.travel && !s.travel) return false;
       if (s.price < F.price[0] || s.price > F.price[1]) return false;
+      if (excludeGroup !== 'units' && F.units && F.units.size && !F.units.has(s.priceUnit)) return false;
       if (F.expMin && s.exp < F.expMin) return false;
       if (F.video && !s.video) return false;
-      if (F.reviews && !s.reviews) return false;
+      if (F.reviews && !supplierHasReviews(s)) return false;
       if (F.loyalty && !s.loyalty) return false;
       if (excludeGroup !== 'cats' && F.cats.size && !F.cats.has(supplierKey(s))) return false;
+      // Зависимые фильтры действуют только на поставщиков своего пункта: остальные выбранные разделы не отсекаются.
+      if (isCatering(s)) {
+        if (pppOn && !(s.pricePerPerson >= F.ppp[0] && s.pricePerPerson <= F.ppp[1])) return false;
+        if (F.halal && !s.halal) return false;
+        if (F.kosher && !s.kosher) return false;
+      }
+      if (isEquipment(s)) {
+        if (F.delivery && !s.delivery) return false;
+        if (F.installation && !s.installation) return false;
+        if (F.operator && !s.operator) return false;
+      }
+      if (isMedia(s)) {
+        if (hFrom && !(s.minHours >= hFrom)) return false;
+        if (hTo && !(s.minHours <= hTo)) return false;
+        if (F.days && !(s.deliveryDays && s.deliveryDays <= F.days)) return false;
+      }
       return true;
     });
   }
-  /** kind: 'leaf' (подкатегория), 'parent' (раздел), 'flag' (video|reviews|loyalty). */
+  /** kind: 'leaf' (подкатегория), 'parent' (раздел), 'flag' (video|reviews|loyalty|travel|halal…), 'unit' (единица цены). */
   function supplierFacet(F, kind, value) {
-    if (kind === 'flag') return filterSuppliers(F, null).filter(s => s[value]).length;
+    if (kind === 'flag') return filterSuppliers(F, null).filter(s => value === 'reviews' ? supplierHasReviews(s) : s[value]).length;
+    if (kind === 'unit') return filterSuppliers(F, 'units').filter(s => s.priceUnit === value).length;
     const base = filterSuppliers(F, 'cats');
     if (kind === 'parent') return base.filter(s => s.parent === value).length;
     return base.filter(s => supplierKey(s) === value).length;
+  }
+  /** Сбросить значения скрытых зависимых фильтров поставщиков (родитель снят). */
+  function pruneSupplierFilters(F) {
+    const E = emptySupplierFilters(), dropped = [];
+    for (const d of SUPPLIER_FILTERS) {
+      if (!d.control || !d.fkey || supplierFilterVisible(d, F)) continue;
+      const k = d.fkey;
+      if (JSON.stringify(F[k]) !== JSON.stringify(E[k])) { F[k] = E[k]; dropped.push(d.code); }
+    }
+    return dropped;
+  }
+  /** Применён ли хоть один фильтр поставщиков (R3-B, строка 97: «Сбросить всё» неактивна без фильтров). */
+  function supplierFiltersActive(F) {
+    return !!(F.city || F.travel || F.price[0] > 0 || F.price[1] < F._maxPrice || (F.units && F.units.size) || F.expMin
+      || F.video || F.reviews || F.loyalty || F.cats.size || F.halal || F.kosher || F.delivery || F.installation || F.operator
+      || (F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp)) || (F.hours && (F.hours[0] || F.hours[1])) || F.days);
   }
   /** Групповой запрос поставщикам возможен только внутри одной категории. */
   function canGroupSupplierRequest(supplierIds) {
@@ -1149,7 +1793,7 @@
      обнулял бы всю выборку. Set не переживает JSON, поэтому раскладываем в
      массивы и собираем обратно. */
 
-  const SET_KEYS = ['cats', 'stars', 'food', 'opts', 'other', 'sport'];
+  const SET_KEYS = ['cats', 'stars', 'feats', 'cuisine'];
 
   function packFilters(F) {
     const o = {};
@@ -1164,13 +1808,29 @@
     if (!raw || typeof raw !== 'object') return F;
     for (const k in F) {
       if (!(k in raw)) continue;
-      if (F[k] instanceof Set) F[k] = new Set((Array.isArray(raw[k]) ? raw[k] : []).map(renameFeature));
+      if (F[k] instanceof Set) F[k] = new Set(Array.isArray(raw[k]) ? raw[k] : []);
       else if (k === 'halls') F[k] = Array.isArray(raw[k])
         ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0 }))
         : [];
-      else if (Array.isArray(F[k]) && Array.isArray(raw[k])) F[k] = raw[k];
+      else if (Array.isArray(F[k]) && Array.isArray(raw[k]) && raw[k].length === 2) F[k] = raw[k].map(Number);
       else if (typeof F[k] === typeof raw[k]) F[k] = raw[k];
     }
+    /* До R3 удобства лежали группами русских строк (food/opts/other/sport) — переводим в коды. */
+    const dummy = {};
+    ['food', 'opts', 'other', 'sport'].forEach(g => {
+      if (Array.isArray(raw[g])) migrateFeatures(raw[g], dummy).forEach(c => F.feats.add(c));
+    });
+    if (dummy.parking && !F.parking) F.parking = dummy.parking;
+    F.feats = new Set([...F.feats].filter(c => FEATURE_CODES.includes(c) || DERIVED_CHECKS.includes(c)));
+    F.cats = new Set([...F.cats].map(c => CAT_RENAMES[c] || c).filter(c => VENUE_CATS.includes(c)));
+    F.stars = new Set([...F.stars].map(Number).filter(n => STAR_OPTIONS.some(o => o.k === n)));
+    F.cuisine = new Set([...F.cuisine].filter(c => CUISINE_OPTS.some(o => o.code === c)));
+    // Ползунки, сохранённые со старым потолком (200 000 ₽), растягиваем до нового максимума.
+    for (const k of ['priceDay', 'priceHour', 'confPkg']) {
+      const mx = LIMITS[k];
+      F[k] = [Math.max(0, Math.min(F[k][0] || 0, mx)), (!F[k][1] || F[k][1] >= mx || (k === 'priceDay' && F[k][1] === 200000)) ? mx : F[k][1]];
+    }
+    if (F.priceMode !== 'hour') F.priceMode = 'day';
     F.eventType = normEventType(F.eventType);
     return F;
   }
@@ -1191,6 +1851,11 @@
       else if (Array.isArray(F[k]) && Array.isArray(raw[k])) F[k] = raw[k];
       else if (typeof F[k] === typeof raw[k]) F[k] = raw[k];
     }
+    // ключи дерева со старыми подписями → новые; несуществующие пункты отбрасываем
+    F.cats = new Set([...F.cats].map(kk => kk.split('·').map(supRename).join('·'))
+      .filter(kk => { const [p, c] = kk.split('·'); return (SUPPLIER_TREE[p] || []).includes(c); }));
+    F.units = new Set([...F.units].filter(u => PRICE_UNITS.some(x => x.code === u && x.decision !== 'Удалить')));
+    if (F.price[1] > F._maxPrice || !F.price[1]) F.price = [F.price[0], F._maxPrice];
     return F;
   }
   const saveSupplierFilters = (F) => { state.supplierFilters = F; write(K.sfilters, packSupplierFilters(F)); };
@@ -1204,9 +1869,10 @@
    */
   function filtersSummary(F) {
     const out = [];
-    if (F.city) out.push(F.city);
+    const money = (n) => n.toLocaleString('ru');
+    if (F.city && F.city !== ALL_CITIES) out.push(F.city);
     if (F.people || F.peopleTo) out.push(peopleLabel(F));
-    const et = EVENT_TYPES.find(e => e.k === F.eventType);
+    const et = EVENT_TYPES.find(e => e.k === F.eventType) || (F.eventType === 'combined' ? EVENT_COMBINED : null);
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
     if (F.stars.size) out.push([...F.stars].sort().map(n => (STAR_OPTIONS.find(o => o.k === n) || { l: n + '★' }).l).join(', '));
@@ -1218,10 +1884,18 @@
       const s = seatingByKey(r.seating);
       out.push(`зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`);
     });
-    const [lo, hi] = F.priceDay;
-    if (lo > 0 || hi < 200000) out.push(`аренда ${lo.toLocaleString('ru')}–${hi.toLocaleString('ru')} ₽`);
-    for (const g of SET_KEYS) { if (g === 'cats') continue; F[g].forEach(x => out.push(x)); }
-    return out;
+    if (F.hallArea) out.push('площадь зала от ' + F.hallArea + ' м²');
+    if (F.dressing) out.push('гримёрок от ' + F.dressing);
+    if (rangeOn(F, 'priceDay') && (F.priceMode || 'day') === 'day') out.push(`аренда ${money(F.priceDay[0])}–${money(F.priceDay[1])} ₽ / день`);
+    if (rangeOn(F, 'priceHour') && F.priceMode === 'hour') out.push(`аренда ${money(F.priceHour[0])}–${money(F.priceHour[1])} ₽ / час`);
+    if (rangeOn(F, 'confPkg')) out.push(`конференц-пакет ${money(F.confPkg[0])}–${money(F.confPkg[1])} ₽/чел.`);
+    if (F.avgCheck) out.push('средний чек до ' + money(F.avgCheck) + ' ₽');
+    if (F.cuisine && F.cuisine.size) out.push('кухня: ' + [...F.cuisine].map(c => (CUISINE_OPTS.find(o => o.code === c) || { l: c }).l.toLowerCase()).join(', '));
+    if (F.wardrobe) out.push('гардероб от ' + F.wardrobe + ' мест');
+    if (F.parking) out.push((PARKING_OPTS.find(o => o.code === F.parking) || {}).full || '');
+    if (F.parkingSpaces) out.push('парковочных мест от ' + F.parkingSpaces);
+    F.feats.forEach(c => out.push(featureLabel(c)));
+    return out.filter(Boolean);
   }
 
   /* — карточки, которые заводит сам владелец —
@@ -1231,31 +1905,71 @@
 
   const MODERATION = { draft: 'черновик', review: 'на модерации', published: 'опубликован', rejected: 'отклонён' };
 
-  function addMyVenue(d) {
-    const v = {
-      localId: 'v' + Date.now(), name: d.name || 'Без названия', cat: d.cat || '', city: d.city || '',
-      addr: d.addr || '', coords: d.coords || '', rooms: { twin: +d.twin || 0, sngl: +d.sngl || 0 },
-      features: [].concat(d.food || [], d.opts || [], d.other || [], d.sport || []),
+  /* Фото и файлы из визарда: в прототипе на сервер не уходят — храним только имена и количество. */
+  const fileNames = (list) => (Array.isArray(list) ? list : []).map(x => typeof x === 'string' ? x : (x && x.name) || '').filter(Boolean);
+  function venueFromWizard(d, base) {
+    const twin = +d.twin || 0, sngl = +d.sngl || 0;
+    return Object.assign(base || {}, {
+      name: d.name || 'Без названия', cat: d.cat || '', city: d.city || '',
+      addr: d.addr || '', coords: d.coords || '',
+      rooms: { total: +d.roomsTotal || twin + sngl, twin, sngl },
+      eventTypes: (d.events || []).slice(),
+      features: migrateFeatures([].concat(d.feats || [], d.food || [], d.opts || [], d.other || [], d.sport || [])),
+      cuisine: (d.cuisine || []).slice(), avgCheck: +d.avgCheck || 0, wardrobe: +d.wardrobe || 0,
+      parking: d.parking || '', parkingSpaces: d.parking === 'private' ? (+d.parkingSpaces || 0) : 0,
+      confPackage: +d.confPackage || 0, dressingRooms: +d.dressingRooms || 0,
+      menu: d.menu ? { name: d.menu.name, url: d.menu.url && !String(d.menu.url).startsWith('blob:') ? d.menu.url : '' } : null,
+      photos: fileNames(d.photos), photoCount: fileNames(d.photos).length,
       halls: (d.halls || []).map(h => ({
-        name: h.name || 'Без названия', type: h.type || '', area: +h.area || 0, height: +h.height || 0,
-        seats: h.seats || {}, priceDay: +h.priceDay || 0, priceHour: +h.priceHour || 0,
-        plan: !!(h.plan || []).length, props: h.props || [],
+        name: h.name || 'Без названия', type: h.type || '', floor: h.floor || '', area: +h.area || 0, height: +h.height || 0,
+        seats: h.seats || {}, priceDay: +h.priceDay || 0, priceHour: +h.priceHour || 0, hourly: !!h.hourly && !(+h.priceHour > 0),
+        agree: (h.agree || []).length > 0,
+        plan: fileNames(h.plan).length > 0, planFiles: fileNames(h.plan), photos: fileNames(h.photos), schemes: fileNames(h.schemes),
       })),
       contacts: { person: d.person || '', phone: d.phone || '', mail: d.mail || '', inn: d.inn || '', bank: d.bank || '' },
       contracts: d.contracts || [], desc: d.about || '',
-      status: 'review', createdAt: new Date().toLocaleDateString('ru'),
-    };
+    });
+  }
+  function addMyVenue(d) {
+    const v = venueFromWizard(d, { localId: 'v' + Date.now(), status: 'review', createdAt: new Date().toLocaleDateString('ru') });
     state.myVenues.unshift(v); persist.myVenues();
     return v;
+  }
+  /** R3-B, строка 109: «Редактировать» обновляет этот же объект, а не создаёт новый. */
+  function updateMyVenue(i, d) {
+    const v = state.myVenues[i]; if (!v) return null;
+    venueFromWizard(d, v); v.updatedAt = new Date().toLocaleDateString('ru');
+    persist.myVenues(); return v;
+  }
+  /** Данные объекта кабинета → поля визарда (для «Редактировать»). */
+  function venueToWizard(v) {
+    return {
+      name: v.name, cat: v.cat, stars: v.stars ? (STAR_OPTIONS.find(o => o.k === v.stars) || {}).l : '',
+      events: (v.eventTypes || []).slice(), about: v.desc || '', city: v.city, addr: v.addr, coords: v.coords || '',
+      roomsTotal: (v.rooms || {}).total || '', twin: (v.rooms || {}).twin || '', sngl: (v.rooms || {}).sngl || '',
+      feats: (v.features || []).slice(), cuisine: (v.cuisine || []).slice(), avgCheck: v.avgCheck || '', wardrobe: v.wardrobe || '',
+      parking: v.parking || '', parkingSpaces: v.parkingSpaces || '', confPackage: v.confPackage || '', dressingRooms: v.dressingRooms || '',
+      menu: v.menu ? Object.assign({}, v.menu) : null, photos: (v.photos || []).map(name => ({ name })),
+      halls: (v.halls || []).map(h => Object.assign({}, h, {
+        agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })),
+        photos: (h.photos || []).map(name => ({ name })), schemes: (h.schemes || []).map(name => ({ name })),
+      })),
+      person: (v.contacts || {}).person || '', phone: (v.contacts || {}).phone || '', mail: (v.contacts || {}).mail || '',
+      inn: (v.contacts || {}).inn || '', bank: (v.contacts || {}).bank || '', contracts: (v.contracts || []).slice(),
+    };
   }
   function addMyService(d) {
     const price = +d.price || 0;
     const s = {
       localId: 's' + Date.now(), name: d.name || 'Без названия',
       parent: d.parent || '', child: d.child || '', about: d.about || '',
-      price, exp: +d.exp || 0,
-      city: d.city || '', travel: !!(d.travel || []).length,
+      price, priceUnit: d.priceUnit || 'project', exp: +d.exp || 0,
+      city: d.city || '', travel: Array.isArray(d.travel) ? d.travel.length > 0 : !!d.travel,
       loyalty: !!(d.loy || []).length,
+      pricePerPerson: +d.pricePerPerson || 0, halal: !!d.halal, kosher: !!d.kosher,
+      delivery: !!d.delivery, installation: !!d.installation, operator: !!d.operator,
+      minHours: +d.minHours || 0, deliveryDays: +d.deliveryDays || 0,
+      photos: fileNames(d.photos), video: fileNames(d.video).length > 0,
       pts: servicePoints(price), cost: serviceCost(price),
       status: 'review', createdAt: new Date().toLocaleDateString('ru'),
     };
@@ -1543,7 +2257,11 @@
   /* ─────────── 10. ЭКСПОРТ ─────────── */
 
   window.ML = {
-    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, STARRED_CATS, STAR_OPTIONS, starKey, sortHallsByPrice, peopleLabel, capacityMax, SEATING, HALL_TYPES, FEATURES, FEATURE_GROUPS, SUPPLIER_TREE,
+    CITIES, VENUE_CATS, EVENT_TYPES, normEventType, STARRED_CATS, STAR_OPTIONS, starKey, sortHallsByPrice, peopleLabel, capacityMax, SEATING, HALL_TYPES, SUPPLIER_TREE,
+    ALL_CITIES, EVENT_COMBINED, VENUE_CAT_OPTS, CUISINE_OPTS, PARKING_OPTS, VENUE_FILTER_GROUPS, VENUE_FILTERS, venueFilter, venueFilterVisible,
+    FEATURE_CODES, DERIVED_CHECKS, featureLabel, venueHas, migrateFeatures, pruneFilters, filtersActive, LIMITS, MENU_SAMPLE, CITY_MAP,
+    SUPPLIER_SECTIONS, SUPPLIER_FILTER_GROUPS, SUPPLIER_FILTERS, supplierFilterVisible, PARTNER_ONLY, PRICE_UNITS, priceUnitLabel, supRename,
+    pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
     VENUES, SUPPLIERS, SHOP,
@@ -1562,7 +2280,7 @@
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
-    MODERATION, STARRED_CATS, addMyVenue, addMyService, removeMyVenue, removeMyService,
+    MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addMyService, removeMyVenue, removeMyService,
     addShopItem, removeShopItem, myShopItems, shopCatalog,
     ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,
     createSupplierRequest, venueStats, supplierStats,

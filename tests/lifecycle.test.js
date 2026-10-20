@@ -152,26 +152,35 @@ test('при понижении тарифа остаются залы перв�
   assert.strictEqual(kept.length, ML.VENUES[0].halls.length + ML.VENUES[1].halls.length, 'все залы оставшихся объектов');
 });
 
-test('четыре типа мероприятий, по каждому есть выдача', () => {
+test('типы мероприятий (R3-A): четыре типа и «Комбинированное», по каждому есть выдача; спорт — при тимбилдинге', () => {
   const { ML } = load();
-  assert.deepStrictEqual(plain(ML.EVENT_TYPES.map(e => e.l)), ['Деловое', 'Банкет / фуршет', 'Свадьба', 'Тимбилдинг']);
-  for (const e of ML.EVENT_TYPES) {
-    const F = ML.emptyFilters(); F.eventType = e.k;
-    assert.ok(ML.filterVenues(F).length > 0, e.l);
+  assert.deepStrictEqual(plain(ML.EVENT_TYPES.map(e => e.l)), ['Деловое', 'Банкет / фуршет', 'Свадьба', 'Тимбилдинг'], 'подписи — как в текстах сайта');
+  assert.deepStrictEqual(plain(ML.EVENT_TYPES.map(e => e.k)), ['business', 'banquet', 'wedding', 'teambuilding'], 'ключи — коды файла');
+  for (const k of ['business', 'banquet', 'wedding', 'teambuilding', 'combined']) {
+    const F = ML.emptyFilters(); F.eventType = k;
+    assert.ok(ML.filterVenues(F).length > 0, k);
   }
-  assert.strictEqual(ML.FEATURE_GROUPS.find(g => g.k === 'sport').onlyEvent, 'team', 'спортивные объекты — при тимбилдинге');
+  const C = ML.emptyFilters(); C.eventType = 'combined';
+  ML.filterVenues(C).forEach(x => assert.ok(x.venue.eventTypes.length > 1, 'комбинированное — несколько типов: ' + x.venue.name));
+  const sport = ML.venueFilter('football');
+  assert.deepStrictEqual(plain(sport.events), ['teambuilding']);
+  for (const [t, vis] of [['', true], ['teambuilding', true], ['combined', true], ['business', false], ['wedding', false]]) {
+    const F = ML.emptyFilters(); F.eventType = t;
+    assert.strictEqual(ML.venueFilterVisible(sport, F), vis, 'спорт при «' + (t || 'любой') + '»');
+  }
 });
 
-test('миграция сохранённых фильтров: старые типы и названия удобств', () => {
-  const { ML, storage } = load({ ml_filters: { eventType: 'forum', food: ['Место для велкома'], other: ['Своя парковка'] } });
+test('миграция сохранённых фильтров: старые типы, удобства русскими строками, «Своя парковка»', () => {
+  const { ML, storage } = load({ ml_filters: { eventType: 'forum', food: ['Место для велкома'], other: ['Своя парковка', 'ЧОП'] } });
   const F = ML.loadFilters();
   assert.strictEqual(F.eventType, 'business');
-  assert.deepStrictEqual([...F.food], ['Зона Welcome']);
-  assert.deepStrictEqual([...F.other], ['Отдельная парковка']);
+  assert.deepStrictEqual([...F.feats].sort(), ['security', 'welcome_area'], 'удобства — кодами');
+  assert.strictEqual(F.parking, 'private', '«Своя парковка» → «Собственная парковка»');
   const s = stored(storage, 'ml_filters');
-  assert.deepStrictEqual(s.food, ['Зона Welcome'], 'хранилище перезаписано');
+  assert.ok(!('food' in s) && s.feats.includes('welcome_area'), 'хранилище перезаписано');
   for (const k of ['presentation', 'meeting', 'online'])
     assert.strictEqual(load({ ml_filters: { eventType: k } }).ML.loadFilters().eventType, 'business', k);
+  assert.strictEqual(load({ ml_filters: { eventType: 'team' } }).ML.loadFilters().eventType, 'teambuilding', 'team → teambuilding');
   assert.strictEqual(load({ ml_filters: { eventType: 'wedding' } }).ML.loadFilters().eventType, 'wedding');
 });
 
@@ -204,22 +213,32 @@ test('гейтинг фильтров: СТАРТ — город, гости, к
   assert.deepStrictEqual(plain(open('guest')), ['city', 'people', 'cats']);
   assert.deepStrictEqual(plain(open('biz')), ['city', 'people', 'cats', 'stars', 'rooms', 'halls', 'priceDay', 'food']);
   assert.deepStrictEqual(plain(open('prem')), groups);
+  // коды конфига R3: новые фильтры — с «БИЗНЕСА», TWIN/SNGL — только ПРЕМИУМ
+  for (const c of ['cuisine', 'wardrobe', 'parking', 'price_hour', 'conference_package_price_per_person', 'menu']) {
+    assert.ok(!ML.canUseFilter('start', c) && ML.canUseFilter('biz', c), c);
+  }
+  assert.ok(!ML.canUseFilter('biz', 'rooms_twin') && ML.canUseFilter('prem', 'rooms_twin'));
+  assert.ok(ML.canUseFilter('start', 'category') && ML.canUseFilter('start', 'guests'));
 });
 
-test('звёздность (R2 стр.43): «Без звёзд», ★ … ★★★★★ отдельными пунктами; ни один пункт не пустой', () => {
+test('звёздность (R3-A): «Без звёзд», 2–5 звёзд, варианта «1 звезда» нет; ни один пункт не пустой', () => {
   const { ML } = load({ ml_tariff: 'biz' });
-  assert.deepStrictEqual(plain(ML.STAR_OPTIONS.map(o => o.k)), [0, 1, 2, 3, 4, 5]);
-  const names = { 0: 'Бутик-отель «Гавань»', 1: 'Отель «Причал»', 2: 'Отель «Лагуна»',
-    3: 'Отель «Панорама»', 4: 'Отель «Аврора»', 5: 'Отель «Флагман»' };
-  for (const k of [0, 1, 2, 3, 4, 5]) {
+  assert.deepStrictEqual(plain(ML.STAR_OPTIONS.map(o => o.k)), [0, 2, 3, 4, 5]);
+  const names = { 0: 'Бутик-отель «Гавань»', 2: 'Отель «Лагуна»', 3: 'Отель «Панорама»', 4: 'Отель «Аврора»', 5: 'Отель «Флагман»' };
+  for (const k of [0, 2, 3, 4, 5]) {
     const F = ML.emptyFilters(); F.stars = new Set([k]);
     const found = ML.filterVenues(F).map(x => x.venue.name);
     assert.ok(found.length > 0, 'пункт ' + k + ' не пустой');
     assert.ok(found.includes(names[k]), 'вариант ' + k + ': ' + found.join(', '));
   }
+  assert.strictEqual(ML.VENUES.find(v => v.name === 'Отель «Причал»').stars, 2, '«Причал» переведён в 2★');
+  assert.ok(!ML.VENUES.some(v => v.stars === 1), 'объектов с 1★ нет');
   // логика «ИЛИ»: два пункта — объединение
-  const F = ML.emptyFilters(); F.stars = new Set([1, 2]);
-  assert.strictEqual(ML.filterVenues(F).length, 2);
+  const two = ML.emptyFilters(); two.stars = new Set([2, 3]);
+  const a = ML.emptyFilters(); a.stars = new Set([2]); const b = ML.emptyFilters(); b.stars = new Set([3]);
+  assert.strictEqual(ML.filterVenues(two).length, ML.filterVenues(a).length + ML.filterVenues(b).length);
+  // сохранённый выбор «1 звезда» отбрасывается
+  assert.deepStrictEqual([...load({ ml_filters: { stars: [1, 2] } }).ML.loadFilters().stars], [2]);
 });
 
 test('вместимость «от – до» (R2 стр.69): в объекте есть зал из диапазона; «до» меньше «от» — меняются местами', () => {
@@ -246,12 +265,14 @@ test('вместимость «от – до» (R2 стр.69): в объекте
   assert.strictEqual(n, res.filter(x => x.venue.cat === 'Отель').length);
 });
 
-test('категории (R2 стр.62/63): без «Конференц-площадки», «Другое» в конце; «Высота» — конгрессно-выставочная', () => {
+test('категории (R3-A): 10 вариантов файла, «Конгрессно-выставочная площадка» полностью, «Другое» в конце', () => {
   const { ML } = load();
+  assert.strictEqual(ML.VENUE_CATS.length, 10);
   assert.ok(!ML.VENUE_CATS.includes('Конференц-площадка'));
   assert.strictEqual(ML.VENUE_CATS[ML.VENUE_CATS.length - 1], 'Другое');
-  assert.strictEqual(ML.VENUES.find(v => v.name === 'Конференц-центр «Высота»').cat, 'Конгрессно-выставочная');
+  assert.strictEqual(ML.VENUES.find(v => v.name === 'Конференц-центр «Высота»').cat, 'Конгрессно-выставочная площадка');
   ML.VENUES.forEach(v => assert.ok(ML.VENUE_CATS.includes(v.cat), v.name + ': ' + v.cat));
+  assert.deepStrictEqual([...load({ ml_filters: { cats: ['Конгрессно-выставочная'] } }).ML.loadFilters().cats], ['Конгрессно-выставочная площадка'], 'сохранённая категория переименована');
 });
 
 test('лимит сравнения по объектам: на СТАРТ (2 объекта) — 10 залов одного объекта и 5 второго, третий объект — нет', () => {
@@ -385,6 +406,134 @@ test('ступень «501+ чел.» — по согласованию, без 
   assert.strictEqual(t.label, '501+ чел.');
   assert.strictEqual(t.byAgreement, true);
   assert.strictEqual(t.fee, null);
+});
+
+console.log('Фильтры R3-A');
+
+test('зависимые фильтры показываются по типу мероприятия и сбрасываются при скрытии', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  const F = ML.emptyFilters();
+  F.eventType = 'teambuilding'; F.feats.add('football');
+  assert.ok(ML.filterVenues(F).every(x => x.venue.features.includes('football')));
+  F.eventType = 'business';
+  assert.deepStrictEqual(plain(ML.pruneFilters(F)), ['football'], 'спорт скрыт при «Деловом» — значение сброшено');
+  assert.ok(!F.feats.has('football'));
+  F.eventType = 'wedding'; F.feats.add('bridal_room'); F.feats.add('welcome_area');
+  F.eventType = 'teambuilding';
+  assert.deepStrictEqual(plain(ML.pruneFilters(F).sort()), ['bridal_room', 'welcome_area']);
+  F.eventType = 'combined'; F.feats.add('bridal_room'); F.feats.add('football'); F.confPkg = [2000, 4000];
+  assert.deepStrictEqual(plain(ML.pruneFilters(F)), [], 'при «Комбинированном» видны все фильтры');
+  F.eventType = 'banquet';
+  assert.ok(ML.pruneFilters(F).includes('conference_package_price_per_person'), 'конференц-пакет — только для делового и комбинированного');
+  assert.deepStrictEqual(plain(F.confPkg), [0, ML.LIMITS.confPkg]);
+});
+
+test('переключатель «За день / За час»: виден один ползунок, второй сбрасывается', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const F = ML.emptyFilters();
+  F.priceMode = 'hour'; F.priceHour = [3000, 6000];
+  const res = ML.filterVenues(F);
+  assert.ok(res.length > 0);
+  res.forEach(x => x.halls.forEach(h => assert.ok((!h.priceDay && !h.priceHour) || (h.priceHour >= 3000 && h.priceHour <= 6000), h.name)));
+  assert.ok(!ML.venueFilterVisible(ML.venueFilter('price_day'), F) && ML.venueFilterVisible(ML.venueFilter('price_hour'), F));
+  F.priceMode = 'day';
+  assert.ok(ML.pruneFilters(F).includes('price_hour'));
+  assert.deepStrictEqual(plain(F.priceHour), [0, ML.LIMITS.priceHour]);
+  F.priceDay = [40000, 60000];
+  ML.filterVenues(F).forEach(x => x.halls.forEach(h => assert.ok(!h.priceDay || (h.priceDay >= 40000 && h.priceDay <= 60000))));
+});
+
+test('кухня — мультивыбор, логика «ИЛИ»', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const run = (...c) => { const F = ML.emptyFilters(); F.cuisine = new Set(c); return ML.filterVenues(F).map(x => x.venue.id); };
+  const jp = run('japanese'), cau = run('caucasian'), both = run('japanese', 'caucasian');
+  assert.ok(jp.length && cau.length);
+  assert.strictEqual(both.length, new Set(jp.concat(cau)).size, 'объединение');
+  assert.strictEqual(ML.CUISINE_OPTS.length, 12);
+  const F = ML.emptyFilters(); F.cuisine = new Set(['japanese']);
+  assert.strictEqual(ML.facetCount(F, 'cuisine', 'caucasian'), cau.length, 'счётчик варианта не сужается выбранной кухней');
+});
+
+test('«Гардероб» — числовое поле «от»', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  assert.strictEqual(ML.venueFilter('wardrobe').control, 'numFrom');
+  const F = ML.emptyFilters(); F.wardrobe = 400;
+  const res = ML.filterVenues(F);
+  assert.ok(res.length > 0);
+  res.forEach(x => assert.ok(x.venue.wardrobe >= 400, x.venue.name));
+});
+
+test('«Парковочных мест от» — только при собственной парковке', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const d = ML.venueFilter('parking_spaces_min');
+  const F = ML.emptyFilters();
+  assert.ok(!ML.venueFilterVisible(d, F), 'при «Любой» скрыто');
+  F.parking = 'private'; F.parkingSpaces = 100;
+  assert.ok(ML.venueFilterVisible(d, F));
+  const res = ML.filterVenues(F);
+  assert.ok(res.length > 0);
+  res.forEach(x => assert.ok(x.venue.parking === 'private' && x.venue.parkingSpaces >= 100));
+  F.parking = 'city';
+  assert.ok(ML.pruneFilters(F).includes('parking_spaces_min'));
+  assert.strictEqual(F.parkingSpaces, 0);
+  assert.ok(!ML.venueFilter('parking').opts.find(o => o.code === 'none').decision.includes('УТВ'), '«Нет парковки» удалена');
+});
+
+test('«Цена на человека» у кейтеринга: появляется при выборе «Кейтеринг», действует только на кейтеринг', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const d = ML.SUPPLIER_FILTERS.find(x => x.code === 'catering.price_per_person');
+  assert.strictEqual(d.control, 'range2');
+  const F = ML.emptySupplierFilters();
+  assert.ok(!ML.supplierFilterVisible(d, F));
+  F.cats.add('Питание·Кейтеринг'); F.cats.add('Питание·Выездной бар');
+  assert.ok(ML.supplierFilterVisible(d, F));
+  F.ppp = [0, 2000];
+  const res = ML.filterSuppliers(F);
+  assert.ok(res.some(s => s.child === 'Кейтеринг') && res.every(s => s.child !== 'Кейтеринг' || s.pricePerPerson <= 2000));
+  assert.ok(res.some(s => s.child === 'Выездной бар'), 'бар не отсекается фильтром кейтеринга');
+  F.cats.delete('Питание·Кейтеринг');
+  assert.ok(ML.pruneSupplierFilters(F).includes('catering.price_per_person'));
+  assert.deepStrictEqual(plain(F.ppp), [0, F._maxPpp]);
+  for (const code of ['catering.guests', 'catering.vegetarian_menu', 'transport.seats_min', 'transport.class'])
+    assert.strictEqual(ML.SUPPLIER_FILTERS.find(x => x.code === code).control, null, code + ' удалён');
+});
+
+test('«Цена за» у поставщиков: единица цены у каждой услуги, «За человека» удалено', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  ML.SUPPLIERS.forEach(s => assert.ok(['hour', 'shift', 'unit', 'project'].includes(s.priceUnit), s.name + ': ' + s.priceUnit));
+  const F = ML.emptySupplierFilters(); F.units = new Set(['shift']);
+  const res = ML.filterSuppliers(F);
+  assert.ok(res.length > 0 && res.every(s => s.priceUnit === 'shift'));
+  assert.strictEqual(ML.priceUnitLabel('shift'), 'за смену');
+  assert.strictEqual(ML.PRICE_UNITS.find(u => u.code === 'person').decision, 'Удалить');
+  assert.deepStrictEqual([...load({ ml_supplier_filters: { units: ['person', 'hour'] } }).ML.loadSupplierFilters().units], ['hour']);
+});
+
+test('конфиг: у каждого УТВЕРЖДЕНО — контрол нужного типа, у «Удалить» и «СЛ ЭТАП» — контрола нет', () => {
+  const { ML } = load();
+  const kinds = ['city', 'select', 'range2', 'checks', 'check', 'numFrom', 'numTo', 'fromTo', 'multi', 'segments', 'halls', 'sliderFrom', 'tree'];
+  for (const d of ML.VENUE_FILTERS.concat(ML.SUPPLIER_FILTERS)) {
+    if (d.decision === 'Удалить' || d.decision === 'СЛ ЭТАП') assert.strictEqual(d.control, null, d.code);
+    else assert.ok(kinds.includes(d.control), d.code + ': ' + d.control);
+  }
+  const want = { guests: 'range2', price_day: 'range2', price_hour: 'range2', conference_package_price_per_person: 'range2',
+    avg_check: 'numTo', cuisine: 'multi', parking: 'segments', wardrobe: 'numFrom', hall_requirements: 'halls', has_floor_plan: 'check' };
+  for (const c in want) assert.strictEqual(ML.venueFilter(c).control, want[c], c);
+  assert.deepStrictEqual(plain(ML.VENUE_FILTER_GROUPS.map(g => g.l)), ['Основное', 'Тип площадки', 'Проживание', 'Залы', 'Стоимость',
+    'Питание', 'Оснащение зала', 'Пространство', 'Инфраструктура', 'Правила', 'Спорт']);
+  assert.strictEqual(ML.VENUE_FILTERS.filter(d => d.group === 'equip').length, 14);
+  assert.strictEqual(ML.VENUE_FILTERS.filter(d => d.group === 'sport').length, 8);
+});
+
+test('тестовые данные: не меньше 45 объектов, в Москве не меньше 22; у каждого варианта есть счётчик', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  assert.ok(ML.VENUES.length >= 45, ML.VENUES.length);
+  assert.ok(ML.VENUES.filter(v => v.city === 'Москва').length >= 22);
+  const types = ['', 'business', 'banquet', 'wedding', 'teambuilding', 'combined'];
+  const best = (fn) => Math.max(...types.map(t => { const F = ML.emptyFilters(); F.eventType = t; return fn(F); }));
+  ML.VENUE_FILTERS.filter(d => d.control === 'check').forEach(d => assert.ok(best(F => ML.facetCount(F, d.code)) > 0, d.code));
+  ML.CUISINE_OPTS.forEach(o => assert.ok(best(F => ML.facetCount(F, 'cuisine', o.code)) > 0, o.l));
+  ML.SUPPLIER_SECTIONS.forEach(s => s.kids.forEach(k => assert.ok(ML.supplierFacet(ML.emptySupplierFilters(), 'leaf', s.l + '·' + k.l) > 0, k.l)));
 });
 
 console.log(`\n${passed} прошло, ${failed} упало`);
