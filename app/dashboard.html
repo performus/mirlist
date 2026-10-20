@@ -564,6 +564,7 @@ button{font-family:inherit;cursor:pointer;}
 .wchecks{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:4px 12px;}
 .wcheck{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sm);padding:5px 0;cursor:pointer;}
 .wcheck input{width:auto;accent-color:var(--c);}
+.wf label.wcheck{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--sm);margin:0;display:flex;}
 .seatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;}
 .seatgrid label{font-size:11.5px;text-transform:none;letter-spacing:0;color:var(--sm);font-weight:500;}
 .wmap{position:relative;height:230px;border-radius:var(--rm);overflow:hidden;border:1.5px solid rgba(197,227,225,.5);cursor:crosshair;margin-bottom:10px;background:var(--aq-p);}
@@ -572,6 +573,21 @@ button{font-family:inherit;cursor:pointer;}
 .wmap-pin{position:absolute;width:18px;height:18px;margin:-18px 0 0 -9px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 2px 6px rgba(53,78,99,.3);pointer-events:none;}
 .wmap-pin::after{content:'';position:absolute;left:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#fff;}
 .drop{border:2px dashed var(--sp);border-radius:var(--rm);padding:24px;text-align:center;font-size:13px;color:var(--sx);cursor:pointer;transition:all .2s;}
+.drop{display:block;}
+.drop.over{border-color:var(--c);background:var(--cs);color:var(--c);}
+.wf-head{font-family:'Literata',Georgia,serif;font-weight:600;font-size:16px;color:var(--sd);margin:18px 0 8px;padding-top:14px;border-top:1px solid rgba(197,227,225,.35);}
+.wf-head:first-child{margin-top:0;padding-top:0;border-top:none;}
+.wradios{display:flex;flex-wrap:wrap;gap:4px 18px;}
+.wthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:12px;}
+.wthumb{position:relative;border-radius:var(--r);overflow:hidden;background:var(--bg);border:1px solid rgba(197,227,225,.45);aspect-ratio:4/3;cursor:grab;}
+.wthumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.wthumb-f{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sx);}
+.wthumb-cover{position:absolute;left:6px;top:6px;padding:2px 7px;border-radius:var(--rf);background:var(--c);color:#fff;font-size:10.5px;font-weight:700;}
+.wthumb-x{position:absolute;right:5px;top:5px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(53,78,99,.75);color:#fff;font-size:11px;cursor:pointer;}
+.wthumb-n{position:absolute;left:0;right:0;bottom:0;padding:3px 6px;background:rgba(255,255,255,.88);font-size:10.5px;color:var(--sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wfile{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;border-radius:var(--r);background:var(--bg);font-size:13px;color:var(--sd);}
+.wfile-ic{padding:3px 7px;border-radius:6px;background:var(--cs);color:var(--c);font-size:11px;font-weight:700;}
+.wfile-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .drop:hover{border-color:var(--c);background:var(--cs);color:var(--c);}
 .wlist{display:flex;flex-direction:column;gap:7px;margin-bottom:13px;}
 .witem{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid rgba(197,227,225,.4);border-radius:var(--r);padding:10px 12px;font-size:13px;}
@@ -1254,14 +1270,51 @@ function venueIncoming(){
   return out;
 }
 
-/* ── описания визардов ── */
+/* ── описания визардов ──
+   R3-A: свойства объекта, зала и услуги, по которым фильтруют пользователи, берутся из того же
+   конфига, что и панели фильтров (ML.VENUE_FILTERS, ML.SUPPLIER_FILTERS): чекбокс фильтра →
+   чекбокс, числовой фильтр «от / до» → числовое поле, мультивыбор → мультивыбор, сегменты → радиокнопки. */
+const WIZ_NUM_LABEL = {
+  avg_check: 'Средний чек, ₽', wardrobe: 'Мест в гардеробе', parking_spaces_min: 'Парковочных мест',
+  conference_package_price_per_person: 'Конференц-пакет, ₽ за человека', dressing_rooms: 'Гримёрок',
+};
+const WIZ_NUM_KEY = { avg_check: 'avgCheck', wardrobe: 'wardrobe', parking_spaces_min: 'parkingSpaces',
+  conference_package_price_per_person: 'confPackage', dressing_rooms: 'dressingRooms' };
+/** Поля шага «Характеристики» по группам конфига фильтров. */
+function venueCfgFields() {
+  const out = [];
+  const groups = ['food', 'equip', 'space', 'infra', 'rules', 'sport'];
+  for (const g of ML.VENUE_FILTER_GROUPS.filter(x => groups.includes(x.k))) {
+    out.push({ ty: 'cfghead', l: g.l });
+    if (g.k === 'food') out.push({ k: 'menu', l: 'Меню в PDF', ty: 'menu',
+      hint: 'Меню увидят на карточке объекта — кнопка «Скачать меню (PDF)». По нему работает фильтр «Есть меню на сайте».' });
+    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && !ML.DERIVED_CHECKS.includes(d.code));
+    const checks = defs.filter(d => d.control === 'check');
+    defs.filter(d => d.control !== 'check').forEach(d => {
+      if (d.control === 'multi') out.push({ k: 'cuisine', l: d.label, ty: 'mchecks', opts: d.opts.map(o => [o.code, o.l]) });
+      else if (d.control === 'segments') out.push({ k: 'parking', l: d.label, ty: 'radio',
+        opts: [['private', 'Собственная парковка'], ['city', 'Городская парковка рядом'], ['', 'Нет парковки']] });
+      else if (d.code === 'parking_spaces_min') out.push({ k: 'parkingSpaces', l: WIZ_NUM_LABEL[d.code], ty: 'num', when: () => WIZ.data.parking === 'private' });
+      else if (WIZ_NUM_KEY[d.code]) out.push({ k: WIZ_NUM_KEY[d.code], l: WIZ_NUM_LABEL[d.code], ty: 'num' });
+    });
+    if (checks.length) out.push({ k: 'feats', ty: 'fchecks', opts: checks.map(d => [d.code, d.label]) });
+  }
+  out.push({ ty: 'cfghead', l: 'Деловые мероприятия' });
+  out.push({ k: 'confPackage', l: WIZ_NUM_LABEL.conference_package_price_per_person, ty: 'num',
+    hint: 'По этой цене работает фильтр «Конференц-пакет» для деловых мероприятий.' });
+  out.push({ k: 'dressingRooms', l: WIZ_NUM_LABEL.dressing_rooms, ty: 'num' });
+  return out;
+}
+
 const VENUE_STEPS=[
  {t:'Основные данные',f:[
    {k:'name',l:'Название объекта',ty:'text',ph:'Отель «Аврора»',req:1},
    {k:'cat',l:'Категория объекта',ty:'select',optFn:()=>ML.VENUE_CATS,req:1},
-   {k:'stars',l:'Звёздность',ty:'select',opt:['3 звезды','4 звезды','5 звёзд'],
+   {k:'stars',l:'Звёздность',ty:'select',optFn:()=>ML.STAR_OPTIONS.map(o=>o.l),
     when:()=>ML.STARRED_CATS.includes(WIZ.data.cat),
     hint:'Поле есть только у категорий, где звёздность присваивается. Звёздность видна пользователям всех тарифов (включая бесплатные).'},
+   {k:'events',l:'Типы мероприятий',ty:'mchecks',optFn:()=>ML.EVENT_TYPES.map(e=>[e.k,e.l]),req:1,
+    hint:'По ним объект попадает в выдачу при выборе типа мероприятия.'},
    {k:'about',l:'Описание объекта',ty:'area',ph:'Чем площадка удобна для деловых мероприятий'},
  ]},
  {t:'Локация',f:[
@@ -1270,11 +1323,12 @@ const VENUE_STEPS=[
    {k:'coords',l:'Точка на карте',ty:'map',req:1},
  ]},
  {t:'Проживание',f:[
+   {k:'roomsTotal',l:'Всего номеров',ty:'num'},
    {k:'twin',l:'Номеров TWIN',ty:'num'},
    {k:'sngl',l:'Номеров SNGL',ty:'num'},
-   {ty:'note',text:'Заполняют только отели. Фильтры по TWIN/SNGL доступны пользователям на тарифе «ПРЕМИУМ».'},
+   {ty:'note',text:'Заполняют только объекты с проживанием. Фильтры по TWIN/SNGL доступны пользователям на тарифе «ПРЕМИУМ».'},
  ]},
- {t:'Характеристики',f:[{ty:'features'}]},
+ {t:'Характеристики',fFn:venueCfgFields},
  {t:'Фото объекта',f:[
    {k:'photos',l:'Общая фотография и галерея',ty:'photo',
     hint:'Общее фото — единственное, что видит пользователь на тарифе «СТАРТ». Ставьте лучший кадр.'},
@@ -1298,61 +1352,72 @@ const VENUE_STEPS=[
 const HALL_STEPS=[
  {t:'Зал и тип',f:[
    {k:'name',l:'Название зала',ty:'text',ph:'Большой зал',req:1},
-   {k:'type',l:'Тип зала',ty:'select',optFn:()=>ML.HALL_TYPES,req:1},
+   {k:'type',l:'Тип зала',ty:'select',optFn:()=>ML.HALL_TYPES,req:1,
+    hint:'Тип зала — подпись на карточке зала. Фильтра по типу зала нет.'},
    {k:'floor',l:'Этаж и корпус',ty:'text',ph:'2-й этаж, главный корпус'},
  ]},
  {t:'Параметры',f:[
-   {k:'area',l:'Площадь, м²',ty:'num',req:1},
-   {k:'height',l:'Высота потолка, м',ty:'num',req:1},
-   {k:'props',l:'Особенности пространства',ty:'checks',
-    opt:['Без колонн','Наличие окон','Затемнение','Стационарная сцена','Грузовой лифт',
-         'Возможность подвеса','Силовое подключение','Отдельный вход','Гримёрки']},
+   {k:'area',l:'Площадь, м²',ty:'num',req:1,hint:'По площади работает фильтр «Площадь зала от, м²».'},
+   {k:'height',l:'Высота потолка, м',ty:'num'},
  ]},
  {t:'Рассадка',f:[
    {k:'seats',l:'Вместимость по схемам рассадки, человек',ty:'seats',
-    hint:'Оставьте пустым схемы, неприменимые в этом зале. Именно по этим числам зал попадает в фильтр «Рассадка».'},
+    hint:'Оставьте пустым схемы, неприменимые в этом зале. Именно по этим числам зал попадает в фильтр «Схема и вместимость».'},
  ]},
  {t:'Стоимость',f:[
-   {k:'priceDay',l:'Аренда за день, ₽',ty:'num'},
-   {k:'priceHour',l:'Аренда за час, ₽',ty:'num'},
+   {k:'priceDay',l:'Аренда за день, от, ₽',ty:'num'},
+   {k:'priceHour',l:'Аренда за час, от, ₽',ty:'num',redraw:1},
+   {k:'hourly',l:'Сдаётся почасово',ty:'flag',when:()=>!(+WIZ.data.priceHour>0),
+    hint:'Отметьте, если зал сдаётся почасово, а цену за час вы сообщаете по запросу.'},
    {k:'agree',ty:'checks',opt:['Стоимость по договорённости']},
-   {ty:'note',text:'Залы с ценой «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
+   {ty:'note',text:'Можно указать одну из цен или обе. Залы с ценой «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
  ]},
  {t:'Медиа и планы',f:[
    {k:'photos',l:'Фотографии зала',ty:'photo'},
    {k:'schemes',l:'Схемы рассадки',ty:'photo'},
-   {k:'plan',l:'Точный план пространства',ty:'photo',
-    hint:'Планы/схемы зала отсутствуют (NB: замеры и подготовку планов можно заказать у Micelist; стоимость формируется исходя из общей площади залов).'},
+   {k:'plan',l:'Точный план пространства',ty:'photo',planHint:1},
  ]},
 ];
 
 const SERVICE_STEPS=[
  {t:'Категория',f:[
    {k:'parent',l:'Раздел каталога',ty:'select',optFn:()=>Object.keys(ML.SUPPLIER_TREE),req:1,
-    hint:'Групповой запрос пользователи отправляют только внутри одной категории — поэтому раздел обязателен.'},
+    hint:'Раздел каталога обязателен — по нему пользователи находят услугу.'},
    {k:'child',l:'Категория услуги',ty:'child',req:1},
  ]},
  {t:'Описание',f:[
    {k:'name',l:'Название услуги',ty:'text',ph:'Ведение мероприятия',req:1},
    {k:'about',l:'Что входит в услугу',ty:'area',req:1},
    {k:'city',l:'Город',ty:'select',optFn:()=>ML.CITIES,req:1},
-   {k:'travel',l:'Готов к командировкам в другие города',ty:'flag',
+   {k:'travel',l:'Выезд в другие города',ty:'flag',
     hint:'Без галочки вас найдут только по своему городу.'},
  ]},
  {t:'Стоимость и опыт',f:[
    {k:'price',l:'Стоимость от, ₽',ty:'num',req:1},
+   {k:'priceUnit',l:'Цена за',ty:'radio',req:1,optFn:()=>ML.PRICE_UNITS.filter(u=>u.decision!=='Удалить').map(u=>[u.code,u.l]),
+    hint:'На карточке цена выглядит так: «от 18 000 ₽ за смену».'},
    {k:'exp',l:'Опыт работы, лет',ty:'num',req:1},
+   {k:'pricePerPerson',l:'Цена на человека, ₽',ty:'num',when:()=>WIZ.data.child==='Кейтеринг'},
+   {k:'halal',l:'Халяльное меню',ty:'flag',when:()=>WIZ.data.child==='Кейтеринг'},
+   {k:'kosher',l:'Кошерное меню',ty:'flag',when:()=>WIZ.data.child==='Кейтеринг'},
+   {k:'delivery',l:'Доставка',ty:'flag',when:()=>WIZ.data.parent==='Аренда'&&WIZ.data.child==='Оборудование'},
+   {k:'installation',l:'Монтаж',ty:'flag',when:()=>WIZ.data.parent==='Аренда'&&WIZ.data.child==='Оборудование'},
+   {k:'operator',l:'Оператор включён',ty:'flag',when:()=>WIZ.data.parent==='Аренда'&&WIZ.data.child==='Оборудование'},
+   {k:'minHours',l:'Минимальное количество часов',ty:'num',when:()=>WIZ.data.parent==='Фото и видео'},
+   {k:'deliveryDays',l:'Срок готовности материалов, дней',ty:'num',when:()=>WIZ.data.parent==='Фото и видео'},
  ]},
  {t:'Медиа',f:[
    {k:'photos',l:'Фотографии',ty:'photo'},
    {k:'video',l:'Видео или шоурил',ty:'photo',hint:'Наличие видео — отдельный фильтр в каталоге поставщиков.'},
  ]},
  {t:'Бонусная программа',f:[
-   {k:'loy',ty:'checks',opt:['Участвую в бонусной программе']},
+   {k:'loy',ty:'checks',opt:['Участвую в бонусной программе'],redraw:1},
    {ty:'pts'},
  ]},
  {t:'Проверка',f:[{ty:'preview'}]},
 ];
+/** Поля шага: статический список или собранный из конфига. */
+const stepFields = (st) => st.fFn ? st.fFn() : st.f;
 
 const WIZDEFS={
   venue:{t:'Добавление объекта',s:VENUE_STEPS,fin:'Отправить на модерацию'},
@@ -1382,6 +1447,9 @@ function closeAllWiz(){
 
 function drawWiz(){
   const d=WIZ.def, st=d.s[WIZ.step], last=WIZ.step===d.s.length-1;
+  /* стр.107: перерисовка (выбор в списке, радиокнопка) не уводит список к первой строке */
+  const prevForm=document.querySelector('.wz-form');
+  const keepTop=prevForm&&WIZ._drawn===WIZ.kind+':'+WIZ.step?prevForm.scrollTop:0;
   document.getElementById('dmRoot').innerHTML=`
   <div class="wz-ovl" onclick="if(event.target===this)closeWiz()">
     <div class="wz" role="dialog" aria-modal="true">
@@ -1394,17 +1462,20 @@ function drawWiz(){
         <div class="wz-steps">${d.s.map((s,i)=>`
           <button class="${i===WIZ.step?'on':''} ${i<WIZ.max?'done':''}" onclick="wizGo(${i})">
             <span class="n">${i<WIZ.max?'✓':i+1}</span><span>${esc(s.t)}</span></button>`).join('')}</div>
-        <div class="wz-form">${st.f.map(wfield).join('')}</div>
+        <div class="wz-form">${stepFields(st).map(wfield).join('')}</div>
       </div>
       <div class="wz-foot">
         <button class="btn btn-o" onclick="closeWiz()">${WIZSTACK.length?'Назад к объекту':'Отмена'}</button>
         <span style="flex:1"></span>
         ${WIZ.step>0?`<button class="btn btn-o" onclick="wizGo(${WIZ.step-1})">Назад</button>`:''}
-        ${last?`<button class="btn btn-c" onclick="wizSave()">${esc(d.fin)}</button>`
+        ${last?`<button class="btn btn-c" onclick="wizSave()">${esc(WIZ.edit!=null&&d.finEdit?d.finEdit:d.fin)}</button>`
                :`<button class="btn btn-c" onclick="wizNext()">Далее</button>`}
       </div>
     </div>
   </div>`;
+  const form=document.querySelector('.wz-form');
+  if(form&&keepTop) form.scrollTop=keepTop;
+  WIZ._drawn=WIZ.kind+':'+WIZ.step;
 }
 
 /* Поле с when рисуется только когда предикат истинен — так звёздность
@@ -1424,8 +1495,29 @@ function wfield(f){
         только за состоявшееся мероприятие, рассчитанную исходя из минимального числа участников.</div>`;
     }
     case 'text': case 'num':
-      return `<div class="wf${bad}">${L}<input type="${f.ty==='num'?'number':'text'}"
-        placeholder="${esc(f.ph||'')}" value="${v==null?'':esc(v)}" oninput="${S}=this.value">${H}</div>`;
+      return `<div class="wf${bad}">${L}<input type="${f.ty==='num'?'number':'text'}" ${f.ty==='num'?'min="0"':''}
+        placeholder="${esc(f.ph||'')}" value="${v==null?'':esc(v)}" oninput="${S}=this.value"${f.redraw?' onchange="drawWiz()"':''}>${H}</div>`;
+    case 'cfghead': return `<div class="wf-head">${esc(f.l)}</div>`;
+    case 'mchecks': case 'fchecks': {
+      const a=v||[], pairs=f.optFn?f.optFn():f.opts;
+      return `<div class="wf${bad}">${L}<div class="wchecks">${pairs.map(([code,l])=>`<label class="wcheck">
+        <input type="checkbox" ${a.includes(code)?'checked':''} onchange="wizToggle('${f.k}','${jt(code)}',false)">
+        <span>${esc(l)}</span></label>`).join('')}</div>${H}</div>`;
+    }
+    case 'radio': {
+      const pairs=f.optFn?f.optFn():f.opts;
+      return `<div class="wf${bad}">${L}<div class="wradios" role="radiogroup">${pairs.map(([code,l])=>`<label class="wcheck">
+        <input type="radio" name="wr-${f.k}" ${(v||'')===code?'checked':''} onchange="${S}='${jt(code)}';drawWiz()">
+        <span>${esc(l)}</span></label>`).join('')}</div>${H}</div>`;
+    }
+    case 'menu':
+      return `<div class="wf">${L}${v?`<div class="wfile"><span class="wfile-ic">PDF</span><span class="wfile-n">${esc(v.name)}</span>
+          <button type="button" class="btn-xs danger" onclick="WIZ.data.menu=null;drawWiz()">Удалить</button></div>`:''}
+        <label class="drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')"
+          ondrop="event.preventDefault();wizMenu(event.dataTransfer.files)">
+          ${v?'Заменить меню — перетащите PDF или нажмите':'Перетащите PDF или нажмите, чтобы выбрать'}
+          <div style="margin-top:5px;font-size:12px">PDF · до 10 МБ</div>
+          <input type="file" accept="application/pdf,.pdf" hidden onchange="wizMenu(this.files)"></label>${H}</div>`;
     case 'area':
       return `<div class="wf${bad}">${L}<textarea placeholder="${esc(f.ph||'')}"
         oninput="${S}=this.value">${v==null?'':esc(v)}</textarea>${H}</div>`;
@@ -1435,9 +1527,12 @@ function wfield(f){
         ${opts.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>${H}</div>`;
     case 'child': {
       const kids=ML.SUPPLIER_TREE[WIZ.data.parent]||[];
-      return `<div class="wf${bad}">${L}<select ${kids.length?'':'disabled'} onchange="${S}=this.value">
+      /* «Координатор / сопровождение»: в фильтре есть, но карточку создаёт только партнёр платформы */
+      const po=kids.filter(o=>ML.PARTNER_ONLY.includes(WIZ.data.parent+'·'+o));
+      return `<div class="wf${bad}">${L}<select ${kids.length?'':'disabled'} onchange="${S}=this.value;drawWiz()">
         <option value="">${kids.length?'— выберите —':'сначала выберите раздел'}</option>
-        ${kids.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>${H}</div>`;
+        ${kids.map(o=>{const p=po.includes(o);return `<option ${v===o?'selected':''} ${p?'disabled':''}>${esc(o)}</option>`;}).join('')}</select>
+        ${po.length?`<div class="hint">«${esc(po.join('», «'))}»: категория доступна только партнёру платформы.</div>`:''}${H}</div>`;
     }
     case 'flag':
       return `<div class="wf"><label class="wcheck wcheck-solo">
@@ -1446,20 +1541,11 @@ function wfield(f){
     case 'checks': {
       const a=v||[];
       return `<div class="wf">${L}<div class="wchecks">${opts.map(o=>`<label class="wcheck">
-        <input type="checkbox" ${a.includes(o)?'checked':''} onchange="wizToggle('${f.k}','${jt(o)}')">
+        <input type="checkbox" ${a.includes(o)?'checked':''} onchange="wizToggle('${f.k}','${jt(o)}',${f.redraw?'true':'false'})">
         <span>${esc(o)}</span></label>`).join('')}</div>${H}</div>`;
     }
     case 'contracts-ro':
       return `<div class="wf">${L}${contractStatusList(v||[])}</div>`;
-    case 'features':
-      // четыре группы удобств строго по ML.FEATURE_GROUPS
-      return ML.FEATURE_GROUPS.map(g=>{
-        const a=WIZ.data[g.k]||[];
-        return `<div class="wf"><label>${esc(g.l)}</label><div class="wchecks">
-          ${ML.FEATURES[g.k].map(o=>`<label class="wcheck">
-            <input type="checkbox" ${a.includes(o)?'checked':''} onchange="wizToggle('${g.k}','${jt(o)}')">
-            <span>${esc(o)}</span></label>`).join('')}</div></div>`;
-      }).join('');
     case 'seats': {
       const s=v||{};
       return `<div class="wf">${L}<div class="seatgrid">${ML.SEATING.map(x=>`<div>
@@ -1477,10 +1563,25 @@ function wfield(f){
         <div class="hint">Без координат объект не появится на карте подбора.</div>
       </div>`;
     }
-    case 'photo':
-      return `<div class="wf">${L}<div class="drop" onclick="MH.toast('Загрузка файлов пока недоступна','info')">
+    case 'photo': {
+      /* стр.108: перетаскивание и выбор файла, миниатюры, удаление, порядок перетаскиванием,
+         первая — обложка. Файлы на сервер не уходят: превью через URL.createObjectURL,
+         в объект сохраняются только имена файлов и их количество. */
+      const list=v||[];
+      return `<div class="wf">${L}<label class="drop" ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')" ondrop="wizDrop(event,'${f.k}')">
         Перетащите файлы или нажмите, чтобы выбрать
-        <div style="margin-top:5px;font-size:12px">JPG, PNG, PDF · до 10 МБ</div></div>${H}</div>`;
+        <div style="margin-top:5px;font-size:12px">JPG, PNG, PDF · до 10 МБ</div>
+        <input type="file" multiple accept="image/*,application/pdf" hidden onchange="wizFiles('${f.k}',this.files)"></label>
+        ${list.length?`<div class="wthumbs">${list.map((p,i)=>`<div class="wthumb" draggable="true"
+            ondragstart="WZDRAG={k:'${f.k}',i:${i}}" ondragover="event.preventDefault()" ondrop="wizReorder(event,'${f.k}',${i})">
+            ${p.url&&!/\.pdf$/i.test(p.name)?`<img src="${p.url}" alt="">`:`<span class="wthumb-f">${esc((p.name.split('.').pop()||'').toUpperCase())}</span>`}
+            ${i===0&&f.k==='photos'?'<span class="wthumb-cover">Обложка</span>':''}
+            <button type="button" class="wthumb-x" onclick="wizDelFile('${f.k}',${i})" aria-label="Удалить ${esc(p.name)}">✕</button>
+            <span class="wthumb-n" title="${esc(p.name)}">${esc(p.name)}</span></div>`).join('')}</div>
+          <div class="hint">${list.length} ${ML.plural(list.length,['файл','файла','файлов'])}.${f.k==='photos'?' Перетаскивайте миниатюры, чтобы изменить порядок: первая фотография — обложка.':''}</div>`:''}
+        ${f.planHint?`<div class="hint">Если планы/схемы зала отсутствуют, замеры и подготовку планов можно <a href="listing-help.html" target="_blank">заказать у МАЙСЛИСТ</a>; стоимость формируется исходя из общей площади залов.</div>`:''}${H}</div>`;
+    }
     case 'pts': {
       const p=+(WIZ.data.price||0), on=(WIZ.data.loy||[]).length>0;
       if(!on) return `<div class="wz-note">Отметьте участие — покажем, во сколько услуга обойдётся пользователю в баллах.</div>`;
@@ -1509,10 +1610,32 @@ function wfield(f){
   return '';
 }
 
-function wizToggle(k,o){
+/* стр.107: чекбокс меняет состояние без пересборки шага — список не прыгает к первой строке.
+   Перерисовка нужна только полям, от которых зависят другие (redraw). */
+function wizToggle(k,o,redraw){
   const a=(WIZ.data[k]||[]).slice(), i=a.indexOf(o);
   i<0?a.push(o):a.splice(i,1);
-  WIZ.data[k]=a; drawWiz();
+  WIZ.data[k]=a; if(redraw) drawWiz();
+}
+/* ── загрузка файлов в визардах (стр.108) ── */
+let WZDRAG=null;
+function wizFiles(k,files){
+  const add=[...(files||[])].map(f=>({name:f.name,url:URL.createObjectURL(f)}));
+  if(!add.length) return;
+  WIZ.data[k]=(WIZ.data[k]||[]).concat(add); drawWiz();
+}
+function wizDrop(e,k){ e.preventDefault(); e.currentTarget.classList.remove('over'); wizFiles(k,e.dataTransfer.files); }
+function wizDelFile(k,i){ const a=(WIZ.data[k]||[]).slice(); const [x]=a.splice(i,1); if(x&&x.url) URL.revokeObjectURL(x.url); WIZ.data[k]=a; drawWiz(); }
+function wizReorder(e,k,to){
+  e.preventDefault();
+  if(!WZDRAG||WZDRAG.k!==k||WZDRAG.i===to) return;
+  const a=(WIZ.data[k]||[]).slice(); const [x]=a.splice(WZDRAG.i,1); a.splice(to,0,x);
+  WIZ.data[k]=a; WZDRAG=null; drawWiz();
+}
+function wizMenu(files){
+  const f=(files||[])[0]; if(!f) return;
+  if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){ MH.toast('Меню загружается в PDF','error'); return; }
+  WIZ.data.menu={name:f.name,url:URL.createObjectURL(f)}; drawWiz();
 }
 function wizSeat(k,v){
   const s=Object.assign({},WIZ.data.seats);
@@ -1559,9 +1682,10 @@ function wizNext(){ if(!wizValid()) return; WIZ.step++; WIZ.max=Math.max(WIZ.max
 
 /* Без заполненного обязательного поля дальше не пускаем и подсвечиваем поле. */
 function wizValid(){
-  for(const f of WIZ.def.s[WIZ.step].f){
+  for(const f of stepFields(WIZ.def.s[WIZ.step])){
     if(f.when&&!f.when()) continue;
-    if(f.req&&!String(WIZ.data[f.k]==null?'':WIZ.data[f.k]).trim()){
+    const val=WIZ.data[f.k];
+    if(f.req&&(Array.isArray(val)?!val.length:!String(val==null?'':val).trim())){
       WIZ.bad=f.k; drawWiz();
       MH.toast('Заполните поле «'+f.l+'»','error');
       return false;
@@ -1583,7 +1707,7 @@ function wizSave(){
   if(WIZ.kind==='venue'){
     const v=ML.addMyVenue(WIZ.data);
     // модель звёздность не принимает — дописываем и сохраняем сами
-    v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?(parseInt(WIZ.data.stars,10)||0):0;
+    v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?((ML.STAR_OPTIONS.find(o=>o.l===WIZ.data.stars)||{k:0}).k):0;
     ML.persist.myVenues();
   }
   if(WIZ.kind==='service') ML.addMyService(WIZ.data);
@@ -1600,27 +1724,29 @@ function wizPreview(){
       <div class="wprev"><div class="wprev-img"></div><div class="wprev-b">
         <div style="font-size:14px;font-weight:700;color:var(--sd)">${esc(d.name||'Без названия')}</div>
         <div style="font-size:12px;color:var(--sx);margin-top:3px">${esc(d.child||'—')} · ${esc(d.city||'город не указан')}</div>
-        <div style="font-size:14px;font-weight:700;color:var(--sd);margin-top:8px">от ${ML.money(p)}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--sd);margin-top:8px">от ${ML.money(p)}${d.priceUnit?' '+ML.priceUnitLabel(d.priceUnit):''}</div>
       </div></div></div>
       <table class="wsum" style="margin-top:16px">
         <tr><th>Раздел</th><td>${esc(d.parent||'—')}</td></tr>
         <tr><th>Категория</th><td>${esc(d.child||'—')}</td></tr>
         <tr><th>Опыт</th><td>${d.exp?d.exp+' '+ML.plural(+d.exp,['год','года','лет']):'—'}</td></tr>
         <tr><th>Город</th><td>${esc(d.city||'—')}</td></tr>
-        <tr><th>Командировки</th><td>${d.travel?'готов выехать':'только свой город'}</td></tr>
+        <tr><th>Выезд в другие города</th><td>${d.travel?'да':'нет, только свой город'}</td></tr>
         <tr><th>Бонусная программа</th><td>${(d.loy||[]).length?'участвует · '+ML.servicePoints(p).toLocaleString('ru')+' Б':'нет'}</td></tr>
       </table>
       <div class="wz-note" style="margin-top:16px">После отправки карточка уходит на модерацию.</div>`;
   }
   const hs=d.halls||[];
-  const feat=ML.FEATURE_GROUPS.reduce((a,g)=>a+((d[g.k]||[]).length),0);
+  const feat=(d.feats||[]).length;
   return `<table class="wsum">
       <tr><th>Название</th><td>${esc(d.name||'—')}</td></tr>
       <tr><th>Категория</th><td>${esc(d.cat||'—')}</td></tr>
       ${ML.STARRED_CATS.includes(d.cat)?`<tr><th>Звёздность</th><td>${d.stars?esc(d.stars):'не указана'}</td></tr>`:''}
       <tr><th>Город и адрес</th><td>${esc(d.city||'—')}${d.addr?', '+esc(d.addr):''}</td></tr>
       <tr><th>Координаты</th><td>${esc(d.coords||'—')}</td></tr>
-      <tr><th>Номерной фонд</th><td>${(+d.twin||+d.sngl)?`TWIN ${+d.twin||0} · SNGL ${+d.sngl||0}`:'нет'}</td></tr>
+      <tr><th>Типы мероприятий</th><td>${(d.events||[]).map(k=>(ML.EVENT_TYPES.find(e=>e.k===k)||{l:k}).l).join(', ')||'—'}</td></tr>
+      <tr><th>Номерной фонд</th><td>${(+d.roomsTotal||+d.twin||+d.sngl)?`${+d.roomsTotal||(+d.twin||0)+(+d.sngl||0)} · TWIN ${+d.twin||0} · SNGL ${+d.sngl||0}`:'нет'}</td></tr>
+      <tr><th>Меню</th><td>${d.menu?esc(d.menu.name):'не загружено'}</td></tr>
       <tr><th>Характеристик отмечено</th><td>${feat}</td></tr>
       <tr><th>Залов</th><td>${hs.length?hs.map(h=>esc(h.name||'Без названия')).join(', '):'ни одного'}</td></tr>
       <tr><th>Контакт</th><td>${esc(d.person||'—')}${d.phone?' · '+esc(d.phone):''}</td></tr>

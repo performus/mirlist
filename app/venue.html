@@ -162,6 +162,9 @@ button{font-family:inherit;cursor:pointer;}
   .d-title{font-size:26px;}
   .wrap{padding:18px 18px 48px;}
 }
+.flines{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--slate-mid);margin-bottom:10px;}
+.flines b{color:var(--slate-deep);}
+.menu-dl{display:inline-flex;margin-top:12px;}
 </style>
 </head>
 <body>
@@ -230,12 +233,25 @@ function render() {
     </div>`;
   }).join('');
 
-  // ── оснащение по ML.FEATURE_GROUPS, только то, что реально есть у объекта ──
-  const featureBlocks = ML.FEATURE_GROUPS.map(g => {
-    const have = ML.FEATURES[g.k].filter(x => v.features.includes(x));
-    if (!have.length) return '';
+  /* ── R3-A: оснащение и услуги — по группам и названиям конфига фильтров (ML.VENUE_FILTERS),
+     только то, что реально есть у объекта. Короткие подписи (card) — как в текстах карточки. ── */
+  const money = (n) => n.toLocaleString('ru') + ' ₽';
+  const featureBlocks = ML.VENUE_FILTER_GROUPS.filter(g => !['main', 'type', 'rooms', 'halls', 'price'].includes(g.k)).map(g => {
+    const tags = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control === 'check' && !ML.DERIVED_CHECKS.includes(d.code) && v.features.includes(d.code))
+      .map(d => d.card || d.label);
+    const lines = [];
+    if (g.k === 'food') {
+      if (v.avgCheck) lines.push(`Средний чек — <b>${money(v.avgCheck)}</b>`);
+      if ((v.cuisine || []).length) lines.push('Кухня: ' + v.cuisine.map(c => (ML.CUISINE_OPTS.find(o => o.code === c) || { l: c }).l.toLowerCase()).join(', '));
+    }
+    if (g.k === 'space' && v.wardrobe) lines.push(`Гардероб — <b>${v.wardrobe}</b> ${ML.plural(v.wardrobe, ['место', 'места', 'мест'])}`);
+    if (g.k === 'infra' && v.parking) lines.push(((ML.PARKING_OPTS.find(o => o.code === v.parking) || {}).full || '') +
+      (v.parking === 'private' && v.parkingSpaces ? `, <b>${v.parkingSpaces}</b> ${ML.plural(v.parkingSpaces, ['место', 'места', 'мест'])}` : ''));
+    const menu = g.k === 'food' && v.menu ? `<a class="btn sm o menu-dl" href="${esc(v.menu.url)}" download="${esc(v.menu.name)}">Скачать меню (PDF)</a>` : '';
+    if (!tags.length && !lines.length && !menu) return '';
     return `<div class="fgroup"><h3>${esc(g.l)}</h3>
-      <div class="ftags">${have.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div></div>`;
+      ${lines.length ? `<div class="flines">${lines.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
+      ${tags.length ? `<div class="ftags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}${menu}</div>`;
   }).join('');
 
   // звёздность отделена от категории: строку показываем только там, где она применима
@@ -245,10 +261,13 @@ function render() {
   const rows = full
     ? [['Категория', v.cat], ...starRow, ['Город', v.city], ['Адрес', v.addr],
        ['Вместимость', cap + ' чел.'],
-       ['Номерной фонд', (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
+       ['Номерной фонд', ML.venueRooms(v) ? `${ML.venueRooms(v)} ${ML.plural(ML.venueRooms(v), ['номер', 'номера', 'номеров'])}${(v.rooms.twin || v.rooms.sngl) ? ` · TWIN ${v.rooms.twin || 0} · SNGL ${v.rooms.sngl || 0}` : ''}` : 'нет'],
        ['Залов', v.halls.length],
+       ...(v.dressingRooms ? [['Гримёрок', v.dressingRooms]] : []),
+       ...(v.confPackage ? [['Конференц-пакет', 'от ' + money(v.confPackage) + ' / чел.']] : []),
+       ['Типы мероприятий', v.eventTypes.map(k => (ML.EVENT_TYPES.find(e => e.k === k) || { l: k }).l).join(', ')],
        ['Рейтинг', `${v.rating} (${v.reviews})`],
-       ['Договор с оплатой бонусными баллами', v.loyaltyContract ? 'да' : 'нет']]
+       ['Участвует в бонусной программе', v.loyaltyContract ? 'да' : 'нет']]
     : [['Категория', v.cat], ...starRow, ['Регион', v.city]];
 
   document.getElementById('root').innerHTML = `
