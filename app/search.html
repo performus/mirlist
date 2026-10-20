@@ -389,6 +389,51 @@ h1,h2,h3 { font-weight:700; }
   background:#fff; border:2.5px solid var(--coral); cursor:pointer;
 }
 
+/* R3-A: контролы по конфигу фильтров */
+.fd-rgt { font-size:12px; font-weight:600; color:var(--slate-deep); margin:10px 0 6px; }
+.fd-rgt:first-child { margin-top:4px; }
+.fd-rgt span { font-weight:500; color:var(--slate-muted); }
+.fd-num { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 0; font-size:13px; color:var(--slate-mid); }
+.fd-num label { flex:1; min-width:0; }
+.fd-numin { display:inline-flex; align-items:center; gap:6px; flex:none; font-size:12px; color:var(--slate-muted); }
+.fd-numin input, .fd-rgin input {
+  width:84px; padding:7px 10px; border-radius:var(--r-sm); border:1.5px solid rgba(197,227,225,.55);
+  background:var(--bg); font-family:inherit; font-size:13px; color:var(--slate); outline:none; text-align:right; transition:border-color .2s;
+}
+.fd-numin input:focus, .fd-rgin input:focus { border-color:var(--coral); background:var(--white); }
+.fd-numin input:disabled, .fd-rgin input:disabled { color:var(--slate-pale); cursor:not-allowed; }
+.fd-rgin { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+.fd-rgin label { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--slate-muted); flex:1; min-width:0; }
+.fd-rgin label input { width:100%; min-width:0; }
+.fd-rgu { font-size:12px; color:var(--slate-muted); }
+.fd-rg + .fd-rg, .fd-mode + .fd-rg { margin-top:6px; }
+.fd-seg { display:flex; gap:4px; padding:3px; background:var(--bg); border-radius:var(--r-full); margin:4px 0 8px; }
+.fd-seg button { flex:1; border:none; background:none; padding:7px 8px; border-radius:var(--r-full); font-size:12.5px; font-weight:600; color:var(--slate-muted); transition:all .2s; }
+.fd-seg button.on { background:var(--white); color:var(--coral); box-shadow:var(--sh-sm); }
+.fd-seg button:disabled { cursor:not-allowed; opacity:.6; }
+.fd-adv { margin-top:8px; border-top:1px dashed rgba(197,227,225,.6); }
+.fd-adv > summary { list-style:none; cursor:pointer; padding:10px 0 4px; font-size:12.5px; font-weight:600; color:var(--slate-mid); display:flex; align-items:center; gap:6px; }
+.fd-adv > summary::-webkit-details-marker { display:none; }
+.fd-adv > summary::after { content:'▶'; font-size:9px; color:var(--slate-pale); transition:transform .2s; }
+.fd-adv[open] > summary::after { transform:rotate(90deg); }
+.fd-search { width:100%; padding:7px 12px; margin:4px 0 6px; border-radius:var(--r-full); border:1.5px solid rgba(197,227,225,.55);
+  font-family:inherit; font-size:12.5px; color:var(--slate); outline:none; background:var(--white); }
+.fd-search:focus { border-color:var(--coral); }
+.fd-multi { max-height:220px; overflow-y:auto; scrollbar-width:thin; }
+.fd-info { position:relative; display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; margin-left:6px;
+  border-radius:50%; border:1.5px solid var(--slate-pale); color:var(--slate-muted); font-size:10px; font-weight:700; font-style:italic; vertical-align:-2px; cursor:help; outline:none; }
+.fd-info:hover, .fd-info:focus { border-color:var(--coral); color:var(--coral); }
+.fd-tip { position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); width:230px; padding:10px 12px; border-radius:var(--r-sm);
+  background:var(--slate-deep); color:#fff; font-size:11.5px; font-weight:500; font-style:normal; line-height:1.5; text-align:left;
+  box-shadow:var(--sh-md); opacity:0; visibility:hidden; transition:opacity .15s; z-index:20; pointer-events:none; }
+.fd-info:hover .fd-tip, .fd-info:focus .fd-tip { opacity:1; visibility:visible; }
+.fd-sel { display:block; font-size:12px; color:var(--slate-muted); padding:4px 0 8px; }
+.fd-sel span { display:block; margin-bottom:4px; font-weight:600; color:var(--slate-deep); }
+.fd-sel select { width:100%; padding:8px 12px; border-radius:var(--r-sm); border:1.5px solid rgba(197,227,225,.55); background:var(--white);
+  font-family:inherit; font-size:13px; color:var(--slate); outline:none; }
+.fd-reset:disabled { color:var(--slate-pale); cursor:not-allowed; }
+.fd-reset:disabled:hover { color:var(--slate-pale); }
+
 /* подсказка о тарифе */
 .fd-lock {
   margin-top:10px; padding-top:9px;
@@ -824,7 +869,7 @@ h1,h2,h3 { font-weight:700; }
     </div>
     <div class="cb-field">
       <label for="cbEvent">Тип мероприятия</label>
-      <select id="cbEvent" onchange="F.eventType=this.value;renderFilters();render()"></select>
+      <select id="cbEvent" onchange="setEvent(this.value)"></select>
     </div>
     <div class="cb-right">
       <div class="view-sw" role="group" aria-label="Вид отображения">
@@ -921,25 +966,11 @@ let VIEW = 'map';                 // текущий вид — вычисляе�
 let HOVER = null;                 // id объекта, подсвеченного на карте
 let SORT = 'rel';
 let ZOOM = 1;
-const OPEN = new Set(['cap', 'cats']);   // раскрытые группы фильтров
-/* п.24: после перезагрузки раскрыты секции, где есть заполненные значения. */
-function groupFilled(k) {
-  if (k === 'cap') return !!(F.people || F.peopleTo);
-  if (k === 'cats' || k === 'stars' || ML.FEATURES[k]) return !!(F[k] && F[k].size);
-  if (k === 'rooms') return !!(F.rooms || F.twin || F.sngl);
-  if (k === 'halls') return (F.halls || []).some(r => r.seating || +r.min);
-  if (k === 'price') return F.priceDay[0] > 0 || F.priceDay[1] < 200000;
-  return false;
-}
-['cap', 'cats', 'stars', 'rooms', 'halls', 'price', 'food', 'opts', 'other', 'sport'].forEach(k => { if (groupFilled(k)) OPEN.add(k); });
+const OPEN = new Set(['main', 'type']);   // раскрытые группы фильтров
 const PER_PAGE = 10;
 let PAGE = 1, PAGE_SIG = '';
 /** Применён ли хоть один фильтр. Без фильтров — стартовая карта со всеми объектами. */
-function hasFilters() {
-  return !!(F.city || F.people || F.peopleTo || F.eventType || F.cats.size || F.stars.size || F.rooms || F.twin || F.sngl
-    || (F.halls || []).some(r => r.seating || +r.min) || F.priceDay[0] > 0 || F.priceDay[1] < 200000
-    || ['food', 'opts', 'other', 'sport'].some(g => F[g].size) || ML.state.blacklist.size);
-}
+function hasFilters() { return ML.filtersActive(F) || ML.state.blacklist.size > 0; }
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const jt  = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -957,7 +988,9 @@ const IC = {
 function canUse(group) { return ML.canUseFilter(ML.tariff().key, group); }
 
 /* ══════════════════════════════════════════════
-   ПАНЕЛЬ ФИЛЬТРОВ
+   ПАНЕЛЬ ФИЛЬТРОВ — строится из конфига ML.VENUE_FILTERS (R3-A)
+   Группы и порядок — ML.VENUE_FILTER_GROUPS, контрол — d.control, условие
+   показа — ML.venueFilterVisible(d, F). Своих списков фильтров страница не держит.
    ══════════════════════════════════════════════ */
 function fgroup(key, title, body, n) {
   return `<details class="fd-group" data-k="${key}" ${OPEN.has(key) ? 'open' : ''} ontoggle="OPEN[this.open?'add':'delete']('${key}')">
@@ -966,108 +999,204 @@ function fgroup(key, title, body, n) {
   </details>`;
 }
 
-function checks(group, items, locked) {
-  return items.map(x => `<label class="fd-check${locked ? ' off' : ''}" data-g="${group}" data-item="${esc(x)}">
-    <input type="checkbox" ${F[group].has(x) ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="togSet('${group}','${jt(x)}')">
-    <span class="fd-box">${IC.check}</span>
-    <span class="fd-lbl">${esc(x)}</span><span class="fd-cnt"></span></label>`).join('');
-}
-
-function togSet(group, value) { const s = F[group]; s.has(value) ? s.delete(value) : s.add(value); render(); }
-
-/* п.6: какой тариф открывает группу и обёртка, ведущая на пейвол */
-const needFor = (g) => ['seats', 'twin', 'sngl'].includes(g) ? 'prem' : 'biz';
-const GROUP_NAMES = { stars: 'Фильтр по звёздности', rooms: 'Фильтр по номерному фонду', twin: 'Фильтр по номерам SNGL и TWIN',
-  halls: 'Подбор по залам', seats: 'Выбор схемы рассадки', priceDay: 'Фильтр по стоимости', food: 'Фильтры по удобствам' };
-function payWrap(group, html) {
-  const need = needFor(group);
-  return `<div class="fd-paywall" role="button" tabindex="0" ${MH.payAttr(need, GROUP_NAMES[group] || 'Этот фильтр')}
+/* п.6: какой тариф открывает фильтр и обёртка, ведущая на пейвол */
+const needFor = (code) => ['rooms_twin', 'rooms_single', 'seats', 'twin', 'sngl'].includes(code) ? 'prem' : 'biz';
+function payWrap(code, html, title) {
+  return `<div class="fd-paywall" role="button" tabindex="0" ${MH.payAttr(needFor(code), title || 'Этот фильтр')}
     onkeydown="if(event.key==='Enter')this.click()">${html}</div>`;
 }
+function lockNote(code) {
+  return canUse(code) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${needFor(code) === 'prem' ? 'ПРЕМИУМ' : 'БИЗНЕС'}»</b> →</div>`;
+}
 
-/* Звёздность — отдельная группа, логика «ИЛИ». Варианты — ML.STAR_OPTIONS:
-   «Без звёзд», «1–2 звезды», 3, 4, 5. На «СТАРТ» закрыта (п.27). */
-function starChecks(locked) {
-  return ML.STAR_OPTIONS.map(o => `<label class="fd-check${locked ? ' off' : ''}" data-g="stars" data-item="${o.k}">
-    <input type="checkbox" ${F.stars.has(o.k) ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="togStar(${o.k})">
+/* чекбокс со счётчиком; data-code/data-val — для applyFacets */
+function checkRow(code, val, label, on, locked, extra) {
+  return `<label class="fd-check${locked ? ' off' : ''}" data-code="${esc(code)}" data-val="${esc(val)}">
+    <input type="checkbox" ${on ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="${extra || `togFeat('${jt(code)}')`}">
     <span class="fd-box">${IC.check}</span>
-    <span class="fd-lbl">${o.k ? `<span class="fd-stars" role="img" aria-label="${esc(o.l)}">${IC.star.repeat(o.k)}</span>` : esc(o.l)}</span><span class="fd-cnt"></span></label>`).join('');
+    <span class="fd-lbl">${label}</span><span class="fd-cnt"></span></label>`;
 }
-function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); render(); }
+function togFeat(code) { F.feats.has(code) ? F.feats.delete(code) : F.feats.add(code); renderFilters(); render(); }
+function togSet(key, value) { const s = F[key]; s.has(value) ? s.delete(value) : s.add(value); renderFilters(); render(); }
+function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); renderFilters(); render(); }
+function setVal(key, v) { F[key] = v; renderFilters(); render(); }
+const numClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : n; };
 
-function lockNote(group, tariffName) {
-  return canUse(group) ? '' : `<div class="fd-lock">Доступно с тарифа <b>«${tariffName}»</b> →</div>`;
+/* подсказка (i) — показывается при наведении и фокусе */
+const infoTip = (text) => `<span class="fd-info" tabindex="0" aria-label="Что это значит"><span aria-hidden="true">i</span><span class="fd-tip" role="tooltip">${esc(text)}</span></span>`;
+
+/** Один контрол фильтра. locked — тариф не открывает: рисуем неактивным. */
+function control(d, locked) {
+  const dis = locked ? 'disabled' : '';
+  switch (d.control) {
+    case 'check': return checkRow(d.code, '', esc(d.label) + (d.info ? infoTip(d.info) : ''), F.feats.has(d.code), locked);
+    case 'checks':
+      if (d.code === 'stars') return `<div class="fd-rgt">${esc(d.label)}</div>` + ML.STAR_OPTIONS.map(o => checkRow('stars', o.k,
+        o.k ? `<span class="fd-stars" role="img" aria-label="${esc(o.l)}">${IC.star.repeat(o.k)}</span>` : esc(o.l),
+        F.stars.has(o.k), locked, `togStar(${o.k})`)).join('');
+      return `<div class="fd-rgt">${esc(d.label)}</div>` + d.opts.map(o => checkRow('category', o.l, esc(o.l), F.cats.has(o.l), locked, `togSet('cats','${jt(o.l)}')`)).join('');
+    case 'numFrom': return `<div class="fd-num"><label for="fn-${d.code}">${esc(d.label)}</label>
+        <span class="fd-numin"><input id="fn-${d.code}" inputmode="numeric" placeholder="любое" value="${F[d.fkey] || ''}" ${dis}
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))">${d.unit ? `<span>${esc(d.unit)}</span>` : ''}</span></div>`;
+    case 'numTo': {
+      const mx = ML.LIMITS[d.fkey] || 10000, v = F[d.fkey] || 0;
+      return `<div class="fd-num"><label for="fn-${d.code}">${esc(d.label)}</label>
+        <span class="fd-numin"><input id="fn-${d.code}" inputmode="numeric" placeholder="любой" value="${v || ''}" ${dis}
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',Math.min(${mx},numClean(this.value)))"><span>₽</span></span></div>
+        <div class="fd-range"><input type="range" min="0" max="${mx}" step="100" value="${v || mx}" ${dis} aria-label="${esc(d.label)}, ползунок"
+          oninput="document.getElementById('fn-${d.code}').value=(+this.value>=${mx}?'':this.value)"
+          onchange="setVal('${d.fkey}',+this.value>=${mx}?0:+this.value)"></div>`;
+    }
+    case 'range2': return d.code === 'guests' ? `<div class="fd-rgt">${esc(d.label)}</div>` + capBody() : rangeBody(d, locked);
+    case 'multi': {
+      const q = (CUISINE_Q || '').toLowerCase();
+      return `<div class="fd-rgt">${esc(d.label)}</div><input class="fd-search" type="search" placeholder="Найти кухню" value="${esc(CUISINE_Q)}" ${dis} aria-label="Поиск по кухням"
+          oninput="CUISINE_Q=this.value;filterCuisine()">
+        <div class="fd-multi" id="cuisineList">${d.opts.map(o => `<div class="fd-mopt" data-l="${esc(o.l.toLowerCase())}"${q && !o.l.toLowerCase().includes(q) ? ' hidden' : ''}>
+          ${checkRow('cuisine', o.code, esc(o.l), F.cuisine.has(o.code), locked, `togSet('cuisine','${o.code}')`)}</div>`).join('')}</div>`;
+    }
+    case 'segments': return `<div class="fd-rgt">${esc(d.label)}</div><div class="fd-seg" role="radiogroup" aria-label="${esc(d.label)}">${ML.PARKING_OPTS.map(o =>
+        `<button type="button" role="radio" aria-checked="${F.parking === o.code}" class="${F.parking === o.code ? 'on' : ''}" ${dis}
+          onclick="setVal('parking','${o.code}')">${esc(o.l)}</button>`).join('')}</div>`;
+    case 'select': return `<label class="fd-sel"><span>${esc(d.label)}</span><select ${dis} onchange="setEvent(this.value)">
+        <option value="">Любой тип</option>${d.opts.map(o => `<option value="${o.code}"${F.eventType === o.code ? ' selected' : ''}>${esc(o.l)}</option>`).join('')}
+      </select></label>`;
+    case 'halls': return hallsBuilder();
+  }
+  return '';
 }
+let CUISINE_Q = '';
+function filterCuisine() {
+  const q = CUISINE_Q.trim().toLowerCase();
+  document.querySelectorAll('#cuisineList .fd-mopt').forEach(el => { el.hidden = !!q && !el.dataset.l.includes(q); });
+}
+/** Тип мероприятия: в панели и в строке параметров. Скрытые зависимые фильтры сбрасываются. */
+function setEvent(v) {
+  F.eventType = v;
+  const dropped = ML.pruneFilters(F);
+  if (dropped.length) MH.toast('Сброшены фильтры, которых нет у этого типа мероприятия: ' + dropped.map(c => (ML.venueFilter(c) || {}).label).join(', '), 'info');
+  syncBar(); renderFilters(); render();
+}
+
+/* «2 поля + двойной ползунок»: цена за день, за час, конференц-пакет. */
+const RANGE_STEP = { priceDay: 5000, priceHour: 500, confPkg: 100 };
+function rangeBody(d, locked) {
+  const k = d.fkey, mx = ML.LIMITS[k], [a, b] = F[k], dis = locked ? 'disabled' : '';
+  return `<div class="fd-rg" data-k="${k}">
+    ${d.code === 'conference_package_price_per_person' ? `<div class="fd-rgt">${esc(d.label)} <span>${esc(d.unit)}</span></div>` : ''}
+    <div class="fd-rgin">
+      <label><span>от</span><input inputmode="numeric" placeholder="0" value="${a || ''}" ${dis} data-end="0" aria-label="${esc(d.label)} от"
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${k}',0,this.value)"></label>
+      <label><span>до</span><input inputmode="numeric" placeholder="${mx.toLocaleString('ru')}" value="${b < mx ? b : ''}" ${dis} data-end="1" aria-label="${esc(d.label)} до"
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${k}',1,this.value)"></label>
+      <span class="fd-rgu">₽</span>
+    </div>
+    <div class="fd-dual"><div class="fd-track"><div class="fd-rail"></div><div class="fd-fill"></div>
+      <input type="range" class="lo" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${a}" ${dis} aria-label="${esc(d.label)}: от, ползунок">
+      <input type="range" class="hi" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${b}" ${dis} aria-label="${esc(d.label)}: до, ползунок">
+    </div></div></div>`;
+}
+function rangeSet(k, end, raw) {
+  const mx = ML.LIMITS[k];
+  let [a, b] = F[k];
+  const v = Math.min(mx, numClean(raw));
+  if (end === 0) a = v; else b = v || mx;
+  if (a > b) [a, b] = [b, a];
+  F[k] = [a, b]; renderFilters(); render();
+}
+function bindRanges() {
+  document.querySelectorAll('#fdBody .fd-rg').forEach(box => {
+    const k = box.dataset.k, mx = ML.LIMITS[k];
+    const lo = box.querySelector('input.lo'), hi = box.querySelector('input.hi'), fill = box.querySelector('.fd-fill');
+    const [fa, fb] = box.querySelectorAll('.fd-rgin input');
+    const upd = (commit) => {
+      let a = +lo.value, b = +hi.value;
+      if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
+      fill.style.left = (a / mx * 100) + '%'; fill.style.right = (100 - b / mx * 100) + '%';
+      fa.value = a || ''; fb.value = b >= mx ? '' : b;
+      if (commit) { F[k] = [a, b]; renderFilters(); render(); }
+    };
+    lo.oninput = () => upd(false); hi.oninput = () => upd(false);
+    lo.onchange = () => upd(true); hi.onchange = () => upd(true);
+    upd(false);
+  });
+}
+
+/** Сколько значений заполнено в группе — счётчик у свёрнутой секции. */
+function groupCount(g) {
+  let n = 0;
+  for (const d of ML.VENUE_FILTERS) {
+    if (d.group !== g || !d.control || d.control === 'city') continue;
+    if (d.control === 'check') n += F.feats.has(d.code) ? 1 : 0;
+    else if (d.code === 'guests') n += (F.people ? 1 : 0) + (F.peopleTo ? 1 : 0);
+    else if (d.code === 'event_type') n += F.eventType ? 1 : 0;
+    else if (d.code === 'category') n += F.cats.size;
+    else if (d.code === 'stars') n += F.stars.size;
+    else if (d.code === 'cuisine') n += F.cuisine.size;
+    else if (d.code === 'hall_requirements') n += (F.halls || []).filter(r => r.seating || +r.min).length;
+    else if (d.control === 'range2') n += (F[d.fkey][0] > 0 || F[d.fkey][1] < ML.LIMITS[d.fkey]) ? 1 : 0;
+    else n += F[d.fkey] ? 1 : 0;
+  }
+  return n;
+}
+/* п.24: после перезагрузки раскрыты секции, где есть заполненные значения. */
+const groupFilled = (g) => groupCount(g) > 0;
 
 function renderFilters() {
   const t = ML.tariff();
-  const lockFeat = !canUse('food');     // группы удобств открываются все разом
   let h = '';
-
-  // Вместимость
-  h += fgroup('cap', 'Вместимость', capBody(), (F.people ? 1 : 0) + (F.peopleTo ? 1 : 0));
-
-  // Категории объектов — единственная группа с логикой «ИЛИ»
-  h += fgroup('cats', 'Категории объектов', checks('cats', ML.VENUE_CATS, false), F.cats.size);
-
-  // Звёздность — отдельно от категории: она есть только у отелей. На «СТАРТ» закрыта.
-  h += fgroup('stars', 'Звёздность', canUse('stars') ? starChecks(false)
-    : payWrap('stars', starChecks(true) + lockNote('stars', 'БИЗНЕС')), F.stars.size);
-
-  /* Проживание. ПРЕМИУМ — номера TWIN и SNGL; БИЗНЕС — только общий фонд;
-     на бесплатных тарифах группа заблокирована. */
-  const roomsBody = canUse('twin')
-    ? `<div class="fd-row2">
-         <div class="fd-mini"><label>TWIN от</label>
-           <input type="number" min="0" value="${F.twin || ''}"
-             onchange="F.twin=+this.value||0;render()"></div>
-         <div class="fd-mini"><label>SNGL от</label>
-           <input type="number" min="0" value="${F.sngl || ''}"
-             onchange="F.sngl=+this.value||0;render()"></div>
-       </div>`
-    : canUse('rooms')
-    /* п.26: БИЗНЕС — активное «Номеров от» и закрытое поле TWIN, клик ведёт на пейвол. */
-    ? `<div class="fd-row2">
-         <div class="fd-mini"><label>Номеров от</label>
-           <input type="number" min="0" value="${F.rooms || ''}"
-             onchange="F.rooms=+this.value||0;render()"></div>
-         ${payWrap('twin', `<div class="fd-mini locked"><label>TWIN от</label>
-           <input type="number" disabled placeholder="—"></div>`)}
-       </div>
-       ${payWrap('twin', '<div class="fd-lock">TWIN и SNGL — доступно с тарифа <b>«ПРЕМИУМ»</b> →</div>')}`
-    : payWrap('rooms', `<div class="fd-mini"><label>Номеров от</label>
-         <input type="number" min="0" value="${F.rooms || ''}" disabled></div>
-       ${lockNote('rooms', 'БИЗНЕС')}`);
-  h += fgroup('rooms', 'Проживание', roomsBody,
-    canUse('twin') ? (F.twin ? 1 : 0) + (F.sngl ? 1 : 0)
-      : (F.rooms ? 1 : 0));
-
-  h += fgroup('halls', 'Залы', hallsBuilder(),
-    (F.halls || []).filter(r => r.seating || +r.min).length);
-
-  // Стоимость
-  h += fgroup('price', 'Стоимость аренды зала',
-    canUse('priceDay')
-      ? dualPrice()
-      : payWrap('priceDay', `<div class="fd-lock">Фильтр по стоимости доступен с тарифа <b>«БИЗНЕС»</b> →</div>`),
-    (F.priceDay[0] > 0 || F.priceDay[1] < 200000) ? 1 : 0);
-
-  // Группы удобств — список берём из ML.FEATURE_GROUPS / ML.FEATURES
-  ML.FEATURE_GROUPS.forEach(g => {
-    if (g.onlyEvent && g.onlyEvent !== F.eventType) return;
-    h += fgroup(g.k, esc(g.l), lockFeat ? payWrap('food', checks(g.k, ML.FEATURES[g.k], true) + lockNote(g.k, 'БИЗНЕС'))
-      : checks(g.k, ML.FEATURES[g.k], false), F[g.k].size);
-  });
-
+  for (const g of ML.VENUE_FILTER_GROUPS) {
+    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && d.control !== 'city' && ML.venueFilterVisible(d, F));
+    if (g.k === 'price') defs.unshift({ code: 'price_mode', control: 'mode' });
+    if (!defs.length) continue;
+    const groupLocked = defs.every(d => d.control === 'mode' || !canUse(d.code));
+    const main = defs.filter(d => !d.advanced), adv = defs.filter(d => d.advanced);
+    const draw = (d, i, arr) => {
+      if (d.control === 'mode') return `<div class="fd-seg fd-mode" role="radiogroup" aria-label="Стоимость">
+        ${[['day', 'За день'], ['hour', 'За час']].map(([m, l]) => `<button type="button" role="radio" aria-checked="${(F.priceMode || 'day') === m}"
+          class="${(F.priceMode || 'day') === m ? 'on' : ''}" ${canUse('price_day') ? '' : 'disabled'} onclick="setMode('${m}')">${l}</button>`).join('')}</div>`;
+      const locked = !canUse(d.code);
+      if (d.control === 'halls') return control(d, locked);
+      const html = control(d, locked);
+      const nextLocked = arr && arr[i + 1] && arr[i + 1].control !== 'mode' && !canUse(arr[i + 1].code) && needFor(arr[i + 1].code) === needFor(d.code);
+      return locked && !groupLocked ? payWrap(d.code, html + (nextLocked ? '' : lockNote(d.code)), d.label) : html;
+    };
+    let body = main.map(draw).join('');
+    if (adv.length) body += `<details class="fd-adv"${OPEN.has('adv') ? ' open' : ''} ontoggle="OPEN[this.open?'add':'delete']('adv')">
+      <summary>Расширенные параметры</summary><div>${adv.map(draw).join('')}</div></details>`;
+    if (groupLocked) body = payWrap(defs.find(d => d.control !== 'mode').code, body + lockNote(defs.find(d => d.control !== 'mode').code), g.l);
+    h += fgroup(g.k, esc(g.l), body, groupCount(g.k));
+  }
   if (!t.fullInfo) {
     h += `<div class="fd-note">Тариф <b>«${esc(t.name)}»</b>: доступны только категории объектов, город и количество гостей.
       Остальные фильтры и полная информация о залах — с тарифа «БИЗНЕС».
       <button class="fd-up" onclick="MH.go('pricing.html')">Сравнить тарифы</button></div>`;
   }
-
   document.getElementById('fdBody').innerHTML = h;
-  bindDual();
+  bindRanges();
   bindCapDual();
+  applyFacets();
+  syncResetBtn();
+}
+function setMode(m) { F.priceMode = m; ML.pruneFilters(F); renderFilters(); render(); }
+
+/* «Сбросить всё» неактивна, пока не применён ни один фильтр (R3-B, строка 97). */
+function syncResetBtn() {
+  const b = document.querySelector('.fd-reset');
+  if (b) { const on = hasFilters(); b.disabled = !on; b.title = on ? '' : 'Фильтры не применены'; }
+}
+
+/* Фасетные счётчики: сколько объектов останется, если добавить условие. */
+function applyFacets() {
+  document.querySelectorAll('#fdBody label.fd-check[data-code]').forEach(lb => {
+    const code = lb.dataset.code, val = lb.dataset.val, inp = lb.querySelector('input');
+    const n = ML.facetCount(F, code, val);
+    lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
+    const lockedByTariff = !canUse(code);
+    const dead = !inp.checked && n === 0;
+    inp.disabled = lockedByTariff || dead;
+    lb.classList.toggle('off', lockedByTariff || dead);
+  });
 }
 
 /* ══════════════════════════════════════════════
@@ -1082,7 +1211,7 @@ function renderFilters() {
    ══════════════════════════════════════════════ */
 function hallsBuilder() {
   if (!canUse('halls')) {
-    return payWrap('halls', '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b> →</div>');
+    return payWrap('halls', '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b> →</div>', 'Подбор по залам');
   }
   const canSeat = canUse('seats');
   const list = F.halls || [];
@@ -1095,7 +1224,7 @@ function hallsBuilder() {
         </button>
       </div>
       <label class="hq-f">
-        <span>Схема рассадки</span>
+        <span>Схема</span>
         <select ${canSeat ? '' : 'disabled'} onchange="hallSet(${i},'seating',this.value)">
           <option value="">Любая схема</option>
           ${ML.SEATING.map(s => `<option value="${s.k}"${r.seating === s.k ? ' selected' : ''}>${esc(s.l)}</option>`).join('')}
@@ -1167,69 +1296,35 @@ function bindCapDual() {
   upd(false);
 }
 
-/* двойной слайдер цены */
-function dualPrice() {
-  const [a, b] = F.priceDay;
-  return `<div class="fd-dual" id="priceDual" data-min="0" data-max="200000">
-    <div class="fd-vals"><span class="lo">${a.toLocaleString('ru')} ₽</span><span class="hi">${b.toLocaleString('ru')} ₽</span></div>
-    <div class="fd-track">
-      <div class="fd-rail"></div><div class="fd-fill"></div>
-      <input type="range" class="lo" min="0" max="200000" step="5000" value="${a}">
-      <input type="range" class="hi" min="0" max="200000" step="5000" value="${b}">
-    </div></div>`;
-}
-function bindDual() {
-  const d = document.getElementById('priceDual');
-  if (!d) return;
-  const lo = d.querySelector('input.lo'), hi = d.querySelector('input.hi');
-  const fill = d.querySelector('.fd-fill'), lv = d.querySelector('.fd-vals .lo'), hv = d.querySelector('.fd-vals .hi');
-  const mn = +d.dataset.min, mx = +d.dataset.max;
-  const upd = commit => {
-    let a = +lo.value, b = +hi.value;
-    if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
-    F.priceDay = [a, b];
-    fill.style.left = ((a - mn) / (mx - mn) * 100) + '%';
-    fill.style.right = (100 - (b - mn) / (mx - mn) * 100) + '%';
-    lv.textContent = a.toLocaleString('ru') + ' ₽';
-    hv.textContent = b.toLocaleString('ru') + ' ₽';
-    if (commit) render();
-  };
-  lo.oninput = () => upd(false); hi.oninput = () => upd(false);
-  lo.onchange = () => upd(true); hi.onchange = () => upd(true);
-  upd(false);
-}
-
-/* Фасетные счётчики: сколько объектов останется, если добавить условие. */
-function applyFacets() {
-  document.querySelectorAll('#fdBody label.fd-check[data-g]').forEach(lb => {
-    const g = lb.dataset.g, item = lb.dataset.item, inp = lb.querySelector('input');
-    const n = ML.facetCount(F, g, item);
-    lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
-    const lockedByTariff = g !== 'cats' && !canUse(g === 'stars' ? 'stars' : g);
-    const dead = !inp.checked && n === 0;
-    inp.disabled = lockedByTariff || dead;
-    lb.classList.toggle('off', lockedByTariff || dead);
-  });
-}
-
 /* ══════════════════════════════════════════════
    ЧИПЫ ВЫБРАННЫХ ФИЛЬТРОВ
    ══════════════════════════════════════════════ */
 function renderChips() {
   const c = [];
+  const money = (n) => n.toLocaleString('ru');
   if (F.city) c.push(['Город: ' + F.city, () => F.city = '']);
   if (F.people || F.peopleTo) c.push([ML.peopleLabel(F), () => { F.people = 0; F.peopleTo = 0; }]);
+  if (F.eventType === 'combined') c.push(['Комбинированное', () => F.eventType = '']);
   if (F.rooms) c.push(['Номеров от ' + F.rooms, () => F.rooms = 0]);
   if (F.twin) c.push(['TWIN от ' + F.twin, () => F.twin = 0]);
   if (F.sngl) c.push(['SNGL от ' + F.sngl, () => F.sngl = 0]);
-  if (F.priceDay[0] > 0 || F.priceDay[1] < 200000)
-    c.push([`${F.priceDay[0].toLocaleString('ru')}–${F.priceDay[1].toLocaleString('ru')} ₽`, () => F.priceDay = [0, 200000]]);
   (F.halls || []).forEach((r, i) => { if (!r.seating && !+r.min) return;
     const s = ML.seatingByKey(r.seating);
-    c.push([`Зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`,
-      () => F.halls.splice(i, 1)]); });
-  ['cats', 'food', 'opts', 'other', 'sport'].forEach(g => F[g].forEach(x => c.push([x, () => F[g].delete(x)])));
+    c.push([`Зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`, () => F.halls.splice(i, 1)]); });
+  if (F.hallArea) c.push(['Площадь зала от ' + F.hallArea + ' м²', () => F.hallArea = 0]);
+  if (F.dressing) c.push(['Гримёрок от ' + F.dressing, () => F.dressing = 0]);
+  const rng = (k, unit) => { const [a, b] = F[k]; if (a > 0 || b < ML.LIMITS[k]) c.push([`${money(a)}–${money(b)} ₽${unit}`, () => F[k] = [0, ML.LIMITS[k]]]); };
+  if ((F.priceMode || 'day') === 'day') rng('priceDay', ' / день'); else rng('priceHour', ' / час');
+  if (F.priceMode === 'hour') c.push(['Стоимость за час', () => { F.priceMode = 'day'; F.priceHour = [0, ML.LIMITS.priceHour]; }]);
+  rng('confPkg', ' / чел., конференц-пакет');
+  if (F.avgCheck) c.push(['Средний чек до ' + money(F.avgCheck) + ' ₽', () => F.avgCheck = 0]);
+  if (F.wardrobe) c.push(['Гардероб от ' + F.wardrobe + ' мест', () => F.wardrobe = 0]);
+  if (F.parking) c.push([(ML.PARKING_OPTS.find(o => o.code === F.parking) || {}).full, () => { F.parking = ''; F.parkingSpaces = 0; }]);
+  if (F.parkingSpaces) c.push(['Парковочных мест от ' + F.parkingSpaces, () => F.parkingSpaces = 0]);
+  F.cats.forEach(x => c.push([x, () => F.cats.delete(x)]));
   [...F.stars].sort().forEach(n => c.push([(ML.STAR_OPTIONS.find(o => o.k === n) || { l: n + '★' }).l, () => F.stars.delete(n)]));
+  F.cuisine.forEach(x => c.push(['Кухня: ' + (ML.CUISINE_OPTS.find(o => o.code === x) || { l: x }).l.toLowerCase(), () => F.cuisine.delete(x)]));
+  F.feats.forEach(x => c.push([ML.featureLabel(x), () => F.feats.delete(x)]));
   [...ML.state.blacklist].forEach(id => {
     const v = ML.venueById(id);
     if (v) c.push(['Скрыт: ' + v.name, () => ML.removeFromBlacklist(id), true]);
@@ -1544,6 +1639,7 @@ function syncUrl() {
 }
 
 function render() {
+  ML.pruneFilters(F);                    // скрытые зависимые фильтры не сужают выдачу
   ML.saveFilters(F);                     // любое изменение проходит через render()
   syncUrl();
   const start = !hasFilters();
@@ -1591,7 +1687,8 @@ function syncBar() {
   document.getElementById('cbCity').value = F.city || '';
   const ev = document.getElementById('cbEvent');
   ev.innerHTML = `<option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>` + ML.EVENT_TYPES.map(e =>
-    `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
+    `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')
+    + `<option value="combined"${F.eventType === 'combined' ? ' selected' : ''}>${esc(ML.EVENT_COMBINED.l)}</option>`;
   document.getElementById('cbPeople').value = F.people || '';
   document.getElementById('resSort').value = SORT;
 }
@@ -1671,6 +1768,7 @@ function RESTORE() { F = ML.loadFilters(); syncBar(); renderFilters(); render();
   const ev = p.get('type');
   if (ev) F.eventType = ML.normEventType(ev);   // старые ключи ссылок (business, wedding) переводятся
 
+  ML.VENUE_FILTER_GROUPS.forEach(g => { if (groupFilled(g.k)) OPEN.add(g.k); });
   applyView();
   syncBar();
   renderFilters();
