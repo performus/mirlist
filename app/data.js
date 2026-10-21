@@ -378,12 +378,14 @@
 
   // Вознаграждение объекта и начисление баллов по количеству участников.
   const FEE_TIERS = [
-    { min: 1, max: 100, label: '1–100 чел.', fee: 6000, ptsBiz: 500, ptsPrem: 750 },
-    { min: 101, max: 300, label: '101–300 чел.', fee: 21000, ptsBiz: 1500, ptsPrem: 2250 },
-    { min: 301, max: 500, label: '301–500 чел.', fee: 45000, ptsBiz: 3000, ptsPrem: 4500 },
+    /* R3-C: баллы — по выгрузке текстов 20.10 (БИЗНЕС / ПРЕМИУМ). Вознаграждение объекта (fee)
+       из публичной таблицы убрано (бэклог, строка 122), в данных остаётся для кабинета площадки. */
+    { min: 1, max: 100, label: '1–100 чел.', fee: 6000, ptsBiz: 1000, ptsPrem: 1500 },
+    { min: 101, max: 300, label: '101–300 чел.', fee: 21000, ptsBiz: 3000, ptsPrem: 5000 },
+    { min: 301, max: 500, label: '301–500 чел.', fee: 45000, ptsBiz: 7000, ptsPrem: 10500 },
     /* Ярус «501+» — по корректуре: сумма и баллы «по согласованию». Числа нет,
        поэтому fee и баллы — null: начисление считается вручную, а не подставляется ближайшее. */
-    { min: 501, max: Infinity, label: '501+ чел.', fee: null, ptsBiz: null, ptsPrem: null, byAgreement: true },
+    { min: 501, max: Infinity, label: '501+ чел.', fee: null, ptsBiz: 10000, ptsPrem: 15000, feeByAgreement: true },
   ];
 
   const POINT_RATE = 0.70;          // 1 балл = 0,70 ₽

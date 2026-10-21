@@ -400,12 +400,16 @@ test('сравнение синхронизируется после сброс�
   assert.strictEqual(ML.state.compare.size, 0);
 });
 
-test('ступень «501+ чел.» — по согласованию, без подстановки ближайшей', () => {
-  const { ML } = load();
+test('баллы за мероприятие (R3-C): 1000/1500, 3000/5000, 7000/10500, 501+ — 10000/15000; вознаграждение 501+ — по согласованию', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  assert.deepStrictEqual(plain(ML.FEE_TIERS.map(t => [t.ptsBiz, t.ptsPrem])), [[1000, 1500], [3000, 5000], [7000, 10500], [10000, 15000]]);
   const t = ML.FEE_TIERS[ML.FEE_TIERS.length - 1];
   assert.strictEqual(t.label, '501+ чел.');
-  assert.strictEqual(t.byAgreement, true);
-  assert.strictEqual(t.fee, null);
+  assert.strictEqual(t.fee, null, 'вознаграждение объекта за 501+ — по согласованию');
+  assert.strictEqual(ML.eventPoints(120), 3000);
+  assert.strictEqual(ML.eventPoints(800), 10000, '501+ — числом, без «по согласованию»');
+  const p = load({ ml_tariff: 'prem' }).ML;
+  assert.strictEqual(p.eventPoints(50), 1500);
 });
 
 console.log('Фильтры R3-A');

@@ -152,9 +152,8 @@ function render(){
   const rev = ML.POINTS_REVIEW;
 
   // ── начисление за мероприятие: строки из ML.FEE_TIERS ──
-  const rows = ML.FEE_TIERS.map(t => t.byAgreement ? `<tr>
-    <td>${esc(t.label)}</td><td colspan="2" class="dim">по согласованию</td>
-  </tr>` : `<tr>
+  /* R3-C: баллы по выгрузке 20.10 — у 501+ теперь числом; вознаграждения объекта в таблице нет. */
+  const rows = ML.FEE_TIERS.map(t => `<tr>
     <td>${esc(t.label)}</td>
     <td class="${t.ptsBiz?'pts':'dim'}">${t.ptsBiz?t.ptsBiz.toLocaleString('ru'):'—'}</td>
     <td class="${t.ptsPrem?'pts':'dim'}">${t.ptsPrem?t.ptsPrem.toLocaleString('ru'):'—'}</td>
@@ -191,7 +190,7 @@ function render(){
     <span class="cur">Бонусная программа</span></div>
 
   <h1 class="d-title">Бонусная программа</h1>
-  <p class="d-sub">Баллы начисляются за состоявшиеся мероприятия и за отзывы о площадках.</p>
+  <p class="d-sub">Баллы начисляются за отзывы о площадках и за состоявшиеся мероприятия (после подтверждения обеих сторон). Потратить их можно на услуги объектов и поставщиков или на повышение уровня доступа.</p>
 
   <div class="tiles">
     <div class="tile">
@@ -212,7 +211,7 @@ function render(){
   </div>
 
   <div class="sec-head">
-    <h2 class="sec-title">Начисление за мероприятие</h2>
+    <h2 class="sec-title">Начисляются за состоявшиеся мероприятия</h2>
     <!-- REMOVED BY CLIENT: <span class="sec-sub">зависит от числа участников и вашего тарифа</span> -->
   </div>
   <div class="panel"><div class="tscroll"><table class="tbl">
@@ -223,7 +222,7 @@ function render(){
     <tbody>${rows}</tbody>
   </table></div></div>
 
-  <div class="note">Баллы станут доступны после того, как и организатор, и площадка подтвердят
+  <div class="note">Баллы становятся доступны после того, как и организатор, и площадка подтвердят
   проведение мероприятия.</div>
 
   <div class="sec-head">

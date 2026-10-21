@@ -1972,8 +1972,8 @@ function incomingRow(x){
   else if(both) action=`<span class="paid">${fee!=null?'к оплате '+ML.money(fee):'сумма по договорённости'}</span>`;
   else if(obj.venueDone) action=`<span class="wait">ждём подтверждения пользователя</span>`;
   else if(obj.status==='done'||obj.status==='reviewed')
-    action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>`;
-  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Отметить «мероприятие состоялось»</button>
+    action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Мероприятие состоялось</button>`;
+  else action=`<button class="btn-xs" onclick="venueDone('${esc(req.id)}',${obj.venueId})">Мероприятие состоялось</button>
     <button class="btn-xs danger" style="margin-top:6px" onclick="venueDecline('${esc(req.id)}',${obj.venueId})">Отклонить</button>`;
 
   // подпись про вторую сторону
@@ -2519,7 +2519,7 @@ odash:()=>{
   ${ML.state.myVenues.length
     ? `<div class="card" style="padding:4px 20px">${ML.state.myVenues.slice(0,2).map((v,i)=>venueRow(v,i)).join('')}</div>`
     : `<div class="card empty-state"><div class="empty-text">Объектов пока нет</div>
-       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте объект и залы. Объектами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
+       <p style="font-size:13.5px;color:var(--sx);margin-top:8px">Добавьте в базу МАЙСЛИСТ объект и залы. Единицами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
        <button class="btn btn-c" style="margin-top:16px" onclick="openWiz('venue')">Добавить объект</button></div>`}`;
 },
 
@@ -2532,7 +2532,7 @@ ovenues:()=>{
     <div class="card empty-state">
       <div class="empty-text">Ни одного объекта не добавлено</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto">
-      Визард проведёт по девяти шагам регистрации объекта и залов. Объектами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
+      Визард проведёт вас по девяти шагам регистрации вашего предложения.<br>Объектами поиска, сравнения и выбора являются залы, без них объект в выдаче не появится.</p>
       <button class="btn btn-c" style="margin-top:18px" onclick="openWiz('venue')">Добавить объект</button>
     </div>`;
   return `
@@ -2570,7 +2570,7 @@ oreqs:()=>{
   </div>
   <div class="dm-note" style="margin-top:16px">Отчёт по состоявшимся мероприятиям с ID запросов приходит
   в конце отчётного периода одним платежом.</div>
-  <div class="dm-note" style="margin-top:16px">Отметки сторон разошлись или мероприятие сорвалось? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
+  <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
   ${orders}`;
 },
 
