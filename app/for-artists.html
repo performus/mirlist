@@ -3,44 +3,413 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="МАЙСЛИСТ для артистов: размещение в каталоге и запросы от организаторов мероприятий.">
+<meta name="description" content="МАЙСЛИСТ для организаторов — инструменты подбора и презентации площадок клиентам.">
+<meta property="og:title" content="МАЙСЛИСТ">
+<meta property="og:description" content="МАЙСЛИСТ для организаторов — инструменты подбора и презентации площадок клиентам.">
+<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Для артистов — МАЙСЛИСТ</title>
+<title>Артистам — МАЙСЛИСТ</title>
+<meta name="description" content="Музыкантам, ведущим, артистам и творческим коллективам: бесплатный профиль на МАЙСЛИСТ — вас находят организаторы мероприятий.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
 <style>
-:root{--c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--aq-p:#EDF6F5;--s:#46627A;--sd:#354E63;--sx:#7A919F;--bg:#F8F5F2;--w:#FFF;--shc:0 4px 18px rgba(235,116,84,.22);--rm:14px;--rf:50px;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
-a{text-decoration:none;color:inherit;}
-/* Первый экран — как у лендинга «Агентствам»: светлый градиент, крупный заголовок, одна кнопка */
-.hero{position:relative;overflow:hidden;padding:96px 24px 104px;}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.07) 0%,rgba(248,245,242,.6) 35%,rgba(237,246,245,.45) 70%,rgba(246,221,211,.3) 100%);}
-.hero-in{position:relative;max-width:1200px;margin:0 auto;}
-.hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.85);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:28px;}
-.hero-h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(38px,5vw,60px);line-height:1.1;color:var(--sd);margin-bottom:18px;}
-.hero-sub{font-size:18px;line-height:1.6;color:var(--sx);max-width:560px;margin-bottom:36px;}
-.btn-h{display:inline-block;padding:16px 34px;border-radius:var(--rm);background:var(--c);color:#fff;font-size:15px;font-weight:600;box-shadow:var(--shc);transition:background .2s,transform .2s;}
-.btn-h:hover{background:var(--c6);transform:translateY(-1px);}
-@media(max-width:600px){.hero{padding:56px 20px 64px;}.hero-sub{font-size:16px;}.btn-h{display:block;text-align:center;}}
+:root{--c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);--aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;--s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;--pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;--sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);--r:10px;--rm:14px;--rl:20px;--rf:50px;}
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}a{text-decoration:none;color:inherit;}button{font-family:inherit;cursor:pointer;}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(197,227,225,.25);transition:background .3s;}
+.logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}.nav-links a:hover{color:var(--s);background:var(--aq-p);}.nav-links a.active{color:var(--c);background:var(--cs);font-weight:600;}.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;box-shadow:var(--shc);}
+
+/* HERO */
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;padding:120px 80px 80px;gap:60px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.06) 0%,rgba(248,245,242,.6) 30%,rgba(237,246,245,.35) 60%,rgba(246,221,211,.25) 100%);}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.25;}
+.orb-1{width:550px;height:550px;background:var(--c);top:-12%;left:-8%;animation:fl 22s ease-in-out infinite;}
+.orb-2{width:400px;height:400px;background:var(--aq);bottom:-8%;right:-5%;animation:fl 18s ease-in-out infinite reverse;}
+.orb-3{width:300px;height:300px;background:var(--pc);top:35%;right:30%;animation:fl 20s ease-in-out infinite 4s;}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(25px,-20px) scale(1.04)}66%{transform:translate(-18px,15px) scale(.97)}}
+.hero-grid{position:absolute;inset:0;opacity:.02;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
+
+.hero-content{position:relative;z-index:1;max-width:600px;flex:1;}
+.hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:32px;backdrop-filter:blur(8px);animation:fadeUp .7s ease both;}
+.hero-h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:var(--sd);letter-spacing:-.005em;margin-bottom:20px;animation:fadeUp .7s ease .1s both;}
+.hero-h1 em{font-style:italic;color:var(--c);}
+.hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:500px;margin-bottom:40px;animation:fadeUp .7s ease .2s both;}
+.hero-actions{display:flex;gap:14px;align-items:center;margin-bottom:40px;animation:fadeUp .7s ease .3s both;}
+.btn-h{padding:16px 36px;border-radius:var(--rm);font-size:16px;font-weight:600;border:none;transition:all .3s;}
+.btn-h.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}.btn-h.primary:hover{background:var(--c6);transform:translateY(-2px);}
+.btn-h.secondary{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}.btn-h.secondary:hover{border-color:var(--c);color:var(--c);}
+.hero-trust{display:flex;gap:28px;animation:fadeUp .7s ease .4s both;}
+.trust-i{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--sx);}
+.trust-n{font-size:20px;font-weight:700;color:var(--c);}
+
+/* Hero right — feature preview cards */
+.hero-right{flex:0 0 420px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;animation:fadeUp .8s ease .3s both;}
+.preview-stack{position:relative;height:360px;width:100%;}
+.pv{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:24px;width:320px;}
+.pv-1{top:0;right:0;z-index:3;animation:cf 5s ease-in-out infinite;}
+.pv-2{top:80px;right:60px;z-index:2;opacity:.6;animation:cf 5s ease-in-out 1.5s infinite;}
+.pv-3{top:150px;right:110px;z-index:1;opacity:.35;animation:cf 5s ease-in-out 3s infinite;}
+@keyframes cf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pv-icon{width:44px;height:44px;border-radius:12px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+.pv-title{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:4px;}
+.pv-text{font-size:13px;color:var(--sx);line-height:1.5;}
+.pv-bar{height:6px;border-radius:3px;background:var(--bg);margin-top:12px;overflow:hidden;}
+.pv-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--c),var(--c6));}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}.reveal.vis{opacity:1;transform:translateY(0);}
+
+/* SECTIONS */
+.section{padding:100px 48px;}.section.alt{background:var(--w);}
+.container{max-width:1200px;margin:0 auto;}
+.section-center{text-align:center;max-width:640px;margin:0 auto 56px;}
+.section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c);margin-bottom:14px;}
+.section-label::before{content:'';width:20px;height:2px;background:var(--c);border-radius:2px;}
+.section-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.005em;line-height:1.15;margin-bottom:12px;}
+.section-desc{font-size:16px;color:var(--sx);line-height:1.65;max-width:520px;margin:0 auto;}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.step{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
+.step:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.step-n{position:absolute;top:14px;left:18px;font-size:40px;font-weight:700;color:var(--cg);font-family:'Literata',Georgia,serif;}
+.step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;}
+.step-t{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.step-d{font-size:13.5px;color:var(--sx);line-height:1.55;}
+
+/* KEY FEATURES — large cards */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.feat{padding:40px 36px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);transition:all .35s;position:relative;overflow:hidden;}
+.feat:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .35s;}.feat:hover::before{transform:scaleX(1);}
+.feat-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;}
+.feat-icon.coral{background:var(--cs);}
+.feat-icon.aqua{background:var(--aq-p);}
+.feat-icon.peach{background:var(--pc);}
+.feat-t{font-family:'Literata',Georgia,serif;font-weight:600;font-size:20px;color:var(--sd);margin-bottom:8px;}
+.feat-d{font-size:14.5px;color:var(--sx);line-height:1.65;margin-bottom:16px;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.feat-list li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--sm);}
+.feat-list li svg{color:var(--c);flex-shrink:0;}
+
+/* COMPARISON PREVIEW */
+.cmp-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.cmp-visual{background:var(--w);border-radius:var(--rl);padding:24px;box-shadow:var(--sh);border:1px solid rgba(197,227,225,.15);}
+.cmp-row{display:flex;align-items:center;border-bottom:1px solid rgba(197,227,225,.12);padding:12px 0;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-param{width:120px;font-size:13px;font-weight:500;color:var(--sx);flex-shrink:0;}
+.cmp-bars{flex:1;display:flex;gap:8px;}
+.cmp-bar{height:24px;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:600;color:#fff;}
+.cmp-bar.a{background:var(--c);}.cmp-bar.b{background:var(--aq);}.cmp-bar.c{background:var(--sp);}
+.cmp-text h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.cmp-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+.cmp-text .feat-list{margin-bottom:24px;}
+.cmp-btn{padding:14px 32px;border-radius:var(--rm);font-size:15px;font-weight:600;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;display:inline-flex;align-items:center;gap:8px;}
+.cmp-btn:hover{background:var(--c6);transform:translateY(-2px);}
+
+/* PDF SECTION */
+.pdf-preview{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.pdf-visual{position:relative;}
+.pdf-page{background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);padding:32px;position:relative;max-width:340px;}
+.pdf-page-2{position:absolute;top:20px;left:30px;right:-30px;bottom:-20px;background:var(--w);border-radius:var(--rl);box-shadow:var(--sh);z-index:-1;opacity:.5;}
+.pdf-page-3{position:absolute;top:40px;left:60px;right:-60px;bottom:-40px;background:var(--w);border-radius:var(--rl);box-shadow:0 2px 10px rgba(53,78,99,.04);z-index:-2;opacity:.25;}
+/* На узком экране «стопка» страниц уходила за правый край и давала горизонтальный скролл */
+@media(max-width:600px){.pdf-page-2{right:-10px;left:10px;}.pdf-page-3{right:-18px;left:18px;}.pdf-page{margin-right:18px;}}
+.pdf-mock-header{height:12px;width:60%;border-radius:6px;background:var(--sd);margin-bottom:16px;}
+.pdf-mock-sub{height:8px;width:40%;border-radius:4px;background:var(--sp);margin-bottom:24px;}
+.pdf-mock-img{height:100px;border-radius:var(--rm);background:var(--aq-p);margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--aq);}
+.pdf-mock-row{display:flex;gap:12px;margin-bottom:10px;}
+.pdf-mock-line{height:7px;border-radius:4px;background:var(--bg);flex:1;}
+.pdf-mock-line.short{flex:.6;}
+.pdf-mock-price{height:10px;width:30%;border-radius:5px;background:var(--cs);margin-top:16px;}
+.pdf-badge{position:absolute;top:-12px;right:-12px;padding:8px 18px;border-radius:var(--rf);background:var(--c);color:#fff;font-size:12px;font-weight:700;box-shadow:var(--shc);}
+.pdf-text h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:26px;color:var(--sd);margin-bottom:12px;}
+.pdf-text p{font-size:15px;color:var(--sx);line-height:1.7;margin-bottom:20px;}
+
+/* BENEFITS GRID */
+.ben-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.ben{padding:32px 28px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.12);text-align:center;transition:all .3s;}
+.ben:hover{background:var(--cs);border-color:rgba(235,116,84,.1);transform:translateY(-3px);}
+.ben-icon{display:flex;justify-content:center;align-items:center;height:36px;margin-bottom:14px;}
+.ben-t{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:6px;}
+.ben-d{font-size:13px;color:var(--sx);line-height:1.55;}
+
+/* TESTIMONIALS */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.test{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
+.test-q{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
+.test-q::before{content:'«';font-family:'Literata',Georgia,serif;font-weight:600;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
+.test-author{display:flex;align-items:center;gap:12px;}
+.test-av{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
+.test-name{font-size:14px;font-weight:600;color:var(--sd);}
+.test-role{font-size:12px;color:var(--sx);}
+
+/* FINAL CTA */
+.cta-block{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
+.cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
+.cta-inner{position:relative;z-index:1;}
+.cta-h{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(26px,4vw,42px);color:var(--sd);margin-bottom:12px;}
+.cta-p{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
+.cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
+.cta-btn:hover{background:var(--c6);transform:translateY(-2px);}
+.cta-note{font-size:13px;color:var(--sx);margin-top:16px;}
+
+/* FOOTER */
+.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:64px 48px 32px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
+.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
+
+@media(max-width:1100px){.hero-right{display:none;}.hero{gap:0;padding:120px 48px 80px;}.features,.cmp-preview,.pdf-preview{grid-template-columns:1fr;}}
+@media(max-width:900px){.steps,.ben-grid,.test-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.nav{padding:0 20px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-h{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps,.ben-grid,.test-grid,.features{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}}
+
+/* Первый экран лендингов B2B — одна серия: контейнер 1200 px по центру, одинаковые отступы */
+.hero{min-height:82vh;padding:72px 48px;}
+.hero-in{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:60px;}
+@media(max-width:1100px){.hero{padding:64px 48px;}.hero-in{gap:0;}}
+@media(max-width:600px){.hero{padding:44px 20px 52px;min-height:auto;}}
+
+/* ── Лендинг «Артистам» (R3-C): в серии с «Агентствам» и «Для площадок» ── */
+.hero-content{max-width:620px;}
+.hero-sub + .hero-sub{margin-top:-24px;}
+.hero-note{font-size:13px;color:var(--sx);line-height:1.55;max-width:520px;margin-top:-22px;}
+.hero-actions a.btn-h{display:inline-block;}
+/* коллаж карточек артистов: крупный кадр видео с play, портреты, сценическое фото */
+.art-collage{position:relative;flex:0 0 470px;height:470px;z-index:1;animation:fadeUp .8s ease .3s both;}
+.ac{position:absolute;border-radius:var(--rl);overflow:hidden;background:var(--w);box-shadow:var(--shl);}
+.ac img{width:100%;height:100%;object-fit:cover;display:block;}
+.ac-cap{position:absolute;left:12px;bottom:12px;right:12px;display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);}
+.ac-cap b{font-size:13px;color:var(--sd);}
+.ac-cap span{font-size:11.5px;color:var(--sx);}
+.ac-video{left:0;top:40px;width:300px;height:220px;z-index:3;}
+.ac-play{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.92);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,.25);}
+.ac-play svg{margin-left:4px;}
+.ac-dur{position:absolute;right:10px;top:10px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:600;}
+.ac-portrait{right:10px;top:0;width:170px;height:220px;z-index:2;}
+.ac-portrait.p2{right:0;top:250px;width:150px;height:190px;z-index:2;}
+.ac-stage{left:60px;top:285px;width:250px;height:170px;z-index:1;}
+.ac-ill{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;}
+.ac-ill.a{background:linear-gradient(160deg,#F6DDD3 0%,#EB7454 100%);}
+.ac-ill.b{background:linear-gradient(160deg,#D9ECEB 0%,#5E9AA8 100%);}
+.ac-ill svg{width:78%;height:auto;}
+/* текстовые блоки */
+.prose{max-width:820px;margin:0 auto;}
+.prose p{font-size:16px;line-height:1.75;color:var(--sm);margin-bottom:16px;}
+.prose .section-title{margin-bottom:22px;}
+.prose-link{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-weight:600;color:var(--c);}
+.prose-link:hover{color:var(--c6);}
+.lead-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin:6px 0 20px;}
+.lead-list li{position:relative;padding:16px 18px 16px 46px;border-radius:var(--rm);background:var(--w);border:1px solid rgba(197,227,225,.25);font-size:15px;line-height:1.65;color:var(--sm);}
+.lead-list li::before{content:'';position:absolute;left:18px;top:24px;width:10px;height:10px;border-radius:50%;background:var(--c);}
+.lead-list b{color:var(--sd);}
+.who-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.who{padding:30px 26px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.2);transition:all .3s;}
+.who:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
+.who-ic{width:52px;height:52px;border-radius:14px;background:var(--cs);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.who h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:19px;color:var(--sd);margin-bottom:10px;line-height:1.3;}
+.who p{font-size:14px;line-height:1.65;color:var(--sx);}
+.steps.five{grid-template-columns:repeat(5,1fr);gap:18px;}
+.steps.five .step{text-align:left;padding:34px 22px 26px;}
+.steps.five .step-t{margin:30px 0 8px;font-size:15.5px;line-height:1.35;}
+.steps.five .step-d{font-size:13.5px;line-height:1.6;}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.why{padding:30px 28px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.15);}
+.section.alt .why{background:var(--bg);}
+.why h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:18.5px;color:var(--sd);margin-bottom:10px;line-height:1.3;}
+.why p{font-size:14px;line-height:1.65;color:var(--sx);}
+.why-n{display:inline-flex;width:30px;height:30px;border-radius:9px;background:var(--cs);color:var(--c);font-weight:700;font-size:13px;align-items:center;justify-content:center;margin-bottom:14px;}
+/* CTA цвета акцента */
+.cta-accent{margin:0 48px;border-radius:28px;padding:64px 48px;text-align:center;background:linear-gradient(135deg,var(--c) 0%,#E98667 55%,#D96345 100%);color:#fff;box-shadow:0 18px 50px rgba(235,116,84,.3);}
+.cta-accent h2{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(26px,3.6vw,40px);margin-bottom:14px;}
+.cta-accent p{font-size:17px;line-height:1.65;max-width:620px;margin:0 auto 28px;color:rgba(255,255,255,.92);}
+.cta-accent .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-w{padding:16px 32px;border-radius:var(--rm);font-size:16px;font-weight:600;background:#fff;color:var(--c);transition:all .25s;display:inline-block;}
+.btn-w:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.btn-w.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.8);}
+.btn-w.ghost:hover{background:rgba(255,255,255,.12);}
+/* переписка: два «письма» */
+.letters{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:22px;}
+.letter{position:relative;max-width:640px;padding:28px 30px 24px;border-radius:22px;background:var(--w);border:1px solid rgba(197,227,225,.3);box-shadow:var(--sh);}
+.letter.reply{align-self:flex-end;background:var(--aq-p);border-color:rgba(121,185,195,.3);}
+.letter-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c);}
+.letter.reply .letter-h{color:#3E7F8C;}
+.letter-h svg{flex-shrink:0;}
+.letter blockquote p{font-size:15px;line-height:1.7;color:var(--sm);margin-bottom:12px;}
+.letter blockquote p:last-child{margin-bottom:0;}
+.letter-note{max-width:640px;margin:0 auto;font-size:15px;line-height:1.7;color:var(--sx);text-align:center;}
+/* FAQ */
+.faq{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+.faq details{border-radius:var(--rm);background:var(--w);border:1px solid rgba(197,227,225,.3);overflow:hidden;}
+.faq summary{list-style:none;cursor:pointer;padding:18px 22px;font-size:16px;font-weight:600;color:var(--sd);display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:'+';flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--cs);color:var(--c);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;transition:transform .2s;}
+.faq details[open] summary::after{transform:rotate(45deg);}
+.faq details p{padding:0 22px 20px;font-size:15px;line-height:1.7;color:var(--sm);}
+.faq a{color:var(--c);font-weight:600;}
+.end-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:36px;}
+.btn-o{padding:15px 30px;border-radius:var(--rm);font-size:15px;font-weight:600;background:var(--w);color:var(--s);border:1.5px solid var(--sp);transition:all .25s;display:inline-block;}
+.btn-o:hover{border-color:var(--c);color:var(--c);}
+@media(max-width:1180px){.art-collage{display:none;}.who-grid{grid-template-columns:1fr 1fr;}.steps.five{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr;}.cta-accent{margin:0 20px;}}
+@media(max-width:600px){.who-grid,.why-grid,.steps.five{grid-template-columns:1fr;}.cta-accent{padding:44px 22px;}
+  .letter{padding:22px 20px 18px;}.letter.reply{align-self:stretch;}.faq summary{padding:16px 18px;font-size:15px;}.faq details p{padding:0 18px 18px;}
+  .section{padding:64px 20px;}.hero-actions a.btn-h{text-align:center;}}
 </style>
 </head>
 <body>
 <div id="mh-nav"></div>
 
+<!-- Текст лендинга — дословно по «Артистам 20.10.md» (редакция от 20 октября 2026 года). -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><div class="hero-grad"></div><div class="hero-orb orb-1"></div><div class="hero-orb orb-2"></div><div class="hero-orb orb-3"></div><div class="hero-grid"></div></div>
   <div class="hero-in">
-    <div class="hero-label">Для артистов и ведущих</div>
-    <h1 class="hero-h1">Для артистов</h1>
-    <p class="hero-sub">Разместите свои выступления в каталоге МАЙСЛИСТ — вас найдут организаторы мероприятий.</p>
-    <a class="btn-h" href="auth.html?mode=supplier">Зарегистрироваться как поставщик</a>
+  <div class="hero-content">
+    <div class="hero-label">Музыкантам, ведущим, артистам и творческим коллективам</div>
+    <h1 class="hero-h1">Покажите себя организаторам мероприятий</h1>
+    <p class="hero-sub">Бесплатно разместите профиль на МАЙСЛИСТ. Добавьте информацию о себе и своей программе, сопроводите ее фотографиями и видео. Это поможет организаторам познакомиться с вашей работой и выбрать вас для выступления на корпоративе или личном празднике.</p>
+    <p class="hero-sub">Используйте МАЙСЛИСТ как ещё один источник приглашений — наряду с рекомендациями, соцсетями и постоянными заказчиками. Программу, гонорар и все прочие условия вы или ваш представитель обсуждаете с организатором напрямую по электронной почте.</p>
+    <div class="hero-actions">
+      <a class="btn-h primary" href="auth.html?mode=supplier">Создать профиль бесплатно</a>
+      <a class="btn-h secondary" href="suppliers.html?cat=Артисты">Посмотреть каталог артистов</a>
+    </div>
+    <p class="hero-note">Размещение профиля бесплатно. При регистрации выберите тип профиля «Поставщик», затем подходящую категорию в разделе «Артисты».</p>
+  </div>
+  <!-- «Вольная интерпретация» карточки артиста (комментарий дизайнеру в источнике): кадр видео с play, портреты, сценическое фото; без цен -->
+  <div class="art-collage" aria-hidden="true">
+    <a class="ac ac-video" href="supplier.html?id=3" tabindex="-1"><img src="../assets/photos/v2.jpg" alt=""><span class="ac-dur">2:41</span>
+      <span class="ac-play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#EB7454"><path d="M7 4.5v15l12-7.5z"/></svg></span><span class="ac-cap"><b>Кавер-группа «Апрель»</b><span>видео с концерта</span></span></a>
+    <a class="ac ac-portrait" href="supplier.html?id=1" tabindex="-1"><span class="ac-ill a"><svg viewBox="0 0 120 150" aria-hidden="true"><circle cx="60" cy="46" r="24" fill="rgba(255,255,255,.85)"/><path d="M14 150c4-34 22-56 46-56s42 22 46 56z" fill="rgba(255,255,255,.85)"/><rect x="88" y="70" width="10" height="34" rx="5" fill="#354E63"/><circle cx="93" cy="66" r="9" fill="#354E63"/></svg></span><span class="ac-cap"><b>Артём Соколов</b><span>ведущий</span></span></a>
+    <a class="ac ac-stage" href="supplier.html?id=4" tabindex="-1"><img src="../assets/photos/v15.jpg" alt=""><span class="ac-cap"><b>Шоу-балет «Ритм»</b><span>на сцене</span></span></a>
+    <a class="ac ac-portrait p2" href="supplier.html?id=24" tabindex="-1"><span class="ac-ill b"><svg viewBox="0 0 120 150" aria-hidden="true"><circle cx="58" cy="44" r="22" fill="rgba(255,255,255,.85)"/><path d="M12 150c4-32 21-52 46-52s42 20 46 52z" fill="rgba(255,255,255,.85)"/><path d="M84 58l6 40c2 12-6 22-17 22-6 0-10-4-10-9" fill="none" stroke="#354E63" stroke-width="7" stroke-linecap="round"/></svg></span><span class="ac-cap"><b>Денис Волков</b><span>саксофон</span></span></a>
+  </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="prose reveal">
+    <div class="section-label">Ваш профиль</div>
+    <h2 class="section-title">Вы и ваша программа в фокусе внимания</h2>
+    <p>Организатору важно понять и почувствовать, кого он приглашает: увидеть сценический образ, манеру выступления и общения с залом, реакцию аудитории. При выборе музыкантов очень важно не только описание, но и возможность услышать живое исполнение.</p>
+    <p>Обязательно добавляйте фотографии и видео, которые представляют вас исчерпывающе. Расскажите, что отличает вашу программу, для каких событий она подходит и что важно сохранить при её включении в мероприятие. Можете разместить короткую видео-визитку — это повышает шансы получить заказ.</p>
+    <p>Если вы работаете в нескольких составах или предлагаете разные программы, объясните различия. Камерное выступление, полноценный концерт, ведение вечера и короткий сценический номер требуют разного представления. Если они сильно различаются — добавьте несколько разных карточек в перечень своих услуг.</p>
+    <a class="prose-link" href="supplier.html?id=1">Посмотреть, как представлены артисты →</a>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-center reveal"><div class="section-label">Заказчики</div><h2 class="section-title">Вас будут находить на МАЙСЛИСТ</h2></div>
+    <div class="who-grid"><div class="who reveal"><div class="who-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div><h3>Event- и MICE-агентства</h3><p>Подбирают программу под концепцию события и аудиторию заказчика. Им важно увидеть вашу работу, иметь возможность представить её клиенту, понять условия приглашения. В переписке вы можете уточнить, какую компанию представляет агентство, кто будет среди гостей и какое место выступление займёт в программе.</p></div><div class="who reveal"><div class="who-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><h3>Корпоративные организаторы</h3><p>Готовят встречи партнёров, юбилеи компаний, приёмы и корпоративные вечера. Уточните, для кого проводится событие: для сотрудников, клиентов, руководителей или приглашённого профессионального сообщества. Это поможет оценить, подходит ли вам формат и чего ждут от программы.</p></div><div class="who reveal"><div class="who-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></div><h3>Продюсеры событий</h3><p>Собирают программу, работают со сценой и технической командой. Обсудите роль вашего выступления, порядок выходов, репетицию, звук, свет и условия работы за сценой.</p></div><div class="who reveal"><div class="who-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></div><h3>Организаторы частных мероприятий</h3><p>Подбирают артистов для свадеб, юбилеев и закрытых вечеров. Познакомьтесь с замыслом события, узнайте о гостях, площадке и пожеланиях заказчика, прежде чем предлагать программу и соглашаться назначать цену.</p></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-center reveal"><div class="section-label">Пять шагов</div><h2 class="section-title">Как это работает</h2></div>
+    <div class="steps five"><div class="step reveal"><div class="step-n">1</div><div class="step-t">Создайте профиль артиста</div><div class="step-d">Зарегистрируйтесь через тип профиля «Поставщик» и выберите категорию в разделе «Артисты». Укажите имя или название коллектива.</div></div><div class="step reveal"><div class="step-n">2</div><div class="step-t">Представьте себя и программу</div><div class="step-d">Расскажите о себе и своем опыте, подготовьте фотографии и ссылки на видео. Обозначьте доступные форматы, состав, продолжительность и возможность выезда. Основные условия, от которых зависит ваше участие, укажите в описании.</div></div><div class="step reveal"><div class="step-n">3</div><div class="step-t">Получайте приглашения к обсуждению</div><div class="step-d">Организатор знакомится с вашим предложением и отправляет запрос на конкретные даты. Это начало разговора: вы можете уточнить задачу, аудиторию и условия. Старайтесь не медлить с первым ответом — на МАЙСЛИСТ работают event-менеджеры, им важно понять открыты ли вы к предложениям впринципе и добавить вас в планы мероприятия и черновики смет.</div></div><div class="step reveal"><div class="step-n">4</div><div class="step-t">Оцените приглашение</div><div class="step-d">В переписке узнайте о заказчике, гостях, программе и площадке. Запросите материалы, которые помогут принять решение: описание события, фотографии сцены, технические параметры и график.</div></div><div class="step reveal"><div class="step-n">5</div><div class="step-t">Согласуйте выступление</div><div class="step-d">Если предложение вам подходит, обсудите гонорар, технический и бытовой райдер, дорогу, размещение, порядок оплаты и договор. Все подробные договорённости оформляются вне МАЙСЛИСТ.</div></div></div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-center reveal"><div class="section-label">Почему МАЙСЛИСТ</div><h2 class="section-title">Зачем вам МАЙСЛИСТ</h2></div>
+    <div class="why-grid"><div class="why reveal"><span class="why-n">1</span><h3>Ещё один источник запросов на выступления</h3><p>Дополните привычные способы поиска заказов профилем в каталоге для организаторов мероприятий. Ваша программа сможет попасть в поле зрения тех, с кем вы ещё не работали.</p></div><div class="why reveal"><span class="why-n">2</span><h3>Вас выбирают, потому, что вы интересны</h3><p>Организаторы часто ломают голову над тем, как развлечь гостей. Им все время хочется чего-то новенького и захватывающего. Задача удержать внимание гостей и вызвать их восторг, отвлечь и развлечь оказывается одной из приоритетных. Представьте им себя ярко, и они предложат сотрудничество.</p></div><div class="why reveal"><span class="why-n">3</span><h3>Обозначьте, какие приглашения вы рассматриваете</h3><p>Расскажите, с какими программами и аудиториями работаете. Если для вас важны определённый формат события, площадка или условия выступления, укажите это в описании и уточните в переписке. Отфильтровывайте неподходящие аудитории на ранних этапах.</p></div><div class="why reveal"><span class="why-n">4</span><h3>Размещение в МАЙСЛИСТ бесплатно</h3><p>Чтобы представить себя в каталоге, не нужно оплачивать размещение профиля. Подготовьте материалы, расскажите о программе и дайте организаторам возможность обратиться к вам.</p></div><div class="why reveal"><span class="why-n">5</span><h3>Контекст обсуждается напрямую</h3><p>Кто заказчик, кого он приглашает, где проходит мероприятие и как будет представлено ваше имя — эти вопросы можно обсудить напрямую по электронной почте. Чем конкретнее ответы организатора, тем легче оценить приглашение. Даже если он сделал выбор в пользу кого-то еще, вы точно останетесь у него в контактах, а он у вас.</p></div><div class="why reveal"><span class="why-n">6</span><h3>Условия выступления обсуждаются с вами</h3><p>Заранее обозначьте требования к сцене, звуку, подготовке и работе команды. Согласуйте их с организатором до подтверждения участия. Держите под рукой райдеры.</p></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="prose reveal">
+    <h2 class="section-title">Изучите подробнее мир деловых событий</h2>
+    <p>Одинаковое название мероприятия может скрывать очень разные мероприятия. «Слёт партнёров» может означать как встречу постоянных клиентов, так и приём для руководителей компаний или неформальное празднование внутри команды.</p>
+    <p>Попросите организатора рассказать, кто приглашён, что объединяет гостей, насколько они знакомы с вашей работой и какой формат участия ожидается. Будет ли это самостоятельный концерт, часть торжественной программы или музыкальное сопровождение вечера? Планируется ли сфокусированное внимание к сцене или параллельно будут проходить выставка или фуршет?</p>
+    <p>Если для вас существенны имя заказчика, круг приглашённых, бренды мероприятия или его публичный контекст, уточните их до согласования. При необходимости попросите прислать программу и ссылки на сайт компании.</p>
+    <p>Так вы сможете оценить, соответствует ли приглашение вашей программе, профессиональным интересам и тому, как вы хотите быть представлены.</p>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="prose reveal">
+    <h2 class="section-title">Площадка — часть впечатления от вашего выступления</h2>
+    <p>Мы знаем, что для артиста важны не только количество гостей и местоположение. Сцена, акустика, оформление зала, уровень сервиса и репутация места влияют на впечатление от программы и условия её исполнения.</p>
+    <p>Попросите организатора назвать объект и конкретный зал. Посмотрите на МАЙСЛИСТ доступные фотографии и характеристики, уточните размеры сцены, рассадку и расположение зрителей.</p>
+    <p>Если уровень и характер площадки важны для вашего выступления, обсудите это до того, как подтвердите участие. Известное название объекта само по себе не заменяет сведений о конкретном зале и организаторе.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="prose reveal">
+    <h2 class="section-title">Обсудите не только сцену, но и условия за ней</h2>
+    <p>Комфорт артиста и команды складывается из деталей, которые лучше согласовать заранее.</p>
+    <ul class="lead-list">
+      <li><b>Подготовка к выступлению:</b> время прибытия, монтаж, саундчек, репетиция и точное время выхода.</li>
+      <li><b>Гримёрная и ожидание:</b> отдельное помещение гримерки, доступ в него, возможность переодеться, отдохнуть и сохранить личные вещи.</li>
+      <li><b>Работа со зрителями:</b> расположение публики относительно сцены, проходы, доступ за сцену и присутствие ответственных сотрудников или охраны, если это необходимо.</li>
+      <li><b>Дорога и размещение:</b> трансфер, проживание, питание и график перемещений, если вы выезжаете в другой город.</li>
+      <li><b>Имя и образ:</b> как вас представят, где используют имя и фотографии, допустимы ли съёмка, трансляция и публикация записи.</li>
+    </ul>
+    <p>Передайте технический и бытовой райдер и получите подтверждение существенных условий от организатора. Если для участия необходимы определённые меры безопасности, обозначьте их прямо и согласуйте, кто отвечает за исполнение.</p>
+  </div>
+</section>
+
+<section class="cta-accent reveal">
+  <h2>Пусть о вас узнают новые заказчики</h2>
+  <p>Добавьте ещё один способ получить приглашение на выступление. Представьте себя, покажите программу и расскажите, какие события вам интересны. Размещение профиля бесплатно.</p>
+  <div class="acts"><a class="btn-w" href="auth.html?mode=supplier">Создать профиль бесплатно</a><a class="btn-w ghost" href="listing-help.html">Нужна помощь с размещением?</a></div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-center reveal"><div class="section-label">Пример переписки</div><h2 class="section-title">Как может начаться разговор о выступлении</h2></div>
+    <div class="letters">
+      <div class="letter reveal">
+        <div class="letter-h"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Пример запроса музыкальному коллективу</div>
+        <blockquote>
+          <p>Добрый день! Я представляю event-агентство [название]. Готовим закрытый вечер с гала-ужином для партнёров компании [название] 20 ноября 2027 года в Казани.</p>
+          <p>Ожидаем около 180 гостей — руководителей компаний-партнёров и приглашённых сотрудников. Хотим включить вашу программу в отдельный концертный блок после ужина.</p>
+          <p>Площадка — [название объекта], зал [название].</p>
+          <p>Подскажите, рассматриваете ли вы такой формат и свободна ли дата. Просим прислать условия выступления, технический и бытовой райдер. Дорогу, размещение, порядок оплаты.</p>
+        </blockquote>
+      </div>
+      <p class="letter-note reveal">Это пример содержательного приглашения. Если в полученном запросе указаны только дата и число гостей, задайте остальные вопросы в ответном письме. Решение о выступлении не требуется принимать по первому обращению.</p>
+      <div class="letter reply reveal">
+        <div class="letter-h"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Ваш возможный ответ:</div>
+        <blockquote>
+          <p>Уточните пожалуйста продолжительноть выступления? Гости будут сидеть лицом к сцене? Планируется ли приостановить обслуживание столов на время выступления?</p>
+          <p>Зал я вижу на платформе. Но уточните предусмотрены ли отдельная гримёрная и саундчек до прихода гостей?</p>
+          <p>Будет ли проводится профессиональная фото- и видеосъёмка и как в дальнейшем будут использоваться материалы?</p>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-center reveal"><div class="section-label">Вопросы</div><h2 class="section-title">FAQ</h2></div>
+    <div class="faq"><details><summary>Сколько стоит разместить профиль?</summary><p>Размещение профиля артиста на МАЙСЛИСТ бесплатно. Представьте программу и материалы, чтобы организаторы могли познакомиться с вашей работой и отправить запрос.</p></details><details><summary>Можно ли пользоваться МАЙСЛИСТ вместе с другими способами поиска заказов?</summary><p>Да. Профиль может стать дополнительным источником приглашений наряду с вашими соцсетями, сайтом, рекомендациями и работой с агентствами.</p></details><details><summary>Почему при регистрации нужно выбрать «Поставщик»?</summary><p>Это общее название типа профиля для тех, кто предлагает услуги на МАЙСЛИСТ, в том числе выступления. Оно используется при регистрации; в разделе «Артисты» вы представляете своё имя, коллектив и творческую программу.</p></details><details><summary>Как показать индивидуальность программы?</summary><p>Выберите материалы, которые передают именно вашу работу: сценические фотографии, видео живого выступления, описание программы. Расскажите, для каких событий она подходит, и обозначьте существенные условия. Доступные способы размещения материалов зависят от возможностей профиля.</p></details><details><summary>Можно ли заранее узнать, для кого я буду выступать?</summary><p>Да, уточните это в переписке у организатора. Спросите, кто заказчик, какие гости приглашены и какой формат события планируется. Попросите прислать программу мероприятия. Это поможет предложить подходящий вариант выступления.</p></details><details><summary>Можно ли уточнить зал до обсуждения гонорара?</summary><p>Да. Попросите назвать конкретный зал, прислать фотографии, план и сведения о сцене и оборудовании или ссылку на карточку зала в МАЙСЛИСТ. Объясните, какие характеристики важны для вашей программы. Доступные сведения из каталога используйте как основу для обсуждения.</p></details><details><summary>Можно ли передать райдер до подтверждения выступления?</summary><p>Да, направьте его организатору по email и согласуйте существенные условия до подтверждения участия. Технический и бытовой райдер, график, требования к комфорту и безопасности обсуждаются напрямую.</p></details><details><summary>Запрос означает, что дата забронирована?</summary><p>Нет. Получение запроса — начало обсуждения. Дата, программа, гонорар, порядок оплаты и договор согласовываются с организатором отдельно.</p></details><details><summary>Можно ли обсуждать приглашение через представителя?</summary><p>В переписке может участвовать ваш менеджер или представитель. Порядок регистрации профиля представителем и указания контактного адреса уточните у команды МАЙСЛИСТ.</p></details><details><summary>Как получить помощь с профилем?</summary><p>Напишите на <a href="mailto:info@micelist.ru">info@micelist.ru</a>. Укажите имя артиста или название коллектива и опишите, что нужно уточнить или оформить.</p></details></div>
+    <div class="end-acts">
+      <a class="btn-h primary" href="auth.html?mode=supplier">Создать профиль бесплатно</a>
+      <a class="btn-o" href="suppliers.html?cat=Артисты">Каталог артистов</a>
+      <a class="btn-o" href="support.html">Поддержка</a>
+    </div>
   </div>
 </section>
 
 <div id="mh-footer"></div>
 
+<script>
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
 <script src="data.js"></script>
 <script src="shared.js"></script>
 <script>MH.init('b2b-artists');</script>
