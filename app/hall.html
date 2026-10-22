@@ -58,6 +58,11 @@ a.tag.dl:hover{filter:brightness(1.06);}
 .d-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
 .tag{display:inline-flex;align-items:center;padding:4px 11px;border-radius:var(--r-full);font-size:11.5px;font-weight:600;background:var(--aqua-pale);color:var(--slate-mid);}
+/* R3-D: оснащение зала — по группам конфига фильтров */
+.heq{padding:18px 20px;}
+.heq-g + .heq-g{margin-top:14px;}
+.heq-g h3{font-size:13px;font-weight:700;color:var(--slate-deep);margin-bottom:8px;}
+.heq-tags{display:flex;flex-wrap:wrap;gap:6px;}
 .tag.solid{background:var(--coral-soft);color:var(--coral);}
 
 .btn{display:inline-block;padding:11px 22px;border-radius:var(--r-full);font-size:13.5px;font-weight:600;border:1.5px solid var(--slate-pale);background:var(--white);color:var(--slate);transition:all .2s;white-space:nowrap;}
@@ -203,6 +208,15 @@ let H = null, V = null;
 /* Мок-план для прототипа: один PDF на все залы с точным планом. */
 const PLAN_PDF = '../assets/plans/hall-plan-sample.pdf';
 
+/** R3-D: свойства этого зала (level 'hall' в конфиге) — группами «Оснащение зала» и «Пространство». */
+function hallEquip(h) {
+  const groups = ML.VENUE_FILTER_GROUPS.map(g => {
+    const tags = ML.hallCheckDefs().filter(d => d.group === g.k && ML.hallHas(h, d.code)).map(d => d.card || d.label);
+    return tags.length ? `<div class="heq-g"><h3>${esc(g.l)}</h3><div class="heq-tags">${tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div></div>` : '';
+  }).join('');
+  return `<div class="panel heq">${groups || '<span style="color:var(--slate-muted);font-size:14px">Площадка не указала оснащение этого зала.</span>'}</div>`;
+}
+
 function render() {
   const h = H, v = V, t = ML.tariff(), full = t.fullInfo;
   const inC = ML.inCompare(h.id), fav = ML.isFav(h.id);
@@ -291,6 +305,9 @@ function render() {
           <tr><th>Точный план пространства</th><td>${h.plan ? (full ? `<a href="${PLAN_PDF}" download="${esc('План зала — ' + h.name + '.pdf')}" style="color:var(--coral)">скачать PDF</a>` : 'есть') : 'нет'}</td></tr>
         </table>
       </div>`, 'Некоторые параметры зала и стоимость аренды доступны только после регистрации')}
+
+      <div class="sec-head"><h2 class="sec-title">Оснащение зала</h2></div>
+      ${MH.lock(hallEquip(h), 'Оснащение зала доступно после регистрации')}
 
       ${others.length ? `<div class="sec-head"><h2 class="sec-title">Другие залы объекта</h2>
         <span class="sec-sub">${others.length} ${ML.plural(others.length, ['зал','зала','залов'])}</span></div>

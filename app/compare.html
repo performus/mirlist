@@ -308,6 +308,9 @@ function buildRows() {
     raw: `<span class="rh-seat">${MH.seatIcon(s.k, { size: 15 })}<span>${s.l}</span></span>`,
     fn: h => h.seats[s.k] || '—',
   }));
+  /* R3-D: оснащение — свойство зала; строки и порядок — из конфига фильтров (level 'hall') */
+  rows.push({ g: 'Оснащение зала' });
+  ML.hallCheckDefs().forEach(d => rows.push([d.label, h => ML.hallHas(h, d.code) ? 'да' : 'нет']));
   rows.push(
     { g: 'Условия' },
     ['Аренда за день',    h => h.priceDay ? ML.money(h.priceDay) : 'по договорённости'],

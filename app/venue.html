@@ -164,6 +164,9 @@ button{font-family:inherit;cursor:pointer;}
 }
 .flines{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--slate-mid);margin-bottom:10px;}
 .flines b{color:var(--slate-deep);}
+/* R3-D: сводка оснащения залов под «Оснащением и услугами» */
+.hall-eq{display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.55;color:var(--slate-mid);}
+.hall-eq b{color:var(--slate-deep);font-weight:600;}
 .menu-dl{display:inline-flex;margin-top:12px;}
 .star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12.5px;font-weight:700;vertical-align:1px;}
 </style>
@@ -250,10 +253,18 @@ function render() {
       (v.parking === 'private' && v.parkingSpaces ? `, <b>${v.parkingSpaces}</b> ${ML.plural(v.parkingSpaces, ['место', 'места', 'мест'])}` : ''));
     const menu = g.k === 'food' && v.menu ? `<a class="btn sm o menu-dl" href="${esc(v.menu.url)}" download="${esc(v.menu.name)}">Скачать меню (PDF)</a>` : '';
     if (!tags.length && !lines.length && !menu) return '';
-    return `<div class="fgroup"><h3>${esc(g.l)}</h3>
+    /* R3-D: у объекта в группе «Оснащение зала» остаются только связь и лифт — на карточке это оснащение объекта */
+    return `<div class="fgroup"><h3>${esc(g.k === 'equip' ? 'Оснащение объекта' : g.l)}</h3>
       ${lines.length ? `<div class="flines">${lines.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
       ${tags.length ? `<div class="ftags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}${menu}</div>`;
   }).join('');
+
+  /* R3-D: оснащение — свойство зала. Сводка: «LED-экран — Зал «Панорама»; Проектор — Большой зал, …» */
+  const hallEquip = ML.hallCheckDefs().map(d => {
+    const names = v.halls.filter(h => ML.hallHas(h, d.code)).map(h => esc(h.name));
+    return names.length ? `<div><b>${esc(d.card || d.label)}</b> — ${names.join(', ')}</div>` : '';
+  }).filter(Boolean).join('');
+  const hallEquipBlock = hallEquip ? `<div class="fgroup"><h3>Оснащение залов</h3><div class="hall-eq">${hallEquip}</div></div>` : '';
 
   // звёздность отделена от категории: строку показываем только там, где она применима
   const starRow = ML.STARRED_CATS.includes(v.cat)
@@ -316,7 +327,7 @@ function render() {
       ${full ? MH.seatLegend(ML.SEATING.filter(s => v.halls.some(h => h.seats[s.k])).map(s => s.k)) : ''}
       <div class="hrows">${hallRows}</div>
 
-      ${full && featureBlocks ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}` : ''}
+      ${full && (featureBlocks || hallEquipBlock) ? `<div class="sec-head"><h2 class="sec-title">Оснащение и услуги</h2></div>${featureBlocks}${hallEquipBlock}` : ''}
 
       ${reviewsBlock(v)}
     </div>

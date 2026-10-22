@@ -1385,7 +1385,8 @@ function venueCfgFields() {
     out.push({ ty: 'cfghead', l: g.l });
     if (g.k === 'food') out.push({ k: 'menu', l: 'Меню в PDF', ty: 'menu',
       hint: 'Меню увидят на карточке объекта — кнопка «Скачать меню (PDF)». По нему работает фильтр «Есть меню на сайте».' });
-    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && !ML.DERIVED_CHECKS.includes(d.code));
+    /* R3-D: свойства зала (level 'hall') задаются в визарде зала — здесь только свойства объекта */
+    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && d.level !== 'hall' && !ML.DERIVED_CHECKS.includes(d.code));
     const checks = defs.filter(d => d.control === 'check');
     defs.filter(d => d.control !== 'check').forEach(d => {
       if (d.control === 'multi') out.push({ k: 'cuisine', l: d.label, ty: 'mchecks', opts: d.opts.map(o => [o.code, o.l]) });
@@ -1400,6 +1401,18 @@ function venueCfgFields() {
   out.push({ k: 'confPackage', l: WIZ_NUM_LABEL.conference_package_price_per_person, ty: 'num',
     hint: 'По этой цене работает фильтр «Конференц-пакет» для деловых мероприятий.' });
   out.push({ k: 'dressingRooms', l: WIZ_NUM_LABEL.dressing_rooms, ty: 'num' });
+  return out;
+}
+
+/** R3-D: шаг «Оснащение зала» — чекбоксы уровня 'hall' из конфига фильтров, по группам. */
+function hallCfgFields() {
+  const out = [{ ty: 'note', text: 'Отметьте, что есть именно в этом зале. По этим отметкам зал находят фильтры «Оснащение зала» и «Пространство», в том числе в требованиях к отдельному залу.' }];
+  for (const g of ML.VENUE_FILTER_GROUPS) {
+    const defs = ML.hallCheckDefs().filter(d => d.group === g.k);
+    if (!defs.length) continue;
+    out.push({ ty: 'cfghead', l: g.l });
+    out.push({ k: 'feats', ty: 'fchecks', opts: defs.map(d => [d.code, d.label]) });
+  }
   return out;
 }
 
@@ -1469,6 +1482,7 @@ const HALL_STEPS=[
    {k:'agree',ty:'checks',opt:['Стоимость по договорённости']},
    {ty:'note',text:'Можно указать одну из цен или обе. Залы с ценой «по договорённости» остаются в выдаче при любом ценовом фильтре.'},
  ]},
+ {t:'Оснащение зала',fFn:hallCfgFields},
  {t:'Медиа и планы',f:[
    {k:'photos',l:'Фотографии зала',ty:'photo'},
    {k:'schemes',l:'Схемы рассадки',ty:'photo'},
@@ -1518,7 +1532,7 @@ const stepFields = (st) => st.fFn ? st.fFn() : st.f;
 
 const WIZDEFS={
   venue:{t:'Добавление объекта',tEdit:'Редактирование объекта',s:VENUE_STEPS,fin:'Отправить на модерацию',finEdit:'Сохранить изменения'},
-  hall:{t:'Добавление зала',s:HALL_STEPS,fin:'Сохранить зал'},
+  hall:{t:'Добавление зала',tEdit:'Редактирование зала',s:HALL_STEPS,fin:'Сохранить зал',finEdit:'Сохранить изменения'},
   service:{t:'Добавление услуги',s:SERVICE_STEPS,fin:'Отправить на модерацию'},
 };
 
@@ -1700,6 +1714,8 @@ function wfield(f){
             <span class="sub">${h.area||'—'} м²</span>
             <span class="sub">${h.priceDay?ML.money(+h.priceDay):'по договорённости'}</span>
             <span class="sub">${Object.keys(h.seats||{}).length} ${ML.plural(Object.keys(h.seats||{}).length,['схема','схемы','схем'])}</span>
+            <span class="sub">${(h.feats||[]).length?'оснащение: '+(h.feats||[]).length:'оснащение не указано'}</span>
+            <button class="btn-xs" onclick="wizEditHall(${i})">Изменить</button>
             <button class="btn-xs danger" onclick="wizDelHall(${i})">Удалить</button></div>`).join('')}</div>`
           :`<div class="wz-note wz-warn">Ни одного зала не добавлено. В подбор попадают именно залы —
              объект без залов в выдаче не появится.</div>`}
@@ -1743,6 +1759,11 @@ function wizSeat(k,v){
   WIZ.data.seats=s;
 }
 function wizDelHall(i){ WIZ.data.halls.splice(i,1); drawWiz(); }
+/* R3-D: зал объекта открывается в визарде зала с текущими значениями, включая оснащение */
+function wizEditHall(i){
+  const h=WIZ.data.halls[i]; if(!h) return;
+  openWiz('hall',{data:Object.assign({},h,{seats:Object.assign({},h.seats),feats:(h.feats||[]).slice()}),edit:i});
+}
 
 /* ── точка на карте в шаге «Локация» ──
    Подложка схематичная: настоящая карта придёт вместе с 2ГИС. Клик считается
@@ -1815,11 +1836,13 @@ function wizSave(){
     return;
   }
   if(WIZ.kind==='hall'){
-    const h=WIZ.data;
-    WIZ=WIZSTACK.pop();                       // возврат в шаг 6 объекта
-    WIZ.data.halls=(WIZ.data.halls||[]).concat([h]);
+    const h=WIZ.data, edit=WIZ.edit;
+    WIZ=WIZSTACK.pop();                       // возврат в шаг «Залы» объекта
+    const hs=(WIZ.data.halls||[]).slice();
+    if(edit!=null) hs[edit]=h; else hs.push(h);
+    WIZ.data.halls=hs;
     drawWiz();
-    MH.toast('Зал «'+(h.name||'без названия')+'» добавлен','success');
+    MH.toast('Зал «'+(h.name||'без названия')+'» '+(edit!=null?'изменён':'добавлен'),'success');
     return;
   }
   if(WIZ.kind==='venue'){

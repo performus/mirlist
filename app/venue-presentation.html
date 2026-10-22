@@ -177,6 +177,8 @@ function render(){
 
   const cards = halls.map((h, i) => {
     const v = ML.hallVenue(h);
+    /* R3-D: оснащение — свойство зала, подписи из конфига фильтров */
+    const equip = ML.hallCheckDefs().filter(d => ML.hallHas(h, d.code)).map(d => esc(d.card || d.label)).join(', ');
     const seats = ML.SEATING.map(s => {
       const n = h.seats[s.k];
       return `<div class="seat${n ? '' : ' off'}">
@@ -206,6 +208,7 @@ function render(){
             <tr><th>Высота потолка</th><td>${h.height ? h.height + ' м' : '<span class="dim">—</span>'}</td></tr>
             <tr><th>Максимальная вместимость</th><td>${ML.hallCapacity(h)} чел.</td></tr>
             <tr><th>Точный план пространства</th><td class="${h.plan ? '' : 'dim'}">${h.plan ? 'есть' : 'нет'}</td></tr>
+            <tr><th>Оснащение зала</th><td class="${equip ? '' : 'dim'}">${equip || 'не указано'}</td></tr>
             <tr><th>Номерной фонд объекта</th><td class="${(v.rooms.twin || v.rooms.sngl) ? '' : 'dim'}">${
               (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'}</td></tr>
           </table>
