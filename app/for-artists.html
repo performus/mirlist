@@ -254,11 +254,19 @@
 .end-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:36px;}
 .btn-o{padding:15px 30px;border-radius:var(--rm);font-size:15px;font-weight:600;background:var(--w);color:var(--s);border:1.5px solid var(--sp);transition:all .25s;display:inline-block;}
 .btn-o:hover{border-color:var(--c);color:var(--c);}
-@media(max-width:1180px){.art-collage{display:none;}.who-grid{grid-template-columns:1fr 1fr;}.steps.five{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:1180px){.who-grid{grid-template-columns:1fr 1fr;}.steps.five{grid-template-columns:repeat(3,1fr);}
+  /* ниже 1180 px коллаж — лента под первым экраном: листается пальцем, карточки встают по краю */
+  .hero-in{flex-direction:column;align-items:stretch;}
+  .art-collage{flex:none;height:auto;display:flex;gap:14px;margin:28px -48px -6px;padding:10px 48px 30px;overflow-x:auto;
+    scroll-snap-type:x mandatory;scroll-padding-inline:48px;overscroll-behavior-x:contain;scrollbar-width:none;}
+  .art-collage::-webkit-scrollbar{display:none;}
+  .art-collage .ac{position:relative;inset:auto;flex:0 0 min(70vw,440px);height:auto;aspect-ratio:4/3;scroll-snap-align:start;box-shadow:var(--sh);}
+  .art-collage .ac-portrait img{object-position:center 25%;}}
 @media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr;}.cta-accent{margin:0 20px;}}
 @media(max-width:600px){.who-grid,.why-grid,.steps.five{grid-template-columns:1fr;}.cta-accent{padding:44px 22px;}
   .letter{padding:22px 20px 18px;}.letter.reply{align-self:stretch;}.faq summary{padding:16px 18px;font-size:15px;}.faq details p{padding:0 18px 18px;}
-  .section{padding:64px 20px;}.hero-actions a.btn-h{text-align:center;}}
+  .section{padding:64px 20px;}.hero-actions a.btn-h{text-align:center;}
+  .art-collage{margin:20px -20px -6px;padding:10px 20px 30px;scroll-padding-inline:20px;}}
 </style>
 </head>
 <body>
