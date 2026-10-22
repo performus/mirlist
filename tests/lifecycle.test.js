@@ -585,5 +585,135 @@ test('R3-B стр.106: отметка и фильтр «Есть отзывы» 
   ML.filterSuppliers(F).forEach(s => assert.ok(ML.reviewsFor('supplier', s.id).length > 0, s.name));
 });
 
+console.log('R3-D. Оснащение — у зала');
+
+const HALL_SPEC = ['sound', 'light', 'screen', 'led_screen', 'projector', 'plasma_panel', 'stage', 'power', 'rigging', 'car_entry',
+  'equipment_load_in', 'column_free', 'blackout', 'windows', 'air_conditioning', 'separate_entrance', 'hall_area_min', 'has_floor_plan'];
+/* требования клиента: банкет от 120 с LED и две переговорные от 10 */
+function clientReqs(ML, F) {
+  ML.hallReqAdd(F); Object.assign(F.halls[0], { seating: 'banquet', min: 120 }); ML.hallReqToggle(F, 0, 'led_screen');
+  ML.hallReqAdd(F); Object.assign(F.halls[1], { seating: 'board', min: 10 });
+  ML.hallReqAdd(F); Object.assign(F.halls[2], { seating: 'board', min: 10 });
+  return F;
+}
+
+test('R3-D конфиг: у каждого фильтра есть level; у зала — оснащение, часть «Пространства», площадь и план', () => {
+  const { ML } = load();
+  ML.VENUE_FILTERS.forEach(d => assert.ok(d.level === 'hall' || d.level === 'venue', d.code));
+  HALL_SPEC.forEach(c => assert.strictEqual(ML.VENUE_FILTERS.find(d => d.code === c).level, 'hall', c));
+  ['internet', 'wifi', 'freight_elevator', 'separate_restrooms', 'external_furniture', 'external_decor', 'dressing_rooms', 'wardrobe', 'cuisine', 'price_day', 'parking']
+    .forEach(c => assert.strictEqual(ML.VENUE_FILTERS.find(d => d.code === c).level, 'venue', c));
+});
+
+test('R3-D данные: у объектов нет кодов зала, переговорные — экран или плазма без сцены, у открытых нет затемнения и окон, залы различаются', () => {
+  const { ML } = load();
+  ML.VENUES.forEach(v => {
+    assert.ok(!v.features.some(c => ML.HALL_FEATURE_CODES.includes(c)), v.name);
+    if (v.halls.length > 1) assert.ok(v.halls.some(h => h.features.join() !== v.halls[0].features.join()), 'одинаковое оснащение залов: ' + v.name);
+    v.halls.forEach(h => {
+      if (h.type === 'Переговорная') {
+        assert.ok(h.features.includes('screen') || h.features.includes('plasma_panel'), h.name);
+        assert.ok(!h.features.includes('stage') && !h.features.includes('rigging'), h.name);
+      }
+      if (h.type === 'Открытая площадка') assert.ok(!h.features.includes('blackout') && !h.features.includes('windows'), h.name);
+    });
+  });
+  const a = ML.venueById(1), led = a.halls.filter(h => h.features.includes('led_screen'));
+  assert.deepStrictEqual(plain(led.map(h => h.type)), ['Трансформер'], 'у «Авроры» LED — только в трансформере');
+  assert.strictEqual(a.halls.filter(h => h.type === 'Переговорная' && !h.features.includes('led_screen')).length, 2, 'две переговорные без LED');
+});
+
+test('R3-D сценарий клиента: банкет от 120 + LED и две переговорные — «Аврора» в выдаче, подобраны все три зала', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const F = clientReqs(ML, ML.emptyFilters());
+  const x = ML.filterVenues(F).find(r => r.venue.id === 1);
+  assert.ok(x, 'объект в выдаче');
+  assert.strictEqual(x.halls.length, 3);
+  assert.deepStrictEqual(plain(x.halls.map(h => h.name).sort()), ['Зал «Панорама»', 'Переговорная «Арбат»', 'Переговорная «Сити»'].sort());
+  assert.strictEqual(ML.hallReqLabel(F.halls[0], 0), 'Зал 1: банкет от 120 · LED-экран');
+  // то же на синтетических залах: банкетный с LED и две переговорные без LED
+  const halls = [{ seats: { banquet: 150 }, features: ['led_screen', 'sound'] }, { seats: { board: 12 }, features: ['screen'] }, { seats: { board: 14 }, features: ['plasma_panel'] }];
+  const r = ML.hallsSatisfy(halls, [{ seating: 'banquet', min: 120, feats: ['led_screen'] }, { seating: 'board', min: 10 }, { seating: 'board', min: 10 }]);
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(plain(r.used).sort(), [0, 1, 2]);
+});
+
+test('R3-D сценарий клиента: LED только в переговорной, в банкетном нет — объекта нет', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const a = ML.venueById(1);
+  a.halls.forEach(h => { h.features = h.features.filter(c => c !== 'led_screen'); });
+  a.halls.find(h => h.id === 103).features.push('led_screen');
+  assert.ok(!ML.filterVenues(clientReqs(ML, ML.emptyFilters())).some(x => x.venue.id === 1));
+  const halls = [{ seats: { banquet: 150 }, features: [] }, { seats: { board: 12 }, features: ['led_screen'] }, { seats: { board: 14 }, features: [] }];
+  assert.strictEqual(ML.hallsSatisfy(halls, [{ seating: 'banquet', min: 120, feats: ['led_screen'] }, { seating: 'board', min: 10 }, { seating: 'board', min: 10 }]).ok, false);
+});
+
+test('R3-D общий «LED-экран» без блоков «Зал N»: объект есть, показан только зал с LED', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const F = ML.emptyFilters(); F.feats.add('led_screen');
+  const x = ML.filterVenues(F).find(r => r.venue.id === 1);
+  assert.ok(x);
+  assert.deepStrictEqual(plain(x.halls.map(h => h.name)), ['Зал «Панорама»']);
+  ML.filterVenues(F).forEach(r => r.halls.forEach(h => assert.ok(h.features.includes('led_screen'), r.venue.name + ' / ' + h.name)));
+});
+
+test('R3-D перебор с возвратом: один зал не закрывает два требования, оснащение учитывается при сопоставлении', () => {
+  const { ML } = load();
+  const one = [{ seats: { banquet: 300, board: 30 }, features: ['led_screen'] }];
+  assert.strictEqual(ML.hallsSatisfy(one, [{ seating: 'banquet', min: 100, feats: ['led_screen'] }, { seating: 'board', min: 10 }]).ok, false);
+  // зал 0 подходит под оба требования, но LED только у него: жадный взял бы его под переговоры
+  const halls = [{ seats: { banquet: 200, board: 12 }, features: ['led_screen'] }, { seats: { banquet: 180, board: 20 }, features: [] }];
+  const r = ML.hallsSatisfy(halls, [{ seating: 'board', min: 10 }, { seating: 'banquet', min: 150, feats: ['led_screen'] }]);
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(plain(r.used), [1, 0]);
+});
+
+test('R3-D счётчики: у чекбокса свойства зала — фактическое число объектов после отметки', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const sets = [ML.emptyFilters(), Object.assign(ML.emptyFilters(), { city: 'Москва' }), Object.assign(ML.emptyFilters(), { people: 100 })];
+  sets[1].feats.add('sound'); sets[2].feats.add('wifi');
+  sets.forEach(F => ML.VENUE_FILTERS.filter(d => d.control === 'check' && d.level === 'hall').forEach(d => {
+    const G = Object.assign({}, F, { feats: new Set([...F.feats, d.code]) });
+    assert.strictEqual(ML.facetCount(F, d.code), ML.filterVenues(G).length, d.code);
+  }));
+});
+
+test('R3-D дополнение: с первым блоком «Зал N» общие свойства зала переезжают в «Зал 1», без блоков — снова общие и пустые', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const F = ML.emptyFilters(); F.feats.add('led_screen'); F.feats.add('projector'); F.feats.add('wifi');
+  ML.hallReqAdd(F);
+  assert.deepStrictEqual(plain(F.halls[0].feats), ['led_screen', 'projector']);
+  assert.deepStrictEqual(plain([...F.feats]), ['wifi'], 'свойство объекта осталось общим');
+  ML.hallReqAdd(F);
+  assert.deepStrictEqual(plain(F.halls[1].feats), [], 'второй блок пустой');
+  assert.strictEqual(ML.hallReqLabel(F.halls[0], 0), 'Зал 1: любая схема · LED-экран · Проектор');
+  // правила «хотя бы один из подобранных» нет: свойство не из блока не участвует
+  const n = ML.filterVenues(F).length;
+  ML.hallReqRemove(F, 1); ML.hallReqRemove(F, 0);
+  assert.strictEqual(F.halls.length, 0);
+  assert.ok(![...F.feats].some(ML.isHallCheck), 'общие свойства зала пустые');
+  assert.ok(n > 0);
+  // сохранённое до R3-D состояние: общий LED при блоке — читается как оснащение «Зала 1»
+  const { ML: M2 } = load({ ml_filters: { feats: ['led_screen', 'wifi'], halls: [{ seating: 'banquet', min: 100 }] } });
+  const G = M2.loadFilters();
+  assert.deepStrictEqual(plain(G.halls[0].feats), ['led_screen']);
+  assert.ok(!G.feats.has('led_screen') && G.feats.has('wifi'));
+});
+
+test('R3-D кабинет: оснащение задаётся в визарде зала, «Редактировать» отдаёт его в поля, у объекта кодов зала нет', () => {
+  const { ML } = load();
+  const v = ML.state.myVenues[0];
+  assert.ok(!v.features.some(c => ML.HALL_FEATURE_CODES.includes(c)));
+  assert.ok(v.halls.find(h => h.name === 'Зал «Панорама»').features.includes('led_screen'));
+  const d = ML.venueToWizard(v);
+  assert.ok(d.halls.find(h => h.name === 'Зал «Панорама»').feats.includes('led_screen'));
+  assert.ok(!d.feats.some(c => ML.HALL_FEATURE_CODES.includes(c)), 'в визарде объекта полей зала нет');
+  d.halls[0].feats = ['sound', 'stage'];
+  ML.updateMyVenue(0, d);
+  assert.deepStrictEqual(plain(ML.state.myVenues[0].halls[0].features), ['sound', 'stage']);
+  ML.addHallToMyVenue(0, { name: 'Терраса', type: 'Открытая площадка', area: 100, seats: { reception: 80 }, feats: ['power', 'sound'] });
+  assert.deepStrictEqual(plain(ML.state.myVenues[0].halls.slice(-1)[0].features), ['sound', 'power'], 'порядок — как в конфиге');
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

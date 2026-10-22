@@ -121,9 +121,12 @@
     { k: 'rules', l: 'Правила' }, { k: 'sport', l: 'Спорт' },
   ];
 
-  /* f(...) — строка конфига; ch(...) — чекбокс со счётчиком (самый частый случай). */
-  const f = (group, code, label, control, o) => Object.assign({ group, code, label, control, decision: OK }, o || {});
+  /* f(...) — строка конфига; ch(...) — чекбокс со счётчиком (самый частый случай).
+     level (R3-D) — что проверяет фильтр: 'venue' — свойство объекта, 'hall' — свойство зала.
+     hl(...) — отметка «свойство зала» для строки конфига. */
+  const f = (group, code, label, control, o) => Object.assign({ group, code, label, control, decision: OK, level: 'venue' }, o || {});
   const ch = (group, code, label, o) => f(group, code, label, 'check', o);
+  const hl = (o) => Object.assign({ level: 'hall' }, o || {});
 
   const VENUE_FILTERS = [
     f('main', 'city', 'Город', 'city', { fkey: 'city' }),
@@ -141,14 +144,14 @@
     f('rooms', 'rooms_twin', 'Номеров TWIN от', 'numFrom', { fkey: 'twin', tariff: 'prem' }),
     f('rooms', 'rooms_single', 'Номеров SNGL от', 'numFrom', { fkey: 'sngl', tariff: 'prem' }),
 
-    f('halls', 'hall_requirements', 'Схема и вместимость', 'halls', { fkey: 'halls',
+    f('halls', 'hall_requirements', 'Схема и вместимость', 'halls', { fkey: 'halls', level: 'hall',
       opts: SEATING.map(s => ({ code: s.code, l: s.l })) }),
-    f('halls', 'hall_type', 'Тип зала', null, { decision: 'Удалить', planned: 'checks',
+    f('halls', 'hall_type', 'Тип зала', null, { decision: 'Удалить', planned: 'checks', level: 'hall',
       opts: [{ code: 'conference', l: 'Конференц-зал' }, { code: 'banquet', l: 'Банкетный зал' }, { code: 'meeting_room', l: 'Переговорная' },
         { code: 'transformer', l: 'Трансформер' }, { code: 'amphitheatre', l: 'Амфитеатр' }, { code: 'foyer', l: 'Фойе' }, { code: 'outdoor', l: 'Открытая площадка' }] }),
-    f('halls', 'hall_area_min', 'Площадь зала от, м²', 'numFrom', { fkey: 'hallArea', advanced: true }),
-    f('halls', 'ceiling_height_min', 'Высота потолка от, м', null, { decision: 'Удалить', planned: 'numFrom', advanced: true }),
-    ch('halls', 'has_floor_plan', 'Есть план зала', { advanced: true }),
+    f('halls', 'hall_area_min', 'Площадь зала от, м²', 'numFrom', hl({ fkey: 'hallArea', advanced: true })),
+    f('halls', 'ceiling_height_min', 'Высота потолка от, м', null, hl({ decision: 'Удалить', planned: 'numFrom', advanced: true })),
+    ch('halls', 'has_floor_plan', 'Есть план зала', hl({ advanced: true })),
     f('halls', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing', advanced: true }),
 
     f('price', 'price_day', 'Стоимость за день', 'range2', { fkey: 'priceDay', mode: 'day' }),
@@ -169,28 +172,28 @@
     ch('food', 'kashrut_certificate', 'Сертификат кашрута'),
     ch('food', 'michelin', 'Звезда Michelin', { events: evs('b q w') }),
 
-    ch('equip', 'sound', 'Звуковое оборудование'),
-    ch('equip', 'light', 'Световое оборудование'),
-    ch('equip', 'screen', 'Экран'),
-    ch('equip', 'led_screen', 'LED-экран'),
-    ch('equip', 'projector', 'Проектор'),
-    ch('equip', 'plasma_panel', 'Плазменная панель'),
+    ch('equip', 'sound', 'Звуковое оборудование', hl()),
+    ch('equip', 'light', 'Световое оборудование', hl()),
+    ch('equip', 'screen', 'Экран', hl()),
+    ch('equip', 'led_screen', 'LED-экран', hl()),
+    ch('equip', 'projector', 'Проектор', hl()),
+    ch('equip', 'plasma_panel', 'Плазменная панель', hl()),
     ch('equip', 'internet', 'Выделенная линия интернета'),
     ch('equip', 'wifi', 'Wi‑Fi'),
-    ch('equip', 'stage', 'Стационарная сцена'),
-    ch('equip', 'power', 'Силовое подключение'),
-    ch('equip', 'rigging', 'Точки подвеса'),
+    ch('equip', 'stage', 'Стационарная сцена', hl()),
+    ch('equip', 'power', 'Силовое подключение', hl()),
+    ch('equip', 'rigging', 'Точки подвеса', hl()),
     ch('equip', 'freight_elevator', 'Грузовой лифт'),
-    ch('equip', 'car_entry', 'Заезд автомобиля в зал', { events: evs('b q w') }),
-    ch('equip', 'equipment_load_in', 'Можно со своим тех. оснащением'),
+    ch('equip', 'car_entry', 'Заезд автомобиля в зал', hl({ events: evs('b q w') })),
+    ch('equip', 'equipment_load_in', 'Можно со своим тех. оснащением', hl()),
 
-    ch('space', 'column_free', 'Без колонн'),
-    ch('space', 'blackout', 'Затемнение', { events: evs('b q w') }),
-    ch('space', 'windows', 'Окна', { events: evs('b q w') }),
-    ch('space', 'air_conditioning', 'Кондиционер'),
+    ch('space', 'column_free', 'Без колонн', hl()),
+    ch('space', 'blackout', 'Затемнение', hl({ events: evs('b q w') })),
+    ch('space', 'windows', 'Окна', hl({ events: evs('b q w') })),
+    ch('space', 'air_conditioning', 'Кондиционер', hl()),
     f('space', 'wardrobe', 'Гардероб', 'numFrom', { fkey: 'wardrobe', unit: 'мест' }),
     ch('space', 'separate_restrooms', 'Раздельные туалеты'),
-    ch('space', 'separate_entrance', 'Отдельный вход'),
+    ch('space', 'separate_entrance', 'Отдельный вход', hl()),
     ch('space', 'external_furniture', 'Можно со своей мебелью'),
     ch('space', 'external_decor', 'Можно со своим декором'),
 
@@ -226,6 +229,15 @@
      из других полей и в features не попадают. */
   const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'menu', 'loyalty'];
   const FEATURE_CODES = VENUE_FILTERS.filter(x => x.control === 'check' && !DERIVED_CHECKS.includes(x.code)).map(x => x.code);
+  /* R3-D: оснащение и часть «Пространства» — свойства ЗАЛА (h.features), остальное — объекта (v.features).
+     «Есть план зала» — тоже свойство зала, но считается из h.plan. */
+  const HALL_FEATURE_CODES = FEATURE_CODES.filter(c => venueFilter(c).level === 'hall');
+  const VENUE_FEATURE_CODES = FEATURE_CODES.filter(c => venueFilter(c).level !== 'hall');
+  const isHallCheck = (code) => { const d = venueFilter(code); return !!(d && d.control === 'check' && d.level === 'hall'); };
+  /** Чекбоксы зала для визарда зала и карточек — по конфигу, в его порядке (без «Есть план зала»: он из файла плана). */
+  const hallCheckDefs = () => VENUE_FILTERS.filter(d => d.control === 'check' && d.level === 'hall' && !DERIVED_CHECKS.includes(d.code));
+  /** Чекбоксы «+ Оснащение» в блоке «Зал N» — все свойства зала, включая план. */
+  const hallReqDefs = () => VENUE_FILTERS.filter(d => d.control === 'check' && d.level === 'hall');
   const featureLabel = (code, short) => { const x = venueFilter(code); return x ? (short && x.card) || x.label : code; };
 
   /** Виден ли фильтр при текущем выборе: тип мероприятия (events) и родитель (dependsOn). */
@@ -459,6 +471,8 @@
           { theatre: 160, class: 90, ushape: 45, banquet: 120, reception: 200, cabaret: 80 }, 28000, 5000, true, 2),
         H(103, 1, 'Переговорная «Сити»', 'Переговорная', 48, 3.2,
           { ushape: 16, board: 20 }, 0, 2500, false, 3),
+        H(104, 1, 'Переговорная «Арбат»', 'Переговорная', 36, 3.0,
+          { ushape: 12, board: 14 }, 0, 2000, false, 6),
       ],
     }),
     V(2, 'Лофт «Кирпич»', 'Лофт', 'Москва', 'Нижняя Сыромятническая, 10', {
@@ -695,6 +709,62 @@
 
   const MENU_SAMPLE = { name: 'menu-sample.pdf', url: '../assets/menus/menu-sample.pdf' };
 
+  /* ── R3-D: оснащение — у зала ──
+     До R3-D оснащение лежало у объекта. Теперь коды уровня 'hall' переезжают в h.features:
+     у залов «Авроры» — вручную (сценарий клиента: трансформер с LED и две переговорные без LED),
+     у остальных — раскладкой по типу зала из того, что было у объекта. */
+  const HALL_EQUIP = {
+    101: 'sound light screen projector stage power rigging car_entry column_free blackout air_conditioning',
+    102: 'sound light led_screen screen column_free blackout windows air_conditioning separate_entrance',
+    103: 'plasma_panel windows air_conditioning',
+    104: 'screen windows air_conditioning',
+  };
+  /* Что правдоподобно для зала каждого вида: переговорные — экран или плазма без сцены и подвеса,
+     открытые площадки — без затемнения, окон и кондиционера. */
+  const HALL_KIT = {
+    big: 'sound light screen led_screen projector plasma_panel stage power rigging car_entry equipment_load_in column_free blackout windows air_conditioning separate_entrance',
+    conf: 'sound screen projector plasma_panel led_screen power equipment_load_in column_free blackout windows air_conditioning',
+    meet: 'screen plasma_panel projector windows air_conditioning',
+    banq: 'sound light led_screen screen projector plasma_panel stage power car_entry equipment_load_in column_free blackout windows air_conditioning separate_entrance',
+    open: 'sound light led_screen stage power rigging car_entry equipment_load_in column_free separate_entrance',
+    foyer: 'sound screen plasma_panel power car_entry column_free windows air_conditioning separate_entrance',
+  };
+  function hallKind(h) {
+    if (h.type === 'Переговорная') return 'meet';
+    if (h.type === 'Открытая площадка') return 'open';
+    if (h.type === 'Фойе') return 'foyer';
+    if (h.type === 'Банкетный зал' || h.type === 'Ресторанный зал') return 'banq';
+    return (h.area || 0) >= 200 ? 'big' : 'conf';
+  }
+  const byConfigOrder = (list) => HALL_FEATURE_CODES.filter(c => list.includes(c));
+  /** Убрать коды зала из v.features и разложить их по залам (детерминированно, без Math.random). */
+  function spreadHallFeatures(v) {
+    const own = (v.features || []).filter(c => HALL_FEATURE_CODES.includes(c));
+    v.features = (v.features || []).filter(c => !HALL_FEATURE_CODES.includes(c));
+    const halls = v.halls || [];
+    if (!halls.length) return;
+    if (halls.every(h => HALL_EQUIP[h.id])) { halls.forEach(h => { h.features = byConfigOrder(HALL_EQUIP[h.id].split(' ')); }); return; }
+    const kit = halls.map(h => HALL_KIT[hallKind(h)].split(' '));
+    const cap = (h) => Math.max(0, ...Object.values(h.seats || {}));   // hallCapacity объявлена ниже — считаем на месте
+    const big = halls.map((h, i) => i).sort((a, b) => cap(halls[b]) - cap(halls[a]));
+    const got = halls.map(() => []);
+    own.forEach((c, ci) => {
+      const fit = big.filter(i => kit[i].includes(c));
+      if (!fit.length) return;   // свойство не подходит ни одному залу — например, затемнение у открытых площадок
+      fit.forEach((i, k) => { if (k === 0 || hash01(halls[i].id || i + 1, ci + 7) > 0.45) got[i].push(c); });
+    });
+    halls.forEach((h, i) => {
+      if (hallKind(h) === 'meet' && !got[i].some(c => c === 'screen' || c === 'plasma_panel'))
+        got[i].push(hash01(h.id || i + 1, 3) > 0.5 ? 'plasma_panel' : 'screen');
+    });
+    // оснащение залов одного объекта должно различаться: у одинаковых снимаем последнее свойство с меньшего зала
+    if (halls.length > 1 && got.every(g => byConfigOrder(g).join() === byConfigOrder(got[0]).join())) {
+      if (got[0].length) got[big[big.length - 1]].pop();
+      else got[big[0]].push('power');   // все залы пустые (шатёр и поляна) — у шатра хотя бы силовое подключение
+    }
+    halls.forEach((h, i) => { h.features = byConfigOrder(got[i]); });
+  }
+
   /* Свойства 15 объектов, которые были в базе до R3: добавки к их удобствам и новые поля. */
   const VENUE_EXTRA = {
     1: { add: 'led_screen projector internet accessible spa car_entry', cuisine: 'european russian', avgCheck: 3500, menu: 1, confPackage: 4500, wardrobe: 300, parking: 'private', parkingSpaces: 80, dressingRooms: 2, roomsTotal: 92 },
@@ -909,6 +979,7 @@
     }
     if (!v.rooms.total) v.rooms.total = (v.rooms.twin || 0) + (v.rooms.sngl || 0);
     ['cuisine'].forEach(k => { if (!Array.isArray(v[k])) v[k] = []; });
+    spreadHallFeatures(v);
   });
   const roundUp = (n, step) => Math.ceil(Math.max(n, step) / step) * step;
   /* Верхние границы ползунков — по базе, с округлением. */
@@ -1196,7 +1267,7 @@
     filters: unpackFilters(read(K.filters, null)),
     /* R3-B, строка 109: у демо-кабинета площадки сразу есть опубликованный объект — его можно открыть
        через «Редактировать» и дополнить через «Добавить зал». */
-    myVenues: (read(K.myVenues, null) || [seedOwnVenue()]).map(v => Array.isArray(v.features) ? Object.assign({}, v, { features: migrateFeatures(v.features, v) }) : v),
+    myVenues: (read(K.myVenues, null) || [seedOwnVenue()]).map(v => Array.isArray(v.features) ? migrateMyVenueHalls(Object.assign({}, v, { features: migrateFeatures(v.features, v) })) : v),
     /* R3-B, строка 124: обращения в поддержку и арбитраж — по ролям кабинета. */
     appeals: read(K.appeals, null) || appealSeed(),
     shopItems: read(K.shopItems, []),
@@ -1313,19 +1384,26 @@
     return p.length ? Math.min(...p) : 0;
   };
 
+  /** Есть ли у зала свойство уровня 'hall' (R3-D). План зала считается из h.plan. */
+  function hallHas(h, code) {
+    if (code === 'has_floor_plan') return !!h.plan;
+    return (h.features || []).includes(code);
+  }
+
   /**
    * Можно ли закрыть все требования РАЗНЫМИ залами объекта.
+   * Требование — схема + вместимость от + оснащение (r.feats, R3-D): зал закрывает его,
+   * если подходит по схеме и вместимости И у него есть все свойства требования.
    * Требований и залов единицы, поэтому обычный перебор с возвратом:
    * жадный выбор здесь ошибается, если два требования претендуют на один зал.
    */
   function hallsSatisfy(halls, reqs) {
     if (!reqs || !reqs.length) return { ok: true, used: [] };
-    const fits = (h, r) => {
-      const need = +r.min || 0;
-      if (!r.seating) return hallCapacity(h) >= need;
-      return (h.seats[r.seating] || 0) >= need;
-    };
-    const cand = reqs.map(r => halls.map((h, i) => i).filter(i => fits(halls[i], r)));
+    const room = (h, r) => r.seating ? (h.seats[r.seating] || 0) : hallCapacity(h);
+    const fits = (h, r) => room(h, r) >= (+r.min || 0) && (r.feats || []).every(c => hallHas(h, c));
+    // кандидаты — от самого тесного зала: под «переговоры от 10» сначала пробуем переговорную, а не большой зал
+    const cand = reqs.map(r => halls.map((h, i) => i).filter(i => fits(halls[i], r))
+      .sort((a, b) => room(halls[a], r) - room(halls[b], r)));
     if (cand.some(c => !c.length)) return { ok: false, used: [] };
     // сначала самые узкие требования — меньше ветвлений
     const order = reqs.map((_, i) => i).sort((a, b) => cand[a].length - cand[b].length);
@@ -1357,7 +1435,8 @@
       /* Требования к залам. Каждый элемент — ОТДЕЛЬНЫЙ зал объекта:
          {seating:'theatre', min:250} плюс {seating:'banquet', min:120}
          найдёт объект, где есть И зал-театр на 250, И другой зал-банкет
-         на 120. Пустой seating означает любую схему. */
+         на 120. Пустой seating означает любую схему. feats — оснащение
+         этого зала («+ Оснащение», R3-D). */
       halls: [],
       hallArea: 0, dressing: 0,
       priceMode: 'day',                // переключатель «За день / За час»
@@ -1367,13 +1446,48 @@
   }
   const rangeOn = (F, k) => !!(F[k] && (F[k][0] > 0 || F[k][1] < LIMITS[k]));
 
-  /** Есть ли у объекта чекбокс-свойство (has_floor_plan — свойство залов, считается отдельно). */
+  /** Есть ли у объекта чекбокс-свойство. Свойство зала — если оно есть хотя бы у одного зала. */
   function venueHas(v, code) {
     if (code === 'has_accommodation') return venueRooms(v) > 0;
     if (code === 'menu') return !!v.menu;
     if (code === 'loyalty') return !!v.loyaltyContract;
-    if (code === 'has_floor_plan') return v.halls.some(h => h.plan);
+    if (isHallCheck(code)) return v.halls.some(h => hallHas(h, code));
     return (v.features || []).includes(code);
+  }
+
+  /* ── R3-D: оснащение в требованиях к залам ──
+     Пока блоков «Зал N» нет, свойства зала отмечаются общими чекбоксами панели. Как только
+     добавлен первый блок, общие чекбоксы неактивны, а отмеченные переносятся в «Зал 1».
+     Правила «хотя бы один из подобранных залов» нет: оснащение задаётся в каждом зале. */
+  const hallReqOn = (r) => !!(r && (r.seating || +r.min > 0 || (r.feats || []).length));
+  /** Добавить блок «Зал N»; первый блок забирает отмеченные общие свойства зала. */
+  function hallReqAdd(F) {
+    F.halls = F.halls || [];
+    const r = { seating: '', min: 0, feats: [] };
+    if (!F.halls.length) [...F.feats].filter(isHallCheck).forEach(c => { F.feats.delete(c); r.feats.push(c); });
+    F.halls.push(r);
+    return r;
+  }
+  /** Убрать блок; после последнего общие свойства зала снова доступны (пустые). */
+  function hallReqRemove(F, i) { (F.halls || []).splice(i, 1); }
+  function hallReqToggle(F, i, code) {
+    const r = (F.halls || [])[i]; if (!r || !isHallCheck(code)) return;
+    const on = new Set(r.feats || []);
+    on.has(code) ? on.delete(code) : on.add(code);
+    r.feats = VENUE_FILTERS.filter(d => on.has(d.code)).map(d => d.code);   // порядок — как в конфиге
+  }
+  /** Требования для подбора. Общие свойства зала при блоках относятся к «Залу 1» —
+      так же, как их переносит hallReqAdd (на случай состояния, собранного в обход панели). */
+  function effectiveReqs(F) {
+    const list = (F.halls || []).map(r => ({ seating: r.seating || '', min: +r.min || 0, feats: (r.feats || []).slice() }));
+    if (list.length) [...(F.feats || [])].filter(isHallCheck).forEach(c => { if (!list[0].feats.includes(c)) list[0].feats.push(c); });
+    return list.filter(hallReqOn);
+  }
+  /** «Зал 1: банкет от 120 · LED-экран» — чип над выдачей и сводка выборки. */
+  function hallReqLabel(r, i) {
+    const s = seatingByKey(r.seating);
+    return `Зал ${i + 1}: ${s ? s.l.toLowerCase() : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`
+      + (r.feats || []).map(c => ' · ' + featureLabel(c)).join('');
   }
   const eventOk = (v, et) => !et || (et === 'combined' ? v.eventTypes.length > 1 : v.eventTypes.includes(et));
 
@@ -1385,8 +1499,11 @@
    */
   function filterVenues(F, exclude) {
     const out = [];
-    const feats = [...(F.feats || [])].filter(c => c !== 'has_floor_plan');
-    const planOnly = F.feats && F.feats.has('has_floor_plan');
+    const all = [...(F.feats || [])];
+    const feats = all.filter(c => !isHallCheck(c));                 // свойства объекта
+    const reqs = effectiveReqs(F);
+    // свойства зала без блоков «Зал N»: объект проходит, если хотя бы один зал пула имеет их все
+    const hallFeats = (F.halls || []).length ? [] : all.filter(isHallCheck);
     const mode = F.priceMode || 'day';
     const dayOn = mode === 'day' && rangeOn(F, 'priceDay'), hourOn = mode === 'hour' && rangeOn(F, 'priceHour');
     for (const v of VENUES) {
@@ -1420,12 +1537,11 @@
           if (!agree && !(h.priceHour > 0 && h.priceHour >= F.priceHour[0] && h.priceHour <= F.priceHour[1])) return false;
         }
         if (F.hallArea && (h.area || 0) < F.hallArea) return false;
-        if (planOnly && !h.plan) return false;
+        if (!hallFeats.every(c => hallHas(h, c))) return false;
         return true;
       });
       if (!pool.length) continue;
 
-      const reqs = (F.halls || []).filter(r => r.seating || +r.min > 0);
       const m = hallsSatisfy(pool, reqs);
       if (!m.ok) continue;
       // показываем те залы, что закрывают требования; без требований — весь пул
@@ -1448,7 +1564,13 @@
     const E = emptyFilters();
     for (const d of VENUE_FILTERS) {
       if (!d.control || venueFilterVisible(d, F)) continue;
-      if (d.control === 'check') { if (F.feats.has(d.code)) { F.feats.delete(d.code); dropped.push(d.code); } continue; }
+      if (d.control === 'check') {
+        let hit = false;
+        if (F.feats.has(d.code)) { F.feats.delete(d.code); hit = true; }
+        (F.halls || []).forEach(r => { const k = (r.feats || []).indexOf(d.code); if (k >= 0) { r.feats.splice(k, 1); hit = true; } });
+        if (hit) dropped.push(d.code);
+        continue;
+      }
       const k = d.fkey; if (!k) continue;
       const cur = JSON.stringify(F[k] instanceof Set ? [...F[k]] : F[k]);
       const def = JSON.stringify(E[k] instanceof Set ? [...E[k]] : E[k]);
@@ -1461,7 +1583,7 @@
   function filtersActive(F) {
     return !!(F.city || F.people || F.peopleTo || F.eventType || F.cats.size || F.stars.size || F.feats.size
       || (F.cuisine && F.cuisine.size) || F.rooms || F.twin || F.sngl || F.hallArea || F.dressing || F.avgCheck
-      || F.wardrobe || F.parking || F.parkingSpaces || (F.halls || []).some(r => r.seating || +r.min)
+      || F.wardrobe || F.parking || F.parkingSpaces || (F.halls || []).some(hallReqOn)
       || rangeOn(F, 'priceDay') || rangeOn(F, 'priceHour') || rangeOn(F, 'confPkg') || (F.priceMode || 'day') !== 'day');
   }
 
@@ -1485,8 +1607,13 @@
     if (code === 'stars') return filterVenues(F, 'stars').filter(x => starKey(x.venue) === +value).length;
     if (code === 'cuisine') return filterVenues(F, 'cuisine').filter(x => (x.venue.cuisine || []).includes(value)).length;
     if (code === 'parking') return filterVenues(F, 'parking').filter(x => !value || x.venue.parking === value).length;
+    /* Свойство зала: сколько объектов останется, если его отметить, — по той же логике подбора
+       (хотя бы один зал пула со всеми отмеченными свойствами). */
+    if (isHallCheck(code)) {
+      if (F.feats.has(code)) return filterVenues(F).length;
+      return filterVenues(Object.assign({}, F, { feats: new Set([...F.feats, code]) })).length;
+    }
     const base = filterVenues(F);
-    if (code === 'has_floor_plan') return base.filter(x => x.halls.some(h => h.plan)).length;
     return base.filter(x => venueHas(x.venue, code)).length;
   }
 
@@ -1845,7 +1972,8 @@
       if (!(k in raw)) continue;
       if (F[k] instanceof Set) F[k] = new Set(Array.isArray(raw[k]) ? raw[k] : []);
       else if (k === 'halls') F[k] = Array.isArray(raw[k])
-        ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0 }))
+        ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0,
+            feats: Array.isArray(x.feats) ? x.feats.filter(isHallCheck) : [] }))
         : [];
       else if (Array.isArray(F[k]) && Array.isArray(raw[k]) && raw[k].length === 2) F[k] = raw[k].map(Number);
       else if (typeof F[k] === typeof raw[k]) F[k] = raw[k];
@@ -1857,6 +1985,10 @@
     });
     if (dummy.parking && !F.parking) F.parking = dummy.parking;
     F.feats = new Set([...F.feats].filter(c => FEATURE_CODES.includes(c) || DERIVED_CHECKS.includes(c)));
+    // R3-D: при блоках «Зал N» общие свойства зала живут в «Зале 1»
+    if (F.halls.length) [...F.feats].filter(isHallCheck).forEach(c => {
+      F.feats.delete(c); if (!F.halls[0].feats.includes(c)) F.halls[0].feats.push(c);
+    });
     F.cats = new Set([...F.cats].map(c => CAT_RENAMES[c] || c).filter(c => VENUE_CATS.includes(c)));
     F.stars = new Set([...F.stars].map(Number).filter(n => STAR_OPTIONS.some(o => o.k === n)));
     F.cuisine = new Set([...F.cuisine].filter(c => CUISINE_OPTS.some(o => o.code === c)));
@@ -1915,9 +2047,9 @@
     if (F.twin) out.push('TWIN от ' + F.twin);
     if (F.sngl) out.push('SNGL от ' + F.sngl);
     (F.halls || []).forEach((r, i) => {
-      if (!r.seating && !+r.min) return;
-      const s = seatingByKey(r.seating);
-      out.push(`зал ${i + 1}: ${s ? s.l : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`);
+      if (!hallReqOn(r)) return;
+      const t = hallReqLabel(r, i);
+      out.push(t.charAt(0).toLowerCase() + t.slice(1));
     });
     if (F.hallArea) out.push('площадь зала от ' + F.hallArea + ' м²');
     if (F.dressing) out.push('гримёрок от ' + F.dressing);
@@ -1940,6 +2072,27 @@
 
   const MODERATION = { draft: 'черновик', review: 'на модерации', published: 'опубликован', rejected: 'отклонён' };
 
+  /** R3-D: у объекта кабинета, сохранённого до переезда оснащения, коды зала уходят в его залы.
+      Демо-«Аврора» берёт оснащение залов из каталога, остальные — раскладкой по типу зала. */
+  function migrateMyVenueHalls(v) {
+    const halls = v.halls || [];
+    if (!(v.features || []).some(c => HALL_FEATURE_CODES.includes(c)) && halls.every(h => Array.isArray(h.features))) return v;
+    const cat = v.catalogId ? VENUES.find(x => x.id === +v.catalogId) : null;
+    if (cat) {
+      v.features = v.features.filter(c => !HALL_FEATURE_CODES.includes(c));
+      halls.forEach(h => { const x = cat.halls.find(ch => ch.name === h.name); h.features = x ? x.features.slice() : (h.features || []); });
+      if (!halls.some(h => h.name === 'Переговорная «Арбат»') && v.localId === 'v-seed-1') {
+        const x = cat.halls.find(ch => ch.id === 104);
+        if (x) halls.push({ name: x.name, type: x.type, floor: '', area: x.area, height: x.height, seats: Object.assign({}, x.seats),
+          priceDay: x.priceDay, priceHour: x.priceHour, hourly: false, agree: !x.priceDay, plan: false, planFiles: [], photos: [], schemes: [], features: x.features.slice() });
+      }
+      v.halls = halls;
+      return v;
+    }
+    spreadHallFeatures(v);
+    return v;
+  }
+
   /** Демо-объект кабинета площадки: Отель «Аврора» из каталога, опубликован. */
   function seedOwnVenue() {
     const v = VENUES[0];
@@ -1951,7 +2104,7 @@
       menu: v.menu ? Object.assign({}, v.menu) : null, photos: ['aurora-facade.jpg', 'aurora-lobby.jpg', 'aurora-hall.jpg'], photoCount: 3,
       halls: v.halls.map(h => ({ name: h.name, type: h.type, floor: '', area: h.area, height: h.height, seats: Object.assign({}, h.seats),
         priceDay: h.priceDay, priceHour: h.priceHour, hourly: false, agree: !h.priceDay, plan: !!h.plan, planFiles: h.plan ? ['plan-' + h.id + '.pdf'] : [],
-        photos: [], schemes: [] })),
+        photos: [], schemes: [], features: (h.features || []).slice() })),
       contacts: { person: 'Ирина Котова', phone: '+7 495 120-45-67', mail: 'sales@aurora-hotel.ru', inn: '7703123456', bank: 'р/с 40702810900000012345 в АО «Банк»' },
       contracts: ['Договор размещения', 'Договор бонусной программы'], desc: '',
       status: 'published', createdAt: '01.06.2026',
@@ -1988,7 +2141,7 @@
       addr: d.addr || '', coords: d.coords || '',
       rooms: { total: +d.roomsTotal || twin + sngl, twin, sngl },
       eventTypes: (d.events || []).slice(),
-      features: migrateFeatures([].concat(d.feats || [], d.food || [], d.opts || [], d.other || [], d.sport || [])),
+      features: migrateFeatures([].concat(d.feats || [], d.food || [], d.opts || [], d.other || [], d.sport || [])).filter(c => !HALL_FEATURE_CODES.includes(c)),
       cuisine: (d.cuisine || []).slice(), avgCheck: +d.avgCheck || 0, wardrobe: +d.wardrobe || 0,
       parking: d.parking || '', parkingSpaces: d.parking === 'private' ? (+d.parkingSpaces || 0) : 0,
       confPackage: +d.confPackage || 0, dressingRooms: +d.dressingRooms || 0,
@@ -2003,6 +2156,7 @@
     return {
       name: h.name || 'Без названия', type: h.type || '', floor: h.floor || '', area: +h.area || 0, height: +h.height || 0,
       seats: h.seats || {}, priceDay: +h.priceDay || 0, priceHour: +h.priceHour || 0, hourly: !!h.hourly && !(+h.priceHour > 0),
+      features: byConfigOrder(h.feats || h.features || []),
       agree: Array.isArray(h.agree) ? h.agree.length > 0 : !!h.agree,
       plan: fileNames(h.plan).length > 0 || (h.plan === true), planFiles: fileNames(h.planFiles || h.plan),
       photos: fileNames(h.photos), schemes: fileNames(h.schemes),
@@ -2037,6 +2191,7 @@
       menu: v.menu ? Object.assign({}, v.menu) : null, photos: (v.photos || []).map(name => ({ name })),
       halls: (v.halls || []).map(h => Object.assign({}, h, {
         agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })), planFiles: undefined,
+        feats: (h.features || []).slice(), features: undefined,
         photos: (h.photos || []).map(name => ({ name })), schemes: (h.schemes || []).map(name => ({ name })),
       })),
       person: (v.contacts || {}).person || '', phone: (v.contacts || {}).phone || '', mail: (v.contacts || {}).mail || '',
@@ -2353,6 +2508,8 @@
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
     venueById, allHalls, hallById, hallVenue,
     hallCapacity, venueCapacity, venueMinPrice, venueRooms, seatingByKey, hallsSatisfy,
+    hallHas, isHallCheck, hallCheckDefs, hallReqDefs, HALL_FEATURE_CODES, VENUE_FEATURE_CODES,
+    hallReqOn, hallReqAdd, hallReqRemove, hallReqToggle, hallReqLabel, effectiveReqs,
     emptyFilters, filterVenues, facetCount,
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,
