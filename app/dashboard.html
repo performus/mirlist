@@ -1382,7 +1382,7 @@ function venueCfgFields() {
   const out = [];
   const groups = ['food', 'equip', 'space', 'infra', 'rules', 'sport'];
   for (const g of ML.VENUE_FILTER_GROUPS.filter(x => groups.includes(x.k))) {
-    out.push({ ty: 'cfghead', l: g.l });
+    out.push({ ty: 'cfghead', l: g.k === 'equip' ? 'Оснащение объекта' : g.l });   // R3-D: оснащение зала — в визарде зала
     if (g.k === 'food') out.push({ k: 'menu', l: 'Меню в PDF', ty: 'menu',
       hint: 'Меню увидят на карточке объекта — кнопка «Скачать меню (PDF)». По нему работает фильтр «Есть меню на сайте».' });
     /* R3-D: свойства зала (level 'hall') задаются в визарде зала — здесь только свойства объекта */
