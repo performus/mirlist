@@ -147,8 +147,11 @@ MH.init();
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+/* R4: ?demo=1 — пример презентации для лендинга агентств (три объекта двухдневной встречи),
+   без залов пользователя в сравнении. */
+const DEMO = new URLSearchParams(location.search).has('demo');
 function render(){
-  const halls = ML.compareHalls();
+  const halls = DEMO ? [101, 1601, 4701].map(ML.hallById).filter(Boolean) : ML.compareHalls();
   const t = ML.tariff();
   const root = document.getElementById('root');
 
