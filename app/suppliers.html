@@ -35,7 +35,7 @@ a{text-decoration:none;color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 
 @keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.page-wrap{animation:pageIn .5s ease both;}
+.page-wrap{animation:pageIn .5s ease backwards;}   /* backwards: после анимации transform не остаётся, иначе панель фильтров уходит под затемнение */
 
 /* ══════════════════════════════════════════════
    CONTROL BAR
@@ -278,7 +278,7 @@ button{font-family:inherit;cursor:pointer;}
   .fd-close{display:flex;}
   .fd-panel{
     position:fixed;top:0;left:0;bottom:0;
-    width:min(340px,88vw);border-radius:0;z-index:600;
+    width:min(340px,88vw);border-radius:0;z-index:700;
     transform:translateX(-100%);
     transition:transform .35s cubic-bezier(.22,1,.36,1);
     box-shadow:0 8px 40px rgba(53,78,99,.18);
@@ -286,7 +286,7 @@ button{font-family:inherit;cursor:pointer;}
   .fd-panel.open{transform:translateX(0);}
   .fd-body{max-height:calc(100vh - 62px);}
   .fd-backdrop{
-    position:fixed;inset:0;z-index:599;
+    position:fixed;inset:0;z-index:690;
     background:rgba(53,78,99,.35);backdrop-filter:blur(4px);
     opacity:0;pointer-events:none;transition:opacity .3s;
   }
@@ -297,6 +297,31 @@ button{font-family:inherit;cursor:pointer;}
   .res-count{font-size:18px;}
   .cb-title{font-size:18px;}
 }
+.fd-rgt { font-size:12px; font-weight:600; color:var(--slate-deep); margin:10px 0 6px; }
+.fd-rg .fd-rgt:first-child { margin-top:4px; }
+.fd-num { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 0; font-size:13px; color:var(--slate-mid); }
+.fd-num label { flex:1; min-width:0; }
+.fd-numin { display:inline-flex; align-items:center; gap:6px; flex:none; font-size:12px; color:var(--slate-muted); }
+.fd-numin input, .fd-rgin input, .fd-city input {
+  width:84px; padding:7px 10px; border-radius:var(--r-sm); border:1.5px solid rgba(197,227,225,.55);
+  background:var(--bg); font-family:inherit; font-size:13px; color:var(--slate); outline:none; text-align:right; transition:border-color .2s; }
+.fd-numin input:focus, .fd-rgin input:focus, .fd-city input:focus { border-color:var(--coral); background:var(--white); }
+.fd-rgin { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+.fd-rgin label { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--slate-muted); flex:1; min-width:0; }
+.fd-rgin label input { width:100%; min-width:0; }
+.fd-rgu { font-size:12px; color:var(--slate-muted); }
+.fd-dep { margin:2px 0 8px 0; padding:8px 12px 10px; border-left:2px solid var(--coral-soft, #F6DDD3); background:var(--aqua-pale); border-radius:0 var(--r-sm) var(--r-sm) 0; }
+.fd-dep .fd-rgt:first-child { margin-top:2px; }
+.fd-city { position:relative; padding:4px 0 6px; }
+.fd-city label { display:block; font-size:12px; font-weight:600; color:var(--slate-deep); margin-bottom:5px; }
+.fd-city input { width:100%; text-align:left; }
+.fd-ac { position:absolute; left:0; right:0; top:100%; z-index:15; list-style:none; margin:2px 0 0; padding:4px; background:var(--white);
+  border:1px solid rgba(197,227,225,.6); border-radius:var(--r-sm); box-shadow:var(--sh-md); max-height:240px; overflow-y:auto; }
+.fd-ac li { padding:7px 10px; border-radius:6px; font-size:13px; color:var(--slate-mid); cursor:pointer; }
+.fd-ac li:hover, .fd-ac li.on { background:var(--aqua-pale); color:var(--slate-deep); }
+.fd-ac li:first-child { font-weight:600; }
+.fd-reset:disabled { color:var(--slate-pale); cursor:not-allowed; }
+.tile-travel { display:inline-block; margin:6px 0 0;  font-size:11.5px; font-weight:600; color:var(--slate-mid); }
 </style>
 </head>
 <body>
@@ -326,11 +351,6 @@ button{font-family:inherit;cursor:pointer;}
         </button>
       </div>
       <div class="fd-body" id="fdBody"></div>
-      <div class="fd-note">
-        Групповой запрос отправляется <b>только внутри одной категории</b> — поставщиков
-        из разных разделов в один запрос собрать нельзя. Поэтому категории здесь деревом,
-        а не плоским списком.
-      </div>
     </aside>
 
     <div class="res-col">
@@ -340,9 +360,8 @@ button{font-family:inherit;cursor:pointer;}
       <div class="f-chips" id="fChips"></div>
       <div id="tiles"></div>
       <div class="res-note">
-        Счётчик у пункта категории — сколько поставщиков останется, если выбрать это условие.
-        Пункты с (0) отключаются. Категории считаются по «ИЛИ»: отмеченные подкатегории
-        складываются. Чекбокс раздела выбирает все его подкатегории разом.
+        Цифра у названия категории — счётчик, подсказывающий количество предложений в выдаче, соответствующих добавляемому условию.
+        Фильтры, возвращающие нулевой результат, отключаются.
       </div>
     </div>
 
@@ -350,6 +369,8 @@ button{font-family:inherit;cursor:pointer;}
 </div>
 
 <div class="fd-backdrop" id="fdBackdrop" onclick="toggleFilter()"></div>
+
+<div id="mh-footer"></div>
 
 <script src="data.js"></script>
 <script src="shared.js"></script>
@@ -375,7 +396,8 @@ const IC = {
 };
 
 /* ══════════════════════════════════════════════
-   ПАНЕЛЬ ФИЛЬТРОВ
+   ПАНЕЛЬ ФИЛЬТРОВ — из конфига ML.SUPPLIER_FILTERS (R3-A)
+   Зависимые фильтры появляются под родительским пунктом, только когда он выбран.
    ══════════════════════════════════════════════ */
 function fgroup(k, title, body, n) {
   return `<details class="fd-group" data-k="${k}" ${OPEN.has(k) ? 'open' : ''} ontoggle="OPEN[this.open?'add':'delete']('${k}')">
@@ -383,16 +405,87 @@ function fgroup(k, title, body, n) {
     <div class="fd-gbody">${body}</div>
   </details>`;
 }
+const SDEF = (code) => ML.SUPPLIER_FILTERS.find(d => d.code === code);
+const numClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : n; };
+function flagRow(key, label, kind) {
+  const n = ML.supplierFacet(F, 'flag', key);
+  const dead = n === 0 && !F[key];
+  return `<label class="fd-check${dead ? ' off' : ''}">
+    <input type="checkbox" ${F[key] ? 'checked' : ''} ${dead ? 'disabled' : ''} onchange="F['${key}']=this.checked;render()">
+    <span class="fd-box">${IC.check}</span><span class="fd-lbl">${esc(label)}</span><span class="fd-cnt">(${n})</span></label>`;
+}
+/* «2 поля + двойной ползунок» — стоимость услуги и цена на человека у кейтеринга. */
+function rangeBody(key, max, step, label) {
+  const [a, b] = F[key];
+  return `<div class="fd-rg" data-k="${key}" data-max="${max}">
+    ${label ? `<div class="fd-rgt">${esc(label)}</div>` : ''}
+    <div class="fd-rgin">
+      <label><span>от</span><input inputmode="numeric" placeholder="0" value="${a || ''}" aria-label="${esc(label || 'Стоимость')} от"
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${key}',${max},0,this.value)"></label>
+      <label><span>до</span><input inputmode="numeric" placeholder="${max.toLocaleString('ru')}" value="${b < max ? b : ''}" aria-label="${esc(label || 'Стоимость')} до"
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${key}',${max},1,this.value)"></label>
+      <span class="fd-rgu">₽</span>
+    </div>
+    <div class="fd-dual"><div class="fd-track"><div class="fd-rail"></div><div class="fd-fill"></div>
+      <input type="range" class="lo" min="0" max="${max}" step="${step}" value="${a}" aria-label="${esc(label || 'Стоимость')}: от, ползунок">
+      <input type="range" class="hi" min="0" max="${max}" step="${step}" value="${b}" aria-label="${esc(label || 'Стоимость')}: до, ползунок">
+    </div></div></div>`;
+}
+function rangeSet(key, max, end, raw) {
+  let [a, b] = F[key];
+  const v = Math.min(max, numClean(raw));
+  if (end === 0) a = v; else b = v || max;
+  if (a > b) [a, b] = [b, a];
+  F[key] = [a, b]; render();
+}
+function bindRanges() {
+  document.querySelectorAll('#fdBody .fd-rg').forEach(box => {
+    const key = box.dataset.k, mx = +box.dataset.max;
+    const lo = box.querySelector('input.lo'), hi = box.querySelector('input.hi'), fill = box.querySelector('.fd-fill');
+    const [fa, fb] = box.querySelectorAll('.fd-rgin input');
+    const upd = (commit) => {
+      let a = +lo.value, b = +hi.value;
+      if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
+      fill.style.left = (a / mx * 100) + '%'; fill.style.right = (100 - b / mx * 100) + '%';
+      fa.value = a || ''; fb.value = b >= mx ? '' : b;
+      if (commit) { F[key] = [a, b]; render(); }
+    };
+    lo.oninput = () => upd(false); hi.oninput = () => upd(false);
+    lo.onchange = () => upd(true); hi.onchange = () => upd(true);
+    upd(false);
+  });
+}
+/* Зависимые фильтры пункта или раздела дерева. */
+function depBox(defs) {
+  const vis = defs.map(SDEF).filter(d => d && d.control && ML.supplierFilterVisible(d, F));
+  if (!vis.length) return '';
+  return `<div class="fd-dep">${vis.map(d => {
+    if (d.control === 'range2') return rangeBody(d.fkey, F._maxPpp, 100, d.label + ', ₽');
+    if (d.control === 'check') return flagRow(d.fkey, d.label);
+    if (d.control === 'fromTo') return `<div class="fd-rgt">${esc(d.label)}</div><div class="fd-rgin">
+        <label><span>от</span><input inputmode="numeric" placeholder="—" value="${F.hours[0] || ''}" aria-label="${esc(d.label)} от"
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="F.hours=[numClean(this.value),F.hours[1]];render()"></label>
+        <label><span>до</span><input inputmode="numeric" placeholder="—" value="${F.hours[1] || ''}" aria-label="${esc(d.label)} до"
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="F.hours=[F.hours[0],numClean(this.value)];render()"></label>
+        <span class="fd-rgu">ч</span></div>`;
+    if (d.control === 'numTo') return `<div class="fd-num"><label for="fdDays">${esc(d.label)}, до</label>
+        <span class="fd-numin"><input id="fdDays" inputmode="numeric" placeholder="любой" value="${F.days || ''}"
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="F.days=numClean(this.value);render()"><span>${esc(d.unit)}</span></span></div>`;
+    return '';
+  }).join('')}</div>`;
+}
+const DEPS_LEAF = { 'Питание·Кейтеринг': ['catering.price_per_person', 'catering.halal_menu', 'catering.kosher_menu'],
+  'Аренда·Оборудование': ['rental.delivery', 'rental.installation', 'rental.operator_included'] };
+const DEPS_SECTION = { 'Фото и видео': ['media.hours', 'media.delivery_days_max'] };
 
 function renderFilters() {
   let tree = '';
-  for (const parent in ML.SUPPLIER_TREE) {
-    const kids = ML.SUPPLIER_TREE[parent];
+  for (const sec of ML.SUPPLIER_SECTIONS) {
+    const parent = sec.l, kids = sec.kids.map(k => k.l);
     const chosen = kids.filter(k2 => F.cats.has(parent + '·' + k2)).length;
     const all = chosen === kids.length && kids.length > 0;
     const some = chosen > 0 && !all;
     const pn = ML.supplierFacet(F, 'parent', parent);
-
     tree += `<label class="fd-check fd-parent${some ? ' half' : ''}">
       <input type="checkbox" ${all ? 'checked' : ''} onchange="togParent('${jt(parent)}',this.checked)">
       <span class="fd-box" style="position:relative">${IC.check}</span>
@@ -405,82 +498,73 @@ function renderFilters() {
         return `<label class="fd-check${dead ? ' off' : ''}">
           <input type="checkbox" ${on ? 'checked' : ''} ${dead ? 'disabled' : ''} onchange="togCat('${jt(kk)}')">
           <span class="fd-box">${IC.check}</span>
-          <span class="fd-lbl">${esc(k2)}</span><span class="fd-cnt">(${c})</span></label>`;
-      }).join('')}</div>`;
+          <span class="fd-lbl">${esc(k2)}</span><span class="fd-cnt">(${c})</span></label>${DEPS_LEAF[kk] ? depBox(DEPS_LEAF[kk]) : ''}`;
+      }).join('')}${DEPS_SECTION[parent] ? depBox(DEPS_SECTION[parent]) : ''}</div>`;
   }
+  const depN = (F.halal ? 1 : 0) + (F.kosher ? 1 : 0) + (F.delivery ? 1 : 0) + (F.installation ? 1 : 0) + (F.operator ? 1 : 0)
+    + ((F.ppp[0] > 0 || F.ppp[1] < F._maxPpp) ? 1 : 0) + ((F.hours[0] || F.hours[1]) ? 1 : 0) + (F.days ? 1 : 0);
 
-  const extraN = (F.video ? 1 : 0) + (F.reviews ? 1 : 0) + (F.loyalty ? 1 : 0);
-
-  /* География. Логика командировок целиком в ML.filterSuppliers:
-     здесь только кладём значения в F.city и F.travel. */
-  const travelN = ML.supplierFacet(F, 'flag', 'travel');
+  /* География: «Город» — автоподсказка, первая строка «Все города»; логика выезда — в ML.filterSuppliers. */
   const geo =
-    `<label class="fd-sel">
-       <span>Город</span>
-       <select onchange="F.city=this.value;render()">
-         <option value="">Любой город</option>
-         ${ML.CITIES.map(c => `<option value="${esc(c)}"${F.city === c ? ' selected' : ''}>${esc(c)}</option>`).join('')}
-       </select>
-     </label>
-     <label class="fd-check">
-       <input type="checkbox" ${F.travel ? 'checked' : ''} onchange="F.travel=this.checked;render()">
-       <span class="fd-box">${IC.check}</span>
-       <span class="fd-lbl">Готов к командировкам</span><span class="fd-cnt">(${travelN})</span>
-     </label>
+    `<div class="fd-city"><label for="sfCity">Город</label>
+       <input id="sfCity" type="text" role="combobox" autocomplete="off" placeholder="Любой город" value="${esc(F.city || '')}"
+         aria-autocomplete="list" aria-expanded="false" aria-controls="sfCityList">
+       <ul class="fd-ac" id="sfCityList" role="listbox" hidden></ul></div>
+     ${flagRow('travel', SDEF('travel').label)}
      ${F.city
        ? `<div class="fd-hint">${F.travel
-            ? 'Показываем поставщиков из города и тех, кто готов приехать.'
+            ? 'Показываем поставщиков из города и тех, кто выезжает в другие города.'
             : 'Только поставщики из выбранного города.'}</div>`
-       : (F.travel ? '<div class="fd-hint">Только те, кто готов выехать в другой город.</div>' : '')}`;
+       : (F.travel ? '<div class="fd-hint">Только те, кто выезжает в другие города.</div>' : '')}`;
+
+  const units = ML.PRICE_UNITS.filter(u => u.decision !== 'Удалить').map(u => {
+    const n = ML.supplierFacet(F, 'unit', u.code), on = F.units.has(u.code), dead = n === 0 && !on;
+    return `<label class="fd-check${dead ? ' off' : ''}"><input type="checkbox" ${on ? 'checked' : ''} ${dead ? 'disabled' : ''}
+        onchange="togUnit('${u.code}')"><span class="fd-box">${IC.check}</span><span class="fd-lbl">${esc(u.l)}</span><span class="fd-cnt">(${n})</span></label>`;
+  }).join('');
+  const price = rangeBody('price', MAX_PRICE, 2500, SDEF('price').label)
+    + `<div class="fd-rgt">${esc(SDEF('price_unit').label)}</div>${units}`
+    + `<div class="fd-num"><label for="sfExp">${esc(SDEF('experience').label)}</label>
+        <span class="fd-numin"><input id="sfExp" inputmode="numeric" placeholder="любой" value="${F.expMin || ''}"
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="F.expMin=Math.min(${MAX_EXP},numClean(this.value));render()"><span>лет</span></span></div>
+       <div class="fd-range"><input type="range" min="0" max="${MAX_EXP}" step="1" value="${F.expMin}" aria-label="Опыт от, ползунок"
+         oninput="document.getElementById('sfExp').value=(+this.value||'')" onchange="F.expMin=+this.value;render()"></div>`;
+  const media = ['video', 'reviews', 'loyalty'].map(k => flagRow(k, SDEF(k).label)).join('');
 
   document.getElementById('fdBody').innerHTML =
+    fgroup('cats', 'Услуги', tree, F.cats.size + depN) +
     fgroup('geo', 'География', geo, (F.city ? 1 : 0) + (F.travel ? 1 : 0)) +
-    fgroup('price', 'Стоимость услуги, ₽', dualPrice(), (F.price[0] > 0 || F.price[1] < MAX_PRICE) ? 1 : 0) +
-    fgroup('exp', 'Опыт, лет',
-      `<div class="fd-seatrow"><span>Не менее</span><span class="v" id="expVal">${F.expMin || '—'}</span></div>
-       <div class="fd-range"><input type="range" min="0" max="${MAX_EXP}" step="1" value="${F.expMin}"
-         oninput="document.getElementById('expVal').textContent=(+this.value||'—')"
-         onchange="F.expMin=+this.value;render()"></div>`, F.expMin ? 1 : 0) +
-    fgroup('extra', 'Дополнительно',
-      [['video','Есть видео'],['reviews','Есть отзывы'],['loyalty','Принимает баллы лояльности']]
-        .map(([k2, l]) => `<label class="fd-check">
-          <input type="checkbox" ${F[k2] ? 'checked' : ''} onchange="F['${k2}']=this.checked;render()">
-          <span class="fd-box">${IC.check}</span><span class="fd-lbl">${l}</span></label>`).join(''),
-      extraN) +
-    fgroup('cats', 'Категории услуг', tree, F.cats.size);
+    fgroup('price', 'Стоимость и опыт', price, ((F.price[0] > 0 || F.price[1] < MAX_PRICE) ? 1 : 0) + F.units.size + (F.expMin ? 1 : 0)) +
+    fgroup('media', 'Медиа и доверие', media, (F.video ? 1 : 0) + (F.reviews ? 1 : 0) + (F.loyalty ? 1 : 0));
 
-  bindDual();
+  bindRanges();
+  bindCity();
+  const rb = document.querySelector('.fd-reset');
+  if (rb) { const on = ML.supplierFiltersActive(F); rb.disabled = !on; rb.title = on ? '' : 'Фильтры не применены'; }
 }
 
-function dualPrice() {
-  const [a, b] = F.price;
-  return `<div class="fd-dual" id="priceDual" data-min="0" data-max="${MAX_PRICE}">
-    <div class="fd-vals"><span class="lo">${a.toLocaleString('ru')} ₽</span><span class="hi">${b.toLocaleString('ru')} ₽</span></div>
-    <div class="fd-track">
-      <div class="fd-rail"></div><div class="fd-fill"></div>
-      <input type="range" class="lo" min="0" max="${MAX_PRICE}" step="2500" value="${a}">
-      <input type="range" class="hi" min="0" max="${MAX_PRICE}" step="2500" value="${b}">
-    </div></div>`;
-}
-function bindDual() {
-  const d = document.getElementById('priceDual');
-  if (!d) return;
-  const lo = d.querySelector('input.lo'), hi = d.querySelector('input.hi');
-  const fill = d.querySelector('.fd-fill'), lv = d.querySelector('.fd-vals .lo'), hv = d.querySelector('.fd-vals .hi');
-  const mn = +d.dataset.min, mx = +d.dataset.max;
-  const upd = commit => {
-    let a = +lo.value, b = +hi.value;
-    if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
-    F.price = [a, b];
-    fill.style.left = ((a - mn) / (mx - mn) * 100) + '%';
-    fill.style.right = (100 - (b - mn) / (mx - mn) * 100) + '%';
-    lv.textContent = a.toLocaleString('ru') + ' ₽';
-    hv.textContent = b.toLocaleString('ru') + ' ₽';
-    if (commit) render();
+/* Город с автоподсказкой: первой строкой «Все города». */
+function bindCity() {
+  const inp = document.getElementById('sfCity'), ul = document.getElementById('sfCityList');
+  if (!inp) return;
+  let items = [], pick = -1;
+  const draw = () => {
+    const q = inp.value.trim().toLowerCase();
+    items = [ML.ALL_CITIES].concat(ML.CITIES.filter(c => !q || c.toLowerCase().startsWith(q) || q === ML.ALL_CITIES.toLowerCase()));
+    ul.innerHTML = items.map((c, i) => `<li role="option" data-i="${i}" class="${i === pick ? 'on' : ''}">${esc(c)}</li>`).join('');
+    ul.hidden = false; inp.setAttribute('aria-expanded', 'true');
   };
-  lo.oninput = () => upd(false); hi.oninput = () => upd(false);
-  lo.onchange = () => upd(true); hi.onchange = () => upd(true);
-  upd(false);
+  const close = () => { ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); pick = -1; };
+  const commit = (v) => { v = (v || '').trim(); F.city = (!v || v === ML.ALL_CITIES) ? '' : (ML.CITIES.find(c => c.toLowerCase() === v.toLowerCase()) || F.city); close(); render(); };
+  inp.onfocus = draw; inp.oninput = () => { pick = -1; draw(); };
+  inp.onkeydown = (e) => {
+    if (e.key === 'ArrowDown') { pick = Math.min(items.length - 1, pick + 1); draw(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { pick = Math.max(0, pick - 1); draw(); e.preventDefault(); }
+    else if (e.key === 'Enter') { commit(pick >= 0 ? items[pick] : inp.value); e.preventDefault(); }
+    else if (e.key === 'Escape') { close(); inp.value = F.city || ''; }
+  };
+  ul.onmousedown = (e) => { const li = e.target.closest('li'); if (li) { e.preventDefault(); commit(items[+li.dataset.i]); } };
+  inp.onblur = () => setTimeout(close, 120);
 }
 
 /* Чекбокс раздела выбирает/снимает все подкатегории разом. */
@@ -492,20 +576,28 @@ function togParent(parent, on) {
   render();
 }
 function togCat(kk) { F.cats.has(kk) ? F.cats.delete(kk) : F.cats.add(kk); render(); }
+function togUnit(u) { F.units.has(u) ? F.units.delete(u) : F.units.add(u); render(); }
 
 /* ══════════════════════════════════════════════
    ЧИПЫ
    ══════════════════════════════════════════════ */
 function renderChips() {
   const c = [];
+  const money = (n) => n.toLocaleString('ru');
   if (F.city) c.push([F.city, () => F.city = '']);
-  if (F.travel) c.push(['готов к командировкам', () => F.travel = false]);
+  if (F.travel) c.push(['выезд в другие города', () => F.travel = false]);
   if (F.price[0] > 0 || F.price[1] < MAX_PRICE)
-    c.push([`${F.price[0].toLocaleString('ru')}–${F.price[1].toLocaleString('ru')} ₽`, () => F.price = [0, MAX_PRICE]]);
+    c.push([`${money(F.price[0])}–${money(F.price[1])} ₽`, () => F.price = [0, MAX_PRICE]]);
+  F.units.forEach(u => c.push([(ML.PRICE_UNITS.find(x => x.code === u) || {}).l, () => F.units.delete(u)]));
   if (F.expMin) c.push([`опыт от ${F.expMin} ${ML.plural(F.expMin, ['года','лет','лет'])}`, () => F.expMin = 0]);
   if (F.video) c.push(['есть видео', () => F.video = false]);
   if (F.reviews) c.push(['есть отзывы', () => F.reviews = false]);
   if (F.loyalty) c.push(['принимает баллы', () => F.loyalty = false]);
+  if (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp) c.push([`${money(F.ppp[0])}–${money(F.ppp[1])} ₽ на человека`, () => F.ppp = [0, F._maxPpp]]);
+  [['halal', 'халяльное меню'], ['kosher', 'кошерное меню'], ['delivery', 'доставка'], ['installation', 'монтаж'], ['operator', 'оператор включён']]
+    .forEach(([k, l]) => { if (F[k]) c.push([l, () => F[k] = false]); });
+  if (F.hours[0] || F.hours[1]) c.push([`минимум часов: ${F.hours[0] || '—'}–${F.hours[1] || '—'}`, () => F.hours = [0, 0]]);
+  if (F.days) c.push([`готовность до ${F.days} ${ML.plural(F.days, ['дня', 'дней', 'дней'])}`, () => F.days = 0]);
   [...F.cats].forEach(kk => c.push([kk.split('·')[1], () => F.cats.delete(kk)]));
 
   window._chips = c;
@@ -518,6 +610,7 @@ function renderChips() {
    ВЫДАЧА
    ══════════════════════════════════════════════ */
 function tile(s) {
+  const has = ML.supplierHasReviews(s);
   return `<a class="tile" href="supplier.html?id=${s.id}">
     <div class="tile-img">
       <img src="${ML.photoUrl(s.photo)}" alt="" loading="lazy">
@@ -525,14 +618,13 @@ function tile(s) {
     </div>
     <div class="tile-body">
       <div class="tile-name">${esc(s.name)}</div>
-      <div class="tile-sub">${esc(s.city)}${
-        s.travel ? '<span class="tile-travel" title="Готов к командировкам">выезд</span>' : ''
-      } · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
-      <div class="tile-price">${MH.blurOnly('от ' + ML.money(s.price))}</div>
+      <div class="tile-sub">${esc(s.child)} · ${esc(s.city)} · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
+      ${s.travel ? '<div class="tile-travel">выезд в другие города</div>' : ''}
+      <div class="tile-price">${MH.blurOnly('от ' + ML.money(s.price) + (s.priceUnit ? ' ' + ML.priceUnitLabel(s.priceUnit) : ''))}</div>
       <div class="tile-badges">
         ${s.loyalty ? '<span class="tag solid">Баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
-        ${s.reviews ? '<span class="tag">Отзывы</span>' : ''}
+        ${has ? '<span class="tag">Отзывы</span>' : ''}
       </div>
     </div>
   </a>`;
@@ -541,6 +633,7 @@ function tile(s) {
 let currentList = [];
 
 function render() {
+  ML.pruneSupplierFilters(F);          // скрытые зависимые фильтры не сужают выдачу
   ML.saveSupplierFilters(F);           // любое изменение проходит через render()
   const list = ML.filterSuppliers(F, null);
   currentList = list;
@@ -585,7 +678,7 @@ function toggleFilter() {
 /* ── старт ── */
 (function init() {
   // ?cat=Артисты — предвыбор раздела из внешней ссылки
-  const p = new URLSearchParams(location.search).get('cat');
+  const p = ML.supRename(new URLSearchParams(location.search).get('cat') || '');
   if (p && ML.SUPPLIER_TREE[p]) ML.SUPPLIER_TREE[p].forEach(k2 => F.cats.add(p + '·' + k2));
   render();
 })();

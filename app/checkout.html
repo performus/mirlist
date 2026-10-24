@@ -90,11 +90,35 @@ h1{font-family:'Literata',Georgia,serif;font-size:32px;font-weight:600;color:var
 .cur-tar{display:inline-block;padding:4px 12px;border-radius:var(--r-full);
   background:var(--aqua-pale);color:var(--slate-mid);font-size:12px;font-weight:600;margin-top:12px;}
 
+/* реквизиты для счёта (R2 стр.15) */
+.inv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 14px;margin-top:6px;}
+.inv .full{grid-column:1/-1;}
+.fl{display:block;font-size:12.5px;font-weight:600;color:var(--slate-deep);margin-bottom:6px;}
+.fl small{font-weight:500;color:var(--slate-muted);}
+.in{width:100%;padding:11px 14px;border:1.5px solid rgba(197,227,225,.6);border-radius:var(--r-sm);
+  font-family:inherit;font-size:14px;color:var(--slate-deep);background:var(--white);transition:border-color .2s;}
+.in:focus{outline:none;border-color:var(--coral);}
+.in::placeholder{color:var(--slate-pale);}
+
+/* счёт выставлен */
+.done{max-width:620px;margin:8px auto 0;text-align:center;padding:36px 32px;}
+.done-ic{width:60px;height:60px;border-radius:50%;background:var(--aqua-pale);color:var(--slate-mid);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 6px;}
+.done-ic svg{width:28px;height:28px;}
+.done .sub b{color:var(--slate-deep);}
+.done-rows{text-align:left;margin:22px 0 4px;border-top:1px solid rgba(197,227,225,.3);}
+.done-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.done-btns .btn{flex:1 1 200px;width:auto;display:block;text-align:center;margin-top:8px;}
+
 @media(max-width:860px){
   .two{grid-template-columns:minmax(0,1fr);}
   .side{position:static;}
   h1{font-size:26px;}
   .wrap{padding:20px 16px 56px;}
+}
+@media(max-width:560px){
+  .inv{grid-template-columns:minmax(0,1fr);}
+  .done{padding:28px 20px;}
 }
 </style>
 </head>
@@ -125,6 +149,11 @@ const PERIODS = [
 let PLAN = 'biz';
 let PERIOD = 'month';
 let RENEW = true;
+/* Способ оплаты: картой или по счёту для юрлиц (R2 стр.15). Реквизиты держим
+   между перерисовками; e-mail подставляем из аккаунта. */
+let METHOD = 'card';
+const INV = { org:'', inn:'', kpp:'', addr:'', email:(MH.getSession() || {}).email || '' };
+let ISSUED = null;
 
 (function init(){
   const p = new URLSearchParams(location.search);
@@ -134,9 +163,17 @@ let RENEW = true;
 })();
 
 const periodOf = k => PERIODS.find(x => x.k === k);
+const INV_FIELDS = [
+  { k:'org',   l:'Название организации', ph:'ООО «Ромашка»', cls:'full' },
+  { k:'inn',   l:'ИНН', ph:'10 или 12 цифр', mode:'numeric', max:12 },
+  { k:'kpp',   l:'КПП', opt:true, ph:'9 цифр', mode:'numeric', max:9 },
+  { k:'addr',  l:'Юридический адрес', ph:'Индекс, город, улица, дом', cls:'full' },
+  { k:'email', l:'E-mail для счёта', ph:'buh@company.ru', type:'email', cls:'full' },
+];
 const discount = (t, p) => p.months === 1 ? 0 : Math.round((1 - p.total(t) / (t.price * p.months)) * 100);
 
 function render(){
+  if (ISSUED) return renderIssued();
   const t = ML.TARIFFS[PLAN];
   const p = periodOf(PERIOD);
   const total = p.total(t);
@@ -151,8 +188,8 @@ function render(){
       <div class="opt-b">
         <div class="opt-t">${esc(x.name)}</div>
         <div class="opt-s">${k==='biz'
-          ? `Все фильтры кроме рассадки и TWIN · ${x.compare} залов в сравнении · презентация с рекламным блоком · групповой запрос до ${x.groupRequest} объектов`
-          : `Все фильтры · ${x.compare} залов в сравнении · презентация без рекламы · групповой запрос без ограничения · блэк-лист · баллы ×${x.bonusRate.toLocaleString('ru')}`}</div>
+          ? `Все фильтры кроме фильтрации по схемам рассадки · ${x.compare} ${ML.plural(x.compare, ['объект', 'объекта', 'объектов'])} в сравнении · презентация с рекламным блоком · групповой запрос до ${x.groupRequest} объектов`
+          : `Все фильтры · ${x.compare} ${ML.plural(x.compare, ['объект', 'объекта', 'объектов'])} в сравнении · презентация без рекламы · групповой запрос без ограничения · блэк-лист · баллы ×${x.bonusRate.toLocaleString('ru')}`}</div>
       </div>
       <div class="opt-p">${ML.money(x.price)}<small>в месяц</small></div>
     </label>`;
@@ -173,11 +210,25 @@ function render(){
     </label>`;
   }).join('');
 
+  const methods = [
+    { k:'card',    t:'Картой', s:'Банковская карта — тариф включится сразу после оплаты.' },
+    { k:'invoice', t:'По счёту для юрлиц', s:'Счёт и закрывающие документы формируются после подтверждения заказа, картой платить не нужно.' },
+  ].map(x => `<label class="opt${METHOD===x.k?' on':''}">
+      <input type="radio" name="method" ${METHOD===x.k?'checked':''} onchange="setMethod('${x.k}')">
+      <div class="opt-b"><div class="opt-t">${x.t}</div><div class="opt-s">${x.s}</div></div>
+    </label>`).join('');
+  const invForm = METHOD !== 'invoice' ? '' : `<div class="inv">${INV_FIELDS.map(f => `
+      <div class="${f.cls||''}">
+        <label class="fl" for="inv-${f.k}">${f.l}${f.opt ? ' <small>— если есть</small>' : ''}</label>
+        <input class="in" id="inv-${f.k}" type="${f.type||'text'}" ${f.mode?`inputmode="${f.mode}"`:''} ${f.max?`maxlength="${f.max}"`:''}
+          placeholder="${esc(f.ph)}" value="${esc(INV[f.k])}" oninput="INV['${f.k}']=this.value">
+      </div>`).join('')}</div>`;
+
   document.getElementById('root').innerHTML = `
   <div class="crumbs"><a href="pricing.html">Тарифы</a><span class="sep">→</span><span class="cur">Оплата</span></div>
 
   <h1>Оформление подписки</h1>
-  <p class="sub">Подписку оплачивает тот, кто ищет площадки. Размещение объектов бесплатное.</p>
+  <p class="sub">Подписка требуется пользователям, ищущим залы и намеревающимся сравнивать их между собой. Добавление объектов и залов в каталог — бесплатно.</p>
   <span class="cur-tar">Сейчас подключён тариф «${esc(cur.name)}»</span>
 
   <div class="two">
@@ -199,6 +250,11 @@ function render(){
             Отключить можно в кабинете в любой момент.</span></span>
         </label>
       </div>
+      <div class="panel" id="pay-method">
+        <div class="lbl">Способ оплаты</div>
+        ${methods}
+        ${invForm}
+      </div>
     </div>
 
     <aside class="side">
@@ -215,7 +271,9 @@ function render(){
         <div class="total big"><span class="total-k">Итого</span>
           <span class="total-v" id="sum">${ML.money(total)}</span></div>
 
-        <button class="btn" onclick="pay()">Оплатить ${ML.money(total)}</button>
+        ${METHOD === 'invoice'
+          ? `<button class="btn" onclick="issueInvoice()">Выставить счёт</button>`
+          : `<button class="btn" onclick="pay()">Оплатить ${ML.money(total)}</button>`}
         <a class="btn o" style="display:block;text-align:center" href="pricing.html">Вернуться к тарифам</a>
 
         <div class="note">Юридическим лицам доступна <b>оплата по счёту</b>: счёт и закрывающие
@@ -228,6 +286,46 @@ function render(){
 function setPlan(k){ PLAN = k; render(); }
 function setPeriod(k){ PERIOD = k; render(); }
 function setRenew(v){ RENEW = v; render(); }
+function setMethod(k){ METHOD = k; render(); if (k === 'invoice') document.getElementById('inv-org').focus(); }
+
+/* Счёт для юрлица: проверяем реквизиты, выставляем счёт в модели. Тариф
+   включится, когда счёт оплатят (в демо — «Счёт оплачен» в сервисной панели). */
+function issueInvoice(){
+  const errs = ML.invoiceErrors(INV);
+  const ok = MH.requireFields(INV_FIELDS.map(f => {
+    const e = errs.find(x => x.field === f.k);
+    return { el: document.getElementById('inv-' + f.k), ok: !e, text: e ? e.text : '' };
+  }));
+  if (!ok) return;
+  ISSUED = ML.createInvoice(Object.assign({ plan: PLAN, period: PERIOD }, INV));
+  if (!ISSUED) { MH.toast('Не удалось выставить счёт — проверьте реквизиты', 'error'); return; }
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderIssued(){
+  const i = ISSUED, t = ML.TARIFFS[i.plan];
+  const row = (k, v) => `<div class="total"><span class="total-k">${k}</span><span class="total-v">${v}</span></div>`;
+  document.getElementById('root').innerHTML = `
+  <div class="crumbs"><a href="pricing.html">Тарифы</a><span class="sep">→</span><span class="cur">Оплата</span></div>
+  <div class="panel done">
+    <div class="done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 4h16v16H4z"/><path d="M4 8l8 5 8-5"/></svg></div>
+    <h1>Счёт выставлен</h1>
+    <p class="sub">Счёт отправлен на <b>${esc(i.email)}</b>. Тариф включится после поступления оплаты.</p>
+    <div class="done-rows">
+      ${row('Счёт', '№ ' + esc(i.no) + ' от ' + esc(i.date))}
+      ${row('Плательщик', esc(i.org))}
+      ${row('ИНН', esc(i.inn) + (i.kpp ? ' · КПП ' + esc(i.kpp) : ''))}
+      ${row('Тариф', '«' + esc(t.name) + '», ' + esc(ML.BILL_PERIODS[i.period].l))}
+      ${row('Сумма', ML.money(i.sum))}
+    </div>
+    <div class="done-btns">
+      <a class="btn" href="dashboard.html?role=user&page=billing">Перейти в «Подписку»</a>
+      <a class="btn o" href="pricing.html">Вернуться к тарифам</a>
+    </div>
+  </div>`;
+}
 
 /* Настоящего приёма платежей нет: меняем тариф в модели и показываем уведомление. */
 function pay(){

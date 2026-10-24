@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Согласие на обработку персональных данных — МАЙСЛИСТ</title>
+<meta name="description" content="Согласие на обработку персональных данных пользователей сайта micelist.ru: цели, перечень данных, срок действия и отзыв.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
+  --aq:#79B9C3;--aq-p:#EDF6F5;
+  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
+  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
+  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);
+  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
+.nav{height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
+.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}
+.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
+.nav-links a:hover{color:var(--s);background:var(--aq-p);}
+.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;}
+
+.hero{padding:56px 48px 44px;background:linear-gradient(175deg,var(--cs) 0%,var(--bg) 55%);}
+.hero-label{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rf);background:var(--w);border:1px solid rgba(235,116,84,.15);font-size:12.5px;font-weight:600;color:var(--c);margin-bottom:16px;}
+.hero h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(30px,3.5vw,46px);color:var(--sd);letter-spacing:-.005em;margin-bottom:10px;}
+.hero-meta{font-size:13.5px;color:var(--sx);}
+.hero-meta span{font-weight:600;color:var(--sm);}
+
+.layout{max-width:1060px;margin:0 auto;padding:48px 48px 96px;display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;}
+
+.toc{position:sticky;top:88px;}
+.toc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sp);margin-bottom:12px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+.toc-list a{display:block;font-size:13.5px;font-weight:500;color:var(--sx);padding:7px 12px;border-radius:var(--r);transition:all .2s;border-left:2px solid transparent;}
+.toc-list a:hover{color:var(--sd);background:var(--aq-p);}
+.toc-list a.active{color:var(--c);background:var(--cs);border-left-color:var(--c);}
+
+.content{min-width:0;}
+.section{margin-bottom:52px;scroll-margin-top:96px;}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--cs);color:var(--c);font-size:12px;font-weight:700;margin-bottom:12px;}
+.section h2{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);margin-bottom:16px;line-height:1.3;}
+.section p{font-size:15px;line-height:1.75;color:var(--sm);margin-bottom:12px;}
+.section p:last-child{margin-bottom:0;}
+
+.card{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:28px 32px;margin-bottom:16px;box-shadow:var(--sh);}
+.card-title{font-size:15px;font-weight:700;color:var(--sd);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card-title svg{color:var(--c);flex-shrink:0;}
+.card p{font-size:14px;line-height:1.7;color:var(--sx);margin-bottom:0;}
+
+.data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px;}
+.data-item{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rm);padding:18px 20px;}
+.data-item-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sp);margin-bottom:6px;}
+.data-item-text{font-size:13.5px;color:var(--sm);line-height:1.6;}
+
+.rights-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.rights-list li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;color:var(--sm);line-height:1.6;}
+.rights-list li::before{content:'';flex-shrink:0;width:20px;height:20px;border-radius:6px;background:var(--cs);background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' fill='none' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 6.5l2.5 2.5 5.5-6' stroke='%23EB7454' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;margin-top:1px;}
+
+.cookie-row{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(197,227,225,.2);}
+.cookie-row:last-child{border-bottom:none;}
+.cookie-name{font-size:13.5px;font-weight:700;color:var(--sd);min-width:120px;flex-shrink:0;}
+.cookie-desc{font-size:13.5px;color:var(--sx);line-height:1.6;}
+.cookie-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-bottom:4px;}
+.cookie-tag.required{background:var(--cs);color:var(--c);}
+.cookie-tag.optional{background:var(--aq-p);color:#5a9eaa;}
+
+.contact-card{background:linear-gradient(135deg,var(--sd),var(--sm));border-radius:var(--rl);padding:36px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.contact-card h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:22px;color:#fff;margin-bottom:8px;}
+.contact-card p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.6;}
+.contact-btn{padding:13px 28px;border-radius:var(--rm);background:var(--c);color:#fff;font-family:'Onest',system-ui,sans-serif;font-size:14.5px;font-weight:600;border:none;cursor:pointer;transition:all .25s;white-space:nowrap;}
+.contact-btn:hover{background:var(--c6);transform:translateY(-1px);}
+
+.footer{background:var(--sd);color:rgba(255,255,255,.5);padding:48px 48px 28px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;max-width:1060px;margin:0 auto 32px;}
+.footer-brand p{font-size:13px;line-height:1.7;margin-top:10px;color:rgba(255,255,255,.3);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.22);margin-bottom:12px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:7px;transition:color .2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1060px;margin:0 auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.18);}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;padding:32px 24px 64px;}
+  .toc{display:none;}
+  .hero{padding:40px 24px 32px;}
+  .data-grid{grid-template-columns:1fr;}
+  .contact-card{flex-direction:column;}
+}
+@media(max-width:600px){
+  .nav{padding:0 20px;}
+  .nav-links a:not(.nav-cta){display:none;}
+  .footer{padding:32px 20px 20px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:20px;}
+}
+
+/* Юридические документы: нумерованные пункты, определения, списки, текст чек-бокса */
+.section .pn{font-weight:700;color:var(--sd);font-variant-numeric:tabular-nums;}
+.section .dt{font-weight:700;color:var(--sd);}
+.doc-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:2px 0 14px;}
+.doc-list:last-child{margin-bottom:0;}
+.doc-list li{position:relative;padding-left:22px;font-size:15px;line-height:1.7;color:var(--sm);}
+.doc-list li::before{content:'';position:absolute;left:6px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--c);}
+.doc-check{display:flex;gap:12px;align-items:flex-start;background:var(--w);border:1px solid rgba(197,227,225,.35);border-radius:var(--rm);padding:16px 18px;font-size:14.5px;line-height:1.65;color:var(--sm);box-shadow:var(--sh);}
+.doc-box{flex-shrink:0;width:18px;height:18px;margin-top:3px;border:1.5px solid var(--sp);border-radius:5px;background:var(--w);}
+.section a{color:var(--c);font-weight:600;}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<div class="hero">
+  <div style="max-width:1060px;margin:0 auto;">
+    <div class="hero-label">📄 Документы</div>
+    <h1>Согласие на обработку персональных данных</h1>
+    <p class="hero-meta">Сайт micelist.ru &nbsp;·&nbsp; ООО «МАЙСЛИСТ»</p>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <p class="toc-title">Содержание</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="active">1. Субъект персональных данных</a></li>
+      <li><a href="#s2">2. Оператор персональных данных</a></li>
+      <li><a href="#s3">3. Цели обработки персональных данных</a></li>
+      <li><a href="#s4">4. Перечень персональных данных</a></li>
+      <li><a href="#s5">5. Действия и способы обработки</a></li>
+      <li><a href="#s6">6. Срок действия и отзыв Согласия</a></li>
+      <li><a href="#s7">7. Порядок предоставления Согласия</a></li>
+      <li><a href="#s8">8. Текст чек-бокса</a></li>
+      <li><a href="#s9">9. Сведения о фиксации Согласия</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <div class="content">
+
+    <div class="section" id="s1">
+      <div class="section-num">1</div>
+      <h2>Субъект персональных данных</h2>
+      <p>Субъектом персональных данных является физическое лицо, заполняющее и направляющее Оператору размещённую на сайте micelist.ru форму заявки, в том числе действующее от собственного имени либо как представитель юридического лица или индивидуального предпринимателя (далее — «Пользователь»; сайт micelist.ru далее — «Сайт»).</p>
+    </div>
+
+    <div class="section" id="s2">
+      <div class="section-num">2</div>
+      <h2>Оператор персональных данных</h2>
+      <p>Пользователь свободно, своей волей и в своём интересе даёт согласие Обществу с ограниченной ответственностью «МАЙСЛИСТ» (ООО «МАЙСЛИСТ»), ОГРН 1267700194475, ИНН 9709135484, КПП 770901001, адрес: 105064, Россия, г. Москва, ул. Казакова, д. 8, стр. 2, помещ. 1Н/3 (далее — «Оператор»), на обработку своих персональных данных на условиях настоящего Согласия.</p>
+    </div>
+
+    <div class="section" id="s3">
+      <div class="section-num">3</div>
+      <h2>Цели обработки персональных данных</h2>
+      <p>Персональные данные обрабатываются в следующих целях:</p>
+      <ul class="doc-list">
+        <li>приём, регистрация и рассмотрение заявки или обращения Пользователя, направленного через Сайт;</li>
+        <li>связь с Пользователем по предмету заявки или обращения, включая подтверждение его получения, уточнение сведений и направление ответа;</li>
+        <li>подготовка предложения, проведение переговоров и совершение по инициативе Пользователя действий, предшествующих возможному заключению договора с Пользователем либо представляемым им юридическим лицом или индивидуальным предпринимателем;</li>
+        <li>подтверждение факта предоставления настоящего Согласия, рассмотрение обращений Пользователя и разрешение возможных разногласий, связанных с направленной заявкой или обращением.</li>
+      </ul>
+      <p>Настоящее Согласие не распространяется на направление рекламных сообщений. Рекламные сообщения могут направляться только на основании отдельного предварительного согласия Пользователя в случаях, предусмотренных законодательством Российской Федерации.</p>
+    </div>
+
+    <div class="section" id="s4">
+      <div class="section-num">4</div>
+      <h2>Перечень персональных данных</h2>
+      <p>В зависимости от состава полей конкретной формы заявки Оператор вправе обрабатывать следующие персональные данные Пользователя:</p>
+      <ul class="doc-list">
+        <li>фамилия, имя, отчество (при наличии) — если соответствующее поле предусмотрено формой заявки;</li>
+        <li>номер телефона;</li>
+        <li>адрес электронной почты;</li>
+        <li>наименование представляемой организации и должность Пользователя — если соответствующие поля предусмотрены формой заявки;</li>
+        <li>текст заявки или обращения, добровольно указанный Пользователем и относящийся к предмету заявки или обращения;</li>
+        <li>технические сведения, фиксируемые при предоставлении Согласия: дата и время, IP-адрес, адрес страницы Сайта, идентификатор формы, сведения о проставлении чек-бокса и редакция Согласия.</li>
+      </ul>
+      <p>Пользователь не должен указывать в Форме заявки специальные категории персональных данных, биометрические персональные данные, а также персональные данные третьих лиц при отсутствии законного основания для их передачи Оператору.</p>
+    </div>
+
+    <div class="section" id="s5">
+      <div class="section-num">5</div>
+      <h2>Действия и способы обработки</h2>
+      <p>Оператор вправе совершать с персональными данными следующие действия (операции):</p>
+      <ul class="doc-list">
+        <li>сбор, запись, систематизацию, накопление и хранение;</li>
+        <li>уточнение (обновление, изменение), извлечение и использование;</li>
+        <li>предоставление и доступ лицам, обрабатывающим персональные данные по поручению Оператора, в объёме, необходимом для обеспечения работы Сайта, приёма и рассмотрения заявок, при условии соблюдения требований законодательства Российской Федерации;</li>
+        <li>блокирование, удаление и уничтожение.</li>
+      </ul>
+      <p>Обработка персональных данных осуществляется с использованием средств автоматизации и без их использования (смешанная обработка), включая передачу по внутренней сети Оператора и по сети Интернет.</p>
+      <p>Оператор не осуществляет распространение персональных данных Пользователя и не размещает их в открытом доступе на основании настоящего Согласия.</p>
+    </div>
+
+    <div class="section" id="s6">
+      <div class="section-num">6</div>
+      <h2>Срок действия и отзыв Согласия</h2>
+      <p>Настоящее Согласие действует со дня его предоставления до достижения указанных в разделе 3 целей обработки, но не более трёх лет, если более длительная обработка не требуется в соответствии с законодательством Российской Федерации или договором, стороной, выгодоприобретателем либо поручителем по которому является Пользователь.</p>
+      <p>Пользователь вправе в любое время отозвать настоящее Согласие или потребовать прекращения обработки персональных данных, направив Оператору заявление на адрес электронной почты info@micelist.ru с темой «Отзыв согласия на обработку персональных данных» либо по почтовому адресу Оператора, указанному в разделе 2 настоящего Согласия. Заявление должно позволять идентифицировать заявителя и определить, в отношении каких персональных данных заявлено требование.</p>
+      <p>После получения отзыва Оператор прекращает обработку персональных данных и, если их сохранение более не требуется для целей обработки, уничтожает персональные данные или обеспечивает их уничтожение в сроки, установленные законодательством Российской Федерации. Оператор вправе продолжить обработку без согласия Пользователя при наличии иного законного основания.</p>
+    </div>
+
+    <div class="section" id="s7">
+      <div class="section-num">7</div>
+      <h2>Порядок предоставления Согласия</h2>
+      <p>Настоящее Согласие предоставляется отдельно от Пользовательского соглашения, Политики конфиденциальности и иных документов путём проставления Пользователем незаполненной заранее отметки (чек-бокса) рядом с текстом согласия и последующего нажатия кнопки «Отправить» в Форме заявки.</p>
+      <p>Проставляя отметку (чек-бокс), Пользователь подтверждает, что ознакомился с настоящим Согласием и Политикой в области обработки и защиты персональных данных и использования куки-файлов, понимает их содержание и предоставляет Согласие свободно, своей волей и в своём интересе.</p>
+      <p>Оператор вправе фиксировать факт предоставления Согласия, включая дату и время его предоставления, IP-адрес, адрес страницы Сайта, сведения о совершённом действии, редакцию Согласия и иные технические данные, необходимые для подтверждения получения Согласия.</p>
+    </div>
+
+    <div class="section" id="s8">
+      <div class="section-num">8</div>
+      <h2>Текст чек-бокса</h2>
+      <div class="doc-check"><span class="doc-box" aria-hidden="true"></span><span>Я даю ООО «МАЙСЛИСТ» согласие на обработку моих персональных данных на условиях Согласия на обработку персональных данных.</span></div>
+    </div>
+
+    <div class="section" id="s9">
+      <div class="section-num">9</div>
+      <h2>Сведения о фиксации Согласия</h2>
+      <div class="data-grid">
+        <div class="data-item"><div class="data-item-label">Идентификационный номер (ID) Согласия</div><div class="data-item-text">формируется автоматически.</div></div>
+        <div class="data-item"><div class="data-item-label">Дата и время предоставления</div><div class="data-item-text">фиксируются автоматически.</div></div>
+        <div class="data-item"><div class="data-item-label">IP-адрес и адрес страницы Сайта</div><div class="data-item-text">фиксируются автоматически.</div></div>
+        <div class="data-item"><div class="data-item-label">Редакция Согласия</div><div class="data-item-text">фиксируется автоматически.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="mh-footer"></div>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('.section[id]');
+
+  function onScroll(){
+    var scrollY = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s){
+      if(s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function(l){
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  links.forEach(function(l){
+    l.addEventListener('click', function(e){
+      e.preventDefault();
+      var target = document.querySelector(l.getAttribute('href'));
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+})();
+</script>
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>MH.init();</script>
+</body>
+</html>

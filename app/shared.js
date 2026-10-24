@@ -6,6 +6,7 @@ const MH = (() => {
   const DEMO = true;
 
   const KEY = 'mh_session';
+  const esc = (x) => String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const FAV_KEY = 'mh_favs';
 
   function getFavs() {
@@ -31,6 +32,109 @@ const MH = (() => {
     // выход из аккаунта возвращает гостевой уровень доступа
     if (typeof ML !== 'undefined' && ML.setTariff) ML.setTariff('guest');
   }
+  /** Роль текущей сессии. Старые сессии без роли — пользователь. */
+  function sessionRole() {
+    const s = getSession();
+    return s && ROLE_NAMES[s.role] ? s.role : 'user';
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     АККАУНТЫ ПО РОЛЯМ
+
+     Пользователь, площадка и поставщик — отдельные аккаунты. Ключ аккаунта —
+     пара «роль + почта»: одна почта может быть в нескольких ролях, и у каждой
+     свой пароль. В прототипе аккаунты лежат в localStorage; пароли хранятся
+     открытым текстом только потому, что это демо без сервера.
+     ══════════════════════════════════════════════════════════════════ */
+  const ACC_KEY = 'mh_accounts';
+  const ROLE_NAMES = { user: 'Пользователь', venue: 'Площадка', supplier: 'Поставщик' };
+  /* Демо-аккаунты: одна почта во всех трёх ролях, пароли разные. */
+  const DEMO_ACCOUNTS = [
+    { role: 'user',     email: 'demo@micelist.ru', pass: 'user1234',  name: 'Анна Козлова' },
+    { role: 'venue',    email: 'demo@micelist.ru', pass: 'venue1234', name: 'Отель «Аврора»' },
+    { role: 'supplier', email: 'demo@micelist.ru', pass: 'supp1234',  name: 'Артём Соколов' },
+  ];
+  const normMail = (m) => String(m || '').trim().toLowerCase();
+  function accounts() {
+    let list = null;
+    try { list = JSON.parse(localStorage.getItem(ACC_KEY)); } catch (e) { list = null; }
+    if (!Array.isArray(list)) {
+      list = DEMO_ACCOUNTS.map(a => ({ ...a }));
+      try { localStorage.setItem(ACC_KEY, JSON.stringify(list)); } catch (e) { /* приватный режим */ }
+    }
+    return list;
+  }
+  function saveAccounts(list) { try { localStorage.setItem(ACC_KEY, JSON.stringify(list)); } catch (e) { /* приватный режим */ } }
+  function findAccount(role, email) { return accounts().find(a => a.role === role && a.email === normMail(email)) || null; }
+  function initialsOf(name) {
+    const p = String(name || '').trim().split(/\s+/).map(w => w.replace(/^[^A-Za-zА-Яа-яЁё]+/, '')).filter(Boolean);
+    return (((p[0] || '')[0] || '') + ((p[1] || '')[0] || '')).toUpperCase() || 'МЛ';
+  }
+  function sessionFor(acc) {
+    return { name: acc.name, initials: initialsOf(acc.name), role: acc.role, email: acc.email,
+      phone: acc.phone || '', org: acc.org || '', premium: false };
+  }
+  /** @returns {{ok:boolean, error?:string, account?:object}} */
+  function register(role, email, pass, profile) {
+    if (!ROLE_NAMES[role]) return { ok: false, error: 'Неизвестная роль' };
+    if (findAccount(role, email)) {
+      return { ok: false, error: `Эта почта уже зарегистрирована в роли «${ROLE_NAMES[role]}». Войдите или восстановите пароль.` };
+    }
+    const acc = { role, email: normMail(email), pass, ...(profile || {}) };
+    const list = accounts(); list.push(acc); saveAccounts(list);
+    return { ok: true, account: acc };
+  }
+  function login(role, email, pass) {
+    const acc = findAccount(role, email);
+    if (!acc) return { ok: false, error: `Аккаунт с этой почтой в роли «${ROLE_NAMES[role]}» не найден. Проверьте роль или зарегистрируйтесь.` };
+    if (acc.pass !== pass) return { ok: false, error: 'Неверный пароль для этой роли' };
+    return { ok: true, account: acc };
+  }
+  /** Новый пароль ставится только аккаунту выбранной роли — у других ролей той же почты он прежний. */
+  function resetPassword(role, email, pass) {
+    const list = accounts();
+    const acc = list.find(a => a.role === role && a.email === normMail(email));
+    if (!acc) return { ok: false, error: `Аккаунт с этой почтой в роли «${ROLE_NAMES[role]}» не найден` };
+    acc.pass = pass; saveAccounts(list);
+    return { ok: true, account: acc };
+  }
+
+  /* Пункты кабинета по ролям — один список на левую колонку кабинета
+     и выпадающее меню в шапке. Иконки и счётчики добавляет dashboard.html. */
+  const CABINET_MENU = {
+    user: [
+      { id: 'dash', label: 'Обзор' },
+      { id: 'requests', label: 'История запросов' },
+      { id: 'compare', label: 'Сравнение', href: 'compare.html' },
+      { id: 'favs', label: 'Избранное' },
+      { id: 'points', label: 'Мои баллы' },
+      { id: 'appeals', label: 'Обращения' },
+      { id: 'profile', label: 'Профиль' },
+      { id: 'billing', label: 'Подписка и оплата' },
+    ],
+    venue: [
+      { id: 'odash', label: 'Обзор' },
+      { id: 'ovenues', label: 'Мои объекты' },
+      { id: 'oreqs', label: 'Входящие запросы' },
+      { id: 'oshop', label: 'Витрина' },
+      { id: 'ostats', label: 'Статистика' },
+      { id: 'oappeals', label: 'Обращения' },
+      { id: 'ocompany', label: 'Профиль' },
+      { id: 'oprofile', label: 'Реквизиты' },
+    ],
+    supplier: [
+      { id: 'sdash', label: 'Обзор' },
+      { id: 'sservices', label: 'Мои услуги' },
+      { id: 'sreqs', label: 'Входящие запросы' },
+      { id: 'sshop', label: 'Витрина' },
+      { id: 'ssub', label: 'Подписка' },
+      { id: 'sappeals', label: 'Обращения' },
+      { id: 'scompany', label: 'Профиль' },
+      { id: 'sprofile', label: 'Реквизиты' },
+    ],
+  };
+  const menuHref = (role, it) => it.href || `dashboard.html?role=${role}&page=${it.id}`;
+  function logout() { clearSession(); window.location.href = 'homepage.html'; }
 
   function injectNavCSS() {
     if (document.getElementById('mh-nav-style')) return;
@@ -38,33 +142,65 @@ const MH = (() => {
     s.id = 'mh-nav-style';
     s.textContent = `
       .mh-header {
-        position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 500;
+        position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 650;   /* выше сервисной панели: меню пользователя выпадает поверх неё */
         display: flex; align-items: center; padding: 0 36px;
         background: rgba(255,255,255,.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         box-shadow: 0 2px 24px rgba(53,78,99,.07);
         font-family: 'Onest', system-ui, sans-serif;
       }
       .mh-logo {
-        text-decoration: none; white-space: nowrap; margin-right: 40px; flex-shrink: 0;
+        text-decoration: none; white-space: nowrap; margin-right: 24px; flex-shrink: 0;
         display: flex; align-items: center;
       }
+      .mh-logo-img { display: block; height: 44px; width: auto; }
+      @media (max-width: 860px) { .mh-logo-img { height: 36px; } }
       .mh-nav {
         display: flex; align-items: center; gap: 4px; flex: 1;
       }
-      .mh-nav a {
-        font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
-        color: #3D5A6E; padding: 8px 12px; border-radius: 6px;
+      .mh-nav a, .mh-nav-dd > button {
+        font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+        color: #3D5A6E; padding: 8px 10px; border-radius: 6px;
         text-decoration: none; white-space: nowrap; transition: color .18s, background .18s;
       }
-      .mh-nav a:hover { color: #E8846A; background: rgba(232,132,106,.06); }
-      .mh-nav a.active { color: #E8846A; }
+      .mh-nav a:hover, .mh-nav-dd > button:hover { color: #E8846A; background: rgba(232,132,106,.06); }
+      .mh-nav a.active, .mh-nav-dd > button.active { color: #E8846A; }
+      /* Меню B2B (стр.38/86): по наведению, на касании — по тапу */
+      .mh-nav-dd { position: relative; }
+      .mh-nav-dd > button {
+        display: inline-flex; align-items: center; gap: 5px; border: none; background: none; cursor: pointer;
+        font-family: inherit; white-space: nowrap;
+      }
+      .mh-nav-dd > button svg { width: 9px; height: 9px; transition: transform .18s; }
+      .mh-nav-dd.open > button svg { transform: rotate(180deg); }
+      .mh-nav-sub {
+        position: absolute; top: calc(100% + 6px); left: -6px; min-width: 210px; z-index: 700;
+        display: none; flex-direction: column; padding: 8px; border-radius: 14px; background: #fff;
+        border: 1px solid rgba(197,227,225,.6); box-shadow: 0 14px 40px rgba(53,78,99,.14);
+      }
+      .mh-nav-sub::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+      .mh-nav-dd.open .mh-nav-sub { display: flex; }
+      @media (hover: hover) { .mh-nav-dd:hover .mh-nav-sub, .mh-nav-dd:focus-within .mh-nav-sub { display: flex; } }
+      .mh-nav-sub a {
+        text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 500; padding: 9px 12px; border-radius: 9px;
+      }
+      .mh-nav-sub a.active { background: #FCEAE4; }
+      .mh-drawer .mh-drawer-dd {
+        border: none; background: none; text-align: left; cursor: pointer; font-family: inherit;
+        font-size: 14px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+        color: #3D5A6E; padding: 12px 14px; border-radius: 8px;
+      }
+      .mh-drawer .mh-drawer-dd.active { color: #E8846A; }
+      .mh-drawer-dsub { display: none; flex-direction: column; padding-left: 12px; }
+      .mh-drawer-dsub.open { display: flex; }
+      .mh-drawer-dsub a { text-transform: none !important; letter-spacing: 0 !important; font-size: 14px !important; padding: 10px 14px !important; }
       .mh-divider {
         width: 1px; height: 32px; background: #e8e0d8;
         margin: 0 20px; flex-shrink: 0;
       }
       .mh-right {
-        display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        display: flex; align-items: center; gap: 12px; flex-shrink: 1; min-width: 0;
       }
+      .mh-right > :not(.mh-umenu) { flex-shrink: 0; }
       .mh-prem {
         display: flex; align-items: center; gap: 6px;
         font-size: 14.5px; font-weight: 700; color: #E8846A;
@@ -98,7 +234,14 @@ const MH = (() => {
         background: #FCEAE4; display: flex; align-items: center; justify-content: center;
         font-size: 12px; font-weight: 800; color: #E8846A; flex-shrink: 0;
       }
-      .mh-uname { font-size: 13.5px; font-weight: 600; color: #354E63; }
+      /* Длинное имя обрезается многоточием; в узкой шапке колонка имени ещё и сжимается */
+      .mh-uname {
+        font-size: 13.5px; font-weight: 600; color: #354E63;
+        display: block; min-width: 0; max-width: 180px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .mh-umenu { display: flex; align-items: center; }
+      .mh-umenu, .mh-umenu .mh-avatar-wrap { min-width: 0; }
       .mh-prem-mark {
         display: inline-flex; align-items: center; justify-content: center;
         width: 26px; height: 26px; flex-shrink: 0;
@@ -156,10 +299,10 @@ const MH = (() => {
       .mh-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
       .mh-drawer {
-        display: none; position: fixed; top: 64px; left: 0; right: 0;
+        display: none; position: fixed; top: 64px; left: 0; right: 0; max-height: calc(100vh - 64px); overflow-y: auto;
         background: #fff; border-bottom: 1px solid #e8e0d8;
         box-shadow: 0 8px 32px rgba(53,78,99,.10);
-        padding: 16px 24px 24px; z-index: 499;
+        padding: 16px 24px 24px; z-index: 640;
         flex-direction: column; gap: 4px;
         animation: mhDrawerIn .2s ease;
       }
@@ -185,12 +328,187 @@ const MH = (() => {
       }
       .mh-drawer-cta:hover { background: #d4704f !important; }
 
-      @media (max-width: 860px) {
+      /* Значок сравнения в шапке (стр.4): виден везде, активен с двух залов */
+      .mh-cmp {
+        position: relative; display: inline-flex; align-items: center; justify-content: center;
+        height: 40px; padding: 0 12px; gap: 7px; border-radius: 50px; flex-shrink: 0;
+        background: #EDF6F5; color: #354E63; text-decoration: none; transition: background .18s, color .18s;
+        font: 600 13px 'Onest', system-ui, sans-serif; white-space: nowrap;
+      }
+      .mh-cmp.mob { width: 40px; padding: 0; }
+      .mh-cmp.mob .mh-cmp-l { display: none; }
+      /* стр.4: подпись «Сравнение» — на широком экране; уже 1600 px она уступает место имени пользователя
+         (решение на согласование), остаётся круглая кнопка со счётчиком в углу */
+      @media (max-width: 1599px) {
+        .mh-right .mh-cmp { width: 40px; padding: 0; }
+        .mh-right .mh-cmp .mh-cmp-l { display: none; }
+        .mh-right .mh-cmp .mh-cmp-n { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; line-height: 18px; border: 2px solid #fff; }
+      }
+      .mh-cmp svg { width: 19px; height: 19px; }
+      .mh-cmp:hover { background: #FCEAE4; color: #E8846A; }
+      .mh-cmp.off { color: #9DB0BC; background: #F3F5F6; cursor: default; }
+      .mh-cmp.off:hover { background: #F3F5F6; color: #9DB0BC; }
+      .mh-cmp-n {
+        min-width: 22px; height: 22px; padding: 0 6px; border-radius: 50px; background: #E8846A; color: #fff;
+        font: 700 12px/22px 'Onest', system-ui, sans-serif; text-align: center;
+      }
+      .mh-cmp.mob .mh-cmp-n { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; line-height: 18px; border: 2px solid #fff; }
+      .mh-cmp.off .mh-cmp-n { background: #B4C3CC; }
+      .mh-cmp.off[data-tip]:hover::after {
+        content: attr(data-tip); position: absolute; top: calc(100% + 8px); right: -6px; z-index: 720;
+        width: max-content; max-width: 220px; padding: 8px 11px; border-radius: 10px;
+        background: #354E63; color: #fff; font: 500 12px/1.4 'Onest', system-ui, sans-serif; white-space: normal;
+        box-shadow: 0 8px 24px rgba(53,78,99,.2);
+      }
+      .mh-cmp.mob { display: none; margin-left: auto; margin-right: 8px; }
+      /* Плашка тарифа (стр.45) — одна отметка, у Премиума с ромбом */
+      .mh-plan {
+        display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 50px;
+        background: #EDF6F5; color: #3E596F; text-decoration: none; white-space: nowrap;
+        font: 700 11px/1.4 'Onest', system-ui, sans-serif; letter-spacing: .06em;
+      }
+      .mh-plan:hover { background: #E2F0EF; }
+      .mh-plan.prem { background: #FCEAE4; color: #E8846A; }
+      .mh-plan .mh-dia { width: 12px; height: 12px; }
+
+      /* Табы B2B-страниц: на мобильном ряд прокручивается по горизонтали */
+      .mh-b2b-tabs { background: #fff; border-bottom: 1px solid rgba(197,227,225,.45); }
+      .mh-b2b-tabs-in {
+        max-width: 1200px; margin: 0 auto; padding: 10px 24px; display: flex; gap: 6px;
+        overflow-x: auto; scrollbar-width: none;
+      }
+      .mh-b2b-tabs-in::-webkit-scrollbar { display: none; }
+      .mh-b2b-tabs a {
+        flex-shrink: 0; padding: 9px 18px; border-radius: 50px; white-space: nowrap; text-decoration: none;
+        font: 600 13.5px/1.3 'Onest', system-ui, sans-serif; color: #46627A; border: 1.5px solid rgba(197,227,225,.7); background: #fff;
+      }
+      .mh-b2b-tabs a:hover { border-color: #E8846A; color: #E8846A; }
+      .mh-b2b-tabs a.on { background: #E8846A; border-color: #E8846A; color: #fff; }
+      @media (max-width: 560px) { .mh-b2b-tabs-in { padding: 10px 14px; } }
+
+      /* Меню пользователя: на мыши — по наведению, на касании — по тапу */
+      .mh-umenu { position: relative; }
+      .mh-umenu .mh-avatar-wrap { border: none; background: none; font-family: inherit; }
+      .mh-umenu .mh-caret { width: 10px; height: 10px; flex-shrink: 0; color: #7A919F; transition: transform .18s; }
+      .mh-umenu.open .mh-caret { transform: rotate(180deg); }
+      .mh-udrop {
+        position: absolute; top: calc(100% + 6px); right: 0; min-width: 230px;
+        background: #fff; border-radius: 14px; padding: 8px;
+        border: 1px solid rgba(197,227,225,.6); box-shadow: 0 14px 40px rgba(53,78,99,.14);
+        display: none; flex-direction: column; z-index: 700;
+      }
+      .mh-udrop::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+      .mh-umenu.open .mh-udrop { display: flex; }
+      @media (hover: hover) { .mh-umenu:hover .mh-udrop { display: flex; } }
+      .mh-udrop-h { padding: 8px 12px 10px; border-bottom: 1px solid #F0EAE4; margin-bottom: 6px; }
+      .mh-udrop-h b { display: block; font-size: 13.5px; color: #354E63; }
+      .mh-udrop-h span { font-size: 11.5px; color: #7A919F; }
+      .mh-udrop a, .mh-udrop button {
+        display: block; text-align: left; width: 100%;
+        padding: 9px 12px; border-radius: 9px; border: none; background: none; cursor: pointer;
+        font-family: inherit; font-size: 13.5px; font-weight: 500; color: #354E63; text-decoration: none;
+      }
+      .mh-udrop a:hover, .mh-udrop button:hover { background: #F6F1EC; color: #E8846A; }
+      .mh-udrop .mh-udrop-out { border-top: 1px solid #F0EAE4; margin-top: 6px; border-radius: 0 0 9px 9px; padding-top: 11px; color: #7A919F; }
+      .mh-drawer .mh-drawer-u { font-size: 12px; color: #7A919F; padding: 4px 14px 2px; text-transform: none; letter-spacing: 0; }
+      .mh-drawer a.mh-drawer-m, .mh-drawer button.mh-drawer-m {
+        text-transform: none; letter-spacing: 0; font-size: 14px; padding: 10px 14px;
+      }
+      .mh-drawer button.mh-drawer-m {
+        border: none; background: none; text-align: left; font-family: inherit; font-weight: 600;
+        color: #7A919F; cursor: pointer; border-radius: 8px;
+      }
+      .mh-drawer-msub { display: none; flex-direction: column; }
+      .mh-drawer-msub.open { display: flex; }
+
+      /* Ширины: ≥1440 — всё целиком; 1240–1439 — плотнее меню, имя до 120 px с многоточием; <1240 — бургер */
+      @media (max-width: 1439px) {
+        .mh-header { padding: 0 24px; }
+        .mh-logo { margin-right: 16px; }
+        .mh-nav { gap: 2px; }
+        .mh-nav a, .mh-nav-dd > button { padding: 8px 7px; letter-spacing: .03em; }
+        .mh-divider { margin: 0 12px; }
+        .mh-uname { max-width: 120px; }
+        .mh-umenu .mh-avatar-wrap { padding-right: 8px; gap: 7px; }
+        .mh-points { padding: 6px 11px; }
+        .mh-right { gap: 8px; }
+        .mh-login { padding: 9px 18px; font-size: 13.5px; }
+        .mh-cta { padding: 10px 18px; font-size: 13.5px; }
+        .mh-prem { font-size: 13.5px; }
+      }
+      @media (max-width: 1300px) {
+        .mh-nav a, .mh-nav-dd > button { padding: 8px 5px; }
+        .mh-right { gap: 6px; }
+      }
+      @media (max-width: 1239px) {
         .mh-nav { display: none !important; }
         .mh-divider { display: none !important; }
         .mh-right { display: none !important; }
-        .mh-burger { display: flex !important; }
+        .mh-burger { display: flex !important; margin-left: auto; }
+        .mh-cmp.mob + .mh-burger { margin-left: 0; }
+        .mh-cmp.mob { display: inline-flex; }
         .mh-header { padding: 0 14px; }
+      }
+
+      /* Пометка рекламы — одна на весь сайт */
+      /* Пометка «Реклама» — одинаковая везде: маленький ярлык в правом верхнем углу блока */
+      .ml-ad {
+        position: absolute; top: 10px; right: 10px; z-index: 4; pointer-events: none;
+        padding: 2px 8px; border-radius: 6px;
+        background: rgba(255,255,255,.86); color: var(--sx, #7A919F);
+        font-family: 'Onest', system-ui, sans-serif; font-size: 11px; font-weight: 500;
+        line-height: 1.5; letter-spacing: .02em; white-space: nowrap;
+      }
+      .ml-ad-host, .adslot { position: relative; }
+      /* Ошибка обязательного поля */
+      .mh-fbad { border-color: #D9534F !important; background: #FFF6F5 !important; }
+      .mh-ferr { margin-top: 5px; font-family: 'Onest', system-ui, sans-serif; font-size: 12px; line-height: 1.4; color: #C7463F; }
+      /* Рамка объекта с выделением: 2 px в цвет акцента, скругление как у карточки */
+      /* стр.42 (R3): выделенный объект — рамка 3 px цвета акцента, лёгкая заливка и тень сильнее обычной */
+      .ml-ad-frame { outline: 3px solid var(--c, var(--coral, #E8846A)); outline-offset: -3px;
+        background: var(--cs, #FCEAE4) !important; box-shadow: 0 10px 34px rgba(233,134,103,.22) !important; }
+      .mh-toast-act { margin-left: 10px; padding: 5px 12px; border-radius: 50px; border: 1.5px solid currentColor;
+        background: none; color: inherit; font: 600 12.5px 'Onest', system-ui, sans-serif; cursor: pointer; white-space: nowrap; }
+
+      /* Модальное окно сайта: подтверждения и пейвол */
+      .mh-dlg-ovl {
+        position: fixed; inset: 0; z-index: 9500; padding: 20px;
+        background: rgba(53,78,99,.35); backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        animation: mhDlgIn .2s ease;
+      }
+      @keyframes mhDlgIn { from { opacity: 0 } to { opacity: 1 } }
+      .mh-dlg {
+        width: 100%; max-width: 460px; background: #fff; border-radius: 20px;
+        box-shadow: 0 24px 64px rgba(53,78,99,.18); overflow: hidden;
+        font-family: 'Onest', system-ui, sans-serif; color: #354E63;
+      }
+      .mh-dlg-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 24px 26px 0; }
+      .mh-dlg-t { font-family: 'Literata', Georgia, serif; font-weight: 600; font-size: 21px; line-height: 1.3; }
+      .mh-dlg-x {
+        width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #B4C3CC; background: #fff;
+        color: #7A919F; cursor: pointer; flex-shrink: 0; font-size: 13px;
+      }
+      .mh-dlg-x:hover { border-color: #E8846A; color: #E8846A; }
+      .mh-dlg-b { padding: 12px 26px 4px; font-size: 14px; line-height: 1.6; color: #5E7688; }
+      .mh-dlg-b b { color: #354E63; }
+      .mh-dlg-f { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; padding: 18px 26px 24px; }
+      .mh-dlg-btn {
+        padding: 11px 22px; border-radius: 50px; border: 1.5px solid #B4C3CC; background: #fff;
+        font-family: inherit; font-size: 14px; font-weight: 600; color: #354E63;
+        cursor: pointer; text-decoration: none; text-align: center;
+      }
+      .mh-dlg-btn:hover { border-color: #E8846A; color: #E8846A; }
+      .mh-dlg-btn.pri { background: #E8846A; border-color: #E8846A; color: #fff; box-shadow: 0 4px 14px rgba(232,132,106,.28); }
+      .mh-dlg-btn.pri:hover { background: #d4704f; border-color: #d4704f; color: #fff; }
+      .mh-dlg-btn:disabled { opacity: .45; cursor: default; }
+      .mh-pw-ic {
+        width: 46px; height: 46px; border-radius: 14px; background: #FCEAE4; color: #E8846A;
+        display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+      }
+      @media (max-width: 480px) {
+        .mh-dlg-f { flex-direction: column-reverse; }
+        .mh-dlg-btn { width: 100%; }
       }
     `;
     document.head.appendChild(s);
@@ -206,29 +524,114 @@ const MH = (() => {
     return typeof ML !== 'undefined' && ML.tariff && ML.tariff().key === 'prem';
   }
 
+  /** Значок сравнения (стр.4). Сравнение есть у гостя и у пользователя; у площадки и поставщика — нет. */
+  const IC_CMP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 7h18M6 7v4M12 7v8M18 7v4"/></svg>';
+  function hasCompare(session) { return !session || sessionRole() === 'user'; }
+  function cmpHTML(mob) {
+    const n = (typeof ML !== 'undefined' && ML.state) ? ML.state.compare.size : 0;
+    /* стр.4 (R3): значок + подпись «Сравнение» (на ≥1240 px) + счётчик в кружке цвета акцента.
+       Активна уже с одним залом (compare.html покажет его и подскажет добавить второй), с нулём — приглушена. */
+    const on = n >= 1;
+    const tip = 'Добавьте в сравнение хотя бы два зала';
+    return on
+      ? `<a class="mh-cmp${mob ? ' mob' : ''}" data-cmp href="compare.html" title="Сравнение" aria-label="Сравнение: ${n} ${plural(n, ['зал', 'зала', 'залов'])}">${IC_CMP}<span class="mh-cmp-l">Сравнение</span><span class="mh-cmp-n">${n}</span></a>`
+      : `<span class="mh-cmp off${mob ? ' mob' : ''}" data-cmp role="link" aria-disabled="true" data-tip="${tip}" title="${tip}" aria-label="Сравнение недоступно: ${tip.toLowerCase()}">${IC_CMP}<span class="mh-cmp-l">Сравнение</span></span>`;
+  }
+  const plural = (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; };
+  /** Перерисовать значок после изменения сравнения — без перезагрузки страницы. */
+  function refreshCompare() {
+    document.querySelectorAll('[data-cmp]').forEach(el => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cmpHTML(el.classList.contains('mob'));
+      el.replaceWith(tmp.firstElementChild);
+    });
+  }
+  /** Плашка тарифа (стр.45): у пользователя; гостю — нет. Премиум — с ромбом, одной отметкой. */
+  function planHTML() {
+    if (typeof ML === 'undefined' || !ML.tariff || (ML.isGuest && ML.isGuest())) return '';
+    const t = ML.tariff();
+    return `<a class="mh-plan${t.key === 'prem' ? ' prem' : ''}" href="pricing.html" title="Ваш тариф — сравнить тарифы">${t.key === 'prem' ? IC_DIAMOND : ''}${esc(t.name)}</a>`;
+  }
+
   function buildRight(session) {
     if (session) {
       // Баллы рядом с кабинетом — из модели, если она подключена на странице
       /* У гостя аккаунта нет, показывать баланс нечему: вместо счётчика — вход. */
       const guest = typeof ML !== 'undefined' && ML.isGuest && ML.isGuest();
-      const pts = (!guest && typeof ML !== 'undefined' && ML.state && ML.state.points)
+      /* баллы — у пользователя; у площадки и поставщика их нет */
+      const pts = (!guest && sessionRole() === 'user' && typeof ML !== 'undefined' && ML.state && ML.state.points)
         ? ML.state.points.free : null;
       const backNext = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-      return `${guest
+      const user = sessionRole() === 'user';
+      return `${hasCompare(session) ? cmpHTML() : ''}
+      ${guest
         ? `<a class="mh-login" href="auth.html?next=${backNext}">Войти</a>`
-        : pts !== null
-        ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}
-      ${isPrem() ? `<span class="mh-prem-mark" title="Тариф «ПРЕМИУМ»">${IC_DIAMOND}</span>` : ''}
-      <a class="mh-avatar-wrap" href="dashboard.html">
-        <div class="mh-avatar">${session.initials || 'АК'}</div>
-        <span class="mh-uname">${session.name || 'Профиль'}</span>
-        ${session.premium ? '<span class="mh-prem-badge">★ Premium</span>' : ''}
-      </a>`;
+        : `${user ? planHTML() : ''}${pts !== null
+        ? `<a class="mh-points" href="bonus.html" title="Доступные баллы">${pts.toLocaleString('ru')} Б</a>` : ''}`}
+      <div class="mh-umenu" id="mh-umenu">
+        <button type="button" class="mh-avatar-wrap" id="mh-ubtn" aria-haspopup="true" aria-expanded="false">
+          <div class="mh-avatar">${esc(session.initials || 'АК')}</div>
+          <span class="mh-uname">${esc(session.name || 'Профиль')}</span>
+          ${session.premium ? '<span class="mh-prem-badge">★ Premium</span>' : ''}
+          <svg class="mh-caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+        </button>
+        <div class="mh-udrop" role="menu">${userMenuHTML(session, 'mh-udrop')}</div>
+      </div>`;
     }
     const _next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-    return `<a class="mh-prem" href="pricing.html">Тарифы</a>
+    return `${cmpHTML()}<a class="mh-prem" href="pricing.html">Тарифы</a>
       <a class="mh-login" href="auth.html?next=${_next}">Войти</a>
       <a class="mh-cta" href="auth.html?mode=signup">Регистрация</a>`;
+  }
+
+  /** Пункты меню пользователя: те же, что в левой колонке кабинета его роли, последним — «Выйти». */
+  function userMenuHTML(session, cls) {
+    const role = ROLE_NAMES[session.role] ? session.role : 'user';
+    const items = CABINET_MENU[role].map(it =>
+      `<a role="menuitem" class="${cls === 'mh-drawer' ? 'mh-drawer-m' : ''}" href="${menuHref(role, it)}">${esc(it.label)}</a>`).join('');
+    const out = `<button type="button" role="menuitem" class="${cls === 'mh-drawer' ? 'mh-drawer-m' : 'mh-udrop-out'}" onclick="MH.logout()">Выйти</button>`;
+    if (cls === 'mh-drawer') return items + out;
+    return `<div class="mh-udrop-h"><b>${esc(session.name || 'Профиль')}</b><span>${ROLE_NAMES[role]}</span></div>${items}${out}`;
+  }
+
+  function bindUserMenu() {
+    const box = document.getElementById('mh-umenu'), btn = document.getElementById('mh-ubtn');
+    if (box && btn) {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = box.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', e => { if (!box.contains(e.target)) { box.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') { box.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+    }
+    const b2b = document.getElementById('mh-b2b');
+    if (b2b) {
+      const bb = b2b.querySelector('button');
+      bb.addEventListener('click', e => { e.stopPropagation(); const o = b2b.classList.toggle('open'); bb.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+      document.addEventListener('click', e => { if (!b2b.contains(e.target)) { b2b.classList.remove('open'); bb.setAttribute('aria-expanded', 'false'); } });
+    }
+    const db2b = document.getElementById('mh-drawer-b2b'), db2bs = document.getElementById('mh-drawer-b2bsub');
+    if (db2b && db2bs) db2b.addEventListener('click', () => { const o = db2bs.classList.toggle('open'); db2b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    const dbtn = document.getElementById('mh-drawer-ubtn'), dsub = document.getElementById('mh-drawer-msub');
+    if (dbtn && dsub) dbtn.addEventListener('click', () => {
+      const open = dsub.classList.toggle('open');
+      dbtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
+  /* B2B-страницы: пункт меню «B2B» и ряд табов наверху каждой из них. */
+  const B2B_PAGES = [
+    { label: 'Для площадок',    href: 'list-venue.html',     key: 'venues' },
+    { label: 'Для агентств',    href: 'for-organizers.html', key: 'agencies' },
+    { label: 'Для поставщиков', href: 'for-suppliers.html',  key: 'b2b-suppliers' },
+    { label: 'Для артистов',    href: 'for-artists.html',    key: 'b2b-artists' },
+  ];
+  /** Ряд табов B2B-страниц. Активный — текущая страница. */
+  function b2bTabs(active) {
+    injectNavCSS();
+    return `<nav class="mh-b2b-tabs" aria-label="Разделы для бизнеса"><div class="mh-b2b-tabs-in">${B2B_PAGES.map(p =>
+      `<a href="${p.href}"${p.key === active ? ' class="on" aria-current="page"' : ''}>${p.label}</a>`).join('')}</div></nav>`;
   }
 
   function renderNav(targetEl, active) {
@@ -243,17 +646,27 @@ const MH = (() => {
       { label: 'FAQ',             href: 'faq.html',       key: 'faq' },
       { label: 'О ПРОЕКТЕ',       href: 'about.html',     key: 'about' },
       { label: 'КАК ЭТО РАБОТАЕТ', href: 'how.html',      key: 'how' },
+      { label: 'B2B', key: 'b2b', children: B2B_PAGES },
     ];
-    const navLinks = links.map(l =>
-      `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
+    const isActive = (l) => active === l.key || (l.children && l.children.some(c => c.key === active));
+    const ICD = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>';
+    const navLinks = links.map(l => l.children
+      ? `<div class="mh-nav-dd" id="mh-b2b"><button type="button"${isActive(l) ? ' class="active"' : ''} aria-haspopup="true" aria-expanded="false">${l.label}${ICD}</button>
+          <div class="mh-nav-sub" role="menu">${l.children.map(c => `<a role="menuitem" href="${c.href}"${active === c.key ? ' class="active"' : ''}>${c.label}</a>`).join('')}</div></div>`
+      : `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
     ).join('');
 
-    const drawerLinks = links.map(l =>
-      `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
+    const drawerLinks = links.map(l => l.children
+      ? `<button type="button" class="mh-drawer-dd${isActive(l) ? ' active' : ''}" id="mh-drawer-b2b" aria-expanded="false">${l.label} ▾</button>
+          <div class="mh-drawer-dsub" id="mh-drawer-b2bsub">${l.children.map(c => `<a href="${c.href}"${active === c.key ? ' class="active"' : ''}>${c.label}</a>`).join('')}</div>`
+      : `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
     ).join('');
+    /* На мобильном меню пользователя раскрывается по тапу на имя внутри шторки. */
     const drawerRight = session
       ? `<div class="mh-drawer-sep"></div>
-         <a href="dashboard.html" style="text-transform:none;letter-spacing:0;font-size:14px;">👤 ${session.name || 'Профиль'}</a>`
+         <button type="button" class="mh-drawer-m" id="mh-drawer-ubtn" aria-expanded="false"
+           style="color:#354E63">${esc(session.name || 'Профиль')} ▾</button>
+         <div class="mh-drawer-msub" id="mh-drawer-msub">${userMenuHTML(session, 'mh-drawer')}</div>`
       : `<div class="mh-drawer-sep"></div>
          <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">Тарифы</a>
          <a href="${'auth.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
@@ -261,10 +674,11 @@ const MH = (() => {
 
     targetEl.innerHTML = `
       <header class="mh-header">
-        <a class="mh-logo" href="homepage.html"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="24" style="display:block"></a>
+        <a class="mh-logo" href="homepage.html"><img class="mh-logo-img" src="../assets/logo.svg" alt="МАЙСЛИСТ"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
         <div class="mh-right">${buildRight(session)}</div>
+        ${hasCompare(session) ? cmpHTML(true) : ''}
         <button class="mh-burger" id="mh-burger" aria-label="Меню">
           <span></span><span></span><span></span>
         </button>
@@ -275,6 +689,14 @@ const MH = (() => {
       ${mountDemo()}`;
 
     document.body.classList.add('has-mh-nav');
+    if (typeof ML !== 'undefined' && !ML.__cmpHooked) {
+      ML.__cmpHooked = true;
+      ['toggleCompare', 'clearCompare', 'reloadState', 'setTariff'].forEach(k => {
+        const fn = ML[k]; if (typeof fn !== 'function') return;
+        ML[k] = function () { const res = fn.apply(this, arguments); refreshCompare(); return res; };
+      });
+    }
+    bindUserMenu();
     bindDemo();
 
     const burger = document.getElementById('mh-burger');
@@ -294,8 +716,11 @@ const MH = (() => {
     });
   }
 
+  /* Подвал — один компонент на все страницы. Стили вставляются один раз,
+     разметка — при каждом вызове (кабинет перерисовывает колонку целиком). */
   function renderFooter(el) {
-    if (document.getElementById('mh-ft-style')) return;
+    if (!el) return;
+    if (!document.getElementById('mh-ft-style')) {
     const s = document.createElement('style');
     s.id = 'mh-ft-style';
     s.textContent = `
@@ -314,6 +739,10 @@ const MH = (() => {
       .mh-ft-brand p {
         font-size: 13px; line-height: 1.65; color: #8A9DAA;
         max-width: 190px; margin-bottom: 20px;
+      }
+      /* Описание — ровно две строки без переносов по дефису (дефисы неразрывные) */
+      .mh-ft-brand p.mh-ft-desc {
+        max-width: none; white-space: nowrap;
       }
       .mh-ft-contacts { display: flex; flex-direction: column; gap: 8px; }
       .mh-ft-contact {
@@ -351,7 +780,7 @@ const MH = (() => {
         font-size: 12.5px; color: #A8B8C2;
       }
       .mh-ft-bottom a {
-        color: #A8B8C2; text-decoration: none; margin-left: 20px;
+        color: #A8B8C2; text-decoration: none; margin-left: 20px; white-space: nowrap;
         transition: color .18s;
       }
       .mh-ft-bottom a:hover { color: #354E63; }
@@ -359,12 +788,15 @@ const MH = (() => {
         .mh-ft-main { grid-template-columns: 1fr 1fr; padding: 36px 20px 28px; gap: 28px; }
         .mh-ft-social-row { padding: 16px 20px 20px; }
         .mh-ft-bottom { padding: 16px 20px; flex-direction: column; gap: 10px; text-align: center; }
+        .mh-ft-bottom div { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; }
+        .mh-ft-bottom a { margin-left: 0; }
       }
       @media (max-width: 560px) {
         .mh-ft-main { grid-template-columns: 1fr; }
       }
     `;
     document.head.appendChild(s);
+    }
 
     const ICON_MAIL = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`;
     const ICON_PHONE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 12 19.79 19.79 0 0 1 1.09 3.18 2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
@@ -376,35 +808,39 @@ const MH = (() => {
         <div class="mh-ft-main">
           <div class="mh-ft-brand">
             <div class="mh-ft-logo"><img src="../assets/logo.svg" alt="МАЙСЛИСТ" height="20" style="display:block"></div>
-            <p>В2В маркетплейс площадок для деловых мероприятий в России</p>
+            <p class="mh-ft-desc">B2B‑платформа для ивент‑менеджеров,<br>MICE‑агентств и их подрядчиков.</p>
             <div class="mh-ft-contacts">
-              <a class="mh-ft-contact" href="mailto:info@mayslist.ru">${ICON_MAIL} info@mayslist.ru</a>
-              <a class="mh-ft-contact" href="tel:+78005553535">${ICON_PHONE} +7 (800) 555-35-35</a>
+              <a class="mh-ft-contact" href="mailto:info@micelist.ru">${ICON_MAIL} info@micelist.ru</a>
+              <a class="mh-ft-contact" href="tel:+79166704905">${ICON_PHONE} +79166704905 (Алексей)</a>
+              <a class="mh-ft-contact" href="tel:+79251751570">${ICON_PHONE} +79251751570 (Денис)</a>
             </div>
           </div>
           <div class="mh-ft-col">
             <h4>Платформа</h4>
-            <a href="search.html">Подбор площадок</a>
+            <a href="search.html">Подбор залов</a>
             <a href="suppliers.html">Поставщики</a>
             <a href="bonus.html">Бонусная программа</a>
             <a href="pricing.html">Тарифы</a>
           </div>
           <div class="mh-ft-col">
             <h4>Размещение</h4>
-            <a href="list-venue.html">Разместить площадку</a>
+            <a href="list-venue.html">Добавить зал</a>
             <a href="for-organizers.html">Агентствам</a>
             <a href="listing-help.html">Помощь с оформлением</a>
           </div>
           <div class="mh-ft-col">
             <h4>Поддержка</h4>
+            <a href="support.html">Поддержка и арбитраж</a>
             <a href="#" onclick="MH.feedback();return false;">Написать в поддержку</a>
-            <a href="mailto:info@mayslist.ru">Контакты</a>
+            <a href="mailto:info@micelist.ru">Контакты</a>
             <a href="../index.html">Карта сайта</a>
           </div>
           <div class="mh-ft-col">
             <h4>Документы</h4>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="#">Условия использования</a>
+            <a href="terms.html">Пользовательское соглашение</a>
+            <a href="consent-personal-data.html">Согласие на обработку персональных данных</a>
+            <a href="consent-ads.html">Согласие на получение рекламы</a>
             <a href="#">Оферта</a>
           </div>
         </div>
@@ -413,10 +849,10 @@ const MH = (() => {
           <a class="mh-ft-social" href="#" aria-label="Telegram">${ICON_TG}</a>
         </div>
         <div class="mh-ft-bottom">
-          <span>© 2026 МАЙСЛИСТ. Рынок открыт.</span>
+          <span>© 2026 ООО «МАЙСЛИСТ»</span>
           <div>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="#">Условия</a>
+            <a href="terms.html">Пользовательское соглашение</a>
           </div>
         </div>
       </footer>`;
@@ -436,6 +872,17 @@ const MH = (() => {
     });
     window.addEventListener('pageshow', e => {
       if (e.persisted) { document.body.style.transition = 'none'; document.body.style.opacity = '1'; }
+    });
+    /* Страница, восстановленная кнопкой «Назад» из bfcache, показывает старое
+       состояние: например, залы отмечены добавленными, хотя сравнение уже
+       сброшено. Сверяем снимок хранилища и перерисовываем страницу. */
+    const snap = () => { try { return ['ml_compare_halls', 'ml_favs_halls', 'ml_tariff', 'mh_session'].map(k => localStorage.getItem(k)).join('|'); } catch (e) { return ''; } };
+    let saved = snap();
+    window.addEventListener('pagehide', () => { saved = snap(); });
+    window.addEventListener('pageshow', e => {
+      if (!e.persisted || snap() === saved) return;
+      if (typeof ML !== 'undefined' && ML.reloadState) ML.reloadState();
+      if (typeof RESTORE === 'function') RESTORE(); else location.reload();
     });
   }
 
@@ -466,12 +913,25 @@ const MH = (() => {
     });
   }
 
+  /* стр.100 (R3): «Гость» — всегда «не вошёл». Сессия пользователя при гостевом уровне доступа
+     (например, после переключения в сервисной панели) снимается, чтобы в шапке не было «Войти» и аккаунта сразу. */
+  function normalizeGuest() {
+    const s = getSession();
+    if (s && sessionRole() === 'user' && typeof ML !== 'undefined' && ML.isGuest && ML.isGuest()) localStorage.removeItem(KEY);
+  }
   function init(active) {
+    normalizeGuest();
     injectSeatCSS();
     initTransition();
     injectSkeletonCSS();
     const el = document.getElementById('mh-nav');
     if (el) renderNav(el, active);
+    if (el && B2B_PAGES.some(p => p.key === active) && !document.querySelector('.mh-b2b-tabs')) {
+      el.insertAdjacentHTML('afterend', b2bTabs(active));
+      /* На узком экране ряд прокручивается вбок — активный таб должен быть виден. */
+      const on = document.querySelector('.mh-b2b-tabs a.on'), row = on && on.parentElement;
+      if (on && row.scrollWidth > row.clientWidth) row.scrollLeft += on.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - on.offsetWidth) / 2;
+    }
     const fel = document.getElementById('mh-footer');
     if (fel) renderFooter(fel);
     if (!document.getElementById('mh-toasts')) {
@@ -481,8 +941,10 @@ const MH = (() => {
     }
   }
 
-  function toast(msg, type) {
-    type = type || 'success';
+  /* opts: { action: { label, fn }, ms } — кнопка в тосте (например «Вернуть»), время показа. */
+  const TOAST_FN = {};
+  function toast(msg, type, opts) {
+    type = type || 'success'; opts = opts || {};
     const icons = { success: '✓', error: '✕', info: 'ℹ' };
     let container = document.getElementById('mh-toasts');
     if (!container) {
@@ -493,13 +955,15 @@ const MH = (() => {
     }
     const el = document.createElement('div');
     el.className = `mh-toast ${type}`;
-    el.innerHTML = `<span class="mh-toast-icon">${icons[type] || icons.success}</span><span>${msg}</span>`;
+    const key = 't' + Date.now() + Math.random().toString(36).slice(2, 6);
+    if (opts.action) TOAST_FN[key] = opts.action.fn;
+    el.innerHTML = `<span class="mh-toast-icon">${icons[type] || icons.success}</span><span>${msg}</span>`
+      + (opts.action ? `<button type="button" class="mh-toast-act" data-k="${key}">${opts.action.label}</button>` : '');
+    const hide = () => { el.classList.remove('show'); delete TOAST_FN[key]; setTimeout(() => el.remove(), 250); };
+    if (opts.action) el.querySelector('.mh-toast-act').onclick = () => { const fn = TOAST_FN[key]; hide(); if (fn) fn(); };
     container.appendChild(el);
     requestAnimationFrame(() => el.classList.add('show'));
-    setTimeout(() => {
-      el.classList.remove('show');
-      setTimeout(() => el.remove(), 250);
-    }, 3000);
+    setTimeout(hide, opts.ms || 3000);
   }
 
   function feedback() {
@@ -554,6 +1018,16 @@ const MH = (() => {
         cursor: pointer; transition: all .18s; font-family: 'Onest', system-ui, sans-serif;
       }
       .mhfb-chip.sel { background: #FCEAE4; color: #E8846A; border-color: rgba(232,132,106,.3); font-weight: 600; }
+      /* Узкий экран: длинная тема «Спор по факту…» занимает строку целиком и переносится
+         ровно, остальные кнопки тянутся по ширине строки и выравниваются по высоте. */
+      @media (max-width: 480px) {
+        .mhfb-chips { align-items: stretch; }
+        .mhfb-chip {
+          flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center;
+          text-align: center; line-height: 1.3; min-height: 34px;
+        }
+        .mhfb-chip[data-dispute] { flex-basis: 100%; border-radius: 14px; text-wrap: balance; }
+      }
       .mhfb-textarea {
         width: 100%; padding: 11px 15px; border-radius: 10px;
         border: 1.5px solid rgba(197,227,225,.5); background: #F8F5F2;
@@ -603,7 +1077,7 @@ const MH = (() => {
             <label class="mhfb-label">Тема</label>
             <div class="mhfb-chips" id="mhfb-chips">
               <button class="mhfb-chip sel" data-topic="Вопрос">Вопрос</button>
-              <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по мероприятию</button>
+              <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по факту состоявшегося мероприятия</button>
               <button class="mhfb-chip" data-topic="Жалоба на объект или поставщика">Жалоба</button>
               <button class="mhfb-chip" data-topic="Техническая проблема">Техническая проблема</button>
               <button class="mhfb-chip" data-topic="Предложение">Предложение</button>
@@ -616,7 +1090,7 @@ const MH = (() => {
           </div>
           <div class="mhfb-field">
             <label class="mhfb-label">Сообщение</label>
-            <textarea class="mhfb-textarea" id="mhfb-msg" placeholder="Опишите ваш вопрос или предложение..."></textarea>
+            <textarea class="mhfb-textarea" id="mhfb-msg" placeholder="Введите ваш вопрос / предложение / комментарий..."></textarea>
           </div>
           <button class="mhfb-btn" id="mhfb-send">Отправить</button>
         </div>
@@ -641,7 +1115,7 @@ const MH = (() => {
         const ids = (typeof ML !== 'undefined' && ML.state && ML.state.requests)
           ? ML.state.requests.map(r => r.id) : [];
         document.getElementById('mhfb-id-hint').innerHTML =
-          'Номер стоит в шапке запроса в кабинете, раздел «История запросов».'
+          'Найдите его в личном кабинете, в разделе «История запросов», в шапке каждого запроса.'
           + (ids.length ? ' Например: ' + ids.slice(0, 2).join(', ') + '.' : '')
           + '<br><b>Для спора ID обязателен</b> — без него обращение не разобрать.';
       }
@@ -686,25 +1160,265 @@ const MH = (() => {
   }
 
   /* ══════════════════════════════════════════════════════════════════
+     МОДАЛКА САЙТА, ПЕЙВОЛ, РЕКЛАМА, ПОЯСНЕНИЯ ПРОТОТИПА
+     Нативные alert/confirm на сайте не используются — только dialog().
+     ══════════════════════════════════════════════════════════════════ */
+
+  /**
+   * Модальное окно в стиле сайта.
+   * @param {{title:string, html:string, icon?:string, actions:Array<{label:string, primary?:boolean, href?:string, onClick?:Function, keep?:boolean}>}} o
+   * @returns {Function} close
+   */
+  function dialog(o) {
+    injectNavCSS();
+    closeDialog();
+    const ovl = document.createElement('div');
+    ovl.className = 'mh-dlg-ovl'; ovl.id = 'mh-dlg';
+    ovl.innerHTML = `<div class="mh-dlg" role="dialog" aria-modal="true" aria-labelledby="mh-dlg-t">
+      <div class="mh-dlg-h"><div>${o.icon ? `<div class="mh-pw-ic">${o.icon}</div>` : ''}
+        <div class="mh-dlg-t" id="mh-dlg-t">${o.title}</div></div>
+        <button type="button" class="mh-dlg-x" aria-label="Закрыть">✕</button></div>
+      <div class="mh-dlg-b">${o.html || ''}</div>
+      <div class="mh-dlg-f">${(o.actions || []).map((a, i) => a.href
+        ? `<a class="mh-dlg-btn${a.primary ? ' pri' : ''}" href="${a.href}" data-i="${i}">${a.label}</a>`
+        : `<button type="button" class="mh-dlg-btn${a.primary ? ' pri' : ''}" data-i="${i}">${a.label}</button>`).join('')}</div>
+    </div>`;
+    document.body.appendChild(ovl);
+    const close = () => closeDialog();
+    ovl.addEventListener('click', e => { if (e.target === ovl) close(); });
+    ovl.querySelector('.mh-dlg-x').addEventListener('click', close);
+    ovl.querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', e => {
+      const a = o.actions[+b.dataset.i];
+      if (a.onClick) { e.preventDefault(); a.onClick(close); if (!a.keep) close(); }
+      else if (!a.href) close();
+    }));
+    document.addEventListener('keydown', dlgEsc);
+    const first = ovl.querySelector('.mh-dlg-btn.pri') || ovl.querySelector('.mh-dlg-btn');
+    if (first) setTimeout(() => first.focus(), 30);
+    return close;
+  }
+  function dlgEsc(e) { if (e.key === 'Escape') closeDialog(); }
+  function closeDialog() {
+    const d = document.getElementById('mh-dlg');
+    if (d) d.remove();
+    document.removeEventListener('keydown', dlgEsc);
+  }
+  /** Подтверждение вместо нативного confirm(). */
+  function confirmDialog(title, html, okLabel, onOk) {
+    return dialog({ title, html, actions: [
+      { label: 'Отмена' },
+      { label: okLabel || 'Подтвердить', primary: true, onClick: onOk },
+    ] });
+  }
+
+  /* ── Пейвол: единый ответ на клик по закрытой функции ── */
+  const IC_LOCK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>';
+  /**
+   * @param {'start'|'biz'|'prem'} need  минимальный тариф, где функция открыта
+   * @param {string} what  что именно закрыто: «Фильтр по звёздности»
+   */
+  function paywall(need, what) {
+    const T = typeof ML !== 'undefined' ? ML.TARIFFS : {};
+    const guest = typeof ML !== 'undefined' && ML.isGuest && ML.isGuest();
+    if (guest) {
+      return dialog({ icon: IC_LOCK, title: 'Нужна регистрация',
+        html: `${what ? `<b>${esc(what)}</b> — ` : ''}доступно зарегистрированным пользователям. Регистрация бесплатная, тариф «${esc((T.start || {}).name || 'СТАРТ')}» подключится сразу.`,
+        actions: [{ label: 'Сравнить тарифы', href: 'pricing.html' }, { label: 'Зарегистрироваться', primary: true, href: signupHref() }] });
+    }
+    const t = T[need] || T.biz || { name: 'БИЗНЕС', key: 'biz' };
+    return dialog({ icon: IC_LOCK, title: `Доступно с тарифа «${esc(t.name)}»`,
+      html: `${what ? `<b>${esc(what)}</b> — ` : ''}эта возможность открывается на тарифе «${esc(t.name)}»${t.key === 'biz' ? ' и выше' : ''}.
+        Сравните тарифы или сразу оформите подписку.`,
+      actions: [{ label: 'Сравнить тарифы', href: 'pricing.html' },
+        { label: `Перейти на «${esc(t.name)}»`, primary: true, href: `checkout.html?plan=${t.key}` }] });
+  }
+  /** Атрибут onclick для закрытого элемента: onclick="MH.paywall('biz','…')". */
+  const payAttr = (need, what) => `onclick="MH.paywall('${need}','${String(what).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;')}');return false;"`;
+
+  /** п.46: ПРЕМИУМ на 6 месяцев за баллы — подтверждение, списание, активация; при нехватке — своё состояние. */
+  function buyPremium(onDone) {
+    if (typeof ML === 'undefined') return;
+    const item = ML.premiumItem(), P = ML.state.points;
+    const fmt = (n) => n.toLocaleString('ru') + ' Б';
+    if (P.free < item.pts) {
+      return dialog({ title: 'Недостаточно баллов',
+        html: `Для подписки «ПРЕМИУМ» на 6 месяцев нужно <b>${fmt(item.pts)}</b>, на счёте — <b>${fmt(P.free)}</b>.
+          Не хватает <b>${fmt(item.pts - P.free)}</b>. Баллы начисляются за состоявшиеся мероприятия и отзывы.`,
+        actions: [{ label: 'Закрыть' }, { label: 'Оплатить подписку', primary: true, href: 'checkout.html?plan=prem' }] });
+    }
+    const active = ML.tariff().key === 'prem' && ML.state.premUntil;
+    return dialog({ title: 'ПРЕМИУМ на 6 месяцев за баллы',
+      html: `<table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13.5px">
+          <tr><td style="padding:6px 0;color:#7A919F">Спишется с баланса</td><td style="text-align:right"><b>${fmt(item.pts)}</b></td></tr>
+          <tr><td style="padding:6px 0;color:#7A919F">Останется</td><td style="text-align:right"><b>${fmt(P.free - item.pts)}</b></td></tr></table>
+        ${active ? `Текущая подписка действует до <b>${esc(ML.state.premUntil)}</b> — она продлится ещё на 6 месяцев.`
+          : 'Тариф «ПРЕМИУМ» включится сразу после подтверждения и будет действовать 6 месяцев.'}
+        Заявка не нужна — подписка оформляется мгновенно.`,
+      actions: [{ label: 'Отмена' }, { label: active ? 'Продлить за баллы' : 'Подключить за баллы', primary: true, onClick: () => {
+        const res = ML.buyPremiumForPoints();
+        if (!res.ok) { toast('Не хватает баллов', 'error'); return; }
+        toast(`ПРЕМИУМ ${res.extended ? 'продлён' : 'подключён'} до ${res.until}`, 'success');
+        if (onDone) onDone(res);
+      } }] });
+  }
+
+  /**
+   * Обязательные поля формы: под пустым полем — сообщение, фокус — на первое незаполненное.
+   * @param {Array<{el:HTMLElement, ok:boolean, text:string}>} list
+   * @returns {boolean} всё заполнено
+   */
+  function requireFields(list) {
+    injectNavCSS();
+    let first = null;
+    list.forEach(({ el, ok, text }) => {
+      if (!el) return;
+      const holder = el.parentElement;
+      let msg = holder.querySelector(':scope > .mh-ferr');
+      el.classList.toggle('mh-fbad', !ok);
+      el.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      if (!ok) {
+        if (!msg) { msg = document.createElement('div'); msg.className = 'mh-ferr'; msg.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', msg); }
+        msg.textContent = text;
+        if (!first) first = el;
+        el.addEventListener('input', function clr() { el.classList.remove('mh-fbad'); el.setAttribute('aria-invalid', 'false'); const m = holder.querySelector(':scope > .mh-ferr'); if (m) m.remove(); el.removeEventListener('input', clr); });
+      } else if (msg) msg.remove();
+    });
+    if (first) first.focus();
+    return !first;
+  }
+  /** Даты и участники запроса — единая проверка форм запросов (стр.19). */
+  function requireRequestFields(datesEl, guestsEl) {
+    const d = String((datesEl || {}).value || '').trim();
+    const g = +String((guestsEl || {}).value || '').replace(/\s+/g, '');
+    return requireFields([
+      { el: datesEl, ok: !!d, text: 'Укажите даты мероприятия' },
+      { el: guestsEl, ok: Number.isInteger(g) && g > 0, text: 'Укажите количество участников' },
+    ]);
+  }
+
+  /** Пометка «Реклама» — одинаковая для баннеров и мест в выдаче. */
+  function adMark(cls) { injectNavCSS(); return `<span class="ml-ad${cls ? ' ' + cls : ''}">Реклама</span>`; }
+
+
+
+  /* ══════════════════════════════════════════════════════════════════
+     ГАЛЕРЕЯ ФОТО С ЛАЙТБОКСОМ
+     До пяти фото — сетка целиком. С пятью и больше — пять ячеек, на последней
+     счётчик «+N», по клику любая открывается в лайтбоксе со счётчиком «3 / 8».
+     ══════════════════════════════════════════════════════════════════ */
+  let LB = { urls: [], i: 0, alt: '' };
+  function injectGalCSS() {
+    if (document.getElementById('mh-gal-style')) return;
+    const s = document.createElement('style');
+    s.id = 'mh-gal-style';
+    s.textContent = `
+      .mh-gal { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px;
+        height: 380px; border-radius: 20px; overflow: hidden; margin-bottom: 26px; }
+      .mh-gal.n1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+      .mh-gal.n2 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr; }
+      .mh-gal.n3, .mh-gal.n4 { grid-template-columns: 2fr 1fr; }
+      .mh-gal-c { position: relative; border: none; padding: 0; margin: 0; cursor: zoom-in; overflow: hidden;
+        background: #EDF6F5; display: block; width: 100%; height: 100%; }
+      .mh-gal-c img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s; }
+      .mh-gal-c:hover img { transform: scale(1.04); }
+      .mh-gal-c.main { grid-row: 1 / 3; }
+      .mh-gal.n1 .mh-gal-c.main, .mh-gal.n2 .mh-gal-c.main { grid-row: auto; }
+      .mh-gal.n4 .mh-gal-c:nth-child(4) { display: none; }
+      .mh-gal-more { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        background: rgba(34,50,63,.55); color: #fff; font-family: 'Onest', system-ui, sans-serif; font-size: 22px; font-weight: 700; }
+      .mh-gal-count { position: absolute; right: 12px; bottom: 12px; padding: 5px 11px; border-radius: 50px;
+        background: rgba(255,255,255,.92); color: #354E63; font-family: 'Onest', system-ui, sans-serif; font-size: 12px; font-weight: 600; }
+      @media (max-width: 760px) {
+        .mh-gal { height: 240px; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+        .mh-gal .mh-gal-c.main { grid-row: auto; grid-column: 1 / 3; }
+        .mh-gal .mh-gal-c:not(.main) { display: none; }
+        .mh-gal.n1 .mh-gal-c.main { grid-column: 1 / 3; }
+      }
+      .mh-lb { position: fixed; inset: 0; z-index: 9600; background: rgba(20,30,38,.92);
+        display: flex; align-items: center; justify-content: center; padding: 56px 70px; }
+      .mh-lb img { max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+      .mh-lb-btn { position: absolute; width: 48px; height: 48px; border-radius: 50%; border: none;
+        background: rgba(255,255,255,.14); color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+      .mh-lb-btn:hover { background: rgba(255,255,255,.26); }
+      .mh-lb-btn:disabled { opacity: .3; cursor: default; }
+      .mh-lb-prev { left: 14px; top: 50%; transform: translateY(-50%); }
+      .mh-lb-next { right: 14px; top: 50%; transform: translateY(-50%); }
+      .mh-lb-x { top: 12px; right: 14px; width: 40px; height: 40px; font-size: 16px; }
+      .mh-lb-n { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #fff;
+        font-family: 'Onest', system-ui, sans-serif; font-size: 14px; font-weight: 600; }
+      @media (max-width: 560px) { .mh-lb { padding: 56px 8px 80px; } .mh-lb-prev, .mh-lb-next { top: auto; bottom: 16px; transform: none; } }`;
+    document.head.appendChild(s);
+  }
+  /** Разметка галереи. urls — адреса фото, alt — подпись для первой. */
+  function gallery(urls, alt) {
+    injectGalCSS();
+    const list = (urls || []).filter(Boolean);
+    if (!list.length) return '';
+    const key = 'g' + Math.random().toString(36).slice(2, 8);
+    window.__mhGal = window.__mhGal || {};
+    window.__mhGal[key] = { urls: list, alt: alt || '' };
+    const shown = list.slice(0, 5);
+    const rest = list.length - shown.length;
+    return `<div class="mh-gal n${Math.min(shown.length, 5)}">${shown.map((u, i) =>
+      `<button type="button" class="mh-gal-c${i === 0 ? ' main' : ''}" onclick="MH.lightbox('${key}',${i})"
+        aria-label="Открыть фото ${i + 1} из ${list.length}">
+        <img src="${u}" alt="${i === 0 ? esc(alt || '') : ''}" loading="${i === 0 ? 'eager' : 'lazy'}">
+        ${i === shown.length - 1 && rest > 0 ? `<span class="mh-gal-more">+${rest}</span>` : ''}
+        ${i === 0 && list.length > 1 ? `<span class="mh-gal-count">${list.length} фото</span>` : ''}
+      </button>`).join('')}</div>`;
+  }
+  function lightbox(key, i) {
+    const g = (window.__mhGal || {})[key]; if (!g) return;
+    injectGalCSS();
+    LB = { urls: g.urls, i: i || 0, alt: g.alt };
+    let el = document.getElementById('mh-lb');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'mh-lb'; el.className = 'mh-lb';
+      el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Просмотр фото');
+      document.body.appendChild(el);
+      el.addEventListener('click', e => { if (e.target === el) lbClose(); });
+      document.addEventListener('keydown', lbKey);
+    }
+    lbDraw();
+  }
+  function lbDraw() {
+    const el = document.getElementById('mh-lb'); if (!el) return;
+    const n = LB.urls.length;
+    el.innerHTML = `<span class="mh-lb-n">${LB.i + 1} / ${n}</span>
+      <button type="button" class="mh-lb-btn mh-lb-x" onclick="MH.lbClose()" aria-label="Закрыть">✕</button>
+      <button type="button" class="mh-lb-btn mh-lb-prev" onclick="MH.lbStep(-1)" aria-label="Предыдущее фото" ${LB.i ? '' : 'disabled'}>‹</button>
+      <img src="${LB.urls[LB.i]}" alt="${esc(LB.alt)}">
+      <button type="button" class="mh-lb-btn mh-lb-next" onclick="MH.lbStep(1)" aria-label="Следующее фото" ${LB.i < n - 1 ? '' : 'disabled'}>›</button>`;
+  }
+  function lbStep(d) { LB.i = Math.max(0, Math.min(LB.urls.length - 1, LB.i + d)); lbDraw(); }
+  function lbKey(e) {
+    if (!document.getElementById('mh-lb')) return;
+    if (e.key === 'Escape') lbClose();
+    if (e.key === 'ArrowRight') lbStep(1);
+    if (e.key === 'ArrowLeft') lbStep(-1);
+  }
+  function lbClose() { const el = document.getElementById('mh-lb'); if (el) el.remove(); document.removeEventListener('keydown', lbKey); }
+
+  /* ══════════════════════════════════════════════════════════════════
      ИКОНКИ СХЕМ РАССАДКИ
 
-     Заглушки: рисуем по полю shape из ML.SEATING. Настоящие иконки
-     придут позже — менять нужно будет только SEAT_SHAPES, страницы
-     обращаются сюда и ничего о фигурах не знают.
+     Иконки клиента (SEAT_ICONS), по ключу схемы из ML.SEATING. Страницы
+     обращаются сюда и ничего о фигурах не знают — менять только здесь.
 
      У каждой иконки title и aria-label с названием схемы: без подписи
      ряд из семи фигур нечитаем.
      ══════════════════════════════════════════════════════════════════ */
 
-  const SEAT_SHAPES = {
-    triangle:   '<path d="M12 4.5 20.5 19.5H3.5z"/>',
-    square:     '<rect x="4.5" y="4.5" width="15" height="15" rx="1.6"/>',
-    u:          '<path d="M6 4.5v8a6 6 0 0 0 12 0v-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
-    circle:     '<circle cx="12" cy="12" r="7.6"/>',
-    dots:       '<circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="8" r="2.1"/><circle cx="17" cy="8" r="2.1"/>'
-                + '<circle cx="7" cy="16" r="2.1"/><circle cx="12" cy="16" r="2.1"/><circle cx="17" cy="16" r="2.1"/>',
-    halfcircle: '<path d="M3.6 17.5a8.4 8.4 0 0 1 16.8 0z"/>',
-    rect:       '<rect x="3" y="7.6" width="18" height="8.8" rx="1.6"/>',
+  /* Иконки схем рассадки — из файла клиента «Подбор площадок и поставщиков —
+     прототип фильтров» (SEAT_ICONS), рисуются в viewBox 0 0 16 16. Ключи — ML.SEATING. */
+  const SEAT_ICONS = {
+    theatre:   '<rect x="2" y="3" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1"/><rect x="2" y="11" width="12" height="2" rx="1"/>',
+    class:     '<circle cx="4" cy="4" r="1.6"/><circle cx="12" cy="4" r="1.6"/><circle cx="4" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/>',
+    ushape:    '<path d="M4 3 v5 a4 4 0 0 0 8 0 V3" fill="none" stroke="currentColor" stroke-width="2"/>',
+    banquet:   '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2"/>',
+    reception: '<circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="8" cy="5" r="1.5"/><circle cx="8" cy="11" r="1.5"/>',
+    cabaret:   '<circle cx="8" cy="9" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="3" r="1.2"/>',
+    board:     '<rect x="3" y="6" width="10" height="4" rx="2"/>',
   };
 
   function seatingOf(key) {
@@ -720,11 +1434,11 @@ const MH = (() => {
   function seatIcon(key, opts) {
     opts = opts || {};
     const s = seatingOf(key);
-    const shape = SEAT_SHAPES[(s && s.shape) || ''] || SEAT_SHAPES.square;
+    const shape = SEAT_ICONS[(s && s.k) || key] || SEAT_ICONS.board;
     const name = opts.label || (s ? s.l : key);
     const size = opts.size || 18;
     return `<svg class="ml-seat${opts.cls ? ' ' + opts.cls : ''}" width="${size}" height="${size}"`
-      + ` viewBox="0 0 24 24" fill="currentColor" role="img"`
+      + ` viewBox="0 0 16 16" fill="currentColor" role="img"`
       + ` aria-label="${String(name).replace(/"/g, '&quot;')}"><title>${String(name).replace(/</g, '&lt;')}</title>`
       + shape + '</svg>';
   }
@@ -976,10 +1690,8 @@ const MH = (() => {
       .mh-seg-i svg { width: 14px; height: 14px; flex-shrink: 0; }
       .mh-seg-i:hover { background: #2E4252; color: #fff; }
       .mh-seg-i.on { background: #E98667; color: #fff; font-weight: 600; }
-      .mh-demo-note { margin-left: auto; font-size: 10.5px; color: #5E7688; }
       @media (max-width: 900px) {
         .mh-demo { padding: 6px 14px; gap: 6px 14px; }
-        .mh-demo-note { margin-left: 0; width: 100%; }
       }
       @media (max-width: 560px) {
         .mh-seg-i span { display: none; }
@@ -992,19 +1704,28 @@ const MH = (() => {
     const page = location.pathname.split('/').pop();
     const role = new URLSearchParams(location.search).get('role');
     const lv = DEMO_LEVELS.map(x =>
-      `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('');
+      `<button type="button" data-demo-level="${x.k}"${cur === x.k ? ' class="on"' : ''}>${x.l}</button>`).join('')
+      + ((typeof ML !== 'undefined' && ML.pendingInvoices && ML.pendingInvoices().length)
+        ? '<button type="button" data-demo-invoice>Счёт оплачен</button>' : '');
+    const sessRole = getSession() ? sessionRole() : '';
+    const onRole = page === 'dashboard.html' ? (role || sessRole) : sessRole;
+    /* Роли — отдельные аккаунты. Переключатель входит в демо-аккаунт нужной
+       роли; в рабочей версии его нет, у пользователя только своя роль. */
     const rl = DEMO_ROLES.map(x =>
-      `<a class="mh-seg-i${page === 'dashboard.html' && role === x.k ? ' on' : ''}" href="dashboard.html?role=${x.k}">
+      `<a class="mh-seg-i${onRole === x.k ? ' on' : ''}" href="dashboard.html?role=${x.k}" onclick="MH.demoRole('${x.k}');return false;">
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${x.ic}</svg>
          <span>${x.l}</span>
        </a>`).join('');
+    const onHome = page === 'homepage.html' || page === '' || page === 'index.html';
+    const bgCur = heroBg();
+    const bg = onHome ? `<span class="mh-demo-l">Фон поиска</span>
+      <div class="mh-demo-g">${[1, 2, 3].map(n => `<button type="button" data-demo-bg="${n}"${bgCur === n ? ' class="on"' : ''}>${n}</button>`).join('')}</div>` : '';
     return `<div class="mh-demo" id="mh-demo">
       <span class="mh-demo-l">Уровень доступа</span>
-      <div class="mh-demo-g">${lv}</div>
+      <div class="mh-demo-g">${lv}</div>${bg}
       <span class="mh-demo-l">Роль</span>
       <div class="mh-seg">${rl}</div>
-      <span class="mh-demo-note">Тестовая панель для демонстрации — в рабочей версии её не будет</span>
     </div>`;
   }
 
@@ -1066,9 +1787,27 @@ const MH = (() => {
     bar.querySelectorAll('[data-demo-level]').forEach(b => {
       b.addEventListener('click', () => {
         if (typeof ML === 'undefined' || !ML.setTariff) return;
-        ML.setTariff(b.dataset.demoLevel);
+        const lvl = b.dataset.demoLevel;
+        /* стр.100: «Гость» — выход из аккаунта; платный или бесплатный уровень без входа — вход в демо-пользователя */
+        if (lvl === 'guest') { if (getSession() && sessionRole() === 'user') localStorage.removeItem(KEY); }
+        else if (!getSession()) setSession(sessionFor(DEMO_ACCOUNTS.find(a => a.role === 'user')));
+        ML.setTariff(lvl);
         saveDemoScroll();
         location.reload();     // состояние уже в localStorage, страница перерисовывается целиком
+      });
+    });
+    bar.querySelectorAll('[data-demo-invoice]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (typeof ML === 'undefined' || !ML.payInvoice) return;
+        ML.payInvoice();
+        saveDemoScroll();
+        location.reload();
+      });
+    });
+    bar.querySelectorAll('[data-demo-bg]').forEach(b => {
+      b.addEventListener('click', () => {
+        try { localStorage.setItem(HERO_BG_KEY, b.dataset.demoBg); } catch (e) { /* приватный режим */ }
+        location.href = 'homepage.html?bg=' + b.dataset.demoBg;
       });
     });
     restoreDemoScroll();
@@ -1076,10 +1815,32 @@ const MH = (() => {
     window.addEventListener('resize', demoOffset);
   }
 
+  /** Вариант подложки поиска на главной: ?bg=1|2|3, иначе выбор из сервисной панели, иначе 1. */
+  const HERO_BG_KEY = 'mh_hero_bg';
+  function heroBg() {
+    const q = +new URLSearchParams(location.search).get('bg');
+    if ([1, 2, 3].includes(q)) return q;
+    let v = 0; try { v = +localStorage.getItem(HERO_BG_KEY); } catch (e) { v = 0; }
+    return [1, 2, 3].includes(v) ? v : 1;
+  }
+
+  /** Демо: войти в демо-аккаунт роли и открыть его кабинет. */
+  function demoRole(role, page) {
+    const acc = accounts().find(a => a.role === role && a.email === DEMO_ACCOUNTS[0].email)
+      || DEMO_ACCOUNTS.find(a => a.role === role);
+    if (!acc) return;
+    const prev = getSession();
+    setSession({ ...sessionFor(acc), premium: !!(prev && prev.premium) });
+    if (typeof ML !== 'undefined' && ML.isGuest && ML.isGuest()) ML.setTariff('start');
+    window.location.href = 'dashboard.html?role=' + role + (page ? '&page=' + encodeURIComponent(page) : '');
+  }
+
   /* ══════ конец демо-блока ══════ */
 
   return {
     getSession, setSession, clearSession, renderNav, init, toast, go,
+    renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
+    sessionFor, logout, demoRole, buyPremium, requireFields, requireRequestFields, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
     getFavs, toggleFav, isFav, feedback,
     isLocked, lock, blurOnly, lockBar, lockScreen,
     seatIcon, seatIconLabel, seatLegend,

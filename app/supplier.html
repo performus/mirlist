@@ -139,6 +139,20 @@ textarea.fi{min-height:88px;resize:vertical;}
   .d-title{font-size:26px;}
   .wrap{padding:18px 18px 48px;}
 }
+.tbl.props{margin-top:14px;min-width:0;width:100%;}
+.tbl.props th{width:55%;font-weight:500;color:var(--slate-muted,#7A919F);text-align:left;}
+.rvs{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rv{padding:18px 20px;}
+.rv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.rv-a{font-size:14.5px;font-weight:700;color:var(--slate-deep);}
+.rv-r{font-size:12px;color:var(--slate-muted);margin-top:2px;}
+.rv-s{color:#F0B95A;font-size:14px;letter-spacing:1px;white-space:nowrap;}
+.rv-s span{color:var(--slate-pale);opacity:.5;}
+.rv-e{font-size:12px;color:var(--slate-muted);margin:10px 0 8px;padding:4px 10px;border-radius:50px;background:var(--aqua-pale);display:inline-block;}
+.rv-t{font-size:13.5px;line-height:1.65;color:var(--slate-mid);}
+.rv-empty{padding:18px 20px;font-size:13.5px;color:var(--slate-muted);}
+.btn.pri.lg{padding:14px 30px;font-size:15px;box-shadow:0 6px 20px rgba(233,134,103,.3);}
+@media(max-width:760px){.rvs{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -170,6 +184,22 @@ function notFound(msg) {
 
 let S = null;
 
+/* R3-B, строка 106: отзывы поставщика — как у объекта: оценка, автор, мероприятие, дата, пустое состояние. */
+function reviewsBlock(s) {
+  const key = (d) => String(d).split('.').reverse().join('');
+  const list = ML.reviewsFor('supplier', s.id).slice().sort((a, b) => key(b.date).localeCompare(key(a.date)));
+  const avg = list.length ? (list.reduce((a, r) => a + (+r.rating || 0), 0) / list.length).toFixed(1).replace('.', ',') : null;
+  return `<div class="sec-head"><h2 class="sec-title">Отзывы</h2>
+      <span class="sec-sub">${list.length ? `${list.length} ${ML.plural(list.length, ['отзыв', 'отзыва', 'отзывов'])} · средняя оценка ${avg}` : 'пока нет'}</span></div>
+    ${list.length ? `<div class="rvs">${list.map(r => `<article class="rv panel">
+        <div class="rv-top"><div><div class="rv-a">${esc(r.author)}</div><div class="rv-r">${esc(r.role || '')}</div></div>
+          <div class="rv-s" aria-label="Оценка ${r.rating} из 5">${'★'.repeat(r.rating)}<span>${'★'.repeat(5 - r.rating)}</span></div></div>
+        ${r.event ? `<div class="rv-e">${esc(r.event)} · ${esc(r.date)}</div>` : `<div class="rv-e">${esc(r.date)}</div>`}
+        <p class="rv-t">${esc(r.text)}</p>
+      </article>`).join('')}</div>`
+      : `<div class="panel rv-empty">Отзывов пока нет. Оставить отзыв можно после состоявшегося мероприятия — из истории запросов в кабинете.</div>`}`;
+}
+
 function render() {
   const s = S;
   const same = ML.SUPPLIERS.filter(x => x.parent === s.parent && x.id !== s.id).slice(0, 4);
@@ -182,6 +212,15 @@ function render() {
     <td${x.loyalty ? '' : ' class="no"'}>${x.loyalty ? 'да' : 'нет'}</td>
     <td class="${x.loyalty ? 'pts' : 'no'}">${x.loyalty ? ML.servicePoints(x.price).toLocaleString('ru') + ' Б' : '—'}</td>
   </tr>`).join('');
+
+  /* R3-A: свойства, по которым поставщика находят в фильтрах — те же названия, что в панели. */
+  const yes = (b) => b ? 'да' : 'нет';
+  const props = [['Цена за', ML.priceUnitLabel(s.priceUnit).replace(/^за /, '')], ['Выезд в другие города', yes(s.travel)]];
+  if (s.child === 'Кейтеринг') props.push(['Цена на человека', s.pricePerPerson ? 'от ' + ML.money(s.pricePerPerson) : '—'],
+    ['Халяльное меню', yes(s.halal)], ['Кошерное меню', yes(s.kosher)]);
+  if (s.parent === 'Аренда' && s.child === 'Оборудование') props.push(['Доставка', yes(s.delivery)], ['Монтаж', yes(s.installation)], ['Оператор включён', yes(s.operator)]);
+  if (s.parent === 'Фото и видео') props.push(['Минимальное количество часов', s.minHours ? s.minHours + ' ч' : '—'],
+    ['Срок готовности материалов', s.deliveryDays ? 'до ' + s.deliveryDays + ' ' + ML.plural(s.deliveryDays, ['дня', 'дней', 'дней']) : '—']);
 
   const tiles = same.map(x => `<a class="tile" href="supplier.html?id=${x.id}">
     <div class="tile-img"><img src="${ML.photoUrl(x.photo)}" alt="" loading="lazy"></div>
@@ -202,14 +241,15 @@ function render() {
       <div class="d-meta">
         <span>${esc(s.city)}</span>
         <span>опыт <b>${s.exp}</b> ${ML.plural(s.exp, ['год','года','лет'])}</span>
-        <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price))}</span>
+        <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price) + ' ' + ML.priceUnitLabel(s.priceUnit))}</span>
+        ${s.travel ? '<span>выезд в другие города</span>' : ''}
         ${s.loyalty ? '<span class="tag solid">Принимает баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
-        ${s.reviews ? '<span class="tag">Отзывы</span>' : ''}
+        ${ML.supplierHasReviews(s) ? '<span class="tag">Отзывы</span>' : ''}
       </div>
     </div>
     <div class="d-actions">
-      <button class="btn pri" onclick="openRequest()">Отправить запрос</button>
+      <button class="btn pri lg" onclick="openRequest()">Отправить запрос</button>
     </div>
   </div>
 
@@ -226,6 +266,7 @@ function render() {
         <p>Категория «${esc(s.child)}» в разделе «${esc(s.parent)}». Работает в городе ${esc(s.city)} и области,
         опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}. Стоимость рассчитывается под задачу мероприятия,
         в карточке указана нижняя граница.</p>
+        ${props.length ? `<table class="tbl props">${props.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`).join('')}</table>` : ''}
       </div>
 
       <div class="sec-head">
@@ -236,8 +277,10 @@ function render() {
         <thead><tr><th>Услуга</th><th>Цена от</th><th>В бонусной программе</th><th>В баллах</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div></div>`, 'Прайс-лист доступен после регистрации')}
-      <div class="note">Услуги можно оплатить баллами бонусной программы — они начисляются
+      <div class="note">Услуги можно оплатить <a href="bonus.html" style="color:var(--coral,#E8846A);font-weight:600">баллами бонусной программы</a> — они начисляются
         за проведённые мероприятия и отзывы.</div>
+
+      ${reviewsBlock(s)}
 
       ${same.length ? `<div class="sec-head"><h2 class="sec-title">Другие в разделе «${esc(s.parent)}»</h2></div>
         <div class="tiles">${tiles}</div>` : ''}
@@ -246,13 +289,11 @@ function render() {
     <aside class="side">
       <div class="panel">
         <div class="eyebrow">Запрос поставщику</div>
-        <p>Групповой запрос отправляется только внутри одной категории — поставщиков из разных
-        разделов в один запрос собрать нельзя.</p>
         <button class="btn pri" style="width:100%" onclick="openRequest()">Отправить запрос</button>
       </div>
       <div class="panel">
         <div class="eyebrow">Контакты</div>
-        <p>Контакты пользователя поставщику не передаются — общение идёт через площадку.</p>
+        <p>Только ваш адрес электронной почты передаётся поставщику вместе с запросом.</p>
       </div>
     </aside>
   </div>`;
@@ -271,8 +312,8 @@ function openRequest() {
       <div class="modal-body">
         <p>Запрос уйдёт поставщику <b>${esc(s.name)}</b> (${esc(s.parent)} · ${esc(s.child)}).</p>
         <div class="row2">
-          <div><label class="fl">Даты</label><input class="fi" id="rqDates" value="14–16.10.2026"></div>
-          <div><label class="fl">Количество человек</label><input class="fi" id="rqGuests" type="number" value="120"></div>
+          <div><label class="fl" for="rqDates">Даты</label><input class="fi" id="rqDates" value="" placeholder="Например, 14–16.10.2026" aria-required="true"></div>
+          <div><label class="fl" for="rqGuests">Количество человек</label><input class="fi" id="rqGuests" type="number" min="1" value="" placeholder="Человек" aria-required="true"></div>
         </div>
         <label class="fl">Сопроводительное письмо</label>
         <textarea class="fi" id="rqLetter" placeholder="Что нужно от поставщика"></textarea>
@@ -291,6 +332,8 @@ function closeRequest() {
   document.removeEventListener('keydown', escClose);
 }
 function sendRequest() {
+  // стр.19: без дат и участников запрос не уходит
+  if (!MH.requireRequestFields(document.getElementById('rqDates'), document.getElementById('rqGuests'))) return;
   // запрос кладём в модель — иначе у поставщика не считается конверсия
   const req = ML.createSupplierRequest([S.id], {
     title: 'Запрос поставщику',

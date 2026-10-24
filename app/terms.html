@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>Пользовательское соглашение — МАЙСЛИСТ</title>
+<meta name="description" content="Пользовательское соглашение сайта micelist.ru: условия использования сайта, форма заявки, права и обязанности сторон.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:#EB7454;--c6:#D96345;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
+  --aq:#79B9C3;--aq-p:#EDF6F5;
+  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
+  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
+  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);
+  --r:10px;--rm:14px;--rl:20px;--rf:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
+.nav{height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:var(--w);border-bottom:1px solid rgba(197,227,225,.3);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
+.logo i{font-style:normal;color:var(--c);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}
+.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
+.nav-links a:hover{color:var(--s);background:var(--aq-p);}
+.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;}
+
+.hero{padding:56px 48px 44px;background:linear-gradient(175deg,var(--cs) 0%,var(--bg) 55%);}
+.hero-label{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rf);background:var(--w);border:1px solid rgba(235,116,84,.15);font-size:12.5px;font-weight:600;color:var(--c);margin-bottom:16px;}
+.hero h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(30px,3.5vw,46px);color:var(--sd);letter-spacing:-.005em;margin-bottom:10px;}
+.hero-meta{font-size:13.5px;color:var(--sx);}
+.hero-meta span{font-weight:600;color:var(--sm);}
+
+.layout{max-width:1060px;margin:0 auto;padding:48px 48px 96px;display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;}
+
+.toc{position:sticky;top:88px;}
+.toc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sp);margin-bottom:12px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+.toc-list a{display:block;font-size:13.5px;font-weight:500;color:var(--sx);padding:7px 12px;border-radius:var(--r);transition:all .2s;border-left:2px solid transparent;}
+.toc-list a:hover{color:var(--sd);background:var(--aq-p);}
+.toc-list a.active{color:var(--c);background:var(--cs);border-left-color:var(--c);}
+
+.content{min-width:0;}
+.section{margin-bottom:52px;scroll-margin-top:96px;}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--cs);color:var(--c);font-size:12px;font-weight:700;margin-bottom:12px;}
+.section h2{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);margin-bottom:16px;line-height:1.3;}
+.section p{font-size:15px;line-height:1.75;color:var(--sm);margin-bottom:12px;}
+.section p:last-child{margin-bottom:0;}
+
+.card{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rl);padding:28px 32px;margin-bottom:16px;box-shadow:var(--sh);}
+.card-title{font-size:15px;font-weight:700;color:var(--sd);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card-title svg{color:var(--c);flex-shrink:0;}
+.card p{font-size:14px;line-height:1.7;color:var(--sx);margin-bottom:0;}
+
+.data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px;}
+.data-item{background:var(--w);border:1px solid rgba(197,227,225,.25);border-radius:var(--rm);padding:18px 20px;}
+.data-item-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sp);margin-bottom:6px;}
+.data-item-text{font-size:13.5px;color:var(--sm);line-height:1.6;}
+
+.rights-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.rights-list li{display:flex;align-items:flex-start;gap:12px;font-size:14.5px;color:var(--sm);line-height:1.6;}
+.rights-list li::before{content:'';flex-shrink:0;width:20px;height:20px;border-radius:6px;background:var(--cs);background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' fill='none' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 6.5l2.5 2.5 5.5-6' stroke='%23EB7454' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;margin-top:1px;}
+
+.cookie-row{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(197,227,225,.2);}
+.cookie-row:last-child{border-bottom:none;}
+.cookie-name{font-size:13.5px;font-weight:700;color:var(--sd);min-width:120px;flex-shrink:0;}
+.cookie-desc{font-size:13.5px;color:var(--sx);line-height:1.6;}
+.cookie-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-bottom:4px;}
+.cookie-tag.required{background:var(--cs);color:var(--c);}
+.cookie-tag.optional{background:var(--aq-p);color:#5a9eaa;}
+
+.contact-card{background:linear-gradient(135deg,var(--sd),var(--sm));border-radius:var(--rl);padding:36px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.contact-card h3{font-family:'Literata',Georgia,serif;font-weight:600;font-size:22px;color:#fff;margin-bottom:8px;}
+.contact-card p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.6;}
+.contact-btn{padding:13px 28px;border-radius:var(--rm);background:var(--c);color:#fff;font-family:'Onest',system-ui,sans-serif;font-size:14.5px;font-weight:600;border:none;cursor:pointer;transition:all .25s;white-space:nowrap;}
+.contact-btn:hover{background:var(--c6);transform:translateY(-1px);}
+
+.footer{background:var(--sd);color:rgba(255,255,255,.5);padding:48px 48px 28px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;max-width:1060px;margin:0 auto 32px;}
+.footer-brand p{font-size:13px;line-height:1.7;margin-top:10px;color:rgba(255,255,255,.3);}
+.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.22);margin-bottom:12px;}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:7px;transition:color .2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{max-width:1060px;margin:0 auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.18);}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;padding:32px 24px 64px;}
+  .toc{display:none;}
+  .hero{padding:40px 24px 32px;}
+  .data-grid{grid-template-columns:1fr;}
+  .contact-card{flex-direction:column;}
+}
+@media(max-width:600px){
+  .nav{padding:0 20px;}
+  .nav-links a:not(.nav-cta){display:none;}
+  .footer{padding:32px 20px 20px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:20px;}
+}
+
+/* Юридические документы: нумерованные пункты, определения, списки, текст чек-бокса */
+.section .pn{font-weight:700;color:var(--sd);font-variant-numeric:tabular-nums;}
+.section .dt{font-weight:700;color:var(--sd);}
+.doc-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:2px 0 14px;}
+.doc-list:last-child{margin-bottom:0;}
+.doc-list li{position:relative;padding-left:22px;font-size:15px;line-height:1.7;color:var(--sm);}
+.doc-list li::before{content:'';position:absolute;left:6px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--c);}
+.doc-check{display:flex;gap:12px;align-items:flex-start;background:var(--w);border:1px solid rgba(197,227,225,.35);border-radius:var(--rm);padding:16px 18px;font-size:14.5px;line-height:1.65;color:var(--sm);box-shadow:var(--sh);}
+.doc-box{flex-shrink:0;width:18px;height:18px;margin-top:3px;border:1.5px solid var(--sp);border-radius:5px;background:var(--w);}
+.section a{color:var(--c);font-weight:600;}
+</style>
+</head>
+<body>
+<div id="mh-nav"></div>
+
+<div class="hero">
+  <div style="max-width:1060px;margin:0 auto;">
+    <div class="hero-label">📄 Документы</div>
+    <h1>Пользовательское соглашение</h1>
+    <p class="hero-meta">Сайт micelist.ru &nbsp;·&nbsp; Редакция от <span>22 сентября 2026 г.</span></p>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <p class="toc-title">Содержание</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="active">1. Общие положения</a></li>
+      <li><a href="#s2">2. Термины и определения</a></li>
+      <li><a href="#s3">3. Статус Пользователя и предмет Соглашения</a></li>
+      <li><a href="#s4">4. Использование Формы заявки</a></li>
+      <li><a href="#s5">5. Обработка персональных данных</a></li>
+      <li><a href="#s6">6. Права и обязанности Пользователя</a></li>
+      <li><a href="#s7">7. Права и обязанности Оператора</a></li>
+      <li><a href="#s8">8. Ограничение ответственности</a></li>
+      <li><a href="#s9">9. Интеллектуальная собственность</a></li>
+      <li><a href="#s10">10. Порядок разрешения споров</a></li>
+      <li><a href="#s11">11. Реквизиты Оператора</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <div class="content">
+
+    <div class="section" id="s1">
+      <div class="section-num">1</div>
+      <h2>Общие положения</h2>
+      <p><span class="pn">1.1.</span> Настоящее Пользовательское соглашение (далее — «Соглашение») определяет условия и порядок использования сайта micelist.ru (далее — «Сайт»), а также права и обязанности лиц, посещающих Сайт и направляющих Оператору сведения посредством веб-форм.</p>
+      <p><span class="pn">1.2.</span> Сайт принадлежит и администрируется Обществом с ограниченной ответственностью «МАЙСЛИСТ» (далее — «Оператор»).</p>
+      <p><span class="pn">1.3.</span> Принятием настоящего Соглашения является проставление Пользователем соответствующей отметки (чек-бокса) в Форме заявки и последующее нажатие кнопки «Отправить». Просмотр общедоступных страниц Сайта сам по себе не означает принятия настоящего Соглашения, предоставления согласия на обработку персональных данных или согласия на получение рекламных сообщений.</p>
+      <p><span class="pn">1.4.</span> Если лицо не согласно с условиями настоящего Соглашения, оно обязано прекратить использование функциональных возможностей Сайта, требующих принятия Соглашения, и не направлять через Сайт информацию. До направления Заявки Пользователь должен ознакомиться с Политикой в области обработки и защиты персональных данных и использования куки-файлов (далее — «Политика конфиденциальности»).</p>
+      <p><span class="pn">1.5.</span> Оператор вправе в одностороннем порядке изменять Соглашение. Новая редакция вступает в силу с момента её размещения на Сайте, если иное не указано в самой редакции, и применяется к действиям Пользователя, совершённым после её вступления в силу.</p>
+      <p><span class="pn">1.6.</span> К отношениям, связанным с использованием Сайта и настоящим Соглашением, применяется законодательство Российской Федерации, в том числе Гражданский кодекс Российской Федерации, Федеральный закон от 27.07. 2006 № 149-ФЗ «Об информации, информационных технологиях и о защите информации», Федеральный закон от 27.07. 2006 № 152-ФЗ «О персональных данных», Федеральный закон от 13.03. 2006 № 38-ФЗ «О рекламе», а в применимых случаях — Закон Российской Федерации от 07.02. 1992 № 2300-1 «О защите прав потребителей».</p>
+    </div>
+
+    <div class="section" id="s2">
+      <div class="section-num">2</div>
+      <h2>Термины и определения</h2>
+      <p><span class="pn">2.1.</span> Для целей настоящего Соглашения нижеприведённые термины используются в следующем значении.</p>
+      <p><span class="pn">2.1.1.</span> <span class="dt">Сайт</span> — совокупность программ для электронных вычислительных машин, баз данных, графических и текстовых материалов и иных результатов интеллектуальной деятельности, объединённых общим доменным именем micelist.ru, доступ к которым осуществляется посредством сети Интернет и которые предназначены для информирования Пользователей об услугах, проектах Оператора и направления заявок через веб-формы.</p>
+      <p><span class="pn">2.1.2.</span> <span class="dt">Оператор</span> — Общество с ограниченной ответственностью «МАЙСЛИСТ», ОГРН 1267700194475, ИНН 9709135484, КПП 770901001, адрес: 105064, Россия, г. Москва, ул. Казакова, д. 8, стр. 2, помещ. 1Н/3, являющееся владельцем Сайта и определяющее цели и средства обработки персональных данных Пользователей.</p>
+      <p><span class="pn">2.1.3.</span> <span class="dt">Пользователь</span> — любое дееспособное физическое лицо либо представитель юридического лица, осуществляющий доступ к Сайту, просматривающий размещённую на нём информацию и/или направляющий Оператору сведения посредством Формы заявки.</p>
+      <p><span class="pn">2.1.4.</span> <span class="dt">Форма заявки</span> — размещённая на Сайте веб-форма, посредством которой Пользователь может ввести и направить Оператору сведения, необходимые для первичного рассмотрения запроса Пользователя («Общая форма обращения», «Отправить заявку» или иная форма).</p>
+      <p><span class="pn">2.1.</span> 5. Заявка — совокупность сведений, введённых Пользователем в Форму заявки и направленных Оператору посредством нажатия кнопки «Отправить». Направление Заявки свидетельствует о намерении Пользователя установить контакт с Оператором для обсуждения возможного заключения договора, но само по себе не является офертой или акцептом договора об оказании услуг, участии в проекте либо иной основной сделки и не обязывает Оператора заключить такой договор.</p>
+      <p><span class="pn">2.1.</span> 6. Персональные данные — любая информация, относящаяся прямо или косвенно к определённому или определяемому физическому лицу (Пользователю), включая фамилию, имя, отчество (при наличии), контактный номер телефона, адрес электронной почты, а также иные сведения, которые Пользователь указывает в Форме заявки.</p>
+      <p><span class="pn">2.1.</span> 7. Обработка персональных данных — любое действие (операция) или совокупность действий с персональными данными, совершаемых с использованием средств автоматизации или без их использования, включая сбор, запись, систематизацию, накопление, хранение, уточнение, использование, передачу (предоставление, доступ), обезличивание, блокирование, удаление и уничтожение, в объёме и на условиях, предусмотренных Политикой конфиденциальности и Федеральным законом № 152-ФЗ.</p>
+      <p><span class="pn">2.1.</span> 8. Политика конфиденциальности — Политика в области обработки и защиты персональных данных и использования куки-файлов Сайта micelist.ru, утверждённая Оператором и размещённая на Сайте по адресу: <a href="privacy.html">Политика конфиденциальности</a>, определяющая порядок и условия обработки персональных данных Пользователей, перечень обрабатываемых данных, цели, сроки и иные параметры обработки.</p>
+      <p><span class="pn">2.1.</span> 9. Файлы куки (куки-файлы) — небольшие фрагменты данных, отправляемые веб-сервером и сохраняемые на устройстве Пользователя, которые при последующих обращениях к Сайту автоматически передаются веб-серверу и могут использоваться для обеспечения технического функционирования Сайта, запоминания настроек и получения статистической информации о посещениях.</p>
+      <p><span class="pn">2.1.10.</span> <span class="dt">Информационные сообщения</span> — сообщения организационного и/или технического характера, непосредственно связанные с рассмотрением направленной Заявки (подтверждение получения, запрос уточнений, ответ по предмету Заявки и т.п.) и не являющиеся рекламой в смысле законодательства Российской Федерации о рекламе.</p>
+      <p><span class="pn">2.1.11.</span> <span class="dt">Рекламные сообщения</span> — сообщения Оператора, содержащие информацию о проектах, акциях, услугах и специальных предложениях Оператора, направляемые Пользователю только при наличии его отдельного предварительного согласия в случаях, предусмотренных законодательством Российской Федерации.</p>
+      <p><span class="pn">2.2.</span> Если какой-либо термин прямо не определён в настоящем разделе, его толкование осуществляется в соответствии с текстом Соглашения, Политикой конфиденциальности, применимым законодательством Российской Федерации, а при отсутствии такого толкования — в соответствии с его обычно используемым значением.</p>
+    </div>
+
+    <div class="section" id="s3">
+      <div class="section-num">3</div>
+      <h2>Статус Пользователя и предмет Соглашения</h2>
+      <p><span class="pn">3.1.</span> Направляя Заявку после проставления соответствующей отметки (чек-бокса), Пользователь подтверждает, что ознакомился с настоящим Соглашением, понимает его содержание и принимает его условия.</p>
+      <p><span class="pn">3.2.</span> Оператор предоставляет Пользователю возможность:</p>
+      <ul class="doc-list">
+        <li>просматривать общедоступную информацию о проектах, услугах и деятельности Оператора, размещённую на Сайте;</li>
+        <li>направлять Оператору Заявки через Форму заявки.</li>
+      </ul>
+      <p><span class="pn">3.3.</span> На Сайте не создаются учётные записи Пользователей, не предоставляются личные кабинеты и не предусмотрено размещение Пользователем общедоступного пользовательского контента (комментариев, файлов, публикаций и т.п.).</p>
+      <p><span class="pn">3.4.</span> Направление Заявки через Сайт не означает автоматического заключения между Оператором и Пользователем договора об оказании услуг, участии в проекте либо иной сделки, условия которой подлежат отдельному согласованию.</p>
+    </div>
+
+    <div class="section" id="s4">
+      <div class="section-num">4</div>
+      <h2>Использование Формы заявки</h2>
+      <p><span class="pn">4.1.</span> Для направления Заявки Пользователь заполняет размещённую на Сайте Форму заявки «Общая форма обращения», «Отправить заявку» либо иную форму Оператора, вводя запрашиваемую формой информацию.</p>
+      <p><span class="pn">4.2.</span> Перед нажатием кнопки «Отправить» Пользователь обязан:</p>
+      <ul class="doc-list">
+        <li>внимательно ознакомиться с настоящим Соглашением и Политикой конфиденциальности;</li>
+        <li>убедиться в корректности и полноте указанных сведений;</li>
+        <li>не указывать сведения, не относящиеся к цели Заявки и не требуемые Формой заявки, в том числе персональные данные третьих лиц без законного основания, специальные категории персональных данных и биометрические персональные данные.</li>
+      </ul>
+      <p><span class="pn">4.3.</span> Нажимая кнопку «Отправить» после проставления предусмотренных Формой заявки отметок (чек-боксов), Пользователь:</p>
+      <ul class="doc-list">
+        <li>подтверждает принятие настоящего Соглашения;</li>
+        <li>подтверждает, что ознакомился с Политикой конфиденциальности;</li>
+        <li>направляет Оператору указанные в Форме заявки персональные данные для рассмотрения Заявки и последующей связи по указанным контактным данным. Согласие на обработку персональных данных предоставляется отдельно от принятия настоящего Соглашения — путём проставления отдельной отметки (чек-бокса) рядом с текстом согласия или ссылкой на его полный текст. Нажатие кнопки «Отправить» без проставления такой отметки само по себе не является согласием на обработку персональных данных;</li>
+        <li>подтверждает достоверность и актуальность указанных им данных.</li>
+      </ul>
+      <p><span class="pn">4.4.</span> Оператор вправе связаться с Пользователем по указанным в Заявке контактным данным, включая телефонные звонки, сообщения, мессенджеры и электронную почту (при их указании), исключительно для подтверждения получения Заявки, уточнения указанных данных и направления информационных сообщений, непосредственно связанных с рассмотрением Заявки. Направление рекламных сообщений допускается только при наличии отдельного предварительного согласия Пользователя в случаях, предусмотренных законодательством.</p>
+      <p><span class="pn">4.5.</span> Оператор вправе оставить Заявку без ответа, если она содержит очевидно недостоверные, противоречивые либо неполные данные.</p>
+    </div>
+
+    <div class="section" id="s5">
+      <div class="section-num">5</div>
+      <h2>Обработка персональных данных</h2>
+      <p><span class="pn">5.1.</span> Обработка персональных данных Пользователя, получаемых через Сайт, осуществляется Оператором в соответствии с Федеральным законом от 27.07. 2006 № 152-ФЗ, иными применимыми нормативными правовыми актами Российской Федерации, отдельным согласием Пользователя (если обработка осуществляется на основании согласия) и Политикой конфиденциальности Оператора. Цели, категории и перечень обрабатываемых персональных данных, правовые основания, способы и сроки обработки, порядок прекращения обработки и уничтожения персональных данных определяются Политикой конфиденциальности, отдельными согласиями Пользователя и иными применимыми документами в соответствии с законодательством Российской Федерации.</p>
+    </div>
+
+    <div class="section" id="s6">
+      <div class="section-num">6</div>
+      <h2>Права и обязанности Пользователя</h2>
+      <p><span class="pn">6.1.</span> Пользователь вправе:</p>
+      <ul class="doc-list">
+        <li>использовать Сайт для получения информации и направления Заявки в соответствии с настоящим Соглашением;</li>
+        <li>обратиться к Оператору по указанным на Сайте контактам для уточнения информации;</li>
+        <li>требовать уточнения, блокирования или уничтожения своих персональных данных в случаях и порядке, предусмотренных законодательством и Политикой конфиденциальности;</li>
+        <li>отозвать согласие на обработку персональных данных.</li>
+      </ul>
+      <p><span class="pn">6.2.</span> Пользователь обязан:</p>
+      <ul class="doc-list">
+        <li>соблюдать условия настоящего Соглашения и требования законодательства Российской Федерации;</li>
+        <li>при заполнении Формы заявки предоставлять достоверную, актуальную и достаточную информацию;</li>
+        <li>не использовать Сайт в целях, противоречащих закону, настоящему Соглашению, правам и законным интересам Оператора и третьих лиц;</li>
+        <li>воздерживаться от любых действий, направленных на нарушение работоспособности Сайта, и попыток несанкционированного доступа к информационным системам Оператора.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s7">
+      <div class="section-num">7</div>
+      <h2>Права и обязанности Оператора</h2>
+      <p><span class="pn">7.1.</span> Оператор вправе:</p>
+      <ul class="doc-list">
+        <li>изменять содержание, структуру и функциональные возможности Сайта без предварительного уведомления Пользователя;</li>
+        <li>временно приостанавливать работу Сайта для проведения профилактических и иных работ;</li>
+        <li>прекратить взаимодействие с Пользователем при нарушении им условий настоящего Соглашения или законодательства Российской Федерации.</li>
+      </ul>
+      <p><span class="pn">7.2.</span> Оператор обязуется:</p>
+      <ul class="doc-list">
+        <li>обеспечивать обработку персональных данных Пользователя в соответствии с требованиями законодательства Российской Федерации и Политикой конфиденциальности;</li>
+        <li>принимать разумные меры по поддержанию работоспособности Сайта, за исключением случаев проведения технических работ и обстоятельств непреодолимой силы.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s8">
+      <div class="section-num">8</div>
+      <h2>Ограничение ответственности</h2>
+      <p><span class="pn">8.1.</span> Сайт и его функциональность предоставляются Пользователю по принципу «как есть». Оператор не гарантирует, что Сайт будет функционировать безошибочно и бесперебойно, а также что Сайт и размещённая на нём информация будут полностью соответствовать ожиданиям и целям Пользователя.</p>
+      <p><span class="pn">8.2.</span> Оператор не несёт ответственности:</p>
+      <ul class="doc-list">
+        <li>за невозможность использования Сайта по причинам, не зависящим от Оператора, в том числе в связи с действиями провайдеров связи, сбоями оборудования, действиями третьих лиц или обстоятельствами непреодолимой силы;</li>
+        <li>за последствия указания Пользователем неполных, недостоверных или ошибочных сведений в Заявке;</li>
+        <li>за убытки, возникшие вследствие использования или невозможности использования Сайта и/или размещённой на нём информации, если такие убытки возникли не по вине Оператора.</li>
+      </ul>
+      <p><span class="pn">8.3.</span> Положения настоящего раздела применяются в пределах, допускаемых законодательством Российской Федерации, и не ограничивают ответственность Оператора и права Пользователя, которые не могут быть ограничены соглашением сторон.</p>
+    </div>
+
+    <div class="section" id="s9">
+      <div class="section-num">9</div>
+      <h2>Интеллектуальная собственность</h2>
+      <p><span class="pn">9.1.</span> Все объекты, размещённые на Сайте (включая, но не ограничиваясь, логотипы, текстовые материалы, изображения, элементы дизайна, структуру страниц, программный код), являются объектами исключительных прав Оператора и/или иных правообладателей и охраняются в соответствии с законодательством Российской Федерации.</p>
+      <p><span class="pn">9.2.</span> Пользователь вправе использовать материалы Сайта исключительно для личного ознакомления. Любое воспроизведение, копирование, распространение, модификация, публичное использование материалов Сайта без предварительного письменного согласия соответствующего правообладателя не допускается, за исключением случаев, прямо предусмотренных законодательством Российской Федерации.</p>
+    </div>
+
+    <div class="section" id="s10">
+      <div class="section-num">10</div>
+      <h2>Порядок разрешения споров</h2>
+      <p><span class="pn">10.1.</span> Все споры и разногласия, возникающие в связи с применением настоящего Соглашения или использованием Сайта, по возможности подлежат урегулированию путём переговоров между Оператором и Пользователем.</p>
+      <p><span class="pn">10.2.</span> При невозможности урегулирования спора он подлежит рассмотрению в суде в соответствии с правилами подведомственности и подсудности, установленными законодательством Российской Федерации. Настоящее положение не ограничивает права потребителя на выбор суда в случаях, предусмотренных законом.</p>
+    </div>
+
+    <div class="section" id="s11">
+      <div class="section-num">11</div>
+      <h2>Реквизиты Оператора</h2>
+      <div class="data-grid">
+        <div class="data-item"><div class="data-item-label">Оператор</div><div class="data-item-text">Общество с ограниченной ответственностью «МАЙСЛИСТ»</div></div>
+        <div class="data-item"><div class="data-item-label">ОГРН</div><div class="data-item-text">1267700194475</div></div>
+        <div class="data-item"><div class="data-item-label">ИНН</div><div class="data-item-text">9709135484</div></div>
+        <div class="data-item"><div class="data-item-label">КПП</div><div class="data-item-text">770901001</div></div>
+        <div class="data-item"><div class="data-item-label">Адрес</div><div class="data-item-text">105064, Россия, г. Москва, ул. Казакова, д. 8, стр. 2, помещ. 1Н/3</div></div>
+        <div class="data-item"><div class="data-item-label">Электронная почта</div><div class="data-item-text"><a href="mailto:info@micelist.ru">info@micelist.ru</a></div></div>
+        <div class="data-item"><div class="data-item-label">Телефон</div><div class="data-item-text">+79251751570; +79166704905</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="mh-footer"></div>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('.section[id]');
+
+  function onScroll(){
+    var scrollY = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s){
+      if(s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function(l){
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  links.forEach(function(l){
+    l.addEventListener('click', function(e){
+      e.preventDefault();
+      var target = document.querySelector(l.getAttribute('href'));
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+})();
+</script>
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>MH.init();</script>
+</body>
+</html>
