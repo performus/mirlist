@@ -1821,7 +1821,7 @@
     if (obj.status === 'cancelled' || obj.status === 'declined') return false;
     if (next === 'cancelled') return true;
     if (next === 'done') return obj.status === 'sent';
-    if (next === 'reviewed') return obj.status === 'done';
+    if (next === 'reviewed') return obj.status === 'done' && !!obj.venueDone;   // R5 стр.165: отзыв — после подтверждения обеими сторонами
     return false;
   }
 

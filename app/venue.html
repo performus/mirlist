@@ -55,7 +55,11 @@ button{font-family:inherit;cursor:pointer;}
 .d-meta b{color:var(--slate-deep);font-weight:700;}
 .d-stars{color:#F0B95A;letter-spacing:1px;}
 .d-rating{display:inline-flex;align-items:center;gap:4px;}
-.d-rating svg{color:#F0B95A;}
+.d-rating svg{color:var(--slate-pale,#B4C3CC);}
+/* R5 стр.153: звёзды отеля — золотые после названия; рейтинг — серая звёздочка */
+.gold-stars{margin-left:8px;color:#E0A93B;letter-spacing:1px;font-size:.62em;vertical-align:.18em;white-space:nowrap;font-family:'Onest',sans-serif;}
+.gold-stars.sm{font-size:13px;margin-left:6px;vertical-align:0;}
+.d-cap{border-bottom:1px dotted #B4C3CC;cursor:help;}
 .d-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
 .tag{display:inline-flex;align-items:center;padding:4px 11px;border-radius:var(--r-full);font-size:11.5px;font-weight:600;background:var(--aqua-pale);color:var(--slate-mid);}
@@ -272,7 +276,7 @@ function render() {
 
   const rows = full
     ? [['Категория', v.cat], ...starRow, ['Город', v.city], ['Адрес', v.addr],
-       ['Вместимость', cap + ' чел.'],
+       ['Вместимость', 'до ' + cap + ' чел. в самом большом зале'],
        ['Номерной фонд', ML.venueRooms(v) ? `${ML.venueRooms(v)} ${ML.plural(ML.venueRooms(v), ['номер', 'номера', 'номеров'])}${(v.rooms.twin || v.rooms.sngl) ? ` · TWIN ${v.rooms.twin || 0} · SNGL ${v.rooms.sngl || 0}` : ''}` : 'нет'],
        ['Залов', v.halls.length],
        ...(v.dressingRooms ? [['Гримёрок', v.dressingRooms]] : []),
@@ -290,13 +294,12 @@ function render() {
   <div class="dhead">
     <div>
       <span class="d-eyebrow">${esc(v.cat)}</span>
-      <h1 class="d-title">${esc(v.name)}${
+      <h1 class="d-title">${esc(v.name)}${v.stars ? `<span class="gold-stars" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}${
         v.loyaltyContract ? '<span class="d-loyal">Бонусная программа</span>' : ''}</h1>
       <div class="d-meta">
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
-        <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
+        <span class="d-cap" title="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
         <span><b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</span>
-        ${v.stars ? `<span class="star-badge" aria-label="Звёздность ${v.stars}" title="Звёздность отеля">${v.stars}★</span>` : ''}
         <span class="d-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
 
       </div>

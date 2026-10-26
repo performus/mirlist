@@ -851,5 +851,16 @@ test('R5 стр.131/146: старые ссылки и фильтры с пуст
   assert.ok(!ML.filtersSummary(ML.emptyFilters()).includes('Комбинированное'), 'тип по умолчанию в сводку не попадает');
 });
 
+test('R5 стр.165: отзыв — только после подтверждения обеими сторонами', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  const r = ML.state.requests[0], venueId = r.objects[0].venueId, o = r.objects[0];
+  assert.ok(ML.setStatus(r.id, venueId, 'done', { guests: 100, dates: '15.09.2026' }));
+  assert.strictEqual(ML.canSetStatus(o, 'reviewed'), false, 'отметил только пользователь — отзыв недоступен');
+  assert.strictEqual(ML.setStatus(r.id, venueId, 'reviewed', { review: { rating: 5, text: 'x' } }), false);
+  ML.venueMarkDone(r.id, venueId, 100);
+  assert.strictEqual(ML.canSetStatus(o, 'reviewed'), true, 'отметили обе стороны — отзыв доступен');
+  assert.ok(ML.setStatus(r.id, venueId, 'reviewed', { review: { rating: 5, text: 'Всё прошло хорошо' } }));
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

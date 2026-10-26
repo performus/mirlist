@@ -243,6 +243,9 @@ textarea.fi{min-height:110px;resize:vertical;line-height:1.55;}
   .colhead.corner{width:150px;min-width:150px;max-width:150px;}
   .row2{grid-template-columns:1fr;}
 }
+/* R5 стр.153 */
+.gold-stars{margin-left:8px;color:#E0A93B;letter-spacing:1px;font-size:.62em;vertical-align:.18em;white-space:nowrap;font-family:'Onest',sans-serif;}
+.gold-stars.sm{font-size:13px;margin-left:6px;vertical-align:0;}
 .star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12px;font-weight:700;}
 .one{max-width:720px;}
 .one-card{display:flex;gap:16px;align-items:center;margin-top:20px;background:var(--white,#fff);border:1px solid rgba(197,227,225,.35);border-radius:var(--r-lg,20px);box-shadow:var(--sh-md);padding:14px;}
@@ -293,7 +296,7 @@ function buildRows() {
     ['Объект',            (h, v) => `<a href="venue.html?id=${v.id}" style="color:var(--coral)">${esc(v.name)}</a>`],
     ['Категория объекта', (h, v) => esc(v.cat)],
     ['Звёздность', (h, v) => ML.STARRED_CATS.includes(v.cat)
-      ? (v.stars ? `<span class="star-badge" aria-label="Звёздность ${v.stars}">${v.stars}★</span>` : 'не присвоена')
+      ? (v.stars ? `<span class="gold-stars sm" style="margin-left:0" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : 'не присвоена')
       : 'не применимо'],
     ['Город',             (h, v) => esc(v.city)],
     { g: 'Зал' },
@@ -317,7 +320,7 @@ function buildRows() {
     ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'Нет почасовой аренды'],
     ['Номерной фонд объекта', (h, v) => (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
     ['Точный план пространства', h => h.plan ? 'есть' : 'нет'],
-    ['Рейтинг объекта',   (h, v) => `${v.rating} (${v.reviews})`],
+    ['Рейтинг объекта',   (h, v) => `<span style="color:#B4C3CC">★</span> ${String(v.rating).replace('.', ',')} (${v.reviews})`],
   );
   return rows;
 }
