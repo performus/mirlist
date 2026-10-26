@@ -714,7 +714,7 @@ function appealsPage(role){
 /* ── R3-B, строка 95: профиль компании в кабинетах площадки и поставщика ── */
 const COMPANY_DEFAULT = {
   venue: { name: 'ООО «Аврора Отель Групп»', person: 'Ирина Котова', phone: '+7 495 120-45-67', mail: 'demo@micelist.ru' },
-  supplier: { name: 'ИП Соколов Артём Игоревич', person: 'Артём Соколов', phone: '+7 916 555-12-34', mail: 'demo@micelist.ru' },
+  supplier: { name: 'ИП Соколов Артём Игоревич', person: 'Артём Соколов', phone: '+7 900 555-12-34', mail: 'demo@micelist.ru' },
 };
 function companyData(role){
   try { return Object.assign({}, COMPANY_DEFAULT[role], JSON.parse(localStorage.getItem('ml_company_' + role) || '{}')); }
@@ -2473,7 +2473,7 @@ profile:()=>`
       <div class="form-group"><label class="form-label">Почта</label>
         <input class="form-input" type="email" value="anna@company.ru"></div>
       <div class="form-group"><label class="form-label">Телефон</label>
-        <input class="form-input" type="tel" value="+7 916 000-00-00"></div>
+        <input class="form-input" type="tel" value="+7 900 000-00-00"></div>
     </div>
     <div class="form-group"><label class="form-label">Место работы</label>
       <input class="form-input" value="ООО «Компания»" placeholder="Организация и должность"></div>
@@ -2870,7 +2870,7 @@ sprofile:()=>`
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Телефон</label>
-        <input class="form-input" placeholder="+7 916 000-00-00"></div>
+        <input class="form-input" placeholder="+7 900 000-00-00"></div>
       <div class="form-group"><label class="form-label">Почта для запросов</label>
         <input class="form-input" placeholder="hello@supplier.ru"></div>
     </div>
