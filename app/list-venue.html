@@ -3,386 +3,385 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Разместите площадку на МАЙСЛИСТ и получайте заявки от организаторов мероприятий.">
-<meta property="og:title" content="МАЙСЛИСТ">
-<meta property="og:description" content="Разместите площадку на МАЙСЛИСТ и получайте заявки от организаторов мероприятий.">
-<meta property="og:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mirlist.vercel.app/assets/photos/hero.jpg">
+<title>Для площадок — МАЙСЛИСТ</title>
+<meta name="description" content="Для менеджеров отелей, концертных залов, конгресс-центров: добавьте залы в МАЙСЛИСТ и получайте запросы от организаторов мероприятий.">
+<meta property="og:title" content="Для площадок — МАЙСЛИСТ">
+<meta property="og:description" content="Добавьте залы в МАЙСЛИСТ и получайте запросы от организаторов мероприятий.">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<title>Разместите площадку — Площадки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --c:#EB7454;--c6:#D96345;--c8:#B14A32;--cs:#FCEAE4;--cg:rgba(235,116,84,.12);
-  --aq:#79B9C3;--aq-s:#D9ECEB;--aq-p:#EDF6F5;
-  --s:#46627A;--sm:#3E596F;--sd:#354E63;--sx:#7A919F;--sp:#B4C3CC;
-  --pc:#F6E6DE;--bg:#F8F5F2;--w:#FFF;
-  --sh:0 4px 20px rgba(53,78,99,.07);--shl:0 8px 40px rgba(53,78,99,.09);--shc:0 4px 18px rgba(235,116,84,.22);
-  --r:10px;--rm:14px;--rl:20px;--rf:50px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--s);-webkit-font-smoothing:antialiased;}
-a{text-decoration:none;color:inherit;}
-button{font-family:inherit;cursor:pointer;}
-.serif{font-family:'Literata',Georgia,serif;font-weight:600;}
-
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;padding:0 48px;display:flex;align-items:center;gap:32px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(197,227,225,.25);transition:background .3s;}
-.nav-logo{font-family:'Literata',Georgia,serif;font-weight:600;font-size:24px;color:var(--sd);}
-.nav-logo i{font-style:normal;color:var(--c);}
-.nav-links{display:flex;gap:8px;margin-left:auto;}
-.nav-links a{font-size:13.5px;font-weight:500;color:var(--sx);padding:8px 16px;border-radius:var(--rf);transition:all .2s;}
-.nav-links a:hover{color:var(--s);background:var(--aq-p);}
-.nav-cta{background:var(--c)!important;color:#fff!important;font-weight:600!important;box-shadow:var(--shc);}
-.nav-cta:hover{background:var(--c6)!important;}
-
-/* HERO */
-.hero{position:relative;min-height:92vh;display:flex;align-items:center;padding:120px 80px 80px;gap:60px;overflow:hidden;}
-.hero-bg{position:absolute;inset:0;z-index:0;}
-.hero-bg-grad{position:absolute;inset:0;background:linear-gradient(135deg,rgba(235,116,84,.08) 0%,rgba(248,245,242,.6) 30%,rgba(237,246,245,.4) 60%,rgba(246,221,211,.3) 100%);}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.3;}
-.hero-orb-1{width:600px;height:600px;background:var(--c);top:-15%;right:-10%;animation:float 25s ease-in-out infinite;}
-.hero-orb-2{width:450px;height:450px;background:var(--aq);bottom:-10%;left:-5%;animation:float 20s ease-in-out infinite reverse;}
-.hero-orb-3{width:300px;height:300px;background:var(--pc);top:30%;left:40%;animation:float 18s ease-in-out infinite 5s;}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-25px) scale(1.05)}66%{transform:translate(-20px,20px) scale(.96)}}
-.hero-grid{position:absolute;inset:0;opacity:.025;background-image:linear-gradient(var(--s) 1px,transparent 1px),linear-gradient(90deg,var(--s) 1px,transparent 1px);background-size:60px 60px;}
-
-.hero-content{position:relative;z-index:1;max-width:600px;flex:1;}
-.hero-label{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(255,255,255,.8);border:1px solid rgba(235,116,84,.15);border-radius:var(--rf);font-size:13px;font-weight:600;color:var(--c);margin-bottom:32px;backdrop-filter:blur(8px);animation:fadeUp .7s ease both;}
-.hero-h1{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(40px,5.2vw,64px);line-height:1.1;color:var(--sd);letter-spacing:-.005em;margin-bottom:20px;animation:fadeUp .7s ease .1s both;}
-.hero-h1 em{font-style:italic;color:var(--c);position:relative;}
-.hero-sub{font-size:18px;line-height:1.65;color:var(--sx);max-width:520px;margin-bottom:40px;animation:fadeUp .7s ease .2s both;}
-.hero-actions{display:flex;gap:14px;align-items:center;margin-bottom:40px;animation:fadeUp .7s ease .3s both;}
-.btn-hero{padding:16px 36px;border-radius:var(--rm);font-size:16px;font-weight:600;border:none;transition:all .3s;}
-.btn-hero.primary{background:var(--c);color:#fff;box-shadow:var(--shc);}
-.btn-hero.primary:hover{background:var(--c6);transform:translateY(-2px);box-shadow:0 8px 28px rgba(235,116,84,.3);}
-.btn-hero.secondary{background:var(--w);color:var(--s);border:1.5px solid var(--sp);}
-.btn-hero.secondary:hover{border-color:var(--c);color:var(--c);}
-.hero-trust{display:flex;gap:32px;animation:fadeUp .7s ease .4s both;}
-.trust-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--sx);}
-.trust-num{font-size:22px;font-weight:700;color:var(--c);}
-
-/* Hero right illustration */
-.hero-right{flex:0 0 420px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;animation:fadeUp .8s ease .3s both;}
-.hero-card-stack{position:relative;}
-.hc{position:absolute;background:var(--w);border-radius:var(--rl);box-shadow:var(--shl);overflow:hidden;}
-.hc-1{width:390px;top:0;right:0;z-index:3;animation:cardFloat 6s ease-in-out infinite;}
-.hc-2{width:310px;top:75px;right:88px;z-index:2;opacity:.7;animation:cardFloat 6s ease-in-out 2s infinite;}
-.hc-3{width:265px;top:138px;right:156px;z-index:1;opacity:.45;animation:cardFloat 6s ease-in-out 4s infinite;}
-@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hc-img{height:170px;overflow:hidden;position:relative;}
-.hc-img svg{width:100%;height:100%;}
-.hc-img img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;}
-.hc-1 .hc-img img{animation:kenBurns 18s ease-in-out infinite alternate;}
-@keyframes kenBurns{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.06) translate(-1%,.5%)}100%{transform:scale(1.03) translate(.5%,-1%)}}
-.hc-body{padding:16px 18px;}
-.hc-name{font-size:14px;font-weight:600;color:var(--sd);margin-bottom:4px;}
-.hc-meta{font-size:12px;color:var(--sx);display:flex;gap:10px;}
-.hc-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;background:rgba(255,255,255,.9);color:var(--s);backdrop-filter:blur(6px);}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-/* SECTIONS */
-.section{padding:100px 48px;}.section.alt{background:var(--w);}
-.section-center{text-align:center;max-width:640px;margin:0 auto 56px;}
-.section-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c);margin-bottom:14px;}
-.section-label::before{content:'';width:20px;height:2px;background:var(--c);border-radius:2px;}
-.section-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,3.5vw,40px);color:var(--sd);letter-spacing:-.005em;line-height:1.15;margin-bottom:12px;}
-.section-desc{font-size:16px;color:var(--sx);line-height:1.65;max-width:520px;margin:0 auto;}
-
-.container{max-width:1200px;margin:0 auto;}
-
-/* HOW IT WORKS */
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
-.step-card{text-align:center;padding:36px 24px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.18);position:relative;transition:all .35s;}
-.step-card:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
-.step-num{position:absolute;top:16px;left:20px;font-size:42px;font-weight:700;color:var(--cg);font-family:'Literata',Georgia,serif;line-height:1;}
-.step-icon{width:64px;height:64px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:28px;}
-.step-title{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:6px;}
-.step-text{font-size:13.5px;color:var(--sx);line-height:1.55;}
-
-/* BENEFITS */
-.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.benefit-card{padding:32px 28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);transition:all .35s;position:relative;overflow:hidden;}
-.benefit-card:hover{transform:translateY(-3px);box-shadow:var(--shl);border-color:rgba(235,116,84,.15);}
-.benefit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
-.benefit-card:hover::before{transform:scaleX(1);}
-.benefit-icon{width:52px;height:52px;border-radius:14px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px;}
-.benefit-title{font-size:16px;font-weight:600;color:var(--sd);margin-bottom:8px;}
-.benefit-text{font-size:14px;color:var(--sx);line-height:1.6;}
-
-/* VENUES EXAMPLES */
-.venues-scroll{display:flex;gap:20px;overflow-x:auto;padding:4px 0 24px;scrollbar-width:none;}
-.venues-scroll::-webkit-scrollbar{display:none;}
-.ex-card{flex:0 0 280px;border-radius:var(--rl);overflow:hidden;background:var(--w);border:1px solid rgba(197,227,225,.12);cursor:pointer;transition:all .35s;}
-.ex-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
-.ex-img{height:170px;overflow:hidden;position:relative;}
-.ex-img svg,.ex-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
-.ex-card:hover .ex-img svg,.ex-card:hover .ex-img img{transform:scale(1.05);}
-.ex-badge{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:600;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);color:var(--s);}
-.ex-body{padding:16px 18px 18px;}
-.ex-name{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:4px;}
-.ex-loc{font-size:12.5px;color:var(--sx);margin-bottom:10px;}
-.ex-foot{display:flex;align-items:center;justify-content:space-between;}
-.ex-price{font-size:12px;color:var(--sx);}.ex-price strong{font-size:16px;font-weight:700;color:var(--sd);}
-.ex-cap{font-size:12px;color:var(--sx);display:flex;align-items:center;gap:4px;}
-
-/* CATEGORIES */
-.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-.cat-item{padding:24px 20px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .3s;}
-.cat-item:hover{border-color:var(--c);background:var(--cs);transform:translateY(-2px);}
-.cat-icon{width:48px;height:48px;border-radius:12px;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;transition:background .3s;}
-.cat-item:hover .cat-icon{background:var(--c);}
-.cat-item:hover .cat-icon svg{stroke:#fff;}
-.cat-name{font-size:15px;font-weight:600;color:var(--sd);}
-.cat-desc{font-size:12.5px;color:var(--sx);margin-top:2px;}
-
-/* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.feat-card{padding:28px 24px;border-radius:var(--rl);background:var(--bg);border:1px solid rgba(197,227,225,.15);text-align:center;transition:all .3s;}
-.feat-card:hover{background:var(--cs);border-color:rgba(235,116,84,.12);transform:translateY(-3px);}
-.feat-icon{display:flex;justify-content:center;align-items:center;height:36px;margin-bottom:14px;}
-.feat-title{font-size:15px;font-weight:600;color:var(--sd);margin-bottom:6px;}
-.feat-text{font-size:13px;color:var(--sx);line-height:1.55;}
-
-/* TESTIMONIALS */
-.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.test-card{padding:28px;border-radius:var(--rl);background:var(--w);border:1px solid rgba(197,227,225,.15);position:relative;}
-.test-quote{font-size:14.5px;color:var(--sm);line-height:1.7;margin-bottom:18px;font-style:italic;}
-.test-quote::before{content:'«';font-family:'Literata',Georgia,serif;font-weight:600;font-size:36px;color:var(--c);opacity:.3;position:absolute;top:16px;left:20px;}
-.test-author{display:flex;align-items:center;gap:12px;}
-.test-avatar{width:40px;height:40px;border-radius:50%;background:var(--cs);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--c);}
-.test-name{font-size:14px;font-weight:600;color:var(--sd);}
-.test-role{font-size:12px;color:var(--sx);}
-.test-rating{display:flex;gap:2px;margin-top:4px;}
-.test-rating svg{color:var(--c);}
-
-/* FINAL CTA */
-.cta-section{padding:80px 48px;text-align:center;position:relative;overflow:hidden;}
-.cta-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--cs) 0%,var(--pc) 40%,var(--aq-p) 100%);z-index:0;}
-.cta-inner{position:relative;z-index:1;}
-.cta-title{font-family:'Literata',Georgia,serif;font-weight:600;font-size:clamp(28px,4vw,42px);color:var(--sd);margin-bottom:12px;}
-.cta-desc{font-size:17px;color:var(--sx);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
-.cta-btn{padding:18px 48px;border-radius:var(--rm);font-size:17px;font-weight:700;border:none;background:var(--c);color:#fff;box-shadow:var(--shc);transition:all .3s;}
-.cta-btn:hover{background:var(--c6);transform:translateY(-2px);box-shadow:0 8px 32px rgba(235,116,84,.3);}
-.cta-note{font-size:13px;color:var(--sx);margin-top:16px;}
-
-/* FOOTER */
-.footer{background:var(--sd);color:rgba(255,255,255,.6);padding:64px 48px 32px;}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
-.footer-brand p{font-size:13px;line-height:1.7;max-width:280px;margin-top:10px;color:rgba(255,255,255,.35);}
-.footer-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);margin-bottom:14px;}
-.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;}
-.footer-col a:hover{color:#fff;}
-.footer-bottom{max-width:1200px;margin:0 auto;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.2);}
-
-/* Reveal animation */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
-.reveal.vis{opacity:1;transform:translateY(0);}
-
-@media(max-width:1100px){.hero-right{display:none;}.hero{padding:120px 48px 80px;gap:0;}}
-@media(max-width:900px){.steps-grid,.benefits-grid,.features-grid,.test-grid{grid-template-columns:1fr 1fr;}.cat-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.nav{padding:0 20px;height:60px;}.nav-links a:not(.nav-cta){display:none;}.hero{padding:100px 20px 60px;min-height:auto;}.hero-h1{font-size:32px;}.hero-sub{font-size:16px;}.hero-actions{flex-direction:column;align-items:stretch;}.btn-hero{text-align:center;}.hero-trust{flex-direction:column;gap:12px;}.section{padding:60px 20px;}.steps-grid,.benefits-grid,.features-grid,.test-grid,.cat-grid{grid-template-columns:1fr;}.footer{padding:40px 20px 20px;}.footer-grid{grid-template-columns:1fr 1fr;gap:20px;}.cta-section{padding:48px 20px;}}
-</style>
+<link rel="stylesheet" href="landing.css">
 </head>
-<body>
-
+<body class="lp-venues">
 <div id="mh-nav"></div>
+<!-- R4: текст — дословно по «лендинг_площадкам2.md», раскладки — по R4_LANDINGS_DESIGN_SPEC.md (раздел 3, «Площадки»). -->
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg">
-    <div class="hero-bg-grad"></div>
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
-    <div class="hero-orb hero-orb-3"></div>
-    <div class="hero-grid"></div>
-  </div>
-
-  <div class="hero-content">
-    <div class="hero-label">
-      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 5V3.5a3 3 0 016 0V5" stroke="currentColor" stroke-width="1.4"/></svg>
-      Для владельцев площадок
-    </div>
-    <h1 class="hero-h1">Привлекайте <em>клиентов</em> на&nbsp;вашу площадку</h1>
-    <p class="hero-sub">Получайте заявки на мероприятия напрямую от организаторов. Бесплатная регистрация, простое управление, реальные клиенты.</p>
-    <div class="hero-actions">
-      <button class="btn-hero primary" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
-      <button class="btn-hero secondary" onclick="document.getElementById('howItWorks').scrollIntoView({behavior:'smooth'})">Как это работает</button>
-    </div>
-    <div class="hero-trust">
-      <div class="trust-item"><span class="trust-num">1 000+</span> площадок</div>
-      <div class="trust-item"><span class="trust-num">10 000+</span> мероприятий</div>
-      <div class="trust-item"><span class="trust-num">120</span> городов</div>
-    </div>
-  </div>
-
-  <div class="hero-right">
-    <div class="hero-card-stack" style="height:400px;width:100%;position:relative;">
-      <div class="hc hc-1">
-        <div class="hc-img"><img src="../assets/photos/v1.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"><div class="hc-badge">Конференц-зал</div></div>
-        <div class="hc-body"><div class="hc-name">Конференц-зал «Панорама»</div><div class="hc-meta"><span>до 250 чел.</span><span>от 45 000 ₽</span></div></div>
+<!-- 1. Hero сплитом: карточка зала из выдачи и уведомление о новом запросе -->
+<header class="lp-hero">
+  <div class="lp-wrap lp-hero-in">
+    <div>
+      <div class="lp-kicker"><b>Для площадок</b></div>
+      <p class="lp-who">Для менеджеров отелей, концертных залов, конгресс-центров</p>
+      <h1 class="lp-h1">Получайте запросы от организаторов мероприятий</h1>
+      <p class="lp-lead">Если вы распоряжаетесь залами — добавьте информацию о них в МАЙСЛИСТ. Сотни организаторов ежедневно ищут помещение под мероприятие. Им требуется зал в определенном городе, способный разместить участников с комфортом и предоставить нужную инфраструктуру и технику. Если ваш зал подходит, организатор отправит вам запрос на конкретную дату. Условия договора и стоимость аренды вы согласуете с ним напрямую по электронной почте.</p>
+      <div class="lp-actions">
+        <a class="lp-btn" href="auth.html?mode=venue">Добавить объект</a>
+        <a class="lp-btn o" href="#how">Как работает размещение</a>
       </div>
-      <div class="hc hc-2">
-        <div class="hc-img"><img src="../assets/photos/v9.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"></div>
-        <div class="hc-body"><div class="hc-name">Лофт «Кирпич»</div><div class="hc-meta"><span>до 100 чел.</span></div></div>
-      </div>
-      <div class="hc hc-3">
-        <div class="hc-img"><img src="../assets/photos/v3.jpg" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.style.opacity=1"></div>
+      <p class="lp-note">Подписка или вознаграждение за состоявшееся мероприятие — по условиям выбранной модели сотрудничества.</p>
+    </div>
+    <div class="lp-visual">
+      <div class="lp-hv" aria-hidden="true">
+        <div class="lp-hv-search">Москва <i>·</i> <i>от 150 чел.</i> <i>· Банкет</i> <span class="m-btn">Найдено 15 залов</span></div>
+        <div data-mock="hall-card" data-venue="1" data-hall="102"></div>
+        <div class="lp-toast"><span class="lp-toast-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+          <div><b>Новый запрос: 18–19 ноября, 180 участников</b><span>Зал «Панорама» · Переговорная «Сити»</span></div></div>
       </div>
     </div>
   </div>
+</header>
+
+<!-- 2. Полоса показателей (цифры — подтвердить перед публичным запуском, см. LANDINGS_R4_REPORT.md) -->
+<section class="lp-sec tight s-tone" aria-label="МАЙСЛИСТ в цифрах">
+  <div class="lp-wrap lp-stats rv">
+    <div class="lp-stat"><b>10 000</b> <span>площадок</span></div>
+    <div class="lp-stat"><b>14 000</b> <span>event-менеджеров</span></div>
+    <div class="lp-stat"><b>120</b> <span>городов</span></div>
+  </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section class="section alt" id="howItWorks">
-  <div class="section-center reveal">
-    <div class="section-label">Процесс</div>
-    <h2 class="section-title">Как это работает</h2>
-    <p class="section-desc">Четыре простых шага от регистрации до первой заявки</p>
-  </div>
-  <div class="container">
-    <div class="steps-grid">
-      <div class="step-card reveal"><div class="step-num">1</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div><div class="step-title">Добавьте площадку</div><div class="step-text">Зарегистрируйтесь и создайте профиль вашего пространства за 10 минут</div></div>
-      <div class="step-card reveal"><div class="step-num">2</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="step-title">Заполните параметры</div><div class="step-text">Укажите вместимость, цены, услуги, загрузите фото и опишите площадку</div></div>
-      <div class="step-card reveal"><div class="step-num">3</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="step-title">Получайте заявки</div><div class="step-text">Клиенты находят вашу площадку и отправляют запросы напрямую</div></div>
-      <div class="step-card reveal"><div class="step-num">4</div><div class="step-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="step-title">Общайтесь напрямую</div><div class="step-text">Отвечайте клиентам в чате, согласовывайте детали и бронируйте</div></div>
+<!-- 3. Аудитории: роль слева, панель справа -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap">
+    <div class="lp-head rv">
+      <div class="lp-eyebrow">Аудитория</div>
+      <h2 class="lp-h2">Кто ищет площадки на МАЙСЛИСТ</h2>
+      <p class="lp-intro">Подобрать пространство под формат события, число участников и бюджет на платформу приходят:</p>
     </div>
-  </div>
-</section>
-
-<!-- BENEFITS -->
-<section class="section">
-  <div class="section-center reveal">
-    <div class="section-label">Преимущества</div>
-    <h2 class="section-title">Почему площадки выбирают нас</h2>
-    <p class="section-desc">Всё что нужно для привлечения клиентов и управления заявками</p>
-  </div>
-  <div class="container">
-    <div class="benefits-grid">
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="benefit-title">Прямые заявки от клиентов</div><div class="benefit-text">Организаторы мероприятий находят вас и отправляют запросы. Без холодных звонков.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="benefit-title">Без посредников</div><div class="benefit-text">Общайтесь с клиентами напрямую. Никаких комиссий за бронирование.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div><div class="benefit-title">Всё в одном месте</div><div class="benefit-text">Заявки, чаты, статусы и контакты клиентов — в удобном личном кабинете.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="benefit-title">Повышение загрузки</div><div class="benefit-text">Увеличьте заполняемость площадки за счёт потока целевых клиентов.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="benefit-title">Аналитика и статистика</div><div class="benefit-text">Отслеживайте просмотры, конверсию и эффективность вашего профиля.</div></div>
-      <div class="benefit-card reveal"><div class="benefit-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="benefit-title">Быстрый запуск</div><div class="benefit-text">Создайте профиль за 10 минут. Модерация — 1 рабочий день. И вы на платформе.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- VENUE EXAMPLES -->
-<section class="section alt">
-  <div class="section-center reveal">
-    <div class="section-label">Примеры</div>
-    <h2 class="section-title">Площадки на платформе</h2>
-    <p class="section-desc">Такие пространства уже получают заявки от клиентов</p>
-  </div>
-  <div class="container"><div class="venues-scroll" id="venueExamples"></div></div>
-</section>
-
-<!-- CATEGORIES -->
-<section class="section">
-  <div class="section-center reveal">
-    <div class="section-label">Категории</div>
-    <h2 class="section-title">Какие площадки подходят</h2>
-    <p class="section-desc">Если у вас есть пространство для мероприятий — вам к нам</p>
-  </div>
-  <div class="container">
-    <div class="cat-grid">
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div><div><div class="cat-name">Конференц-залы</div><div class="cat-desc">Семинары, форумы, презентации</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg></div><div><div class="cat-name">Лофты</div><div class="cat-desc">Корпоративы, фотосъёмки, шоурумы</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div><div><div class="cat-name">Рестораны</div><div class="cat-desc">Банкеты, деловые ужины, юбилеи</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M8 10h.01M16 10h.01M12 14h.01M8 14h.01M16 14h.01"/></svg></div><div><div class="cat-name">Отели</div><div class="cat-desc">Конференции с проживанием</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8M7 10h10l1-7H6L7 10z"/><path d="M12 10v12"/></svg></div><div><div class="cat-name">Банкетные залы</div><div class="cat-desc">Свадьбы, торжества, гала-ужины</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></div><div><div class="cat-name">Студии</div><div class="cat-desc">Мастер-классы, съёмки, воркшопы</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div><div><div class="cat-name">Открытые площадки</div><div class="cat-desc">Фестивали, тимбилдинги, свадьбы</div></div></div>
-      <div class="cat-item reveal"><div class="cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></div><div><div class="cat-name">Галереи</div><div class="cat-desc">Выставки, презентации, приёмы</div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="section alt">
-  <div class="section-center reveal">
-    <div class="section-label">Возможности</div>
-    <h2 class="section-title">Функции платформы</h2>
-    <p class="section-desc">Инструменты для эффективного управления площадкой</p>
-  </div>
-  <div class="container">
-    <div class="features-grid">
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="feat-title">Управление заявками</div><div class="feat-text">Чаты с клиентами, статусы заявок, быстрые ответы</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="feat-title">Редактирование профиля</div><div class="feat-text">Описание, фото, цены — обновляйте в любой момент</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="feat-title">Статистика просмотров</div><div class="feat-text">Графики, конверсия, динамика за месяц</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="feat-title">Быстрые ответы</div><div class="feat-text">Шаблоны сообщений для мгновенного отклика</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="feat-title">Календарь дат</div><div class="feat-text">Управление доступностью и загруженностью</div></div>
-      <div class="feat-card reveal"><div class="feat-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="feat-title">Уведомления</div><div class="feat-text">Мгновенные оповещения о новых заявках</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section class="section">
-  <div class="section-center reveal">
-    <div class="section-label">Отзывы</div>
-    <h2 class="section-title">Владельцы площадок о нас</h2>
-  </div>
-  <div class="container">
-    <div class="test-grid">
-      <div class="test-card reveal">
-        <div class="test-quote">За первый месяц получили 12 заявок на конференции. Раньше приходилось самим искать клиентов, теперь они приходят сами.</div>
-        <div class="test-author"><div class="test-avatar">МА</div><div><div class="test-name">Мария Александрова</div><div class="test-role">Конференц-зал «Панорама», Москва</div><div class="test-rating"><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg></div></div></div>
+    <div class="lp-roles rv">
+      <div class="lp-role-list" role="tablist" aria-label="Кто ищет площадки">
+        <button class="lp-role on" data-sw="roles" data-k="a" data-hover role="tab" aria-selected="true"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>Менеджеры event- и MICE-агентств</button>
+        <button class="lp-role" data-sw="roles" data-k="b" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M3 21h18M8 7h4M8 11h4M8 15h4"/></svg></span>Корпоративные организаторы</button>
+        <button class="lp-role" data-sw="roles" data-k="c" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg></span>Продюсеры конференций, форумов и конгрессов</button>
+        <button class="lp-role" data-sw="roles" data-k="d" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v8M8 21h8"/></svg></span>Организаторы банкетов, свадеб и выездных программ</button>
       </div>
-      <div class="test-card reveal">
-        <div class="test-quote">Удобный кабинет, понятная аналитика. Видим какие запросы приходят и можем быстро отвечать. Загрузка выросла на 30%.</div>
-        <div class="test-author"><div class="test-avatar">ДК</div><div><div class="test-name">Дмитрий Козлов</div><div class="test-role">Лофт «Кирпич», Москва</div><div class="test-rating"><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg></div></div></div>
-      </div>
-      <div class="test-card reveal">
-        <div class="test-quote">Разместились за 15 минут. Модерация прошла за день. Уже через неделю получили первый запрос на свадьбу. Очень довольны!</div>
-        <div class="test-author"><div class="test-avatar">ОН</div><div><div class="test-name">Ольга Новикова</div><div class="test-role">Усадьба «Белые ночи», Москва</div><div class="test-rating"><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg><svg width="14" height="14" fill="currentColor" viewBox="0 0 14 14"><path d="M7 1l1.76 3.57L13 5.18l-3 2.93.71 4.12L7 10.48l-3.71 1.75.71-4.12-3-2.93 4.24-.61z"/></svg></div></div></div>
+      <div class="lp-role-panels">
+        <div class="lp-role-panel on" data-pane="roles" data-k="a" role="tabpanel">
+          <div><div class="lp-role-n">01 / 04</div><h3 class="lp-h3">Менеджеры event- и MICE-агентств</h3>
+            <p>Ищут варианты и утверждают их с заказчиками мероприятия: от деловой встречи и корпоративного вечера до многодневной конференции. Им нужны сопоставимые сведения о залах и объектах, в которых они находятся, чтобы подготовить предложение и заложить стоимость аренды в смету.</p></div>
+          <figure class="lp-media"><div class="lp-media-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <figcaption>Фото: менеджер агентства показывает заказчику подборку залов на ноутбуке</figcaption></figure>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="b" role="tabpanel">
+          <div><div class="lp-role-n">02 / 04</div><h3 class="lp-h3">Корпоративные организаторы</h3>
+            <p>Сотрудники маркетинга, HR и подразделений, отвечающих за деловые поездки и мероприятия. Они ищут площадки для стратегических сессий, обучения, встреч партнёров и корпоративных событий. Выбрав лучшие варианты, они представляют их начальству лично или на планерках.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v5.jpg" alt="Переговорная для стратегической сессии" loading="lazy"></div>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="c" role="tabpanel">
+          <div><div class="lp-role-n">03 / 04</div><h3 class="lp-h3">Продюсеры конференций, форумов и конгрессов</h3>
+            <p>Ищут большой зал для общей программы, отдельные помещения для параллельных секций, зоны регистрации и питания. Для многодневных событий важны также проживание и логистика участников.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v2.jpg" alt="Конференц-зал с рассадкой «театр»" loading="lazy"></div>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="d" role="tabpanel">
+          <div><div class="lp-role-n">04 / 04</div><h3 class="lp-h3">Организаторы банкетов, свадеб и выездных программ</h3>
+            <p>Учитывают не только вместимость: важны кухня, условия работы с кейтерингом, территория, технические возможности и ограничения разного рода.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v15.jpg" alt="Банкетный зал с круглыми столами" loading="lazy"></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="cta-section">
-  <div class="cta-bg"></div>
-  <div class="cta-inner reveal">
-    <h2 class="cta-title">Начните получать заявки уже сегодня</h2>
-    <p class="cta-desc">Бесплатная регистрация. Быстрая модерация. Реальные клиенты.</p>
-    <button class="cta-btn" onclick="location.href='auth.html?mode=venue'">Добавить площадку</button>
-    <div class="cta-note">Регистрация занимает 10 минут · Без комиссий</div>
+<!-- 4. Шаги: таймлайн из 5 шагов, у первого — мини-макет визарда -->
+<section class="lp-sec s-warm" id="how">
+  <div class="lp-wrap">
+    <div class="lp-head rv">
+      <div class="lp-eyebrow">Пять шагов</div>
+      <h2 class="lp-h2">Как это работает</h2>
+      <p class="lp-intro">Пять шагов от размещения объекта до подтверждения прошедшего мероприятия.</p>
+    </div>
+    <ol class="lp-steps rv" style="--n:5;list-style:none">
+      <li class="lp-step"><div class="lp-step-n">1</div><h3><span class="vh">1. </span>Добавьте объект</h3>
+        <p>Зарегистрируйтесь и укажите основные сведения о площадке: название, категорию, расположение и контакты отдела продаж. Сделайте описание ёмким, но исчерпывающим.</p>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i></div><div class="lp-win-b">
+          <div class="m-t" style="font-size:13px;margin-bottom:8px">Добавление объекта</div>
+          <span class="m-lbl">Название</span><div class="m-field">Отель «Аврора»</div>
+          <div class="m-row" style="margin-top:8px"><span class="m-chip">Отель · 4★</span><span class="m-chip">Москва</span></div></div></div></div></li>
+      <li class="lp-step"><div class="lp-step-n">2</div><h3><span class="vh">2. </span>Заполните карточки залов</h3>
+        <p>Добавьте залы, вместимость по схемам рассадки, фотографии, оснащение и условия аренды. Расскажите о дополнительных возможностях. Отправьте карточку на модерацию — после проверки она сможет появиться в каталоге.</p></li>
+      <li class="lp-step"><div class="lp-step-n">3</div><h3><span class="vh">3. </span>Получайте запросы</h3>
+        <p>Организаторы находят подходящие залы и отправляют запросы. Обращения поступают на почту отдела продаж и отображаются в личном кабинете.</p></li>
+      <li class="lp-step"><div class="lp-step-n">4</div><h3><span class="vh">4. </span>Согласовывайте условия по email</h3>
+        <p>Подготовьте предложение и добавьте цену, уточните детали и договоритесь о составлении договора. Всё это согласовывается вне платформы.</p></li>
+      <li class="lp-step"><div class="lp-step-n">5</div><h3><span class="vh">5. </span>Подтвердите прошедшее мероприятие</h3>
+        <p>Отметьте в личном кабинете, что мероприятие состоялось. Его проведение подтверждают обе стороны — организатор и площадка.</p></li>
+    </ol>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- 5. Лента реальных объектов из data.js -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap">
+    <div class="lp-head-row rv">
+      <div class="lp-head">
+        <div class="lp-eyebrow">ПРИМЕРЫ</div>
+        <h2 class="lp-h2">Площадки на платформе</h2>
+        <p class="lp-intro">Примеры объектов и залов в каталоге</p>
+      </div>
+      <div class="lp-rail-nav" data-rail-nav="venueRail"><button type="button" data-dir="-1" aria-label="Назад"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button><button type="button" data-dir="1" aria-label="Вперёд"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    </div>
+    <div class="lp-rail rv" id="venueRail" data-mock="venue-rail" data-ids="1,16,4,11,2,14,33,7,24,9"></div>
+  </div>
+</section>
+
+<!-- 6. Бенто: крупная плитка с «Входящими», плитка бонусов с мини-витриной -->
+<section class="lp-sec s-tone">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Преимущества</div><h2 class="lp-h2">Зачем вам МАЙСЛИСТ</h2></div>
+    <div class="lp-bento">
+      <article class="b-tile sp-4 rw-2 rv">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <h3>Получайте запросы от организаторов мероприятий</h3>
+        <p>Организатор рассылает запрос менеджерам выбранных залов, указывая даты и количество участников. В сопроводительном письме он может описать программу, требования и вопросы для коммерческого предложения. Это поможет вам понять и измерить потенциальный спрос, а также определить, как можно усовершенствовать ваше предложение.</p>
+        <div class="b-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Кабинет площадки · Входящие запросы</span></div><div class="lp-win-b">
+          <div class="lp-inbox-row hl"><span class="lp-inbox-av">ИК</span><div><b>Стратегическая сессия, 180 участников</b><span>18–19 ноября · Большой зал, Переговорная «Сити»</span></div><span class="m-st new">Новый</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">ЕД</span><div><b>Конференция дилеров, 120 участников</b><span>4 декабря · Зал «Панорама»</span></div><span class="m-st work">Обсуждается</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">АС</span><div><b>Новогодний банкет, 90 гостей</b><span>26 декабря · Зал «Панорама»</span></div><span class="m-st done">Состоялось</span></div>
+        </div></div></div>
+      </article>
+      <article class="b-tile sp-2 rv d1">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></div>
+        <h3>Ещё один способ привлечь арендаторов</h3>
+        <p>Представьте залы организаторам, которые ищут площадку по вместимости, оснащению, расположению и условиям проведения мероприятия.</p>
+      </article>
+      <article class="b-tile sp-2 rv d2">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="13" height="16" rx="2"/><path d="M19 7v12a2 2 0 0 1-2 2H8M7 9h5M7 13h5"/></svg></div>
+        <h3>Удобная работа с карточками залов и входящими запросами</h3>
+        <p>Информация об объектах и залах, входящие запросы и их статусы собраны в личном кабинете. Вы можете легко изменить информацию о каждом из залов, его оснащении и вариантах рассадки гостей.</p>
+      </article>
+      <article class="b-tile sp-3 tone rv">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+        <h3>Возможности объекта в одном представлении</h3>
+        <p>Покажите все залы, которые у вас есть, варианты рассадки в каждом из них, оснащение и инфраструктуру, условия питания и проживания. При выдаче пользователям залы группируются по объектам. Организатору будет проще оценить, подходит ли ваш объект для того, чтобы стать местом проведения мероприятия, в том числе большого и сложного.</p>
+        <div class="b-mock m-row" style="flex-wrap:wrap;gap:6px" aria-hidden="true"><span class="m-chip c">Отель «Аврора» · 4 зала</span><span class="m-chip">Большой зал · 300</span><span class="m-chip">«Панорама» · 200</span><span class="m-chip">«Сити» · 20</span><span class="m-chip">«Арбат» · 14</span></div>
+      </article>
+      <article class="b-tile sp-3 rv d1">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+        <h3>Прямое обсуждение условий по электронной почте</h3>
+        <p>Получайте обращения на почту отдела продаж. Вся дальнейшая коммуникация — уточнение задачи, коммерческое предложение, смета, договор и бронирование — проходит по email между вами и организатором. МАЙСЛИСТ не предоставляет пользователям услуги бронирования, но связывает их с вами напрямую.</p>
+      </article>
+      <article class="b-tile sp-6 rv">
+        <div class="m-row" style="align-items:flex-start;gap:28px;flex-wrap:wrap">
+          <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:12px">
+            <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10.5 3 8 4.5 9 8 12 8zM12 8s1.5-5 4-3.5S15 8 12 8z"/></svg></div>
+            <h3>Участие в бонусной программе</h3>
+            <p>Предложите дополнительные услуги, которые готовы оказывать за бонусные баллы МАЙСЛИСТ. Добавляйте предложения на витрину в личном кабинете, указывайте их состав, стоимость и лимит заказов. Бонусы могут стимулировать организаторов сделать выбор в пользу вашей площадки.</p>
+          </div>
+          <div class="lp-shop light" style="flex:2 1 460px" data-mock="shop" data-n="3" aria-hidden="true"></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Текст + схема: залы работают вместе (300 + 80 + 80) -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap lp-split">
+    <div class="rv">
+      <div class="lp-eyebrow">Несколько залов</div>
+      <h2 class="lp-h2">Покажите, как ваши залы работают вместе</h2>
+      <div class="lp-prose" style="margin-top:22px">
+        <p class="lp-lead">Для большого конгресса одного зала часто недостаточно. Организатору могут понадобиться основной зал для общей сессии, несколько залов для параллельных секций и переговорные для рабочих встреч.</p>
+        <p>На МАЙСЛИСТ можно задать требования к нескольким отдельным залам внутри одного объекта. Например, найти отель с залом на 300 участников и двумя залами на 80 человек каждый. Для каждого помещения учитываются собственная вместимость и схема рассадки.</p>
+        <p>Добавьте все залы объекта (даже маленькие!). Постарайтесь точнее указывать их расположение, включая этаж и корпус. В описании объекта расскажите, удобно ли переходить между залами, есть ли общая зона Welcome и пространство для фуршетов и кофе-брейков и можно ли проводить программы одновременно. Так организатору будет проще оценить объект целиком.</p>
+      </div>
+    </div>
+    <div class="lp-scheme rv d1" aria-hidden="true">
+      <div class="m-row" style="margin-bottom:14px"><span class="m-t">Схема объекта</span><span class="m-sp"></span><span class="m-s">2-й этаж, главный корпус</span></div>
+      <div class="lp-scheme-plan" style="grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto auto">
+        <div class="lp-room main" style="grid-row:span 2;min-height:206px"><span class="lp-room-n">Основной зал · общая сессия</span><span class="lp-room-c">300<small>чел., театр</small></span></div>
+        <div class="lp-room"><span class="lp-room-n">Зал секции A</span><span class="lp-room-c">80<small>чел., класс</small></span></div>
+        <div class="lp-room"><span class="lp-room-n">Зал секции B</span><span class="lp-room-c">80<small>чел., класс</small></span></div>
+        <div class="lp-room soft" style="min-height:70px"><span class="lp-room-n">Welcome-зона · кофе-брейки</span><span class="lp-room-s">фойе между залами</span></div>
+        <div class="lp-room soft" style="min-height:70px"><span class="lp-room-n">Переговорная</span><span class="lp-room-s">20 чел.</span></div>
+      </div>
+      <div class="lp-scheme-cap"><span class="m-chip c">Зал 1: театр от 300</span><span class="m-chip">Зал 2: класс от 80</span><span class="m-chip">Зал 3: класс от 80</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Текст с чек-листом параметров карточки -->
+<section class="lp-sec s-warm">
+  <div class="lp-wrap">
+    <div class="lp-head center rv" style="margin-bottom:0">
+      <div class="lp-eyebrow">Карточка объекта</div>
+      <h2 class="lp-h2">Помогите подходящим организаторам найти вас</h2>
+    </div>
+    <div class="lp-prose rv" style="margin:24px auto 0;text-align:left">
+      <p class="lp-lead">Организаторы отбирают площадки по конкретным требованиям. Укажите вместимость для каждой доступной схемы рассадки, оснащение, условия питания, проживание и особенности пространства. Добавьте качественные фотографии, планы и понятное описание условий аренды.</p>
+      <p>Чем точнее заполнена карточка, тем проще найти ваши залы по нужным параметрам и оценить их для мероприятия. Отмечайте только те возможности, которые действительно можете предоставить; условия и ограничения поясняйте в описании. Если вам необходима помощь в размещении и оформлении карточек залов на платформе — заполните форму <a class="inl" href="listing-help.html">здесь</a>.</p>
+    </div>
+    <div class="lp-params rv" aria-label="Что заполнить в карточке зала">
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h2M11 9h2M15 9h2M7 13h2M11 13h2M15 13h2M7 17h10"/></svg></div><b>Вместимость по схемам</b><span>театр 160 · класс 90 · банкет 120</span><em class="ok">✓ заполнено</em></div>
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="13" height="9" rx="2"/><circle cx="9.5" cy="11.5" r="2.5"/><path d="M16 10l5-2v8l-5-2"/></svg></div><b>Оснащение</b><span>звук, свет, LED-экран, затемнение</span><em class="ok">✓ заполнено</em></div>
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 7V5M10 5h4M4 20h16"/></svg></div><b>Питание</b><span>свой ресторан, кофе-брейки, банкет</span><em class="ok">✓ заполнено</em></div>
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V7M3 13h18v5M21 13v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="10.5" r="1.5"/></svg></div><b>Проживание</b><span>84 номера · SNGL 24 · TWIN 60</span><em class="ok">✓ заполнено</em></div>
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 8"/></svg></div><b>Фотографии</b><span>общий вид, рассадка, сцена</span><em class="ok">✓ заполнено</em></div>
+      <div class="lp-param"><div class="lp-param-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3zM3 11h7v9M10 4v4M14 11h7M14 11v4"/></svg></div><b>Планы</b><span>точный план пространства, PDF</span><em class="ok" style="color:var(--c8)">+ добавить</em></div>
+    </div>
+    <div class="lp-meter rv" aria-hidden="true"><span>Карточка зала «Панорама» заполнена</span><span class="lp-meter-bar" style="--v:86%"><i></i></span><b style="color:var(--sd)">86%</b></div>
+    <p class="rv" style="margin-top:26px;text-align:center"><a class="lp-arrow" href="listing-help.html">Какие параметры важны организаторам и как их заполнять →</a></p>
+  </div>
+</section>
+
+<!-- 9. Кабинет: 5 разделов слева, макет раздела справа -->
+<section class="lp-sec s-tone">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Личный кабинет</div><h2 class="lp-h2">В кабинете — информация и запросы.</h2></div>
+    <div class="lp-cab rv">
+      <div>
+        <div class="lp-cab-list" role="tablist" aria-label="Разделы кабинета">
+          <button class="lp-cab-item on" data-sw="cab" data-k="obj" role="tab" aria-selected="true"><b>Объекты и залы</b> — добавление карточек и работа с информацией о площадке.</button>
+          <button class="lp-cab-item" data-sw="cab" data-k="inbox" role="tab" aria-selected="false"><b>Входящие запросы</b> — список обращений, статусы, активные запросы и архив, подтверждение состоявшихся мероприятий.</button>
+          <button class="lp-cab-item" data-sw="cab" data-k="shop" role="tab" aria-selected="false"><b>Витрина бонусной программы</b> — предложения услуг за баллы, их состав, стоимость и лимиты заказов.</button>
+          <button class="lp-cab-item" data-sw="cab" data-k="stat" role="tab" aria-selected="false"><b>Статистика</b> — просмотры, запросы и показатели перехода от интереса к проведённым мероприятиям.</button>
+          <button class="lp-cab-item" data-sw="cab" data-k="prof" role="tab" aria-selected="false"><b>Реквизиты и данные профиля</b> — контакт отдела продаж, данные организации и сведения о соглашениях с МАЙСЛИСТ.</button>
+        </div>
+        <p class="lp-cab-after">Обсуждение мероприятий остаётся в электронной почте: используйте привычную переписку для предложений, документов и всех подробных договорённостей.</p>
+      </div>
+      <div class="lp-win tilt-r" aria-hidden="true">
+        <div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">micelist.ru/app/dashboard · Площадка</span></div>
+        <div class="lp-dash">
+          <div class="lp-dash-side"><span>Обзор</span><span class="on">Мои объекты</span><span>Входящие запросы</span><span>Витрина</span><span>Статистика</span><span>Профиль</span></div>
+          <div class="lp-dash-main">
+            <div class="lp-cab-pane on" data-pane="cab" data-k="obj">
+              <div class="lp-dash-h"><span class="m-t">Мои объекты</span><span class="m-btn">Добавить объект</span></div>
+              <div class="lp-inbox-row"><span class="lp-inbox-av">А</span><div><b>Отель «Аврора» · Москва</b><span>4 зала: Большой зал, «Панорама», «Сити», «Арбат»</span></div><span class="m-st done">Опубликован</span></div>
+              <div class="lp-inbox-row"><span class="lp-inbox-av">Т</span><div><b>Отель «Аврора» · Терраса</b><span>1 зал: Летняя терраса</span></div><span class="m-st work">На модерации</span></div>
+              <div class="m-row" style="margin-top:14px"><span class="m-btn o">Редактировать</span><span class="m-btn o">Добавить зал</span></div>
+            </div>
+            <div class="lp-cab-pane" data-pane="cab" data-k="inbox">
+              <div class="lp-dash-h"><span class="m-t">Входящие запросы</span><span class="m-row" style="gap:6px"><span class="m-chip c">Активные · 3</span><span class="m-chip">Архив</span></span></div>
+              <div class="lp-inbox-row hl"><span class="lp-inbox-av">ИК</span><div><b>RQ-261118-0042 · 180 участников</b><span>18–19 ноября · Большой зал, Переговорная</span></div><span class="m-st new">Новый</span></div>
+              <div class="lp-inbox-row"><span class="lp-inbox-av">ЕД</span><div><b>RQ-261204-0017 · 120 участников</b><span>4 декабря · Зал «Панорама»</span></div><span class="m-st work">Обсуждается</span></div>
+              <div class="lp-inbox-row"><span class="lp-inbox-av">АС</span><div><b>RQ-261020-0008 · 90 гостей</b><span>20 октября · Зал «Панорама»</span></div><span class="m-btn" style="padding:6px 10px">Мероприятие состоялось</span></div>
+            </div>
+            <div class="lp-cab-pane" data-pane="cab" data-k="shop">
+              <div class="lp-dash-h"><span class="m-t">Витрина бонусной программы</span><span class="m-btn">Добавить предложение</span></div>
+              <table class="m-tbl"><thead><tr><th>Предложение</th><th>Баллы</th><th>Лимит</th></tr></thead><tbody>
+                <tr><td>Аренда переговорной, 4 часа</td><td>14 286</td><td>5 в месяц</td></tr>
+                <tr><td>Welcome-кофе на 30 гостей</td><td>21 429</td><td>3 в месяц</td></tr>
+                <tr><td>Поздний выезд для спикеров</td><td>7 143</td><td>10 в месяц</td></tr></tbody></table>
+            </div>
+            <div class="lp-cab-pane" data-pane="cab" data-k="stat">
+              <div class="lp-dash-h"><span class="m-t">Статистика</span><span class="m-chip">За месяц</span></div>
+              <div class="lp-req-grid" style="grid-template-columns:repeat(3,1fr);margin:0 0 14px">
+                <div class="m-field"><span class="m-lbl">Просмотры</span><b style="font-size:20px">1 284</b></div>
+                <div class="m-field"><span class="m-lbl">Запросы</span><b style="font-size:20px">37</b></div>
+                <div class="m-field"><span class="m-lbl">Состоялось</span><b style="font-size:20px">11</b></div></div>
+              <div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding:0 4px">
+                <i style="flex:1;height:38%;border-radius:6px 6px 0 0;background:var(--t-s)"></i><i style="flex:1;height:52%;border-radius:6px 6px 0 0;background:var(--t-s)"></i><i style="flex:1;height:44%;border-radius:6px 6px 0 0;background:var(--t-s)"></i><i style="flex:1;height:70%;border-radius:6px 6px 0 0;background:var(--t-s)"></i><i style="flex:1;height:62%;border-radius:6px 6px 0 0;background:var(--t-s)"></i><i style="flex:1;height:88%;border-radius:6px 6px 0 0;background:var(--t)"></i></div>
+            </div>
+            <div class="lp-cab-pane" data-pane="cab" data-k="prof">
+              <div class="lp-dash-h"><span class="m-t">Профиль и реквизиты</span><span class="m-btn">Сохранить</span></div>
+              <div class="lp-req-grid" style="margin:0">
+                <div><span class="m-lbl">Отдел продаж</span><div class="m-field">sales@aurora-hotel.ru</div></div>
+                <div><span class="m-lbl">Контактное лицо</span><div class="m-field">Ирина Котова</div></div>
+                <div><span class="m-lbl">ИНН</span><div class="m-field">7703123456</div></div>
+                <div><span class="m-lbl">Соглашения</span><div class="m-field">Договор размещения ✓</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. CTA-полоса -->
+<section class="lp-sec tight s-white">
+  <div class="lp-wrap">
+    <div class="lp-cta rv">
+      <div><h2>Представьте вашу площадку организаторам мероприятий</h2>
+        <p>Добавьте объект и его залы, покажите возможности площадки и начните получать запросы. Все условия проведения и бронирование согласовывайте с организатором по электронной почте.</p></div>
+      <div class="lp-actions"><a class="lp-btn lt" href="auth.html?mode=venue">Добавить объект</a><a class="lp-btn ghost" href="listing-help.html">Нужна помощь с оформлением?</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. Пример запроса: заполненное окно группового запроса + «Входящие» в кабинете -->
+<section class="lp-sec s-warm">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Групповой запрос</div><h2 class="lp-h2">Сразу переходите к обсуждению задачи</h2>
+      <p class="lp-intro">В запросе указаны выбранные залы, даты и количество участников. Дополнительные пожелания организатор может изложить в сопроводительном письме — самостоятельно или на основе шаблона.</p></div>
+    <div class="lp-req">
+      <div class="lp-req-form lp-win rv">
+        <div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Групповой запрос</span></div>
+        <div class="lp-win-b" style="padding:22px 24px">
+          <div class="m-row" style="margin-bottom:16px"><span class="m-t" style="font-size:17px">Пример заполненного запроса</span><span class="m-sp"></span><span class="m-chip c">Отель «Аврора»</span></div>
+          <span class="m-lbl">Выбранные залы:</span>
+          <div class="lp-req-halls"><span class="lp-req-hall"><img src="../assets/photos/v1.jpg" alt="">Большой зал</span><span class="vh">, </span><span class="lp-req-hall"><img src="../assets/photos/v3.jpg" alt="">Переговорная</span></div>
+          <div class="lp-req-grid">
+            <div><span class="m-lbl">Даты и время:</span> <div class="m-field">18–19 ноября 2026 года, 09:00–18:00</div></div>
+            <div><span class="m-lbl">Количество участников:</span> <div class="m-field">180</div></div>
+          </div>
+          <div class="m-row" style="margin-bottom:6px"><span class="m-lbl" style="margin:0">Сопроводительное письмо:</span><span class="m-sp"></span><span class="m-s">Взять шаблон</span></div>
+          <div class="lp-req-letter">
+            <p><em>Добрый день! Подбираем площадку для двухдневной стратегической сессии на 180 участников.</em></p>
+            <p><em>Нужны основной зал с рассадкой «театр» на 180 человек и отдельная переговорная на 20 человек для работы небольшой группы. Если оба помещения доступны одновременно, просим включить их в предложение.</em></p>
+            <p><em>Потребуются экран, звуковое оборудование и Wi-Fi, а также два кофе-брейка и обед в каждый день. Просим предложить размещение для 120 гостей с 17 по 19 ноября в одноместных номерах.</em></p>
+          </div>
+          <div class="lp-req-foot" aria-hidden="true"><span class="m-s">Кроме адреса электронной почты никакие контакты не передаются</span><span class="m-btn">Отправить запрос</span></div>
+        </div>
+      </div>
+      <div class="lp-req-in lp-win tilt-r rv d2" aria-hidden="true">
+        <div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Кабинет площадки · Входящие</span></div>
+        <div class="lp-win-b">
+          <div class="lp-dash-h"><span class="m-t">Входящие запросы</span><span class="m-chip c">1 новый</span></div>
+          <div class="lp-inbox-row hl"><span class="lp-inbox-av">ИК</span><div><b>Стратегическая сессия · 180 участников</b><span>18–19 ноября · Большой зал, Переговорная</span></div><span class="m-st new">Новый</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">ЕД</span><div><b>Конференция дилеров · 120</b><span>4 декабря · Зал «Панорама»</span></div><span class="m-st work">Обсуждается</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">ПМ</span><div><b>Обучение продавцов · 40</b><span>12 ноября · Переговорная «Сити»</span></div><span class="m-st done">Состоялось</span></div>
+          <div class="m-row" style="margin-top:12px"><span class="m-btn o">Ответить по email</span><span class="m-btn o">Отметить «мероприятие состоялось»</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="lp-between rv" style="margin-top:40px">Запрос помогает начать предметное обсуждение. Доступность залов на нужные даты, окончательную смету и условия проведения вы уточняете с организатором по электронной почте.</p>
+  </div>
+</section>
+
+<!-- 12. FAQ: заголовок слева (sticky), аккордеон справа -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap lp-faq">
+    <div class="lp-faq-side rv">
+      <div class="lp-eyebrow">FAQ</div>
+      <h2 class="lp-h2">Вопросы и ответы</h2>
+      <div class="lp-faq-contact">Не нашли ответ — напишите на <a href="mailto:info@micelist.ru">info@micelist.ru</a>.</div>
+    </div>
+    <div class="rv">
+      <div class="lp-acc">
+        <details open><summary>Кто добавляет и обновляет информацию о площадке?</summary><div class="lp-acc-b">
+          <p>За актуальность сведений отвечает площадка. Информация об объектах и залах находится в разделе «Мои объекты».</p>
+          <p>Для изменения уже опубликованных нажмите «Обновление информации» в личном кабинете, указав, что нужно исправить или заменить.</p></div></details>
+        <details><summary>Обязательно ли указывать цены?</summary><div class="lp-acc-b">
+          <p>Нет. Для зала можно указать стоимость аренды за день или час либо выбрать «Стоимость по договорённости». Цены в любом случае являются ориентировочными — в интерфейсе пользователей существует соответствующая оговорка.</p></div></details>
+        <details><summary>Сколько длится модерация?</summary><div class="lp-acc-b">
+          <p>Перед публикацией карточка проходит проверку. Её статус отображается в личном кабинете. Уточнить срок рассмотрения и задать вопросы по карточке можно в поддержке: <a href="mailto:info@micelist.ru">info@micelist.ru</a>.</p></div></details>
+        <details><summary>Куда поступает запрос от пользователей платформы?</summary><div class="lp-acc-b">
+          <p>На электронную почту отдела продаж, указанную вами, и в личный кабинет. Запрос и его статус доступны в разделе «Входящие запросы». Вся переписка с организатором проходит по email.</p></div></details>
+        <details><summary>Кто подтверждает, что мероприятие состоялось?</summary><div class="lp-acc-b">
+          <p>Обе стороны: организатор и площадка. Со стороны площадки это делается в личном кабинете кнопкой «Отметить „мероприятие состоялось“». Если сведения сторон расходятся, обратитесь в поддержку.</p></div></details>
+        <details><summary>Как получить помощь?</summary><div class="lp-acc-b">
+          <p>Напишите на <a href="mailto:info@micelist.ru">info@micelist.ru</a> или воспользуйтесь разделом поддержки. Укажите название объекта и суть вопроса, а при обращении по мероприятию — номер запроса.</p></div></details>
+      </div>
+      <div class="lp-end"><a class="lp-btn" href="auth.html?mode=venue">Добавить объект</a><a class="lp-btn o" href="support.html">Поддержка</a></div>
+    </div>
+  </div>
+</section>
+
 <div id="mh-footer"></div>
-
-<script>
-/* Venue examples */
-function vIll(h,s){const n=((s-1)%16)+1;return `<img src="../assets/photos/v${n}.jpg" alt="" loading="lazy" style="opacity:0;transition:opacity .4s,transform .5s;" onload="this.style.opacity=1" onerror="this.style.opacity=1">`;}
-
-const venues=[
-  {n:'Конференц-зал «Панорама»',l:'Москва, Пресня',p:'45 000 ₽',c:250,b:'Конференц-зал',h:195,s:1},
-  {n:'Лофт «Кирпич»',l:'Москва, Курская',p:'28 000 ₽',c:100,b:'Лофт',h:20,s:2},
-  {n:'Усадьба «Белые ночи»',l:'Москва, Рублёвка',p:'95 000 ₽',c:150,b:'Банкетный',h:25,s:3},
-  {n:'Ресторан «Терракота»',l:'Москва, Патриаршие',p:'35 000 ₽',c:60,b:'Ресторан',h:15,s:4},
-  {n:'Коворкинг Space One',l:'Москва, Сити',p:'8 000 ₽',c:40,b:'Коворкинг',h:180,s:5},
-  {n:'Галерея «Арт-холл»',l:'Москва, Винзавод',p:'50 000 ₽',c:120,b:'Галерея',h:280,s:6},
-];
-const vEl=document.getElementById('venueExamples');
-venues.forEach(v=>{vEl.innerHTML+=`<div class="ex-card" onclick="MH.go('venue.html?id=${v.s}')"><div class="ex-img">${vIll(v.h,v.s)}<div class="ex-badge">${v.b}</div></div><div class="ex-body"><div class="ex-name">${v.n}</div><div class="ex-loc">${v.l}</div><div class="ex-foot"><div class="ex-price">от <strong>${v.p}</strong></div><div class="ex-cap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> до ${v.c} чел.</div></div></div></div>`;});
-
-/* Reveal */
-const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-</script>
 <script src="data.js"></script>
 <script src="shared.js"></script>
 <script>MH.init('venues');</script>
+<script src="landing.js"></script>
 </body>
 </html>

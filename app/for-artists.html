@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Артистам — МАЙСЛИСТ</title>
+<meta name="description" content="Музыкантам, ведущим, артистам и творческим коллективам: бесплатный профиль на МАЙСЛИСТ — вас находят организаторы мероприятий.">
+<meta property="og:title" content="Артистам — МАЙСЛИСТ">
+<meta property="og:description" content="Покажите себя организаторам мероприятий: бесплатный профиль артиста на МАЙСЛИСТ.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400..700&family=Onest:wght@400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body class="lp-artists">
+<div id="mh-nav"></div>
+<!-- R4: текст — по «лендинг_артистам.md» (редакция от 20 октября 2026 года), явные опечатки исправлены (список — в LANDINGS_R4_REPORT.md).
+     Раскладки — по R4_LANDINGS_DESIGN_SPEC.md (раздел 3, «Артисты»). Фото коллажа — Pexels, источники: assets/artists/SOURCES.md -->
+
+<!-- 1. Hero сплитом с коллажем — «вольная интерпретация» карточки артиста (ТЗ дизайнера) -->
+<header class="lp-hero">
+  <div class="lp-wrap lp-hero-in">
+    <div>
+      <div class="lp-kicker"><b>Артистам</b></div>
+      <p class="lp-who">Музыкантам, ведущим, артистам и творческим коллективам</p>
+      <h1 class="lp-h1">Покажите себя организаторам мероприятий</h1>
+      <p class="lp-lead">Бесплатно разместите профиль на МАЙСЛИСТ. Добавьте информацию о себе и своей программе, сопроводите ее фотографиями и видео. Это поможет организаторам познакомиться с вашей работой и выбрать вас для выступления на корпоративе или личном празднике.</p>
+      <p class="lp-lead">Используйте МАЙСЛИСТ как ещё один источник приглашений — наряду с рекомендациями, соцсетями и постоянными заказчиками. Программу, гонорар и все прочие условия вы или ваш представитель обсуждаете с организатором напрямую по электронной почте.</p>
+      <div class="lp-actions">
+        <a class="lp-btn" href="auth.html?mode=supplier">Создать профиль бесплатно</a>
+        <a class="lp-btn o" href="suppliers.html?cat=Артисты">Посмотреть каталог артистов</a>
+      </div>
+      <p class="lp-note">Размещение профиля бесплатно. При регистрации выберите тип профиля «Поставщик», затем подходящую категорию в разделе «Артисты».</p>
+    </div>
+    <div class="art-collage" aria-hidden="true">
+      <a class="ac ac-video" href="supplier.html?id=4" tabindex="-1"><img src="../assets/artists/concert-stage.webp" alt="" width="1100" height="808"><span class="ac-dur">2:41</span>
+        <span class="ac-play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#EB7454"><path d="M7 4.5v15l12-7.5z"/></svg></span><span class="ac-cap"><b>Шоу-балет «Ритм»</b><span>видео с выступления</span></span></a>
+      <a class="ac ac-portrait" href="supplier.html?id=1" tabindex="-1"><img src="../assets/artists/host-microphone.webp" alt="" width="700" height="909"><span class="ac-cap"><b>Артём Соколов</b><span>ведущий</span></span></a>
+      <a class="ac ac-stage" href="supplier.html?id=3" tabindex="-1"><img src="../assets/artists/cover-band.webp" alt="" width="1100" height="748"><span class="ac-cap"><b>Кавер-группа «Апрель»</b><span>на сцене</span></span></a>
+      <a class="ac ac-portrait p2" href="supplier.html?id=24" tabindex="-1"><img src="../assets/artists/saxophonist.webp" alt="" width="700" height="886"><span class="ac-cap"><b>Денис Волков</b><span>саксофон</span></span></a>
+    </div>
+  </div>
+</header>
+
+<!-- 2. Сплит с крупным фото со сцены -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap lp-split">
+    <div class="lp-photo rv" style="aspect-ratio:4/5">
+      <img src="../assets/artists/cover-band.webp" alt="Кавер-группа на сцене" style="object-position:40% 50%">
+      <div class="lp-photo-cap"><span class="lp-stack-ic"><svg viewBox="0 0 24 24" fill="#EB7454" stroke="none"><path d="M7 4.5v15l12-7.5z"/></svg></span><div><b>Видео-визитка · 1:20</b><span>Кавер-группа «Апрель» · Санкт-Петербург</span></div></div>
+    </div>
+    <div class="rv d1">
+      <div class="lp-eyebrow">Ваш профиль</div>
+      <h2 class="lp-h2">Вы и ваша программа в фокусе внимания</h2>
+      <div class="lp-prose" style="margin-top:22px">
+        <p class="lp-lead">Организатору важно понять и почувствовать, кого он приглашает: увидеть сценический образ, манеру выступления и общения с залом, реакцию аудитории. При выборе музыкантов очень важно не только описание, но и возможность услышать живое исполнение.</p>
+        <p>Обязательно добавляйте фотографии и видео, которые представляют вас исчерпывающе. Расскажите, что отличает вашу программу, для каких событий она подходит и что важно сохранить при её включении в мероприятие. Можете разместить короткую видео-визитку — это повышает шансы получить заказ.</p>
+        <p>Если вы работаете в нескольких составах или предлагаете разные программы, объясните различия. Камерное выступление, полноценный концерт, ведение вечера и короткий сценический номер требуют разного представления. Если они сильно различаются — добавьте несколько разных карточек в перечень своих услуг.</p>
+      </div>
+      <p style="margin-top:26px"><a class="lp-arrow" href="supplier.html?id=1">Посмотреть, как представлены артисты →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Аудитории: роль слева, панель справа -->
+<section class="lp-sec s-tone">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Заказчики</div><h2 class="lp-h2">Вас будут находить на МАЙСЛИСТ</h2></div>
+    <div class="lp-roles rv">
+      <div class="lp-role-list" role="tablist" aria-label="Кто будет вас находить">
+        <button class="lp-role on" data-sw="roles" data-k="a" data-hover role="tab" aria-selected="true"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>Event- и MICE-агентства</button>
+        <button class="lp-role" data-sw="roles" data-k="b" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M3 21h18M8 7h4M8 11h4M8 15h4"/></svg></span>Корпоративные организаторы</button>
+        <button class="lp-role" data-sw="roles" data-k="c" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M5 20v-5h14v5M7 15l2-9M17 15l-2-9M12 3v3"/></svg></span>Продюсеры событий</button>
+        <button class="lp-role" data-sw="roles" data-k="d" data-hover role="tab" aria-selected="false"><span class="lp-role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v8M8 21h8"/></svg></span>Организаторы частных мероприятий</button>
+      </div>
+      <div class="lp-role-panels">
+        <div class="lp-role-panel on" data-pane="roles" data-k="a" role="tabpanel">
+          <div><div class="lp-role-n">01 / 04</div><h3 class="lp-h3">Event- и MICE-агентства</h3>
+            <p>Подбирают программу под концепцию события и аудиторию заказчика. Им важно увидеть вашу работу, иметь возможность представить её клиенту, понять условия приглашения. В переписке вы можете уточнить, какую компанию представляет агентство, кто будет среди гостей и какое место выступление займёт в программе.</p></div>
+          <figure class="lp-media"><div class="lp-media-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <figcaption>Фото: продюсер агентства смотрит видео артиста вместе с заказчиком</figcaption></figure>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="b" role="tabpanel">
+          <div><div class="lp-role-n">02 / 04</div><h3 class="lp-h3">Корпоративные организаторы</h3>
+            <p>Готовят встречи партнёров, юбилеи компаний, приёмы и корпоративные вечера. Уточните, для кого проводится событие: для сотрудников, клиентов, руководителей или приглашённого профессионального сообщества. Это поможет оценить, подходит ли вам формат и чего ждут от программы.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v6.jpg" alt="Зал для приёма партнёров" loading="lazy"></div>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="c" role="tabpanel">
+          <div><div class="lp-role-n">03 / 04</div><h3 class="lp-h3">Продюсеры событий</h3>
+            <p>Собирают программу, работают со сценой и технической командой. Обсудите роль вашего выступления, порядок выходов, репетицию, звук, свет и условия работы за сценой.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v2.jpg" alt="Сцена концертного зала" loading="lazy"></div>
+        </div>
+        <div class="lp-role-panel" data-pane="roles" data-k="d" role="tabpanel">
+          <div><div class="lp-role-n">04 / 04</div><h3 class="lp-h3">Организаторы частных мероприятий</h3>
+            <p>Подбирают артистов для свадеб, юбилеев и закрытых вечеров. Познакомьтесь с замыслом события, узнайте о гостях, площадке и пожеланиях заказчика, прежде чем предлагать программу и соглашаться назначать цену.</p></div>
+          <div class="lp-photo" style="aspect-ratio:4/3"><img src="../assets/photos/v15.jpg" alt="Банкетный зал для закрытого вечера" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Таймлайн из 5 шагов, у первого — мини-макет регистрации -->
+<section class="lp-sec s-warm">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Пять шагов</div><h2 class="lp-h2">Как это работает</h2></div>
+    <ol class="lp-steps rv" style="--n:5;list-style:none">
+      <li class="lp-step"><div class="lp-step-n">1</div><h3><span class="vh">1. </span>Создайте профиль артиста</h3>
+        <p>Зарегистрируйтесь через тип профиля «Поставщик» и выберите категорию в разделе «Артисты». Укажите имя или название коллектива.</p>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i></div><div class="lp-win-b">
+          <span class="m-lbl">Тип профиля</span><div class="m-row" style="gap:6px"><span class="m-chip">Площадка</span><span class="m-chip c">Поставщик</span></div>
+          <span class="m-lbl" style="margin-top:10px">Раздел · категория</span><div class="m-field">Артисты · Кавер-группа</div></div></div></div></li>
+      <li class="lp-step"><div class="lp-step-n">2</div><h3><span class="vh">2. </span>Представьте себя и программу</h3>
+        <p>Расскажите о себе и своем опыте, подготовьте фотографии и ссылки на видео. Обозначьте доступные форматы, состав, продолжительность и возможность выезда. Основные условия, от которых зависит ваше участие, укажите в описании.</p></li>
+      <li class="lp-step"><div class="lp-step-n">3</div><h3><span class="vh">3. </span>Получайте приглашения к обсуждению</h3>
+        <p>Организатор знакомится с вашим предложением и отправляет запрос на конкретные даты. Это начало разговора: вы можете уточнить задачу, аудиторию и условия. Старайтесь не медлить с первым ответом — на МАЙСЛИСТ работают event-менеджеры, им важно понять, открыты ли вы к предложениям в принципе и добавить вас в планы мероприятия и черновики смет.</p></li>
+      <li class="lp-step"><div class="lp-step-n">4</div><h3><span class="vh">4. </span>Оцените приглашение</h3>
+        <p>В переписке узнайте о заказчике, гостях, программе и площадке. Запросите материалы, которые помогут принять решение: описание события, фотографии сцены, технические параметры и график.</p></li>
+      <li class="lp-step"><div class="lp-step-n">5</div><h3><span class="vh">5. </span>Согласуйте выступление</h3>
+        <p>Если предложение вам подходит, обсудите гонорар, технический и бытовой райдер, дорогу, размещение, порядок оплаты и договор. Все подробные договорённости оформляются вне МАЙСЛИСТ.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 5. Бенто из 6 плиток: крупная — с макетом приглашений -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Почему МАЙСЛИСТ</div><h2 class="lp-h2">Зачем вам МАЙСЛИСТ</h2></div>
+    <div class="lp-bento">
+      <article class="b-tile sp-4 rw-2 tone rv">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <h3>Ещё один источник запросов на выступления</h3>
+        <p>Дополните привычные способы поиска заказов профилем в каталоге для организаторов мероприятий. Ваша программа сможет попасть в поле зрения тех, с кем вы ещё не работали.</p>
+        <div class="lp-prof" aria-hidden="true"><span class="lp-prof-v"><img src="../assets/artists/saxophonist.webp" alt="" style="object-position:center 30%"><i></i></span>
+          <div><b>Денис Волков · саксофон</b><span>Москва · выезд в другие города · видео 3:05</span><span>248 просмотров профиля за месяц</span></div></div>
+        <div class="b-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Запросы · Кавер-группа «Апрель»</span></div><div class="lp-win-b">
+          <div class="lp-inbox-row hl"><span class="lp-inbox-av">ЕД</span><div><b>Гала-ужин для партнёров · 180 гостей</b><span>20 ноября · Казань · концертный блок после ужина</span></div><span class="m-st new">Новый</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">МК</span><div><b>Юбилей компании · 250 гостей</b><span>14 декабря · Москва</span></div><span class="m-st work">Переписка</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">АС</span><div><b>Свадьба · 90 гостей</b><span>6 сентября · Подмосковье</span></div><span class="m-st done">Согласовано</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">ОР</span><div><b>Открытие ресторана · 120 гостей</b><span>3 октября · Санкт-Петербург</span></div><span class="m-st done">Согласовано</span></div>
+        </div></div></div>
+      </article>
+      <article class="b-tile sp-2 rv d1">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg></div>
+        <h3>Вас выбирают, потому что вы интересны</h3>
+        <p>Организаторы часто ломают голову над тем, как развлечь гостей. Им все время хочется чего-то новенького и захватывающего. Задача удержать внимание гостей и вызвать их восторг, отвлечь и развлечь оказывается одной из приоритетных. Представьте им себя ярко, и они предложат сотрудничество.</p>
+      </article>
+      <article class="b-tile sp-2 rv d2">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg></div>
+        <h3>Обозначьте, какие приглашения вы рассматриваете</h3>
+        <p>Расскажите, с какими программами и аудиториями работаете. Если для вас важны определённый формат события, площадка или условия выступления, укажите это в описании и уточните в переписке. Отфильтровывайте неподходящие аудитории на ранних этапах.</p>
+      </article>
+      <article class="b-tile sp-2 rv">
+        <div class="b-num" style="font-size:40px;line-height:1">0 ₽</div>
+        <h3>Размещение в МАЙСЛИСТ бесплатно</h3>
+        <p>Чтобы представить себя в каталоге, не нужно оплачивать размещение профиля. Подготовьте материалы, расскажите о программе и дайте организаторам возможность обратиться к вам.</p>
+      </article>
+      <article class="b-tile sp-2 rv d1">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>Контекст обсуждается напрямую</h3>
+        <p>Кто заказчик, кого он приглашает, где проходит мероприятие и как будет представлено ваше имя — эти вопросы можно обсудить напрямую по электронной почте. Чем конкретнее ответы организатора, тем легче оценить приглашение. Даже если он сделал выбор в пользу кого-то еще, вы точно останетесь у него в контактах, а он у вас.</p>
+      </article>
+      <article class="b-tile sp-2 rv d2">
+        <div class="b-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>Условия выступления обсуждаются с вами</h3>
+        <p>Заранее обозначьте требования к сцене, звуку, подготовке и работе команды. Согласуйте их с организатором до подтверждения участия. Держите под рукой райдеры.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Тёмная «сценическая» секция: мир деловых событий -->
+<section class="lp-sec s-dark lp-stage lp-stacked">
+  <div class="lp-wrap">
+    <div class="lp-head rv" style="margin-bottom:0">
+      <div class="lp-eyebrow">За кулисами события</div>
+      <h2 class="lp-h2">Изучите подробнее мир деловых событий</h2>
+    </div>
+    <div class="lp-prose rv" style="margin-top:22px"><p class="lp-lead" style="text-align:center">Одинаковое название мероприятия может скрывать очень разные мероприятия. «Слёт партнёров» может означать как встречу постоянных клиентов, так и приём для руководителей компаний или неформальное празднование внутри команды.</p></div>
+    <div class="lp-wide rv d1" style="max-width:1040px" aria-hidden="true">
+      <div class="lp-quote row">
+        <p>«Слёт партнёров» — что за этим стоит?</p>
+        <div class="lp-meaning"><span><i></i>встреча постоянных клиентов</span><span><i></i>приём для руководителей компаний</span><span><i></i>неформальное празднование внутри команды</span></div>
+        <div class="lp-quote-q"><span>Кто приглашён и что объединяет гостей</span><span>Самостоятельный концерт или сопровождение вечера</span><span>Внимание к сцене или параллельно фуршет</span></div>
+      </div>
+    </div>
+    <div class="lp-prose rv">
+        <p>Попросите организатора рассказать, кто приглашён, что объединяет гостей, насколько они знакомы с вашей работой и какой формат участия ожидается. Будет ли это самостоятельный концерт, часть торжественной программы или музыкальное сопровождение вечера? Планируется ли сфокусированное внимание к сцене или параллельно будут проходить выставка или фуршет?</p>
+        <p>Если для вас существенны имя заказчика, круг приглашённых, бренды мероприятия или его публичный контекст, уточните их до согласования. При необходимости попросите прислать программу и ссылки на сайт компании.</p>
+        <p>Так вы сможете оценить, соответствует ли приглашение вашей программе, профессиональным интересам и тому, как вы хотите быть представлены.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Сплит с фото зала: площадка — часть впечатления -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap lp-split rev">
+    <div class="rv">
+      <div class="lp-eyebrow">Площадка</div>
+      <h2 class="lp-h2">Площадка — часть впечатления от вашего выступления</h2>
+      <div class="lp-prose" style="margin-top:22px">
+        <p class="lp-lead">Мы знаем, что для артиста важны не только количество гостей и местоположение. Сцена, акустика, оформление зала, уровень сервиса и репутация места влияют на впечатление от программы и условия её исполнения.</p>
+        <p>Попросите организатора назвать объект и конкретный зал. Посмотрите на МАЙСЛИСТ доступные фотографии и характеристики, уточните размеры сцены, рассадку и расположение зрителей.</p>
+        <p>Если уровень и характер площадки важны для вашего выступления, обсудите это до того, как подтвердите участие. Известное название объекта само по себе не заменяет сведений о конкретном зале и организаторе.</p>
+      </div>
+    </div>
+    <div class="lp-photo rv d1" style="aspect-ratio:5/4">
+      <img src="../assets/photos/hero.jpg" alt="Концертный зал со сценой и рассадкой «театр»">
+      <div class="lp-photo-cap" aria-hidden="true"><span class="lp-stack-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M5 20v-5h14v5M7 15l2-9M17 15l-2-9"/></svg></span><div><b>Карточка зала на МАЙСЛИСТ</b><span>фото, рассадка «театр» 250, сцена, план зала</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Чек-лист «за сценой» в две колонки с иконками -->
+<section class="lp-sec s-warm">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Райдер и комфорт</div><h2 class="lp-h2">Обсудите не только сцену, но и условия за ней</h2>
+      <p class="lp-intro">Комфорт артиста и команды складывается из деталей, которые лучше согласовать заранее.</p></div>
+    <div class="lp-checks rv">
+      <div class="lp-check"><span class="lp-check-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><p><b>Подготовка к выступлению:</b> время прибытия, монтаж, саундчек, репетиция и точное время выхода.</p></div>
+      <div class="lp-check"><span class="lp-check-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4h12v17M16 8h4v13M9 12h.01"/></svg></span><p><b>Гримёрная и ожидание:</b> отдельное помещение гримерки, доступ в него, возможность переодеться, отдохнуть и сохранить личные вещи.</p></div>
+      <div class="lp-check"><span class="lp-check-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><p><b>Работа со зрителями:</b> расположение публики относительно сцены, проходы, доступ за сцену и присутствие ответственных сотрудников или охраны, если это необходимо.</p></div>
+      <div class="lp-check"><span class="lp-check-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V7M3 13h18v5M21 13v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="10.5" r="1.5"/></svg></span><p><b>Дорога и размещение:</b> трансфер, проживание, питание и график перемещений, если вы выезжаете в другой город.</p></div>
+      <div class="lp-check"><span class="lp-check-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><p><b>Имя и образ:</b> как вас представят, где используют имя и фотографии, допустимы ли съёмка, трансляция и публикация записи.</p></div>
+      <div class="lp-check" style="background:var(--t-p);box-shadow:none"><span class="lp-check-ic" style="background:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="m9 12 2 2 4-4"/></svg></span><p>Передайте технический и бытовой райдер и получите подтверждение существенных условий от организатора. Если для участия необходимы определённые меры безопасности, обозначьте их прямо и согласуйте, кто отвечает за исполнение.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. CTA-полоса -->
+<section class="lp-sec tight s-white">
+  <div class="lp-wrap">
+    <div class="lp-cta rv">
+      <div><h2>Пусть о вас узнают новые заказчики</h2>
+        <p>Добавьте ещё один способ получить приглашение на выступление. Представьте себя, покажите программу и расскажите, какие события вам интересны. Размещение профиля бесплатно.</p></div>
+      <div class="lp-actions"><a class="lp-btn lt" href="auth.html?mode=supplier">Создать профиль бесплатно</a><a class="lp-btn ghost" href="listing-help.html">Нужна помощь с размещением?</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. Письма: запрос и возможный ответ -->
+<section class="lp-sec s-tone">
+  <div class="lp-wrap">
+    <div class="lp-head rv"><div class="lp-eyebrow">Переписка</div><h2 class="lp-h2">Как может начаться разговор о выступлении</h2></div>
+    <div class="lp-letters" style="margin:0 auto">
+      <article class="lp-letter rv">
+        <div class="lp-letter-h"><span class="lp-letter-av">EA</span><div><h3 class="lp-letter-t">Пример запроса музыкальному коллективу</h3><span>Event-агентство · через МАЙСЛИСТ</span></div><span class="lp-letter-tag">Запрос</span></div>
+        <p>Добрый день! Я представляю event-агентство [название]. Готовим закрытый вечер с гала-ужином для партнёров компании [название] 20 ноября 2027 года в Казани.</p>
+        <p>Ожидаем около 180 гостей — руководителей компаний-партнёров и приглашённых сотрудников. Хотим включить вашу программу в отдельный концертный блок после ужина.</p>
+        <p>Площадка — [название объекта], зал [название].</p>
+        <p>Подскажите, рассматриваете ли вы такой формат и свободна ли дата. Просим прислать условия выступления, технический и бытовой райдер. Дорогу, размещение, порядок оплаты.</p>
+      </article>
+      <p class="lp-between rv">Это пример содержательного приглашения. Если в полученном запросе указаны только дата и число гостей, задайте остальные вопросы в ответном письме. Решение о выступлении не требуется принимать по первому обращению.</p>
+      <article class="lp-letter reply rv">
+        <div class="lp-letter-h"><span class="lp-letter-av">Вы</span><div><h3 class="lp-letter-t">Ваш возможный ответ:</h3><span>Ответ по электронной почте</span></div><span class="lp-letter-tag">Ответ</span></div>
+        <p>Уточните, пожалуйста, продолжительность выступления? Гости будут сидеть лицом к сцене? Планируется ли приостановить обслуживание столов на время выступления?</p>
+        <p>Зал я вижу на платформе. Но уточните, предусмотрены ли отдельная гримёрная и саундчек до прихода гостей?</p>
+        <p>Будет ли проводиться профессиональная фото- и видеосъёмка и как в дальнейшем будут использоваться материалы?</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 11. FAQ -->
+<section class="lp-sec s-white">
+  <div class="lp-wrap lp-faq">
+    <div class="lp-faq-side rv">
+      <div class="lp-eyebrow">Вопросы</div>
+      <h2 class="lp-h2">FAQ</h2>
+      <div class="lp-faq-contact">Не нашли ответ — напишите на <a href="mailto:info@micelist.ru">info@micelist.ru</a>.</div>
+    </div>
+    <div class="rv">
+      <div class="lp-acc">
+        <details open><summary>Сколько стоит разместить профиль?</summary><div class="lp-acc-b"><p>Размещение профиля артиста на МАЙСЛИСТ бесплатно. Представьте программу и материалы, чтобы организаторы могли познакомиться с вашей работой и отправить запрос.</p></div></details>
+        <details><summary>Можно ли пользоваться МАЙСЛИСТ вместе с другими способами поиска заказов?</summary><div class="lp-acc-b"><p>Да. Профиль может стать дополнительным источником приглашений наряду с вашими соцсетями, сайтом, рекомендациями и работой с агентствами.</p></div></details>
+        <details><summary>Почему при регистрации нужно выбрать «Поставщик»?</summary><div class="lp-acc-b"><p>Это общее название типа профиля для тех, кто предлагает услуги на МАЙСЛИСТ, в том числе выступления. Оно используется при регистрации; в разделе «Артисты» вы представляете своё имя, коллектив и творческую программу.</p></div></details>
+        <details><summary>Как показать индивидуальность программы?</summary><div class="lp-acc-b"><p>Выберите материалы, которые передают именно вашу работу: сценические фотографии, видео живого выступления, описание программы. Расскажите, для каких событий она подходит, и обозначьте существенные условия. Доступные способы размещения материалов зависят от возможностей профиля.</p></div></details>
+        <details><summary>Можно ли заранее узнать, для кого я буду выступать?</summary><div class="lp-acc-b"><p>Да, уточните это в переписке у организатора. Спросите, кто заказчик, какие гости приглашены и какой формат события планируется. Попросите прислать программу мероприятия. Это поможет предложить подходящий вариант выступления.</p></div></details>
+        <details><summary>Можно ли уточнить зал до обсуждения гонорара?</summary><div class="lp-acc-b"><p>Да. Попросите назвать конкретный зал, прислать фотографии, план и сведения о сцене и оборудовании или ссылку на карточку зала в МАЙСЛИСТ. Объясните, какие характеристики важны для вашей программы. Доступные сведения из каталога используйте как основу для обсуждения.</p></div></details>
+        <details><summary>Можно ли передать райдер до подтверждения выступления?</summary><div class="lp-acc-b"><p>Да, направьте его организатору по email и согласуйте существенные условия до подтверждения участия. Технический и бытовой райдер, график, требования к комфорту и безопасности обсуждаются напрямую.</p></div></details>
+        <details><summary>Запрос означает, что дата забронирована?</summary><div class="lp-acc-b"><p>Нет. Получение запроса — начало обсуждения. Дата, программа, гонорар, порядок оплаты и договор согласовываются с организатором отдельно.</p></div></details>
+        <details><summary>Можно ли обсуждать приглашение через представителя?</summary><div class="lp-acc-b"><p>В переписке может участвовать ваш менеджер или представитель. Порядок регистрации профиля представителем и указания контактного адреса уточните у команды МАЙСЛИСТ.</p></div></details>
+        <details><summary>Как получить помощь с профилем?</summary><div class="lp-acc-b"><p>Напишите на <a href="mailto:info@micelist.ru">info@micelist.ru</a>. Укажите имя артиста или название коллектива и опишите, что нужно уточнить или оформить.</p></div></details>
+      </div>
+      <div class="lp-end"><a class="lp-btn" href="auth.html?mode=supplier">Создать профиль бесплатно</a><a class="lp-btn o" href="suppliers.html?cat=Артисты">Каталог артистов</a><a class="lp-btn o" href="support.html">Поддержка</a></div>
+    </div>
+  </div>
+</section>
+
+<div id="mh-footer"></div>
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script>MH.init('b2b-artists');</script>
+<script src="landing.js"></script>
+</body>
+</html>
