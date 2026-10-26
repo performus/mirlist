@@ -1374,7 +1374,11 @@
 
   /* ─────────── 9. СЕЛЕКТОРЫ И ЛОГИКА ─────────── */
 
-  const tariff = () => TARIFFS[state.tariff] || TARIFFS.start;
+  /* R5 стр.162: площадка и поставщик смотрят каталог в гостевом режиме, а в «Как видят пользователи» —
+     как «ПРЕМИУМ». Это только вид страницы: сохранённый тариф не меняется. */
+  let TARIFF_VIEW = null;
+  const setTariffView = (k) => { TARIFF_VIEW = TARIFFS[k] ? k : null; };
+  const tariff = () => TARIFFS[TARIFF_VIEW || state.tariff] || TARIFFS.start;
   const setTariff = (k) => {
     if (!TARIFFS[k]) return;
     if (k === 'guest') { state.compare.clear(); persist.compare(); }
@@ -2221,6 +2225,27 @@
     persist.myVenues(); return v;
   }
   /** Данные объекта кабинета → поля визарда (для «Редактировать»). */
+  /** Зал кабинета → поля визарда зала (оснащение, площадь, схемы — как есть). */
+  function hallToWizard(h) {
+    return Object.assign({}, h, {
+      seats: Object.assign({}, h.seats || {}),
+      agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })), planFiles: undefined,
+      feats: (h.features || []).slice(), features: undefined,
+      photos: (h.photos || []).map(name => ({ name })), schemes: (h.schemes || []).map(name => ({ name })),
+    });
+  }
+  /** R5 стр.155: «Редактировать» зал в «Моих объектах» — обновляет этот зал объекта. */
+  function updateMyHall(vi, hi, d) {
+    const v = state.myVenues[vi]; if (!v || !(v.halls || [])[hi]) return null;
+    v.halls[hi] = hallFromWizard(d); v.updatedAt = new Date().toLocaleDateString('ru');
+    persist.myVenues(); return v.halls[hi];
+  }
+  /** Удаление зала. Последний зал объекта удалить нельзя — объект без залов не попадает в подбор. */
+  function removeMyHall(vi, hi) {
+    const v = state.myVenues[vi]; if (!v || !(v.halls || [])[hi] || v.halls.length < 2) return false;
+    v.halls.splice(hi, 1); v.updatedAt = new Date().toLocaleDateString('ru');
+    persist.myVenues(); return true;
+  }
   function venueToWizard(v) {
     return {
       name: v.name, cat: v.cat, stars: v.stars ? (STAR_OPTIONS.find(o => o.k === v.stars) || {}).l : '',
@@ -2229,11 +2254,7 @@
       feats: (v.features || []).slice(), cuisine: (v.cuisine || []).slice(), avgCheck: v.avgCheck || '', wardrobe: v.wardrobe || '',
       parking: v.parking || '', parkingSpaces: v.parkingSpaces || '', confPackage: v.confPackage || '', dressingRooms: v.dressingRooms || '',
       menu: v.menu ? Object.assign({}, v.menu) : null, photos: (v.photos || []).map(name => ({ name })),
-      halls: (v.halls || []).map(h => Object.assign({}, h, {
-        agree: h.agree ? ['Стоимость по договорённости'] : [], plan: (h.planFiles || []).map(name => ({ name })), planFiles: undefined,
-        feats: (h.features || []).slice(), features: undefined,
-        photos: (h.photos || []).map(name => ({ name })), schemes: (h.schemes || []).map(name => ({ name })),
-      })),
+      halls: (v.halls || []).map(hallToWizard),
       person: (v.contacts || {}).person || '', phone: (v.contacts || {}).phone || '', mail: (v.contacts || {}).mail || '',
       inn: (v.contacts || {}).inn || '', bank: (v.contacts || {}).bank || '', contracts: (v.contracts || []).slice(),
     };
@@ -2548,7 +2569,7 @@
     venueById, allHalls, hallById, hallVenue,
     hallCapacity, venueCapacity, venueMinPrice, venueRooms, seatingByKey, hallsSatisfy,
     hallHas, isHallCheck, hallCheckDefs, hallReqDefs, HALL_FEATURE_CODES, VENUE_FEATURE_CODES,
-    hallReqOn, hallReqAdd, hallReqRemove, hallReqToggle, hallReqLabel, effectiveReqs, DB_MAX, starsEnabled,
+    hallReqOn, hallReqAdd, hallReqRemove, hallReqToggle, hallReqLabel, effectiveReqs, DB_MAX, starsEnabled, setTariffView,
     emptyFilters, filterVenues, facetCount,
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,
@@ -2559,7 +2580,7 @@
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
-    MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addHallToMyVenue, addMyService,
+    MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addHallToMyVenue, addMyService, hallToWizard, updateMyHall, removeMyHall,
     APPEAL_STATUS, addAppeal, appealsFor, removeMyVenue, removeMyService,
     addShopItem, removeShopItem, myShopItems, shopCatalog,
     ORDER_FLOW, orderFromShop, bonusOrdersFor, setOrderStatus,

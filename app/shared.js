@@ -919,6 +919,74 @@ const MH = (() => {
     const s = getSession();
     if (s && sessionRole() === 'user' && typeof ML !== 'undefined' && ML.isGuest && ML.isGuest()) localStorage.removeItem(KEY);
   }
+  /* ══ R5 стр.162: площадка и поставщик в каталоге ══
+     Для ролей «Площадка» и «Поставщик» подбор площадок и каталог поставщиков работают в гостевом режиме.
+     «Как видят пользователи» из кабинета открывает свой объект (или свою карточку) как на «ПРЕМИУМЕ» —
+     только его: остальной каталог в этом режиме остаётся гостевым. */
+  const CATALOG_PAGES = ['search.html', 'suppliers.html', 'venue.html', 'hall.html', 'supplier.html', 'compare.html', 'venue-presentation.html', 'catalog.html'];
+  let ROLE_VIEW = null;
+  const pageName = () => location.pathname.split('/').pop() || 'index.html';
+  function previewTarget() { try { return JSON.parse(sessionStorage.getItem('ml_preview') || 'null'); } catch (e) { return null; } }
+  function applyRoleView() {
+    if (typeof ML === 'undefined' || !ML.setTariffView) return;
+    const s = getSession(), role = s && s.role;
+    if (role !== 'venue' && role !== 'supplier') return;
+    const pg = pageName();
+    if (!CATALOG_PAGES.includes(pg)) return;
+    const q = new URLSearchParams(location.search), pv = previewTarget();
+    let hit = false;
+    if (pv && pv.kind === 'venue') {
+      if ((pg === 'search.html' && +q.get('preview') === pv.id) || (pg === 'venue.html' && +q.get('id') === pv.id)) hit = true;
+      if (pg === 'hall.html') { const h = ML.hallById(q.get('id')); hit = !!h && h.venueId === pv.id; }
+    }
+    if (pv && pv.kind === 'supplier')
+      hit = (pg === 'suppliers.html' && +q.get('preview') === pv.id) || (pg === 'supplier.html' && +q.get('id') === pv.id);
+    ML.setTariffView(hit ? 'prem' : 'guest');
+    ROLE_VIEW = { mode: hit ? 'preview' : 'guest', role, kind: pv && pv.kind, id: pv && pv.id };
+  }
+  function roleBanner() {
+    if (!ROLE_VIEW) return '';
+    const who = ROLE_VIEW.role === 'venue' ? 'площадка' : 'поставщик';
+    if (ROLE_VIEW.mode === 'preview') {
+      const v = ROLE_VIEW.kind === 'venue';
+      return `<div class="mh-rolebar prev"><div class="mh-rolebar-in"><span><b>Как видят пользователи.</b> Так ${v ? 'ваш объект' : 'ваша карточка'} выглядит для пользователя на тарифе «ПРЕМИУМ». Остальной каталог в этом режиме недоступен.</span>
+        <span class="mh-rolebar-acts">${v ? `<a href="search.html?preview=${ROLE_VIEW.id}">Плитка в выдаче</a><a href="venue.html?id=${ROLE_VIEW.id}">Карточка объекта</a>`
+          : `<a href="suppliers.html?preview=${ROLE_VIEW.id}">Карточка в каталоге</a><a href="supplier.html?id=${ROLE_VIEW.id}">Страница поставщика</a>`}
+        <button type="button" onclick="MH.exitPreview()">Вернуться в кабинет</button></span></div></div>`;
+    }
+    return `<div class="mh-rolebar"><div class="mh-rolebar-in"><span>Вы вошли как ${who} — подбор доступен в гостевом режиме. Чтобы искать с полным доступом, войдите как пользователь.</span>
+      <span class="mh-rolebar-acts"><button type="button" onclick="MH.asUser()">Войти как пользователь</button></span></div></div>`;
+  }
+  function previewAs(kind, id) {
+    try { sessionStorage.setItem('ml_preview', JSON.stringify({ kind, id: +id })); } catch (e) {}
+    location.href = kind === 'venue' ? 'search.html?preview=' + id : 'suppliers.html?preview=' + id;
+  }
+  function exitPreview() {
+    const pv = previewTarget();
+    try { sessionStorage.removeItem('ml_preview'); } catch (e) {}
+    location.href = pv && pv.kind === 'supplier' ? 'dashboard.html?role=supplier&page=sservices' : 'dashboard.html?role=venue&page=ovenues';
+  }
+  function asUser() {
+    const acc = DEMO_ACCOUNTS.find(a => a.role === 'user');
+    setSession(sessionFor(acc));
+    try { sessionStorage.removeItem('ml_preview'); } catch (e) {}
+    const q = new URLSearchParams(location.search); q.delete('preview');
+    location.href = pageName() + (q.toString() ? '?' + q : '');
+  }
+  const roleView = () => ROLE_VIEW;
+  function injectRoleCSS() {
+    if (document.getElementById('mh-role-css')) return;
+    const st = document.createElement('style'); st.id = 'mh-role-css';
+    st.textContent = `.mh-rolebar{background:#FFF6EC;border-bottom:1px solid rgba(201,162,115,.35);font-family:'Onest',system-ui,sans-serif;}
+      .mh-rolebar.prev{background:#EAF4F3;border-bottom-color:rgba(121,185,195,.45);}
+      .mh-rolebar-in{max-width:1400px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;line-height:1.5;color:#354E63;}
+      .mh-rolebar-acts{display:flex;gap:8px;flex-wrap:wrap;}
+      .mh-rolebar-acts a,.mh-rolebar-acts button{padding:6px 14px;border-radius:50px;border:1.5px solid #B4C3CC;background:#fff;color:#354E63;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;}
+      .mh-rolebar-acts button{background:#EB7454;border-color:#EB7454;color:#fff;}
+      @media(max-width:600px){.mh-rolebar-in{padding:10px 16px;}}`;
+    document.head.appendChild(st);
+  }
+
   function init(active) {
     normalizeGuest();
     injectSeatCSS();
@@ -931,6 +999,12 @@ const MH = (() => {
       /* На узком экране ряд прокручивается вбок — активный таб должен быть виден. */
       const on = document.querySelector('.mh-b2b-tabs a.on'), row = on && on.parentElement;
       if (on && row.scrollWidth > row.clientWidth) row.scrollLeft += on.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - on.offsetWidth) / 2;
+    }
+    if (ROLE_VIEW && !document.querySelector('.mh-rolebar')) {
+      injectRoleCSS();
+      const anchor = document.querySelector('.mh-b2b-tabs') || el;
+      if (anchor) anchor.insertAdjacentHTML('afterend', roleBanner());
+      if (ROLE_VIEW.mode === 'preview') document.body.classList.add('ml-preview');
     }
     const fel = document.getElementById('mh-footer');
     if (fel) renderFooter(fel);
@@ -1837,7 +1911,10 @@ const MH = (() => {
 
   /* ══════ конец демо-блока ══════ */
 
+  applyRoleView();   // до кода страницы: выдача и карточки сразу строятся в нужном режиме
+
   return {
+    roleView, previewAs, exitPreview, asUser,
     getSession, setSession, clearSession, renderNav, init, toast, go,
     renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
     sessionFor, logout, demoRole, buyPremium, requireFields, requireRequestFields, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,

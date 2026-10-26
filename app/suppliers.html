@@ -531,6 +531,7 @@ function renderFilters() {
          oninput="document.getElementById('sfExp').value=(+this.value||'')" onchange="F.expMin=+this.value;render()"></div>`;
   const media = ['video', 'reviews', 'loyalty'].map(k => flagRow(k, SDEF(k).label)).join('');
 
+  if (PREVIEW_ID) { document.getElementById('fdBody').innerHTML = '<div class="fd-note">Предпросмотр: в каталоге только ваша карточка — так её видит пользователь на «ПРЕМИУМЕ». Фильтры в этом режиме не применяются.</div>'; return; }
   document.getElementById('fdBody').innerHTML =
     fgroup('cats', 'Услуги', tree, F.cats.size + depN) +
     fgroup('geo', 'География', geo, (F.city ? 1 : 0) + (F.travel ? 1 : 0)) +
@@ -632,10 +633,12 @@ function tile(s) {
 
 let currentList = [];
 
+/* R5 стр.162: «Как видят пользователи» — в каталоге только карточка этого поставщика */
+const PREVIEW_ID = (() => { const rv = MH.roleView && MH.roleView(); return rv && rv.mode === 'preview' && rv.kind === 'supplier' ? rv.id : null; })();
 function render() {
   ML.pruneSupplierFilters(F);          // скрытые зависимые фильтры не сужают выдачу
   ML.saveSupplierFilters(F);           // любое изменение проходит через render()
-  const list = ML.filterSuppliers(F, null);
+  const list = PREVIEW_ID ? ML.filterSuppliers(ML.emptySupplierFilters(), null).filter(s => s.id === PREVIEW_ID) : ML.filterSuppliers(F, null);
   currentList = list;
 
   document.getElementById('resCount').innerHTML = list.length

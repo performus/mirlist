@@ -618,6 +618,14 @@ button{font-family:inherit;cursor:pointer;}
 .ast.done{background:#E6F4EC;color:#3E9A6B;}
 .ap-tbl{min-width:560px;}
 .ledger-more{padding:12px 16px;border-top:1px solid rgba(197,227,225,.35);text-align:center;}
+/* R5 стр.155: залы объекта в «Моих объектах» */
+.ohalls{margin-top:10px;border-top:1px dashed rgba(197,227,225,.6);}
+.ohall{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(197,227,225,.45);}
+.ohall:last-child{border-bottom:none;}
+.ohall-n{min-width:0;}
+.ohall-n b{display:block;font-size:13.5px;color:var(--sd);}
+.ohall-n span{display:block;font-size:12px;color:var(--sx);margin-top:2px;}
+@media(max-width:600px){.ohall{flex-direction:column;align-items:flex-start;}}
 /* R5 стр.165: подсказка у неактивной кнопки «Отзыв» */
 .tipwrap{position:relative;display:inline-block;}
 .tipwrap:hover::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 6px);z-index:5;width:max-content;max-width:240px;padding:7px 10px;border-radius:8px;background:var(--sd,#354E63);color:#fff;font-size:11.5px;font-weight:500;line-height:1.4;box-shadow:0 6px 18px rgba(0,0,0,.15);}
@@ -762,6 +770,18 @@ function saveCompany(role){
 /* ── R3-B, строка 109: «Редактировать» и «Добавить зал» у объекта ── */
 function editMyVenue(i){ const v = ML.state.myVenues[i]; if (v) openWiz('venue', { data: ML.venueToWizard(v), edit: i }); }
 function addHallTo(i){ if (ML.state.myVenues[i]) openWiz('hall', { parent: i }); }
+/* R5 стр.155: правка и удаление отдельного зала объекта */
+function editMyHall(vi,hi){
+  const v=ML.state.myVenues[vi]; if(!v||!v.halls[hi]) return;
+  openWiz('hall',{ data:ML.hallToWizard(v.halls[hi]), parent:vi, edit:hi });
+}
+function delMyHall(vi,hi){
+  const v=ML.state.myVenues[vi]; if(!v||!v.halls[hi]) return;
+  MH.confirmDialog('Удалить зал',`<p>Зал <b>${esc(v.halls[hi].name||'без названия')}</b> будет удалён из объекта «${esc(v.name)}».</p>`,'Удалить',()=>{
+    if(ML.removeMyHall(vi,hi)){ MH.toast('Зал удалён','info'); renderNav(); renderPage(); }
+    else MH.toast('Последний зал удалить нельзя','error');
+  });
+}
 
 const NAVS={guest:[{id:'guest',icon:IC.user,label:'Вход'}]};
 Object.keys(MH.CABINET_MENU).forEach(role=>{
@@ -1830,6 +1850,14 @@ function wizValid(){
 
 function wizSave(){
   if(!wizValid()) return;
+  if(WIZ.kind==='hall'&&!WIZSTACK.length&&WIZ.parent!=null&&WIZ.edit!=null){
+    /* R5 стр.155: «Редактировать» зал в «Моих объектах» — сохраняем в этот же зал */
+    ML.updateMyHall(WIZ.parent,WIZ.edit,WIZ.data);
+    closeAllWiz();
+    MH.toast('Изменения сохранены','success');
+    renderNav(); renderPage();
+    return;
+  }
   if(WIZ.kind==='hall'&&!WIZSTACK.length&&WIZ.parent!=null){
     /* стр.109: «Добавить зал» у объекта — зал сохраняется в этот объект */
     const h=WIZ.data, i=WIZ.parent;
@@ -1962,19 +1990,29 @@ function saveVenueDone(reqId,venueId){
 /* ── строка объекта в списке «Мои объекты» ── */
 function venueRow(v,i){
   const halls=(v.halls||[]).map(h=>h.name).filter(Boolean);
+  /* R5 стр.155: у каждого зала — «Редактировать» и «Удалить» */
+  const hallRows=(v.halls||[]).map((h,hi)=>`<div class="ohall">
+      <div class="ohall-n"><b>${esc(h.name||'Без названия')}</b><span>${esc(h.type||'тип не указан')}${h.area?` · ${h.area} м²`:''}${Object.keys(h.seats||{}).length?` · ${Object.keys(h.seats).length} ${ML.plural(Object.keys(h.seats).length,['схема','схемы','схем'])}`:''}${(h.features||[]).length?` · оснащение: ${h.features.length}`:''}</span></div>
+      <div class="btn-row"><button class="btn-xs" onclick="editMyHall(${i},${hi})">Редактировать</button>
+        ${(v.halls||[]).length>1?`<button class="btn-xs danger" onclick="delMyHall(${i},${hi})">Удалить</button>`
+          :'<span class="tipwrap" data-tip="Последний зал удалить нельзя: объект без залов не появится в подборе"><button class="btn-xs danger" disabled title="Последний зал удалить нельзя">Удалить</button></span>'}</div>
+    </div>`).join('');
   return `<div class="orow">
     <div class="orow-mid">
       <div class="orow-name">${esc(v.name)}</div>
       <div class="orow-sub">${esc(v.cat||'категория не указана')}${
         v.stars?' <span class="orow-stars">'+'★'.repeat(v.stars)+'</span>':''}${v.city?', '+esc(v.city):''}</div>
       <div class="orow-halls">${halls.length
-        ? `${halls.length} ${ML.plural(halls.length,['зал','зала','залов'])}: ${halls.map(esc).join(', ')}`
+        ? `${halls.length} ${ML.plural(halls.length,['зал','зала','залов'])}`
         : '<span style="color:var(--c8)">залов нет — объект не появится в подборе</span>'}</div>
+      ${hallRows?`<div class="ohalls">${hallRows}</div>`:''}
     </div>
     <span class="mod ${v.status}">${esc(ML.MODERATION[v.status]||v.status)}</span>
     <div class="btn-row">
       <button class="btn-xs" onclick="editMyVenue(${i})">Редактировать</button>
       <button class="btn-xs" onclick="addHallTo(${i})">Добавить зал</button>
+      ${v.catalogId?`<button class="btn-xs" onclick="MH.previewAs('venue',${v.catalogId})">Как видят пользователи</button>`
+        :'<span class="tipwrap" data-tip="Предпросмотр появится после публикации объекта"><button class="btn-xs" disabled>Как видят пользователи</button></span>'}
       <button class="btn-xs danger" onclick="delMyVenue(${i})">Удалить</button>
     </div>
   </div>`;
@@ -2727,6 +2765,7 @@ sservices:()=>{
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto">
       Визард проведёт по шести шагам: раздел каталога, описание, цена, медиа и участие в бонусной программе.</p>
       <button class="btn btn-c" style="margin-top:18px" onclick="openWiz('service')">Добавить услугу</button>
+      <button class="btn btn-o" style="margin-top:18px" onclick="MH.previewAs('supplier',OWN_SUPPLIER_ID)">Как видят пользователи</button>
     </div>`;
   return `
   <h1 class="page-title">Мои услуги</h1>
@@ -2734,6 +2773,7 @@ sservices:()=>{
   <div class="btn-row" style="margin-bottom:18px">
     <button class="btn btn-c" onclick="openWiz('service')">Добавить услугу</button>
     <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос на обновление информации</button>
+    <button class="btn btn-o" onclick="MH.previewAs('supplier',OWN_SUPPLIER_ID)">Как видят пользователи</button>
   </div>
   ${serviceTable(list)}
   <div class="dm-note" style="margin-top:16px">Раздел каталога обязателен — по нему пользователи находят услугу.</div>`;

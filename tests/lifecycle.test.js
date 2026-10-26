@@ -862,5 +862,30 @@ test('R5 стр.165: отзыв — только после подтвержде
   assert.ok(ML.setStatus(r.id, venueId, 'reviewed', { review: { rating: 5, text: 'Всё прошло хорошо' } }));
 });
 
+test('R5 стр.155: зал объекта редактируется с текущими данными, удаляется, последний зал удалить нельзя', () => {
+  const { ML } = load();
+  const v = ML.state.myVenues[0], n = v.halls.length;
+  const d = ML.hallToWizard(v.halls[1]);
+  assert.ok(d.feats.length > 0 && Object.keys(d.seats).length > 0 && d.area > 0, 'в форме — оснащение, схемы, площадь');
+  d.area = 401; d.feats = ['sound', 'led_screen']; d.seats.banquet = 130;
+  ML.updateMyHall(0, 1, d);
+  assert.strictEqual(ML.state.myVenues[0].halls.length, n, 'новый зал не создан');
+  assert.strictEqual(ML.state.myVenues[0].halls[1].area, 401);
+  assert.deepStrictEqual(plain(ML.state.myVenues[0].halls[1].features), ['sound', 'led_screen']);
+  assert.strictEqual(ML.state.myVenues[0].halls[1].seats.banquet, 130);
+  while (ML.state.myVenues[0].halls.length > 1) assert.ok(ML.removeMyHall(0, 0));
+  assert.strictEqual(ML.removeMyHall(0, 0), false, 'последний зал не удаляется');
+  assert.strictEqual(ML.state.myVenues[0].halls.length, 1);
+});
+
+test('R5 стр.162: вид тарифа для ролей — только вид страницы, сохранённый тариф не меняется', () => {
+  const { ML, storage } = load({ ml_tariff: 'prem' });
+  ML.setTariffView('guest');
+  assert.strictEqual(ML.tariff().key, 'guest');
+  assert.strictEqual(stored(storage, 'ml_tariff') || ML.state.tariff, 'prem', 'в хранилище — по-прежнему ПРЕМИУМ');
+  ML.setTariffView(null);
+  assert.strictEqual(ML.tariff().key, 'prem');
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

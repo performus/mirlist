@@ -1273,7 +1273,8 @@ function renderFilters() {
       Остальные фильтры и полная информация о залах — с тарифа «БИЗНЕС».
       <button class="fd-up" onclick="MH.go('pricing.html')">Сравнить тарифы</button></div>`;
   }
-  document.getElementById('fdBody').innerHTML = h;
+  document.getElementById('fdBody').innerHTML = PREVIEW_ID
+    ? '<div class="fd-note">Предпросмотр: в выдаче только ваш объект — так его плитку видит пользователь на «ПРЕМИУМЕ». Фильтры в этом режиме не применяются.</div>' : h;
   bindRanges();
   bindCapDual();
   applyFacets();
@@ -1824,12 +1825,14 @@ function syncUrl() {
   history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
 }
 
+/* R5 стр.162: «Как видят пользователи» — в выдаче только объект площадки, фильтры не применяются */
+const PREVIEW_ID = (() => { const rv = MH.roleView && MH.roleView(); return rv && rv.mode === 'preview' && rv.kind === 'venue' ? rv.id : null; })();
 function render() {
   ML.pruneFilters(F);                    // скрытые зависимые фильтры не сужают выдачу
   ML.saveFilters(F);                     // любое изменение проходит через render()
   syncUrl();
-  const start = !hasFilters();
-  const list = sortList(ML.filterVenues(F));
+  const start = !hasFilters() && !PREVIEW_ID;
+  const list = PREVIEW_ID ? ML.filterVenues(ML.emptyFilters()).filter(x => x.venue.id === PREVIEW_ID) : sortList(ML.filterVenues(F));
   currentList = list;
   // новая выборка или сортировка — снова первая страница
   const sig = JSON.stringify([ML.state.filters, SORT, list.length]) + JSON.stringify(F, (k, v) => v instanceof Set ? [...v] : v);
