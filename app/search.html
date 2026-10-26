@@ -919,6 +919,9 @@ h1,h2,h3 { font-weight:700; }
 @media(max-width:560px) {
   .res-count { font-size:18px; }
   .hc { flex:0 0 178px; }
+  /* узкая плитка: цена за час — отдельной строкой, без разделителя */
+  .hc-hour { display:block; white-space:normal; }
+  .hc-sep { display:none; }
 }
 </style>
 </head>
@@ -1513,7 +1516,7 @@ function hallCard(h, keys) {
       + (seats.length > shown.length ? `<span class="hc-cap more" title="${seats.slice(shown.length).map(s => esc(s.l) + ' ' + h.seats[s.k]).join(', ')}">+${seats.length - shown.length}</span>` : '')
     : `<span class="hc-cap">${h.area} м²</span>`;
   const day = h.priceDay ? ML.money(h.priceDay) + '<span class="hc-per"> / день</span>' : '';
-  const hour = h.priceHour ? `<span class="hc-hour">${day ? '<span class="hc-per"> · </span>' : ''}от ${ML.money(h.priceHour)}<span class="hc-per"> / час</span></span>` : '';
+  const hour = h.priceHour ? `<span class="hc-hour">${day ? '<span class="hc-per hc-sep"> · </span>' : ''}от ${ML.money(h.priceHour)}<span class="hc-per"> / час</span></span>` : '';
   return `<article class="hc${inC ? ' picked' : ''}">
     <div class="hc-img">
       <img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy">
