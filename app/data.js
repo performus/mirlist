@@ -71,21 +71,22 @@
   const starKey = (v) => !STARRED_CATS.includes(v.cat) ? null : (v.stars || 0);
 
   /* Типы мероприятий. l — подписи как в текстах сайта (главная, строка параметров подбора),
-     lf — названия из файла фильтров (сам фильтр в панели). «Комбинированное» — объекты,
-     у которых указано несколько типов (комментарий в строке 5 файла); при нём видны все фильтры. */
+     lf — названия из файла фильтров (сам фильтр в панели).
+     R5 стр.131/146: «Любого типа» больше нет; «Комбинированное» стоит по умолчанию, не сужает
+     выдачу по типу и показывает все фильтры. «Тимбилдинг/Спортивное» — везде одним названием. */
   const EVENT_TYPES = [
     { k: 'business', l: 'Деловое', lf: 'Деловое мероприятие' },
     { k: 'banquet', l: 'Банкет / фуршет', lf: 'Банкет / фуршет' },
     { k: 'wedding', l: 'Свадьба', lf: 'Свадьба' },
-    { k: 'teambuilding', l: 'Тимбилдинг', lf: 'Тимбилдинг/Спортивное' },
+    { k: 'teambuilding', l: 'Тимбилдинг/Спортивное', lf: 'Тимбилдинг/Спортивное' },
   ];
   const EVENT_COMBINED = { k: 'combined', l: 'Комбинированное', lf: 'Комбинированное' };
   /* Ключи из прошлых версий (сохранённые фильтры и ссылки): шесть типов промежуточной
-     версии → «Деловое», 'team' (до R3) → 'teambuilding'. Пустой ключ — «Любой тип». */
+     версии → «Деловое», 'team' (до R3) → 'teambuilding'. Пустой ключ (прежний «Любой тип») → «Комбинированное». */
   const EVENT_TYPE_RENAMES = { forum: 'business', presentation: 'business', meeting: 'business', online: 'business', team: 'teambuilding' };
   const normEventType = (k) => {
     k = EVENT_TYPE_RENAMES[k] || k || '';
-    return EVENT_TYPES.some(e => e.k === k) || k === 'combined' ? k : '';
+    return EVENT_TYPES.some(e => e.k === k) ? k : 'combined';
   };
 
   /* Схемы рассадки. k — ключ в данных зала (seats), code — код файла; названия — из файла. */
@@ -131,7 +132,7 @@
   const VENUE_FILTERS = [
     f('main', 'city', 'Город', 'city', { fkey: 'city' }),
     f('main', 'event_type', 'Тип мероприятия', 'select', { fkey: 'eventType',
-      opts: EVENT_TYPES.map(e => ({ code: e.k, l: e.lf })).concat([{ code: 'combined', l: 'Комбинированное', decision: '' }]) }),
+      opts: [{ code: 'combined', l: 'Комбинированное', decision: '' }].concat(EVENT_TYPES.map(e => ({ code: e.k, l: e.lf }))) }),
     f('main', 'guests', 'Количество гостей', 'range2', { fkey: 'people' }),
     f('main', 'rating_min', 'Рейтинг от', null, { decision: 'СЛ ЭТАП', planned: 'select',
       opts: [{ code: '4_0', l: '4,0 и выше' }, { code: '4_5', l: '4,5 и выше' }, { code: '4_8', l: '4,8 и выше' }] }),
@@ -140,19 +141,19 @@
     f('type', 'stars', 'Звёздность', 'checks', { fkey: 'stars', opts: STAR_OPTIONS.map(o => ({ code: o.code, l: o.l })) }),
 
     ch('rooms', 'has_accommodation', 'Есть проживание'),
-    f('rooms', 'rooms_total', 'Всего номеров от', 'numFrom', { fkey: 'rooms' }),
-    f('rooms', 'rooms_twin', 'Номеров TWIN от', 'numFrom', { fkey: 'twin', tariff: 'prem' }),
-    f('rooms', 'rooms_single', 'Номеров SNGL от', 'numFrom', { fkey: 'sngl', tariff: 'prem' }),
+    f('rooms', 'rooms_total', 'Всего номеров от', 'numFrom', { fkey: 'rooms', dependsOn: { feat: 'has_accommodation' } }),
+    f('rooms', 'rooms_twin', 'Номеров TWIN от', 'numFrom', { fkey: 'twin', tariff: 'prem', dependsOn: { feat: 'has_accommodation' } }),
+    f('rooms', 'rooms_single', 'Номеров SNGL от', 'numFrom', { fkey: 'sngl', tariff: 'prem', dependsOn: { feat: 'has_accommodation' } }),
 
     f('halls', 'hall_requirements', 'Схема и вместимость', 'halls', { fkey: 'halls', level: 'hall',
       opts: SEATING.map(s => ({ code: s.code, l: s.l })) }),
     f('halls', 'hall_type', 'Тип зала', null, { decision: 'Удалить', planned: 'checks', level: 'hall',
       opts: [{ code: 'conference', l: 'Конференц-зал' }, { code: 'banquet', l: 'Банкетный зал' }, { code: 'meeting_room', l: 'Переговорная' },
         { code: 'transformer', l: 'Трансформер' }, { code: 'amphitheatre', l: 'Амфитеатр' }, { code: 'foyer', l: 'Фойе' }, { code: 'outdoor', l: 'Открытая площадка' }] }),
-    f('halls', 'hall_area_min', 'Площадь зала от, м²', 'numFrom', hl({ fkey: 'hallArea', advanced: true })),
+    /* R5 стр.140: площадь — у каждого зала в блоке «Зал N» (r.area), общего поля в панели нет */
+    f('halls', 'hall_area_min', 'Площадь зала от, м²', null, hl({ planned: 'numFrom', inHall: true, advanced: true })),
     f('halls', 'ceiling_height_min', 'Высота потолка от, м', null, hl({ decision: 'Удалить', planned: 'numFrom', advanced: true })),
     ch('halls', 'has_floor_plan', 'Есть план зала', hl({ advanced: true })),
-    f('halls', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing', advanced: true }),
 
     f('price', 'price_day', 'Стоимость за день', 'range2', { fkey: 'priceDay', mode: 'day' }),
     f('price', 'price_hour', 'Стоимость за час', 'range2', { fkey: 'priceHour', mode: 'hour' }),
@@ -191,7 +192,9 @@
     ch('space', 'blackout', 'Затемнение', hl({ events: evs('b q w') })),
     ch('space', 'windows', 'Окна', hl({ events: evs('b q w') })),
     ch('space', 'air_conditioning', 'Кондиционер', hl()),
-    f('space', 'wardrobe', 'Гардероб', 'numFrom', { fkey: 'wardrobe', unit: 'мест' }),
+    /* R5 стр.151: чекбокс «Гардероб», под ним — «мест от»; без числа — «гардероб есть» */
+    ch('space', 'wardrobe', 'Гардероб'),
+    f('space', 'wardrobe_min', 'мест от', 'numFrom', { fkey: 'wardrobe', unit: 'мест', sub: true, dependsOn: { feat: 'wardrobe' } }),
     ch('space', 'separate_restrooms', 'Раздельные туалеты'),
     ch('space', 'separate_entrance', 'Отдельный вход', hl()),
     ch('space', 'external_furniture', 'Можно со своей мебелью'),
@@ -200,6 +203,8 @@
     f('infra', 'parking', 'Парковка', 'segments', { fkey: 'parking',
       opts: [{ code: 'none', l: 'Нет парковки', decision: 'Удалить' }, { code: 'city', l: 'Городская парковка рядом' }, { code: 'private', l: 'Собственная парковка' }] }),
     f('infra', 'parking_spaces_min', 'Парковочных мест от', 'numFrom', { fkey: 'parkingSpaces', dependsOn: { parking: 'private' } }),
+    /* R5 стр.142: гримёрки — свойство объекта, из «Расширенных параметров» залов */
+    f('infra', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing' }),
     ch('infra', 'security', 'Охрана / ЧОП'),
     ch('infra', 'accessible', 'Доступная среда', { info: 'Пандус или лифт до зала, проходы шириной от 90 см без порогов и ступеней, доступный санузел. Уточняйте детали у площадки.' }),
     ch('infra', 'prayer_room', 'Молельная комната'),
@@ -227,7 +232,7 @@
   const venueFilter = (code) => VENUE_FILTERS.find(x => x.code === code) || null;
   /* Чекбоксы-свойства объекта: хранятся кодами в v.features. Особые чекбоксы считаются
      из других полей и в features не попадают. */
-  const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'menu', 'loyalty'];
+  const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'menu', 'loyalty', 'wardrobe'];
   const FEATURE_CODES = VENUE_FILTERS.filter(x => x.control === 'check' && !DERIVED_CHECKS.includes(x.code)).map(x => x.code);
   /* R3-D: оснащение и часть «Пространства» — свойства ЗАЛА (h.features), остальное — объекта (v.features).
      «Есть план зала» — тоже свойство зала, но считается из h.plan. */
@@ -244,7 +249,10 @@
   function venueFilterVisible(def, F) {
     if (!def || !def.control) return false;
     if (def.events && F && F.eventType && F.eventType !== 'combined' && !def.events.includes(F.eventType)) return false;
-    if (def.dependsOn && F) for (const k in def.dependsOn) if (F[k] !== def.dependsOn[k]) return false;
+    if (def.dependsOn && F) for (const k in def.dependsOn) {
+      if (k === 'feat') { if (!(F.feats && F.feats.has(def.dependsOn.feat))) return false; }   // поле под чекбоксом
+      else if (F[k] !== def.dependsOn[k]) return false;
+    }
     if (def.mode && F && (F.priceMode || 'day') !== def.mode) return false;
     return true;
   }
@@ -988,6 +996,22 @@
   const CONF_MAX = roundUp(Math.max(...VENUES.map(v => v.confPackage || 0)), 500);
   const AVG_CHECK_MAX = roundUp(Math.max(...VENUES.map(v => v.avgCheck || 0)), 500);
   const LIMITS = { priceDay: PRICE_DAY_MAX, priceHour: PRICE_HOUR_MAX, confPkg: CONF_MAX, avgCheck: AVG_CHECK_MAX };
+  /* R5 стр.136/156: фактические максимумы базы по числовым фильтрам. Значение пользователя
+     не обрезаем — под полем подсказка «В базе максимум N», а пустая выдача объясняет причину. */
+  const mx0 = (arr) => Math.max(0, ...arr);
+  const DB_MAX = {
+    people: mx0(VENUES.flatMap(v => v.halls.map(h => Math.max(0, ...Object.values(h.seats || {}))))),
+    area: mx0(VENUES.flatMap(v => v.halls.map(h => h.area || 0))),
+    priceDay: mx0(VENUES.flatMap(v => v.halls.map(h => h.priceDay || 0))),
+    priceHour: mx0(VENUES.flatMap(v => v.halls.map(h => h.priceHour || 0))),
+    confPkg: mx0(VENUES.map(v => v.confPackage || 0)),
+    rooms: mx0(VENUES.map(v => (v.rooms || {}).total || 0)),
+    twin: mx0(VENUES.map(v => (v.rooms || {}).twin || 0)),
+    sngl: mx0(VENUES.map(v => (v.rooms || {}).sngl || 0)),
+    dressing: mx0(VENUES.map(v => v.dressingRooms || 0)),
+    wardrobe: mx0(VENUES.map(v => v.wardrobe || 0)),
+    parkingSpaces: mx0(VENUES.map(v => v.parkingSpaces || 0)),
+  };
 
   /* Просмотры карточки. В прототипе заданы, на разработке считаются
      счётчиком. Объект узнаёт о просмотре только в момент запроса —
@@ -1312,7 +1336,7 @@
        а у запроса — параметры поиска. Тестовые запросы, сохранённые без них, дополняем. */
     const SEED_REQ_HALLS = {
       'RQ-260714-0031': { hallIds: [101, 1101, 402], params: ['от 120 чел.', 'Деловое', 'зал 1: Театр от 120'] },
-      'RQ-260703-0018': { hallIds: [701, 1001], params: ['Подмосковье', 'от 60 чел.', 'Тимбилдинг'] },
+      'RQ-260703-0018': { hallIds: [701, 1001], params: ['Подмосковье', 'от 60 чел.', 'Тимбилдинг/Спортивное'] },
       'RQ-260612-0007': { hallIds: [201, 601], params: ['от 80 чел.', 'Банкет / фуршет'] },
     };
     return (Array.isArray(list) ? list : []).map(r => Object.assign({}, r,
@@ -1400,7 +1424,9 @@
   function hallsSatisfy(halls, reqs) {
     if (!reqs || !reqs.length) return { ok: true, used: [] };
     const room = (h, r) => r.seating ? (h.seats[r.seating] || 0) : hallCapacity(h);
-    const fits = (h, r) => room(h, r) >= (+r.min || 0) && (r.feats || []).every(c => hallHas(h, c));
+    // выбранная схема должна у зала быть (зал без банкетной рассадки не закрывает «банкет» даже без минимума)
+    const fits = (h, r) => (!r.seating || (h.seats[r.seating] || 0) > 0) && room(h, r) >= (+r.min || 0)
+      && (h.area || 0) >= (+r.area || 0) && (r.feats || []).every(c => hallHas(h, c));
     // кандидаты — от самого тесного зала: под «переговоры от 10» сначала пробуем переговорную, а не большой зал
     const cand = reqs.map(r => halls.map((h, i) => i).filter(i => fits(halls[i], r))
       .sort((a, b) => room(halls[a], r) - room(halls[b], r)));
@@ -1426,7 +1452,7 @@
   /** Пустой набор фильтров. Ключи — fkey из VENUE_FILTERS. */
   function emptyFilters() {
     return {
-      city: '', people: 0, peopleTo: 0, eventType: '',   // peopleTo 0 — без верхней границы
+      city: '', people: 0, peopleTo: 0, eventType: 'combined',   // peopleTo 0 — без верхней границы; тип по умолчанию — «Комбинированное»
       cats: new Set(), stars: new Set(),
       feats: new Set(),                // чекбоксы-свойства по кодам (логика «И»)
       cuisine: new Set(),              // кухня — мультивыбор, логика «ИЛИ»
@@ -1451,6 +1477,7 @@
     if (code === 'has_accommodation') return venueRooms(v) > 0;
     if (code === 'menu') return !!v.menu;
     if (code === 'loyalty') return !!v.loyaltyContract;
+    if (code === 'wardrobe') return (v.wardrobe || 0) > 0;
     if (isHallCheck(code)) return v.halls.some(h => hallHas(h, code));
     return (v.features || []).includes(code);
   }
@@ -1459,11 +1486,12 @@
      Пока блоков «Зал N» нет, свойства зала отмечаются общими чекбоксами панели. Как только
      добавлен первый блок, общие чекбоксы неактивны, а отмеченные переносятся в «Зал 1».
      Правила «хотя бы один из подобранных залов» нет: оснащение задаётся в каждом зале. */
-  const hallReqOn = (r) => !!(r && (r.seating || +r.min > 0 || (r.feats || []).length));
+  /* R5 стр.137: «Любой схемы» нет — требование применяется, только когда схема выбрана */
+  const hallReqOn = (r) => !!(r && r.seating);
   /** Добавить блок «Зал N»; первый блок забирает отмеченные общие свойства зала. */
   function hallReqAdd(F) {
     F.halls = F.halls || [];
-    const r = { seating: '', min: 0, feats: [] };
+    const r = { seating: '', min: 0, area: 0, feats: [] };
     if (!F.halls.length) [...F.feats].filter(isHallCheck).forEach(c => { F.feats.delete(c); r.feats.push(c); });
     F.halls.push(r);
     return r;
@@ -1479,17 +1507,17 @@
   /** Требования для подбора. Общие свойства зала при блоках относятся к «Залу 1» —
       так же, как их переносит hallReqAdd (на случай состояния, собранного в обход панели). */
   function effectiveReqs(F) {
-    const list = (F.halls || []).map(r => ({ seating: r.seating || '', min: +r.min || 0, feats: (r.feats || []).slice() }));
+    const list = (F.halls || []).map(r => ({ seating: r.seating || '', min: +r.min || 0, area: +r.area || 0, feats: (r.feats || []).slice() }));
     if (list.length) [...(F.feats || [])].filter(isHallCheck).forEach(c => { if (!list[0].feats.includes(c)) list[0].feats.push(c); });
     return list.filter(hallReqOn);
   }
   /** «Зал 1: банкет от 120 · LED-экран» — чип над выдачей и сводка выборки. */
   function hallReqLabel(r, i) {
     const s = seatingByKey(r.seating);
-    return `Зал ${i + 1}: ${s ? s.l.toLowerCase() : 'любая схема'}${+r.min ? ' от ' + r.min : ''}`
-      + (r.feats || []).map(c => ' · ' + featureLabel(c)).join('');
+    return `Зал ${i + 1}: ${s ? s.l.toLowerCase() : 'схема не выбрана'}${+r.min ? ' от ' + r.min : ''}`
+      + (+r.area ? ` · от ${r.area} м²` : '') + (r.feats || []).map(c => ' · ' + featureLabel(c)).join('');
   }
-  const eventOk = (v, et) => !et || (et === 'combined' ? v.eventTypes.length > 1 : v.eventTypes.includes(et));
+  const eventOk = (v, et) => !et || et === 'combined' || v.eventTypes.includes(et);
 
   /**
    * Отбор залов по фильтрам. Возвращает объекты с УЖЕ отфильтрованными залами:
@@ -1546,7 +1574,10 @@
       if (!m.ok) continue;
       // показываем те залы, что закрывают требования; без требований — весь пул
       const halls = reqs.length ? m.used.map(i => pool[i]).filter((h, i, a) => a.indexOf(h) === i) : pool;
-      out.push({ venue: v, halls: sortHallsByPrice(halls), matched: reqs.length > 0 });
+      /* R5 стр.138: на плитке зала — только схемы требований, которые он закрывает (обе, если два) */
+      const seatKeys = {};
+      if (reqs.length) m.used.forEach((pi, ri) => { const id = pool[pi].id; (seatKeys[id] = seatKeys[id] || []).includes(reqs[ri].seating) || seatKeys[id].push(reqs[ri].seating); });
+      out.push({ venue: v, halls: sortHallsByPrice(halls), matched: reqs.length > 0, seatKeys });
     }
     /* Платное продвижение: Топ-3 выше Топ-10, остальные в обычном порядке.
        Выделение рамкой (highlight) на позицию не влияет — это только вид. */
@@ -1562,6 +1593,7 @@
   function pruneFilters(F) {
     const dropped = [];
     const E = emptyFilters();
+    if (F.stars && F.stars.size && !starsEnabled(F)) { F.stars.clear(); dropped.push('stars'); }
     for (const d of VENUE_FILTERS) {
       if (!d.control || venueFilterVisible(d, F)) continue;
       if (d.control === 'check') {
@@ -1579,9 +1611,12 @@
     return dropped;
   }
 
+  /** R5 стр.134: звёздность доступна, только когда в категориях выбран «Отель» или «Бутик-отель». */
+  const starsEnabled = (F) => [...(F.cats || [])].some(c => STARRED_CATS.includes(c));
+
   /** Применён ли хоть один фильтр (для «Сбросить всё» и стартового состояния подбора). */
   function filtersActive(F) {
-    return !!(F.city || F.people || F.peopleTo || F.eventType || F.cats.size || F.stars.size || F.feats.size
+    return !!(F.city || F.people || F.peopleTo || (F.eventType && F.eventType !== 'combined') || F.cats.size || F.stars.size || F.feats.size
       || (F.cuisine && F.cuisine.size) || F.rooms || F.twin || F.sngl || F.hallArea || F.dressing || F.avgCheck
       || F.wardrobe || F.parking || F.parkingSpaces || (F.halls || []).some(hallReqOn)
       || rangeOn(F, 'priceDay') || rangeOn(F, 'priceHour') || rangeOn(F, 'confPkg') || (F.priceMode || 'day') !== 'day');
@@ -1972,7 +2007,7 @@
       if (!(k in raw)) continue;
       if (F[k] instanceof Set) F[k] = new Set(Array.isArray(raw[k]) ? raw[k] : []);
       else if (k === 'halls') F[k] = Array.isArray(raw[k])
-        ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0,
+        ? raw[k].filter(x => x && typeof x === 'object').map(x => ({ seating: String(x.seating || ''), min: +x.min || 0, area: +x.area || 0,
             feats: Array.isArray(x.feats) ? x.feats.filter(isHallCheck) : [] }))
         : [];
       else if (Array.isArray(F[k]) && Array.isArray(raw[k]) && raw[k].length === 2) F[k] = raw[k].map(Number);
@@ -1992,11 +2027,16 @@
     F.cats = new Set([...F.cats].map(c => CAT_RENAMES[c] || c).filter(c => VENUE_CATS.includes(c)));
     F.stars = new Set([...F.stars].map(Number).filter(n => STAR_OPTIONS.some(o => o.k === n)));
     F.cuisine = new Set([...F.cuisine].filter(c => CUISINE_OPTS.some(o => o.code === c)));
-    // Ползунки, сохранённые со старым потолком (200 000 ₽), растягиваем до нового максимума.
+    /* R5 стр.132/136: введённое значение не меняем. Пустая или прежняя «без границы» (старый потолок
+       200 000 ₽ или максимум базы) верхняя граница — это снова «без границы» (LIMITS). */
     for (const k of ['priceDay', 'priceHour', 'confPkg']) {
-      const mx = LIMITS[k];
-      F[k] = [Math.max(0, Math.min(F[k][0] || 0, mx)), (!F[k][1] || F[k][1] >= mx || (k === 'priceDay' && F[k][1] === 200000)) ? mx : F[k][1]];
+      const mx = LIMITS[k], hi = +F[k][1] || 0;
+      F[k] = [Math.max(0, +F[k][0] || 0), (!hi || hi === mx || (k === 'priceDay' && hi === 200000)) ? mx : hi];
     }
+    // R5 стр.140: общей площади зала больше нет — переносим её в «Зал 1», без блоков — снимаем
+    if (F.hallArea) { if (F.halls.length && !F.halls[0].area) F.halls[0].area = F.hallArea; F.hallArea = 0; }
+    // R5 стр.151: «Гардероб от N» из прежних версий — это отмеченный «Гардероб» с числом мест
+    if (F.wardrobe && !F.feats.has('wardrobe')) F.feats.add('wardrobe');
     if (F.priceMode !== 'hour') F.priceMode = 'day';
     F.eventType = normEventType(F.eventType);
     return F;
@@ -2039,7 +2079,7 @@
     const money = (n) => n.toLocaleString('ru');
     if (F.city && F.city !== ALL_CITIES) out.push(F.city);
     if (F.people || F.peopleTo) out.push(peopleLabel(F));
-    const et = EVENT_TYPES.find(e => e.k === F.eventType) || (F.eventType === 'combined' ? EVENT_COMBINED : null);
+    const et = EVENT_TYPES.find(e => e.k === F.eventType);   // «Комбинированное» — по умолчанию, в сводку не пишем
     if (et) out.push(et.l);
     if (F.cats.size) out.push([...F.cats].join(', '));
     if (F.stars.size) out.push([...F.stars].sort().map(n => (STAR_OPTIONS.find(o => o.k === n) || { l: n + '★' }).l).join(', '));
@@ -2248,15 +2288,14 @@
     return true;
   }
 
-  /* — активные и архив (стр.25) —
-     Строка запроса (объект группового запроса) уходит в архив той стороны,
-     которая сама отметила «Мероприятие состоялось»: у пользователя — после его
-     отметки (до подтверждения площадкой статус «Ждёт подтверждения площадки»,
-     баллы начислятся после подтверждения), у площадки — после её отметки.
-     Отклонение объектом и отмена пользователем закрывают строку у обеих сторон. */
+  /* — активные и архив —
+     R5 стр.160 (меняет решение R2): в архиве только закрытые объекты запроса — обе стороны
+     отметили «Мероприятие состоялось», объект отклонил или пользователь отменил. После отметки
+     одной стороны строка остаётся в «Активных» («Ждёт подтверждения площадки» у пользователя).
+     Правило одинаковое для пользователя и площадки; side оставлен для совместимости вызовов. */
   function isClosedRow(o, side) {
     if (o.status === 'cancelled' || o.status === 'declined') return true;
-    return side === 'venue' ? !!o.venueDone : (o.status === 'done' || o.status === 'reviewed');
+    return bothConfirmed(o);
   }
   /** Отметка пользователя есть, площадка ещё не подтвердила. */
   const waitingVenue = (o) => (o.status === 'done' || o.status === 'reviewed') && !o.venueDone;
@@ -2509,7 +2548,7 @@
     venueById, allHalls, hallById, hallVenue,
     hallCapacity, venueCapacity, venueMinPrice, venueRooms, seatingByKey, hallsSatisfy,
     hallHas, isHallCheck, hallCheckDefs, hallReqDefs, HALL_FEATURE_CODES, VENUE_FEATURE_CODES,
-    hallReqOn, hallReqAdd, hallReqRemove, hallReqToggle, hallReqLabel, effectiveReqs,
+    hallReqOn, hallReqAdd, hallReqRemove, hallReqToggle, hallReqLabel, effectiveReqs, DB_MAX, starsEnabled,
     emptyFilters, filterVenues, facetCount,
     saveFilters, loadFilters, resetFilters, filtersSummary,
     saveSupplierFilters, loadSupplierFilters, resetSupplierFilters,

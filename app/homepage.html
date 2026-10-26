@@ -472,7 +472,7 @@ function render(){
         <div class="sf">
           <label for="sEvent">Тип мероприятия</label>
           <select id="sEvent">
-            <option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>
+            <option value="combined"${F.eventType === 'combined' || !F.eventType ? ' selected' : ''}>${esc(ML.EVENT_COMBINED.l)}</option>
             ${ML.EVENT_TYPES.map(e => `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')}
           </select>
         </div>

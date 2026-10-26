@@ -673,6 +673,34 @@ h1,h2,h3 { font-weight:700; }
   border-radius:5px; padding:3px 6px;
 }
 .hc-cap .ml-seat { color:var(--slate-muted); }
+/* R5 стр.133: схемы переносятся на вторую строку, сверх двух строк — «+N»; «План» — меткой у вместимости */
+.hc .hc-caps { flex-wrap:wrap; max-height:40px; }
+.hc-cap.more { background:var(--bg); color:var(--slate-muted); }
+.hc-plan { display:inline-flex; align-items:center; padding:2px 6px; border-radius:5px; font-size:10px; font-weight:700; background:var(--coral-soft); color:var(--coral-hover, #D96345); }
+.hc-hour { display:inline; }
+/* R5 стр.150/153/154: название крупнее, категория — мелкими заглавными, звёзды отеля золотые */
+.vb-name { font-size:18px; font-weight:800; letter-spacing:-.3px; }
+.vb-gold { margin-left:8px; color:#E0A93B; letter-spacing:1px; font-size:14px; vertical-align:1px; white-space:nowrap; }
+.vb-kicker { margin-top:3px; font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--slate-muted); }
+.vb-rating svg { color:var(--slate-pale); }
+.vb-cap { border-bottom:1px dotted var(--slate-pale); cursor:help; }
+/* R5 стр.143/144: «Сбросить» у группы; подзаголовки внутри «Стоимости» */
+.fd-greset { margin-left:auto; padding:2px 9px; border-radius:var(--r-full); border:1px solid rgba(180,195,204,.7); background:#fff;
+  font-family:inherit; font-size:11px; font-weight:600; color:var(--slate-mid); cursor:pointer; }
+.fd-greset:hover { border-color:var(--coral); color:var(--coral); }
+.fd-greset + .fd-chev { margin-left:8px; }
+.fd-sub { margin:4px 0 8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--slate-muted); }
+.fd-sub.sep { margin-top:14px; padding-top:12px; border-top:1px solid rgba(197,227,225,.6); }
+/* R5 стр.136/156: введённое число не меняем — подсказка о максимуме базы */
+.fd-max { margin:-2px 0 6px; font-size:11.5px; color:var(--slate-muted); text-align:right; }
+.fd-num.sub { padding-left:28px; }
+.fd-dis-note { margin:2px 0 6px; font-size:11.5px; color:var(--slate-muted); }
+.hq-hint { margin-top:4px; font-size:11.5px; color:var(--coral-hover, #D96345); }
+.hq-area { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:9px; font-size:12px; color:var(--slate-mid); }
+.hq-area .hq-num { width:120px; }
+.res-reason { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 auto 10px; max-width:560px; padding:10px 14px;
+  border-radius:var(--r-sm); background:var(--bg); font-size:13px; color:var(--slate-deep); text-align:left; }
+.res-reason button { flex:none; padding:6px 12px !important; font-size:12px !important; }
 .hc-price { font-size:13.5px; line-height:17px; font-weight:800; color:var(--slate-deep); margin-bottom:5px; }
 .hc-price i { font-style:normal; font-size:11.5px; font-weight:500; color:var(--slate-muted); }
 .hc-foot { display:flex; align-items:center; justify-content:space-between; gap:6px; }
@@ -1042,7 +1070,7 @@ function canUse(group) { return ML.canUseFilter(ML.tariff().key, group); }
    ══════════════════════════════════════════════ */
 function fgroup(key, title, body, n) {
   return `<details class="fd-group" data-k="${key}" ${OPEN.has(key) ? 'open' : ''} ontoggle="OPEN[this.open?'add':'delete']('${key}')">
-    <summary>${title}${n ? `<span class="fd-gcount">${n}</span>` : ''}<span class="fd-chev">▶</span></summary>
+    <summary>${title}${n ? `<span class="fd-gcount">${n}</span>` : ''}${n ? `<button type="button" class="fd-greset" onclick="event.preventDefault();event.stopPropagation();resetGroup('${key}')" aria-label="Сбросить группу «${title}»">Сбросить</button>` : ''}<span class="fd-chev">▶</span></summary>
     <div class="fd-gbody">${body}</div>
   </details>`;
 }
@@ -1064,14 +1092,22 @@ function checkRow(code, val, label, on, locked, extra) {
     <span class="fd-box">${IC.check}</span>
     <span class="fd-lbl">${label}</span><span class="fd-cnt"></span></label>`;
 }
-function togFeat(code) { F.feats.has(code) ? F.feats.delete(code) : F.feats.add(code); renderFilters(); render(); }
+function togFeat(code) { F.feats.has(code) ? F.feats.delete(code) : F.feats.add(code); ML.pruneFilters(F); renderFilters(); render(); }
 /* R3-D: пока есть блоки «Зал N», общие свойства зала неактивны — оснащение задаётся в каждом зале */
 const hallBlocks = () => (F.halls || []).length > 0;
 const hallBlocked = (d) => !!d && d.control === 'check' && d.level === 'hall' && hallBlocks();
-function togSet(key, value) { const s = F[key]; s.has(value) ? s.delete(value) : s.add(value); renderFilters(); render(); }
+function togSet(key, value) { const s = F[key]; s.has(value) ? s.delete(value) : s.add(value); ML.pruneFilters(F); renderFilters(); render(); }
 function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); renderFilters(); render(); }
 function setVal(key, v) { F[key] = v; renderFilters(); render(); }
 const numClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : n; };
+/* R5 стр.132/136/156: введённое число не округляем и не обрезаем. Если оно больше максимума базы —
+   серая подсказка под полем; пустая выдача называет условие, которое её обнулило. */
+const DBK = { rooms: 'rooms', twin: 'twin', sngl: 'sngl', dressing: 'dressing', wardrobe: 'wardrobe', parkingSpaces: 'parkingSpaces' };
+const fmt = (n) => Number(n).toLocaleString('ru');
+function maxNote(v, key, unit) {
+  const mx = key && ML.DB_MAX[key];
+  return v && mx != null && v > mx ? `<div class="fd-max">В базе максимум ${fmt(mx)}${unit ? ' ' + esc(unit) : ''}</div>` : '';
+}
 
 /* подсказка (i) — показывается при наведении и фокусе */
 const infoTip = (text) => `<span class="fd-info" tabindex="0" aria-label="Что это значит"><span aria-hidden="true">i</span><span class="fd-tip" role="tooltip">${esc(text)}</span></span>`;
@@ -1082,19 +1118,21 @@ function control(d, locked) {
   switch (d.control) {
     case 'check': return checkRow(d.code, '', esc(d.label) + (d.info ? infoTip(d.info) : ''), F.feats.has(d.code), locked || hallBlocked(d));
     case 'checks':
-      if (d.code === 'stars') return `<div class="fd-rgt">${esc(d.label)}</div>` + ML.STAR_OPTIONS.map(o => checkRow('stars', o.k,
+      /* R5 стр.134: звёздность доступна только при категориях «Отель» и «Бутик-отель» */
+      if (d.code === 'stars') return `<div class="fd-rgt">${esc(d.label)}</div>` + (ML.starsEnabled(F) ? ''
+        : '<div class="fd-dis-note">Доступно для категорий «Отель» и «Бутик-отель»</div>') + ML.STAR_OPTIONS.map(o => checkRow('stars', o.k,
         o.k ? `<span class="fd-stars" role="img" aria-label="${esc(o.l)}">${IC.star.repeat(o.k)}</span>` : esc(o.l),
-        F.stars.has(o.k), locked, `togStar(${o.k})`)).join('');
+        F.stars.has(o.k), locked || !ML.starsEnabled(F), `togStar(${o.k})`)).join('');
       return `<div class="fd-rgt">${esc(d.label)}</div>` + d.opts.map(o => checkRow('category', o.l, esc(o.l), F.cats.has(o.l), locked, `togSet('cats','${jt(o.l)}')`)).join('');
-    case 'numFrom': return `<div class="fd-num"><label for="fn-${d.code}">${esc(d.label)}</label>
+    case 'numFrom': return `<div class="fd-num${d.sub ? ' sub' : ''}"><label for="fn-${d.code}">${esc(d.label)}</label>
         <span class="fd-numin"><input id="fn-${d.code}" inputmode="numeric" placeholder="любое" value="${F[d.fkey] || ''}" ${dis}
-          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))">${d.unit ? `<span>${esc(d.unit)}</span>` : ''}</span></div>`;
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))">${d.unit ? `<span>${esc(d.unit)}</span>` : ''}</span></div>${maxNote(F[d.fkey], DBK[d.fkey], d.unit)}`;
     case 'numTo': {
       const mx = ML.LIMITS[d.fkey] || 10000, v = F[d.fkey] || 0;
       return `<div class="fd-num"><label for="fn-${d.code}">${esc(d.label)}</label>
         <span class="fd-numin"><input id="fn-${d.code}" inputmode="numeric" placeholder="любой" value="${v || ''}" ${dis}
-          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',Math.min(${mx},numClean(this.value)))"><span>₽</span></span></div>
-        <div class="fd-range"><input type="range" min="0" max="${mx}" step="100" value="${v || mx}" ${dis} aria-label="${esc(d.label)}, ползунок"
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))"><span>₽</span></span></div>
+        <div class="fd-range"><input type="range" min="0" max="${mx}" step="100" value="${Math.min(v || mx, mx)}" ${dis} aria-label="${esc(d.label)}, ползунок"
           oninput="document.getElementById('fn-${d.code}').value=(+this.value>=${mx}?'':this.value)"
           onchange="setVal('${d.fkey}',+this.value>=${mx}?0:+this.value)"></div>`;
     }
@@ -1110,7 +1148,7 @@ function control(d, locked) {
         `<button type="button" role="radio" aria-checked="${F.parking === o.code}" class="${F.parking === o.code ? 'on' : ''}" ${dis}
           onclick="setVal('parking','${o.code}')">${esc(o.l)}</button>`).join('')}</div>`;
     case 'select': return `<label class="fd-sel"><span>${esc(d.label)}</span><select ${dis} onchange="setEvent(this.value)">
-        <option value="">Любой тип</option>${d.opts.map(o => `<option value="${o.code}"${F.eventType === o.code ? ' selected' : ''}>${esc(o.l)}</option>`).join('')}
+        ${d.opts.map(o => `<option value="${o.code}"${F.eventType === o.code ? ' selected' : ''}>${esc(o.l)}</option>`).join('')}
       </select></label>`;
     case 'halls': return hallsBuilder();
   }
@@ -1134,23 +1172,23 @@ const RANGE_STEP = { priceDay: 5000, priceHour: 500, confPkg: 100 };
 function rangeBody(d, locked) {
   const k = d.fkey, mx = ML.LIMITS[k], [a, b] = F[k], dis = locked ? 'disabled' : '';
   return `<div class="fd-rg" data-k="${k}">
-    ${d.code === 'conference_package_price_per_person' ? `<div class="fd-rgt">${esc(d.label)} <span>${esc(d.unit)}</span></div>` : ''}
+    ${d.code === 'conference_package_price_per_person' ? `<div class="fd-rgt"><span>${esc(d.unit)}</span></div>` : ''}
     <div class="fd-rgin">
       <label><span>от</span><input inputmode="numeric" placeholder="0" value="${a || ''}" ${dis} data-end="0" aria-label="${esc(d.label)} от"
         oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${k}',0,this.value)"></label>
-      <label><span>до</span><input inputmode="numeric" placeholder="${mx.toLocaleString('ru')}" value="${b < mx ? b : ''}" ${dis} data-end="1" aria-label="${esc(d.label)} до"
+      <label><span>до</span><input inputmode="numeric" placeholder="${mx.toLocaleString('ru')}" value="${b !== mx ? b : ''}" ${dis} data-end="1" aria-label="${esc(d.label)} до"
         oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="rangeSet('${k}',1,this.value)"></label>
       <span class="fd-rgu">₽</span>
     </div>
     <div class="fd-dual"><div class="fd-track"><div class="fd-rail"></div><div class="fd-fill"></div>
-      <input type="range" class="lo" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${a}" ${dis} aria-label="${esc(d.label)}: от, ползунок">
-      <input type="range" class="hi" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${b}" ${dis} aria-label="${esc(d.label)}: до, ползунок">
-    </div></div></div>`;
+      <input type="range" class="lo" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${Math.min(a, mx)}" ${dis} aria-label="${esc(d.label)}: от, ползунок">
+      <input type="range" class="hi" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${Math.min(b, mx)}" ${dis} aria-label="${esc(d.label)}: до, ползунок">
+    </div></div>${maxNote(a, k, '₽')}</div>`;
 }
 function rangeSet(k, end, raw) {
   const mx = ML.LIMITS[k];
   let [a, b] = F[k];
-  const v = Math.min(mx, numClean(raw));
+  const v = numClean(raw);                 // без обрезки по максимуму
   if (end === 0) a = v; else b = v || mx;
   if (a > b) [a, b] = [b, a];
   F[k] = [a, b]; renderFilters(); render();
@@ -1160,16 +1198,19 @@ function bindRanges() {
     const k = box.dataset.k, mx = ML.LIMITS[k];
     const lo = box.querySelector('input.lo'), hi = box.querySelector('input.hi'), fill = box.querySelector('.fd-fill');
     const [fa, fb] = box.querySelectorAll('.fd-rgin input');
-    const upd = (commit) => {
+    /* R5 стр.132: поле хранит ровно введённое число; ползунок — только показывает его (упирается в край).
+       Значения из ползунка пишутся в поля лишь когда пользователь сам тянет ползунок. */
+    const paint = (a, b) => { fill.style.left = (Math.min(a, mx) / mx * 100) + '%'; fill.style.right = (100 - Math.min(b, mx) / mx * 100) + '%'; };
+    const drag = (commit) => {
       let a = +lo.value, b = +hi.value;
       if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
-      fill.style.left = (a / mx * 100) + '%'; fill.style.right = (100 - b / mx * 100) + '%';
+      paint(a, b);
       fa.value = a || ''; fb.value = b >= mx ? '' : b;
-      if (commit) { F[k] = [a, b]; renderFilters(); render(); }
+      if (commit) { F[k] = [a, b >= mx ? mx : b]; renderFilters(); render(); }
     };
-    lo.oninput = () => upd(false); hi.oninput = () => upd(false);
-    lo.onchange = () => upd(true); hi.onchange = () => upd(true);
-    upd(false);
+    lo.oninput = () => drag(false); hi.oninput = () => drag(false);
+    lo.onchange = () => drag(true); hi.onchange = () => drag(true);
+    paint(F[k][0], F[k][1]);
   });
 }
 
@@ -1180,7 +1221,7 @@ function groupCount(g) {
     if (d.group !== g || !d.control || d.control === 'city') continue;
     if (d.control === 'check') n += F.feats.has(d.code) ? 1 : 0;
     else if (d.code === 'guests') n += (F.people ? 1 : 0) + (F.peopleTo ? 1 : 0);
-    else if (d.code === 'event_type') n += F.eventType ? 1 : 0;
+    else if (d.code === 'event_type') n += F.eventType && F.eventType !== 'combined' ? 1 : 0;
     else if (d.code === 'category') n += F.cats.size;
     else if (d.code === 'stars') n += F.stars.size;
     else if (d.code === 'cuisine') n += F.cuisine.size;
@@ -1198,19 +1239,25 @@ function renderFilters() {
   let h = '';
   for (const g of ML.VENUE_FILTER_GROUPS) {
     const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && d.control !== 'city' && ML.venueFilterVisible(d, F));
-    if (g.k === 'price') defs.unshift({ code: 'price_mode', control: 'mode' });
+    if (g.k === 'price') {
+      defs.unshift({ code: 'price_mode', control: 'mode' });
+      defs.unshift({ code: 'sub_rent', control: 'sub', l: 'Стоимость аренды' });   // R5 стр.144
+      const cp = defs.findIndex(d => d.code === 'conference_package_price_per_person');
+      if (cp > 0) defs.splice(cp, 0, { code: 'sub_conf', control: 'sub', l: 'Конференц-пакет', sep: true });
+    }
     if (!defs.length) continue;
-    const groupLocked = defs.every(d => d.control === 'mode' || !canUse(d.code));
+    const groupLocked = defs.every(d => d.control === 'mode' || d.control === 'sub' || !canUse(d.code));
     const main = defs.filter(d => !d.advanced), adv = defs.filter(d => d.advanced);
     const draw = (d, i, arr) => {
       if (d.control === 'mode') return `<div class="fd-seg fd-mode" role="radiogroup" aria-label="Стоимость">
         ${[['day', 'За день'], ['hour', 'За час']].map(([m, l]) => `<button type="button" role="radio" aria-checked="${(F.priceMode || 'day') === m}"
           class="${(F.priceMode || 'day') === m ? 'on' : ''}" ${canUse('price_day') ? '' : 'disabled'} onclick="setMode('${m}')">${l}</button>`).join('')}</div>`;
+      if (d.control === 'sub') return `<div class="fd-sub${d.sep ? ' sep' : ''}">${esc(d.l)}</div>`;
       const locked = !canUse(d.code);
       if (d.control === 'halls') return control(d, locked);
       if (hallBlocked(d) && !locked) return control(d, false);
       const html = control(d, locked);
-      const nextLocked = arr && arr[i + 1] && arr[i + 1].control !== 'mode' && !canUse(arr[i + 1].code) && needFor(arr[i + 1].code) === needFor(d.code);
+      const nextLocked = arr && arr[i + 1] && !['mode', 'sub'].includes(arr[i + 1].control) && !canUse(arr[i + 1].code) && needFor(arr[i + 1].code) === needFor(d.code);
       return locked && !groupLocked ? payWrap(d.code, html + (nextLocked ? '' : lockNote(d.code)), d.label) : html;
     };
     let body = main.map(draw).join('');
@@ -1218,7 +1265,7 @@ function renderFilters() {
       <summary>Расширенные параметры</summary><div>${adv.map(draw).join('')}</div></details>`;
     if (g.k !== 'halls' && defs.some(hallBlocked) && !groupLocked)
       body = `<div class="fd-hallnote">Оснащение задаётся в каждом зале выше</div>` + body;
-    if (groupLocked) body = payWrap(defs.find(d => d.control !== 'mode').code, body + lockNote(defs.find(d => d.control !== 'mode').code), g.l);
+    if (groupLocked) { const first = defs.find(d => d.control !== 'mode' && d.control !== 'sub'); body = payWrap(first.code, body + lockNote(first.code), g.l); }
     h += fgroup(g.k, esc(g.l), body, groupCount(g.k));
   }
   if (!t.fullInfo) {
@@ -1233,6 +1280,20 @@ function renderFilters() {
   syncResetBtn();
 }
 function setMode(m) { F.priceMode = m; ML.pruneFilters(F); renderFilters(); render(); }
+/* R5 стр.143: «Сбросить» у группы — только значения этой группы */
+function resetGroup(g) {
+  const E = ML.emptyFilters();
+  for (const d of ML.VENUE_FILTERS.filter(x => x.group === g)) {
+    if (d.control === 'check') { F.feats.delete(d.code); continue; }
+    if (d.code === 'guests') { F.people = 0; F.peopleTo = 0; continue; }
+    if (d.code === 'event_type') { F.eventType = E.eventType; continue; }
+    if (d.code === 'category') { F.cats.clear(); continue; }
+    if (d.fkey && d.fkey in E) F[d.fkey] = E[d.fkey] instanceof Set ? new Set() : JSON.parse(JSON.stringify(E[d.fkey]));
+  }
+  if (g === 'price') F.priceMode = 'day';
+  if (g === 'halls') F.halls = [];
+  ML.pruneFilters(F); syncBar(); renderFilters(); render();
+}
 
 /* «Сбросить всё» неактивна, пока не применён ни один фильтр (R3-B, строка 97). */
 function syncResetBtn() {
@@ -1248,7 +1309,7 @@ function applyFacets() {
     lb.querySelector('.fd-cnt').textContent = '(' + n + ')';
     const lockedByTariff = !canUse(code);
     const dead = !inp.checked && n === 0;
-    const blocked = !lb.closest('.hq') && hallBlocked(ML.VENUE_FILTERS.find(d => d.code === code));
+    const blocked = (!lb.closest('.hq') && hallBlocked(ML.VENUE_FILTERS.find(d => d.code === code))) || (code === 'stars' && !ML.starsEnabled(F));
     inp.disabled = lockedByTariff || dead || blocked;
     lb.classList.toggle('off', lockedByTariff || dead || blocked);
   });
@@ -1269,10 +1330,12 @@ function applyFacets() {
    в «Зал 1» (ML.hallReqAdd), выбранное видно чипами внутри блока.
    ══════════════════════════════════════════════ */
 function hallsBuilder() {
-  if (!canUse('halls')) {
-    return payWrap('halls', '<div class="fd-lock">Подбор по залам доступен с тарифа <b>«БИЗНЕС»</b> →</div>', 'Подбор по залам');
+  /* R5 стр.137: у каждого зала выбирается схема рассадки, а схемы — премиальный фильтр:
+     конструктор залов целиком на «ПРЕМИУМЕ» (вместимость без схемы — фильтр «Количество гостей») */
+  if (!canUse('seats')) {
+    return payWrap('seats', '<div class="fd-lock">Подбор по отдельным залам со схемами рассадки — на тарифе <b>«ПРЕМИУМ»</b> →</div>', 'Подбор по залам');
   }
-  const canSeat = canUse('seats');
+  const canSeat = true;
   const list = F.halls || [];
   const rows = list.map((r, i) => `
     <div class="hq" data-i="${i}">
@@ -1285,16 +1348,19 @@ function hallsBuilder() {
       <label class="hq-f">
         <span>Схема</span>
         <select ${canSeat ? '' : 'disabled'} onchange="hallSet(${i},'seating',this.value)">
-          <option value="">Любая схема</option>
+          <option value="" disabled${r.seating ? '' : ' selected'}>Выберите схему</option>
           ${ML.SEATING.map(s => `<option value="${s.k}"${r.seating === s.k ? ' selected' : ''}>${esc(s.l)}</option>`).join('')}
         </select>
       </label>
       <label class="hq-f hq-min">
         <span>Вместимость от</span>
         <span class="hq-num"><input inputmode="numeric" value="${r.min || ''}" placeholder="любое"
-          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'min',capClean(this.value))"><span>чел.</span></span>
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'min',numClean(this.value))"><span>чел.</span></span>
       </label>
-      ${r.seating && canSeat ? `<div class="hq-ic">${MH.seatIcon(r.seating, { size: 15 })}<span>${esc((ML.seatingByKey(r.seating) || {}).l || '')}</span></div>` : ''}
+      ${r.seating ? `<div class="hq-ic">${MH.seatIcon(r.seating, { size: 15 })}<span>${esc((ML.seatingByKey(r.seating) || {}).l || '')}</span></div>` : '<div class="hq-hint">Выберите схему рассадки</div>'}
+      <label class="hq-area"><span>Площадь от, м²</span><span class="hq-num"><input inputmode="numeric" value="${r.area || ''}" placeholder="любая"
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'area',numClean(this.value))"><span>м²</span></span></label>
+      ${maxNote(+r.min, 'people', 'чел.')}${maxNote(+r.area, 'area', 'м²')}
       ${hallEquip(r, i, canSeat)}
     </div>`).join('');
 
@@ -1303,8 +1369,7 @@ function hallsBuilder() {
       <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
       Добавить зал
     </button>
-    ${canSeat ? '' : payWrap('seats', '<div class="fd-lock">Выбор схемы рассадки доступен на тарифе <b>«ПРЕМИУМ»</b> → сейчас требование считается по любой схеме</div>')}
-    ${list.length > 1 ? '<div class="hq-note">Каждое требование закрывает <b>отдельный</b> зал объекта.</div>' : ''}`;
+    ${list.length > 1 ? '<div class="hq-note">Каждый добавленный зал ищется как <b>отдельное помещение</b>: один зал объекта не засчитывается за два требования.</div>' : ''}`;
 }
 
 /** «+ Оснащение» в блоке зала: чипы выбранного и список свойств зала по конфигу. */
@@ -1338,7 +1403,7 @@ function hallSet(i, k, v) { F.halls[i][k] = v; renderFilters(); render(); }
    Поля и ползунок синхронизированы в обе стороны. Только целые 0…CAP_MAX;
    пустое поле — «любое». Если «до» меньше «от», значения меняются местами. */
 const CAP_MAX = ML.capacityMax();
-const capClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : Math.max(0, Math.min(CAP_MAX, n)); };
+const capClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : Math.max(0, n); };   // R5: без обрезки по максимуму
 function capBody() {
   const a = F.people || 0, b = F.peopleTo || 0;
   return `<div class="fd-capin"><span>Не менее</span>
@@ -1349,15 +1414,15 @@ function capBody() {
         oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="capSet('to',this.value)"> чел.</label></div>
     <div class="fd-dual" id="capDual" data-min="0" data-max="${CAP_MAX}">
       <div class="fd-track"><div class="fd-rail"></div><div class="fd-fill"></div>
-        <input type="range" class="lo" min="0" max="${CAP_MAX}" step="10" value="${a}" aria-label="Ползунок: не менее">
-        <input type="range" class="hi" min="0" max="${CAP_MAX}" step="10" value="${b || CAP_MAX}" aria-label="Ползунок: не более">
-      </div></div>`;
+        <input type="range" class="lo" min="0" max="${CAP_MAX}" step="10" value="${Math.min(a, CAP_MAX)}" aria-label="Ползунок: не менее">
+        <input type="range" class="hi" min="0" max="${CAP_MAX}" step="10" value="${Math.min(b || CAP_MAX, CAP_MAX)}" aria-label="Ползунок: не более">
+      </div></div>${maxNote(a, 'people', 'чел.')}`;
 }
 /** Записать порог и перерисовать: поле → модель → ползунок. */
 function capSet(which, raw) {
   let a = F.people || 0, b = F.peopleTo || 0;
   const v = capClean(raw);
-  if (which === 'from') a = v; else b = (v >= CAP_MAX ? 0 : v);
+  if (which === 'from') a = v; else b = v;
   if (a && b && b < a) [a, b] = [b, a];
   F.people = a; F.peopleTo = b;
   syncBar(); renderFilters(); render();
@@ -1366,16 +1431,18 @@ function bindCapDual() {
   const d = document.getElementById('capDual'); if (!d) return;
   const lo = d.querySelector('input.lo'), hi = d.querySelector('input.hi'), fill = d.querySelector('.fd-fill');
   const fa = document.getElementById('capFrom'), fb = document.getElementById('capTo');
-  const upd = (commit) => {
+  /* R5 стр.132: поля — ровно введённые числа; ползунок их только показывает */
+  const paint = (a, b) => { fill.style.left = (Math.min(a, CAP_MAX) / CAP_MAX * 100) + '%'; fill.style.right = (100 - Math.min(b, CAP_MAX) / CAP_MAX * 100) + '%'; };
+  const drag = (commit) => {
     let a = +lo.value, b = +hi.value;
     if (a > b) { [a, b] = [b, a]; lo.value = a; hi.value = b; }
-    fill.style.left = (a / CAP_MAX * 100) + '%'; fill.style.right = (100 - b / CAP_MAX * 100) + '%';
+    paint(a, b);
     fa.value = a || ''; fb.value = b >= CAP_MAX ? '' : b;
-    if (commit) { F.people = a; F.peopleTo = b >= CAP_MAX ? 0 : b; syncBar(); render(); }
+    if (commit) { F.people = a; F.peopleTo = b >= CAP_MAX ? 0 : b; syncBar(); renderFilters(); render(); }
   };
-  lo.oninput = () => upd(false); hi.oninput = () => upd(false);
-  lo.onchange = () => upd(true); hi.onchange = () => upd(true);
-  upd(false);
+  lo.oninput = () => drag(false); hi.oninput = () => drag(false);
+  lo.onchange = () => drag(true); hi.onchange = () => drag(true);
+  paint(F.people || 0, F.peopleTo || CAP_MAX);
 }
 
 /* ══════════════════════════════════════════════
@@ -1386,20 +1453,18 @@ function renderChips() {
   const money = (n) => n.toLocaleString('ru');
   if (F.city) c.push(['Город: ' + F.city, () => F.city = '']);
   if (F.people || F.peopleTo) c.push([ML.peopleLabel(F), () => { F.people = 0; F.peopleTo = 0; }]);
-  if (F.eventType === 'combined') c.push(['Комбинированное', () => F.eventType = '']);
   if (F.rooms) c.push(['Номеров от ' + F.rooms, () => F.rooms = 0]);
   if (F.twin) c.push(['TWIN от ' + F.twin, () => F.twin = 0]);
   if (F.sngl) c.push(['SNGL от ' + F.sngl, () => F.sngl = 0]);
   (F.halls || []).forEach((r, i) => { if (!ML.hallReqOn(r)) return;
     c.push([ML.hallReqLabel(r, i), () => hallDel(i)]); });
-  if (F.hallArea) c.push(['Площадь зала от ' + F.hallArea + ' м²', () => F.hallArea = 0]);
   if (F.dressing) c.push(['Гримёрок от ' + F.dressing, () => F.dressing = 0]);
   const rng = (k, unit) => { const [a, b] = F[k]; if (a > 0 || b < ML.LIMITS[k]) c.push([`${money(a)}–${money(b)} ₽${unit}`, () => F[k] = [0, ML.LIMITS[k]]]); };
   if ((F.priceMode || 'day') === 'day') rng('priceDay', ' / день'); else rng('priceHour', ' / час');
   if (F.priceMode === 'hour') c.push(['Стоимость за час', () => { F.priceMode = 'day'; F.priceHour = [0, ML.LIMITS.priceHour]; }]);
   rng('confPkg', ' / чел., конференц-пакет');
   if (F.avgCheck) c.push(['Средний чек до ' + money(F.avgCheck) + ' ₽', () => F.avgCheck = 0]);
-  if (F.wardrobe) c.push(['Гардероб от ' + F.wardrobe + ' мест', () => F.wardrobe = 0]);
+  if (F.wardrobe) c.push(['Гардероб от ' + F.wardrobe + ' мест', () => F.wardrobe = 0]);   // сам «Гардероб» — в чипах свойств
   if (F.parking) c.push([(ML.PARKING_OPTS.find(o => o.code === F.parking) || {}).full, () => { F.parking = ''; F.parkingSpaces = 0; }]);
   if (F.parkingSpaces) c.push(['Парковочных мест от ' + F.parkingSpaces, () => F.parkingSpaces = 0]);
   F.cats.forEach(x => c.push([x, () => F.cats.delete(x)]));
@@ -1429,28 +1494,31 @@ function sortList(list) {
   return arr;
 }
 
-function hallCard(h) {
+/* R5 стр.133/149: на фото нет плашек — тип зала с плитки убран (фильтра по типу нет), «План» — меткой
+   у вместимости. стр.138: схемы — только выбранные в блоках «Зал N», иначе все; до двух строк, дальше «+N».
+   стр.143: почасовая цена — всегда, если есть. */
+const CAPS_MAX = 6;
+function hallCard(h, keys) {
   const t = ML.tariff();
   const inC = ML.inCompare(h.id);
   const fav = ML.isFav(h.id);
+  const seats = (keys && keys.length ? keys.map(k => ML.seatingByKey(k)).filter(Boolean) : ML.SEATING).filter(s => h.seats[s.k]);
+  const shown = seats.length > CAPS_MAX ? seats.slice(0, CAPS_MAX - 1) : seats;
   // На «СТАРТ» вместо схем рассадки показываем площадь.
   const caps = t.fullInfo
-    ? ML.SEATING.filter(s => h.seats[s.k]).slice(0, 3)
-        .map(s => `<span class="hc-cap">${MH.seatIcon(s.k, { size: 14 })}${h.seats[s.k]}</span>`).join('')
+    ? shown.map(s => `<span class="hc-cap" title="${esc(s.l)}">${MH.seatIcon(s.k, { size: 14 })}${h.seats[s.k]}</span>`).join('')
+      + (seats.length > shown.length ? `<span class="hc-cap more" title="${seats.slice(shown.length).map(s => esc(s.l) + ' ' + h.seats[s.k]).join(', ')}">+${seats.length - shown.length}</span>` : '')
     : `<span class="hc-cap">${h.area} м²</span>`;
+  const day = h.priceDay ? ML.money(h.priceDay) + '<span class="hc-per"> / день</span>' : '';
+  const hour = h.priceHour ? `<span class="hc-hour">${day ? '<span class="hc-per"> · </span>' : ''}от ${ML.money(h.priceHour)}<span class="hc-per"> / час</span></span>` : '';
   return `<article class="hc${inC ? ' picked' : ''}">
     <div class="hc-img">
       <img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy">
-      <div class="hc-tags">
-        <span class="hc-tag">${esc(h.type)}</span>
-        ${h.plan ? '<span class="hc-tag plan">План</span>' : ''}
-      </div>
     </div>
     <div class="hc-body">
       <div class="hc-name">${esc(h.name)}</div>
-      <div class="hc-caps">${MH.blurOnly(caps)}</div>
-      <div class="hc-price">${MH.blurOnly(h.priceDay ? ML.money(h.priceDay) + '<span class="hc-per"> / день</span>'
-        : h.priceHour ? '' : '<i>по договорённости</i>')}${h.priceHour ? `<div class="hc-hour">${MH.blurOnly('от ' + ML.money(h.priceHour) + ' / час')}</div>` : ''}</div>
+      <div class="hc-caps">${MH.blurOnly(caps)}${h.plan ? '<span class="hc-plan" title="Есть точный план пространства">План</span>' : ''}</div>
+      <div class="hc-price">${MH.blurOnly(day || hour ? day + hour : '<i>по договорённости</i>')}</div>
       <div class="hc-foot">
         <div class="hc-acts">
           <button class="hc-ic${inC ? ' on' : ''}" onclick="toggleCmp(${h.id})" title="${inC ? 'Убрать из сравнения' : 'В сравнение'}">${IC.cmp}</button>
@@ -1462,6 +1530,7 @@ function hallCard(h) {
   </article>`;
 }
 
+const CAP_TIP = 'Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно';
 function venueBlock(x) {
   const v = x.venue, halls = x.halls, t = ML.tariff();
   const cap = ML.venueCapacity(v);
@@ -1472,14 +1541,12 @@ function venueBlock(x) {
     ${isAd ? MH.adMark() : ''}
     <div class="vb-head">
       <div>
-        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
+        <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>${v.stars ? `<span class="vb-gold" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}
         ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
+        <div class="vb-kicker">${esc(v.cat)} · ${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</div>
         <div class="vb-meta">
-          <span>${esc(v.cat)}</span>
-          <span>${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</span>
-          <span>${MH.blurOnly('до <b>' + cap + '</b> чел.')}</span>
+          <span class="vb-cap" title="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
-          ${v.stars ? `<span class="star-badge" title="Звёздность отеля: ${v.stars}" aria-label="Звёздность ${v.stars}">${v.stars}★</span>` : ''}
           <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
         </div>
       </div>
@@ -1488,7 +1555,7 @@ function venueBlock(x) {
     </div>
     ${x.matched ? `<div class="vb-match">Требованиям отвечают: ${halls.map(h => esc(h.name)).join(' · ')}</div>` : ''}
     <div class="rail-wrap">
-      <div class="rail" id="rail-${v.id}">${halls.map(hallCard).join('')}</div>
+      <div class="rail" id="rail-${v.id}">${halls.map(h => hallCard(h, (x.seatKeys || {})[h.id])).join('')}</div>
       <button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад" hidden>‹</button>
       <button class="rail-btn n" onclick="scrollRail(${v.id},1)" aria-label="Вперёд" hidden>›</button>
     </div>
@@ -1750,7 +1817,7 @@ function syncUrl() {
   ['people', 'peopleTo', 'guests', 'view', 'city'].forEach(k => q.delete(k));
   /* город и тип из ссылки с главной: после сброса они не должны вернуться при перезагрузке */
   if (F.city) q.set('city', F.city);
-  if (!F.eventType) q.delete('type');
+  if (!F.eventType || F.eventType === 'combined') q.delete('type');
   if (F.people) q.set('people', F.people);
   if (F.peopleTo) q.set('peopleTo', F.peopleTo);
   const s = q.toString();
@@ -1781,11 +1848,7 @@ function render() {
   /* Одна полоса на всю выдачу, а не кнопка в каждой карточке. */
   document.getElementById('vList').innerHTML = list.length
     ? MH.lockBar('Цены и вместимость залов открыты зарегистрированным пользователям.') + pageList.map(venueBlock).join('')
-    : `<div class="res-empty">
-         <h3>Под эти условия залов нет</h3>
-         <p>Снимите часть фильтров — сейчас условия слишком узкие.</p>
-         <button onclick="resetAll()">Сбросить фильтры</button>
-       </div>`;
+    : emptyHTML();
 
   document.getElementById('pager').innerHTML = start ? '' : pagerHTML(list.length);
   renderChips();
@@ -1806,13 +1869,42 @@ function render() {
   document.getElementById('resClear').hidden = n === 0;
 }
 
+/* R5 стр.136/156: пустая выдача называет условие, которое её обнулило (число больше максимума базы),
+   и рядом — кнопка сбросить только его. */
+function emptyReasons() {
+  const M = ML.DB_MAX, out = [];
+  const add = (text, fn) => out.push([text, fn]);
+  if (F.people > M.people) add(`Нет объектов с вместимостью зала от ${fmt(F.people)} чел. — максимум в базе ${fmt(M.people)}`, () => { F.people = 0; });
+  (F.halls || []).forEach((r, i) => {
+    if (ML.hallReqOn(r) && +r.min > M.people) add(`Зал ${i + 1}: нет залов от ${fmt(r.min)} чел. — максимум в базе ${fmt(M.people)}`, () => { F.halls[i].min = 0; });
+    if (ML.hallReqOn(r) && +r.area > M.area) add(`Зал ${i + 1}: нет залов площадью от ${fmt(r.area)} м² — максимум в базе ${fmt(M.area)}`, () => { F.halls[i].area = 0; });
+  });
+  [['rooms', 'номеров от', ''], ['twin', 'номеров TWIN от', ''], ['sngl', 'номеров SNGL от', ''], ['dressing', 'гримёрок от', ''],
+   ['wardrobe', 'гардеробом от', ' мест'], ['parkingSpaces', 'парковкой от', ' мест']].forEach(([k, l, u]) => {
+    if (F[k] > M[k]) add(`Нет объектов с ${l} ${fmt(F[k])}${u} — максимум в базе ${fmt(M[k])}`, () => { F[k] = 0; });
+  });
+  [['priceDay', 'арендой от', ' ₽ в день', 'day'], ['priceHour', 'арендой от', ' ₽ в час', 'hour'], ['confPkg', 'конференц-пакетом от', ' ₽ на человека']].forEach(([k, l, u, mode]) => {
+    if ((!mode || (F.priceMode || 'day') === mode) && F[k][0] > M[k]) add(`Нет залов с ${l} ${fmt(F[k][0])}${u} — максимум в базе ${fmt(M[k])}`, () => { F[k] = [0, F[k][1]]; });
+  });
+  return out;
+}
+function emptyHTML() {
+  const rs = emptyReasons();
+  window._why = rs;
+  return `<div class="res-empty">
+    <h3>Под эти условия залов нет</h3>
+    ${rs.length ? rs.map((r, i) => `<div class="res-reason"><span>${esc(r[0])}</span><button onclick="_why[${i}][1]();syncBar();renderFilters();render()">Сбросить это условие</button></div>`).join('')
+      : '<p>Снимите часть фильтров — сейчас условия слишком узкие.</p>'}
+    <button onclick="resetAll()">Сбросить фильтры</button>
+  </div>`;
+}
+
 /* Значения в верхней панели — из справочников ML. */
 function syncBar() {
   document.getElementById('cbCity').value = F.city || '';
   const ev = document.getElementById('cbEvent');
-  ev.innerHTML = `<option value=""${F.eventType ? '' : ' selected'}>Любой тип</option>` + ML.EVENT_TYPES.map(e =>
-    `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('')
-    + `<option value="combined"${F.eventType === 'combined' ? ' selected' : ''}>${esc(ML.EVENT_COMBINED.l)}</option>`;
+  ev.innerHTML = `<option value="combined"${F.eventType === 'combined' || !F.eventType ? ' selected' : ''}>${esc(ML.EVENT_COMBINED.l)}</option>` + ML.EVENT_TYPES.map(e =>
+    `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
   document.getElementById('cbPeople').value = F.people || '';
   document.getElementById('resSort').value = SORT;
 }

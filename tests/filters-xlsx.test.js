@@ -175,16 +175,32 @@ if (!fs.existsSync(XLSX)) {
   console.log('Сверка с файлом фильтров пропущена: нет файла ' + XLSX);
   process.exit(0);
 }
-const { diffs, rows } = compare();
+const { diffs: all, rows } = compare();
+/* R5: осознанные отступления от файла — объяснены в R5_REPORT.md («Решения на согласование»).
+   Звёздность (зависит от категории) и гримёрки (перенесены в «Инфраструктуру») с файлом не расходятся
+   по сверяемым полям — они перечислены здесь, чтобы список отступлений был полным. */
+const EXPLAINED = [
+  { name: 'Гардероб', field: 'контрол', why: 'R5 стр.151: чекбокс «Гардероб» и под ним поле «мест от»' },
+  { name: 'Площадь зала от, м²', field: 'контрол', why: 'R5 стр.140: площадь задаётся у каждого зала в блоке «Зал N»' },
+];
+const NOTES = ['Звёздность — R5 стр.134: доступна только при категориях «Отель» и «Бутик-отель» (в файле — «Всегда»)',
+  'Гримёрок от — R5 стр.142: перенесено из «Расширенных параметров» залов в «Инфраструктуру»'];
+const isExplained = (d) => EXPLAINED.some(e => e.name === d.name && e.field === d.field);
+const diffs = all.filter(d => !isExplained(d)), explained = all.filter(isExplained);
 if (MD) {
   console.log('| Лист | Строка | Фильтр | Что | В файле | На сайте |\n|---|---|---|---|---|---|');
   diffs.forEach(d => console.log(`| ${d.sheet} | ${d.row} | ${d.name} | ${d.field} | ${d.file} | ${d.site} |`));
   console.log(`\nСтрок файла сверено: ${rows.length}, расхождений: ${diffs.length}.`);
 } else {
-  console.log(`Сверка с «${path.basename(XLSX)}»: строк ${rows.length}, расхождений ${diffs.length}`);
+  console.log(`Сверка с «${path.basename(XLSX)}»: строк ${rows.length}, расхождений ${diffs.length}, объяснённых отступлений ${explained.length + NOTES.length}`);
   diffs.forEach(d => console.log(`  • ${d.sheet}, стр. ${d.row}, «${d.name}» — ${d.field}: в файле «${d.file}», на сайте «${d.site}»`));
+  if (process.argv.includes('--explained')) {
+    explained.forEach(d => console.log(`  ◦ «${d.name}» — ${d.field}: в файле «${d.file}», на сайте «${d.site}» — ${EXPLAINED.find(e => e.name === d.name).why}`));
+    NOTES.forEach(t => console.log('  ◦ ' + t));
+  }
 }
 /* Расхождения — не падение: часть из них решения, принятые осознанно (они перечислены в отчёте).
    Падаем только если фильтра из файла нет в конфиге вовсе. */
 const missing = diffs.filter(d => /нет в конфиге|нет в дереве/.test(d.field));
-process.exit(missing.length ? 1 : 0);
+// R5: необъяснённых расхождений быть не должно
+process.exit(missing.length || diffs.length ? 1 : 0);
