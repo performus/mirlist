@@ -677,13 +677,15 @@ h1,h2,h3 { font-weight:700; }
 .hc .hc-caps { flex-wrap:wrap; max-height:40px; }
 .hc-cap.more { background:var(--bg); color:var(--slate-muted); }
 .hc-plan { display:inline-flex; align-items:center; padding:2px 6px; border-radius:5px; font-size:10px; font-weight:700; background:var(--coral-soft); color:var(--coral-hover, #D96345); }
-.hc-hour { display:inline; }
+.hc-hour { display:inline-block; white-space:nowrap; }
 /* R5 стр.150/153/154: название крупнее, категория — мелкими заглавными, звёзды отеля золотые */
 .vb-name { font-size:18px; font-weight:800; letter-spacing:-.3px; }
 .vb-gold { margin-left:8px; color:#E0A93B; letter-spacing:1px; font-size:14px; vertical-align:1px; white-space:nowrap; }
 .vb-kicker { margin-top:3px; font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--slate-muted); }
 .vb-rating svg { color:var(--slate-pale); }
 .vb-cap { border-bottom:1px dotted var(--slate-pale); cursor:help; }
+.vb-cap {position:relative;}
+.vb-cap:hover::after,.vb-cap:focus::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:20;width:max-content;max-width:280px;padding:8px 11px;border-radius:9px;background:#354E63;color:#fff;font-size:12px;font-weight:500;line-height:1.45;letter-spacing:0;text-transform:none;white-space:normal;box-shadow:0 8px 22px rgba(0,0,0,.18);}
 /* R5 стр.143/144: «Сбросить» у группы; подзаголовки внутри «Стоимости» */
 .fd-greset { margin-left:auto; padding:2px 9px; border-radius:var(--r-full); border:1px solid rgba(180,195,204,.7); background:#fff;
   font-family:inherit; font-size:11px; font-weight:600; color:var(--slate-mid); cursor:pointer; }
@@ -1546,7 +1548,7 @@ function venueBlock(x) {
         ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
         <div class="vb-kicker">${esc(v.cat)} · ${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</div>
         <div class="vb-meta">
-          <span class="vb-cap" title="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
+          <span class="vb-cap" tabindex="0" data-tip="${esc(CAP_TIP)}" aria-label="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
           <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
         </div>
@@ -1716,7 +1718,7 @@ function setView(v) {
 }
 
 function applyView() {
-  const start = !hasFilters();
+  const start = !hasFilters() && !PREVIEW_ID;   // предпросмотр площадки — сразу список с её плиткой
   VIEW = start ? 'map' : (USER_VIEW || 'list');
   document.querySelector('.grid3').classList.toggle('map-mode', VIEW === 'map');
   document.getElementById('viewList').classList.toggle('on', VIEW === 'list');
