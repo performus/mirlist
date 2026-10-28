@@ -55,7 +55,7 @@ test('«Мероприятие состоялось» доступно сраз�
 });
 
 test('отметка «состоялось» сохраняет участников и даты из визарда', () => {
-  const { ML, storage } = load();
+  const { ML, storage } = load({ ml_tariff: 'biz' });   // клиент 27.10: на СТАРТ и у гостя баллов нет — начисление видно с БИЗНЕСА
   const r = ML.state.requests[0], venueId = r.objects[0].venueId;
   assert.strictEqual(r.objects[0].status, 'sent');
   assert.ok(ML.setStatus(r.id, venueId, 'done', { guests: 100, dates: '15.09.2026, 16.09.2026' }));
@@ -324,7 +324,7 @@ test('лимит сравнения по объектам: на СТАРТ (2 о
 });
 
 test('архив (R5 стр.160): в архиве только закрытые строки — обе стороны отметили, объект отклонил, пользователь отменил', () => {
-  const { ML } = load();
+  const { ML } = load({ ml_tariff: 'biz' });
   const reqs = ML.state.requests;
   const q = reqs.find(x => x.id === 'RQ-260714-0031');
   const live = q.objects.find(o => o.venueId === 1);
@@ -446,6 +446,25 @@ test('баллы за мероприятие (R3-C): 1000/1500, 3000/5000, 7000/
   assert.strictEqual(ML.eventPoints(800), 10000, '501+ — числом, без «по согласованию»');
   const p = load({ ml_tariff: 'prem' }).ML;
   assert.strictEqual(p.eventPoints(50), 1500);
+});
+
+test('клиент 27.10: на СТАРТ баллы не начисляются — ни за мероприятие, ни за отзыв; «ПРИВЕТ» — на любом тарифе; тратить можно', () => {
+  const { ML } = load({ ml_tariff: 'start', ml_points: { free: 0, locked: 0 } });
+  [50, 120, 400, 800].forEach(g => assert.strictEqual(ML.eventPoints(g), 0, 'мероприятие на ' + g + ' чел.'));
+  assert.strictEqual(ML.reviewPoints(), 0, 'отзыв');
+  assert.strictEqual(load({ ml_tariff: 'guest' }).ML.eventPoints(120), 0, 'гость');
+  const r = ML.state.requests[0], venueId = r.objects[0].venueId;
+  assert.ok(ML.setStatus(r.id, venueId, 'done', { guests: 120, dates: '15.09.2026' }));
+  assert.ok(ML.venueMarkDone(r.id, venueId, 120));
+  assert.ok(ML.setStatus(r.id, venueId, 'reviewed', { review: { rating: 5, text: 'Хорошо', author: 'Анна К.' } }));
+  assert.strictEqual(ML.state.points.free, 0, 'за мероприятие и отзыв на СТАРТ — 0');
+  assert.strictEqual(ML.state.points.locked, 0);
+  assert.strictEqual(ML.accrualFor(r, r.objects[0]), null, 'в истории нет «будет начислено»');
+  ML.addPoints(ML.POINTS_HELLO, 'free', 'Баллы «ПРИВЕТ» за регистрацию');
+  assert.strictEqual(ML.state.points.free, 100, '«ПРИВЕТ» начисляется и на СТАРТ');
+  const item = ML.shopCatalog().slice().sort((a, b) => a.pts - b.pts)[0];
+  ML.addPoints(item.pts, 'free', 'Корректировка');
+  assert.ok(ML.orderFromShop(item, ''), 'на СТАРТ баллы можно тратить на витрине');
 });
 
 console.log('Фильтры R3-A');

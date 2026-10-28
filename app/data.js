@@ -1857,10 +1857,11 @@
   /* — баллы — */
 
   const feeTier = (guests) => FEE_TIERS.find(t => guests >= t.min && guests <= t.max) || null;
-  /** Сколько баллов начислится за мероприятие на текущем тарифе. */
+  /** Сколько баллов начислится за мероприятие на текущем тарифе. Клиент 27.10: на «СТАРТ» (и у гостя) — 0. */
   function eventPoints(guests) {
     const t = feeTier(guests); if (!t) return 0;
-    return tariff().key === 'prem' ? (t.ptsPrem || 0) : (t.ptsBiz || 0);
+    const key = tariff().key;
+    return key === 'prem' ? (t.ptsPrem || 0) : key === 'biz' ? (t.ptsBiz || 0) : 0;
   }
   /**
    * Что показать в истории запросов рядом с объектом.
