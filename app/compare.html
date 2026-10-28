@@ -557,12 +557,15 @@ function openRequest() {
   });
   const objs = [...byVenue.values()];
 
-  // лимит тарифа проверяет сама модель
+  // лимит тарифа проверяет сама модель (клиент 27.10: СТАРТ — 2, БИЗНЕС — 5, ПРЕМИУМ — без ограничения)
   const chk = ML.canGroupRequest(objs.length);
   if (!chk.ok) {
-    // п.6: недоступно на тарифе — единый пейвол
-    MH.paywall(ML.tariff().key === 'biz' ? 'prem' : 'biz',
-      `${chk.reason}. Сейчас в сравнении ${objs.length} ${ML.plural(objs.length, ['объект','объекта','объектов'])}`);
+    if (!chk.need) { MH.paywall('start', 'Групповой запрос'); return; }   // гость — предложение регистрации
+    const up = ML.TARIFFS[chk.need];
+    const upLimit = up.groupRequest === Infinity ? 'без ограничения' : `до ${up.groupRequest} ${ML.plural(up.groupRequest, ['объекта','объектов','объектов'])}`;
+    MH.paywall(chk.need, `${chk.reason}. Сейчас в сравнении ${objs.length} ${ML.plural(objs.length, ['объект','объекта','объектов'])}`,
+      { title: 'Превышен лимит тарифа',
+        note: `На тарифе «${up.name}» в групповом запросе — ${upLimit}. Уберите лишние объекты из сравнения или перейдите на «${up.name}».` });
     return;
   }
 

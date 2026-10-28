@@ -127,10 +127,39 @@ test('статистика объекта: «доходят до меропри�
 
 console.log('Тарифы и типы мероприятий');
 
-test('лимиты тарифов: сравнение 2 / 5 / 10, групповой запрос БИЗНЕС — до 5 объектов', () => {
+test('лимиты тарифов: сравнение 2 / 5 / 10, групповой запрос СТАРТ — до 2, БИЗНЕС — до 5 объектов', () => {
   const { ML } = load();
   assert.deepStrictEqual(plain(ML.plans().map(t => t.compare)), [2, 5, 10]);
+  assert.strictEqual(ML.TARIFFS.start.groupRequest, 2);
   assert.strictEqual(ML.TARIFFS.biz.groupRequest, 5);
+});
+
+test('клиент 27.10: групповой запрос — гость 0 / СТАРТ 2 / БИЗНЕС 5 / ПРЕМИУМ без ограничения', () => {
+  const max = (key) => {
+    const { ML } = load({ ml_tariff: key });
+    let n = 0;
+    while (n < 60 && ML.canGroupRequest(n + 1).ok) n++;
+    return n;
+  };
+  assert.strictEqual(max('guest'), 0, 'гостю — только после регистрации');
+  assert.strictEqual(max('start'), 2);
+  assert.strictEqual(max('biz'), 5);
+  assert.strictEqual(max('prem'), 60, 'ПРЕМИУМ — без ограничения');
+  const start = load({ ml_tariff: 'start' }).ML;
+  const over = start.canGroupRequest(3);
+  assert.strictEqual(over.need, 'biz', 'превышение на СТАРТ — предложение БИЗНЕСА');
+  assert.match(over.reason, /не более 2 объектов/);
+  assert.strictEqual(load({ ml_tariff: 'biz' }).ML.canGroupRequest(6).need, 'prem');
+  assert.strictEqual(load({ ml_tariff: 'guest' }).ML.canGroupRequest(1).need, undefined, 'гостю — регистрация, а не тариф');
+});
+
+test('клиент 27.10: СТАРТ отправляет групповой запрос в 2 объекта из сравнения', () => {
+  const { ML } = load({ ml_tariff: 'start', ml_requests: [] });
+  ML.VENUES.slice(0, 2).forEach(v => assert.ok(ML.toggleCompare(v.halls[0].id).ok));
+  const req = ML.createRequest('Два объекта', '', { dates: '10.11.2026', guests: 40 });
+  assert.ok(req, 'запрос создан');
+  assert.strictEqual(req.objects.length, 2);
+  assert.strictEqual(ML.state.compare.size, 0, 'сравнение очищено');
 });
 
 test('лимит сравнения — по объектам: на ПРЕМИУМ 10 объектов, 11-й нет, залы тех же объектов — без ограничения', () => {

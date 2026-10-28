@@ -362,7 +362,7 @@
     start: {
       key: 'start', name: 'СТАРТ', plan: true, blur: false,
       price: 0, priceHalf: 0, priceYear: 0,
-      compare: 2, presentation: false, groupRequest: 0,
+      compare: 2, presentation: false, groupRequest: 2,   // клиент 27.10: групповой запрос на «СТАРТ» — до 2 объектов
       fullInfo: false, blacklist: false, bonusRate: 0,
       filters: ['city', 'event_type', 'guests', 'category', 'cats', 'people'],   // остальные заблокированы
     },
@@ -407,6 +407,9 @@
        поэтому fee и баллы — null: начисление считается вручную, а не подставляется ближайшее. */
     { min: 501, max: Infinity, label: '501+ чел.', fee: null, ptsBiz: 10000, ptsPrem: 15000, feeByAgreement: true },
   ];
+
+  /** Склонение: plural(2, ['объект', 'объекта', 'объектов']) → «объекта». */
+  const plural = (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; };
 
   const POINT_RATE = 0.70;          // 1 балл = 0,70 ₽
   const POINTS_HELLO = 100;         // баллы «ПРИВЕТ» за регистрацию
@@ -1703,11 +1706,16 @@
 
   /* — групповые запросы — */
 
+  /* Клиент 27.10: лимит объектов в групповом запросе — ГОСТЬ 0 (нужна регистрация), СТАРТ 2, БИЗНЕС 5, ПРЕМИУМ без ограничения.
+     При превышении — need: тариф, на который предложить перейти (пейвол «Превышен лимит тарифа»). */
   function canGroupRequest(venueCount) {
-    const lim = tariff().groupRequest;
-    if (lim === 0) return { ok: false, reason: 'На тарифе «СТАРТ» групповые запросы недоступны — только одиночные' };
-    if (venueCount > lim) return { ok: false, reason: `Тариф «${tariff().name}»: не более ${lim} объектов в групповом запросе` };
-    return { ok: true };
+    if (isGuest()) return { ok: false, reason: 'Отправка запросов доступна после регистрации' };
+    const t = tariff(), lim = t.groupRequest;
+    if (venueCount > lim) {
+      const need = t.key === 'start' ? 'biz' : 'prem';
+      return { ok: false, limit: lim, need, reason: `Тариф «${t.name}»: не более ${lim} ${plural(lim, ['объекта', 'объектов', 'объектов'])} в групповом запросе` };
+    }
+    return { ok: true, limit: lim };
   }
 
   function newRequestId() {
@@ -1750,8 +1758,7 @@
   }
 
   /* Быстрый запрос из карточки зала — мимо сравнения.
-     По документам одиночные запросы доступны даже на «СТАРТ»: групповых
-     там нет, а по отдельной площадке написать можно. Гостю — нельзя. */
+     Одиночные запросы доступны со «СТАРТ» (групповые там — до 2 объектов). Гостю — нельзя. */
   function canDirectRequest() {
     if (isGuest()) return { ok: false, reason: 'Отправка запросов доступна после регистрации' };
     return { ok: true };
@@ -2589,7 +2596,7 @@
     bothConfirmed, venueMarkDone, venueFee, venueDecline, isClosedRow, waitingVenue, splitRequest, activeRequests, archivedRequests, requestFieldsError,
     photoUrl: (n) => `../assets/photos/v${((n - 1) % 16) + 1}.jpg`,
     money: (n) => n > 0 ? n.toLocaleString('ru') + ' ₽' : 'по договорённости',
-    plural: (n, f) => { const a = n % 10, b = n % 100; return b >= 11 && b <= 14 ? f[2] : a === 1 ? f[0] : a >= 2 && a <= 4 ? f[1] : f[2]; },
+    plural,
   };
 
 })();

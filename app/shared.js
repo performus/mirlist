@@ -1290,7 +1290,9 @@ const MH = (() => {
    * @param {'start'|'biz'|'prem'} need  минимальный тариф, где функция открыта
    * @param {string} what  что именно закрыто: «Фильтр по звёздности»
    */
-  function paywall(need, what) {
+  /* opts.title и opts.note — для особых случаев, например «Превышен лимит тарифа» (клиент 27.10). */
+  function paywall(need, what, opts) {
+    opts = opts || {};
     const T = typeof ML !== 'undefined' ? ML.TARIFFS : {};
     const guest = typeof ML !== 'undefined' && ML.isGuest && ML.isGuest();
     if (guest) {
@@ -1299,8 +1301,10 @@ const MH = (() => {
         actions: [{ label: 'Сравнить тарифы', href: 'pricing.html' }, { label: 'Зарегистрироваться', primary: true, href: signupHref() }] });
     }
     const t = T[need] || T.biz || { name: 'БИЗНЕС', key: 'biz' };
-    return dialog({ icon: IC_LOCK, title: `Доступно с тарифа «${esc(t.name)}»`,
-      html: `${what ? `<b>${esc(what)}</b> — ` : ''}эта возможность открывается на тарифе «${esc(t.name)}»${t.key === 'biz' ? ' и выше' : ''}.
+    return dialog({ icon: IC_LOCK, title: opts.title || `Доступно с тарифа «${esc(t.name)}»`,
+      html: opts.note
+        ? `${what ? `<b>${esc(what)}</b>. ` : ''}${esc(opts.note)}`
+        : `${what ? `<b>${esc(what)}</b> — ` : ''}эта возможность открывается на тарифе «${esc(t.name)}»${t.key === 'biz' ? ' и выше' : ''}.
         Сравните тарифы или сразу оформите подписку.`,
       actions: [{ label: 'Сравнить тарифы', href: 'pricing.html' },
         { label: `Перейти на «${esc(t.name)}»`, primary: true, href: `checkout.html?plan=${t.key}` }] });
