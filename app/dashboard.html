@@ -472,6 +472,8 @@ button{font-family:inherit;cursor:pointer;}
 .ptbl tbody tr:last-child td{border-bottom:none;}
 .ptbl td.num{font-weight:700;color:var(--sd);white-space:nowrap;}
 .ptbl td.plus{color:#3E9A6B;font-weight:700;}
+.ptbl td.minus{color:#C7563B;font-weight:700;}
+.lk-tile .burn{margin-top:4px;font-size:12px;color:#C7563B;font-weight:600;}
 .shop-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 0;border-bottom:1px solid rgba(197,227,225,.22);}
 .shop-row:last-of-type{border-bottom:none;}
 .shop-mid{flex:1;min-width:170px;}
@@ -1304,33 +1306,30 @@ function favToCompare(hallId){
 function dropFav(hallId){ ML.toggleFav(hallId); renderNav(); renderPage(); }
 
 /* ── баллы ──
-   Журнала начислений в модели нет: собираем строки из того, что в ней есть —
-   бонус за регистрацию, вознаграждения за состоявшиеся мероприятия и отзывы. */
-/* Операции, начисленные до текущих запросов (демо-история): по ним видно, как сворачивается
-   длинный список (стр.125). Порядок — от новых к старым, «ПРИВЕТ» за регистрацию — самая первая. */
-const LEDGER_HISTORY = [
-  { what: 'Отзыв о «Кейтеринг «Формат»»', state: 'начислены', pts: 150 },
-  { what: 'Мероприятие в «Ресторан «Терраса»»', state: 'начислены', pts: 1500 },
-  { what: 'Отзыв о «Ресторан «Терраса»»', state: 'начислены', pts: 150 },
-  { what: 'Мероприятие в «Конгресс-центр «Экспо-Волга»»', state: 'начислены', pts: 5000 },
-  { what: 'Отзыв о «Фотограф Мария Лебедева»', state: 'начислены', pts: 150 },
-  { what: 'Мероприятие в «Бутик-отель «Гавань»»', state: 'начислены', pts: 1500 },
-];
+   Клиент 27.10: история — журнал модели (ML.pointsHistory): начисления партиями, списания, возвраты
+   и «Сгорание». Сверху — мероприятия, баллы за которые ждут оплаты от объекта (они не сгорают).
+   Порядок — от новых к старым (стр.125: длинный список сворачивается). */
+const POINTS_STATE = { accrual: 'начислены', spend: 'списаны', refund: 'возвращены', expire: 'сгорели' };
 function pointsLedger(){
   const out = [];
+  const log = ML.pointsHistory();
+  const credited = new Set(log.map(x => x.ref).filter(Boolean));
   ML.state.requests.forEach(r => r.objects.forEach(o => {
+    if (o.status !== 'done' || !o.guests || credited.has(r.id + ':' + o.venueId)) return;
     const v = ML.venueById(o.venueId);
-    const name = v ? v.name : 'Объект #' + o.venueId;
-    if ((o.status === 'done' || o.status === 'reviewed') && o.guests){
-      const p = ML.eventPoints(o.guests);
-      if (p) out.push({ what: `Мероприятие в «${name}»`, state: o.status === 'done' ? 'ждём оплату от объекта' : 'начислены', pts: p });
-    }
-    if (o.status === 'reviewed'){
-      const p = ML.reviewPoints();
-      if (p) out.push({ what: `Отзыв о «${name}»`, state: 'начислены', pts: p });
-    }
+    const p = ML.eventPoints(o.guests);
+    if (p) out.push({ what: `Мероприятие в «${v ? v.name : 'Объект #' + o.venueId}»`, state: 'ждём оплату от объекта', pts: p });
   }));
-  return out.concat(LEDGER_HISTORY, [{ what: 'Баллы «ПРИВЕТ» за регистрацию', state: 'начислены', pts: ML.POINTS_HELLO }]);
+  log.forEach(x => out.push({ what: x.what, sub: [x.date.split('-').reverse().join('.'), x.note].filter(Boolean).join(' · '),
+    state: POINTS_STATE[x.kind] || '', pts: x.pts }));
+  return out;
+}
+/* «N баллов сгорят ДД.ММ.ГГГГ» — ближайшая партия; баллы действуют 12 месяцев с момента начисления. */
+function burnLine(){
+  const nx = ML.nextExpiry();
+  if (!nx) return '';
+  const one = nx.pts % 10 === 1 && nx.pts % 100 !== 11;
+  return `${nx.pts.toLocaleString('ru')} ${ML.plural(nx.pts,['балл','балла','баллов'])} ${one ? 'сгорит' : 'сгорят'} ${nx.date}`;
 }
 /* Заказ за баллы. Списание и номер заказа — целиком из ML.orderFromShop. */
 function shopItemById(id){ return ML.shopCatalog().find(s => String(s.id) === String(id)); }
@@ -2268,11 +2267,7 @@ dash:()=>{
       <div class="lbl">Доступно баллов</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
       <div class="sub">Тратятся на услуги партнёров</div>
-    </div>
-    <div class="lk-tile">
-      <div class="lbl">Используйте</div>
-      <div class="val">${P.expiring.toLocaleString('ru')}</div>
-      <div class="sub">до ${esc(P.expiresAt)}</div>
+      ${burnLine() ? `<div class="burn">${esc(burnLine())}</div>` : ''}
     </div>
     <div class="lk-tile">
       <div class="lbl">В сравнении</div>
@@ -2380,27 +2375,24 @@ points:()=>{   /* стр.125: LEDGER_ALL — показана вся истор�
       <div class="lbl">Доступно</div>
       <div class="val coral">${P.free.toLocaleString('ru')}</div>
       <div class="sub">можно потратить сейчас</div>
+      ${burnLine() ? `<div class="burn">${esc(burnLine())}</div>` : ''}
     </div>
     <div class="lk-tile">
       <div class="lbl">Нельзя потратить</div>
       <div class="val">${P.locked.toLocaleString('ru')}</div>
       <div class="sub">Станут доступны после того, как менеджмент объекта подтвердит прошедшее мероприятие.</div>
     </div>
-    <div class="lk-tile">
-      <div class="lbl">Используйте</div>
-      <div class="val">${P.expiring.toLocaleString('ru')}</div>
-      <div class="sub">до ${esc(P.expiresAt)}</div>
-    </div>
   </div>
+  <p class="page-sub" style="margin:-6px 0 18px">Баллы действуют 12 месяцев с момента начисления. Сначала списываются самые старые.</p>
 
-  <div class="section-head" style="margin-bottom:14px"><div class="section-label">Начисления</div></div>
+  <div class="section-head" style="margin-bottom:14px"><div class="section-label">История баллов</div></div>
   <div class="card" style="padding:0;overflow:hidden;margin-bottom:26px">
     <table class="ptbl">
       <thead><tr><th>Основание</th><th>Статус</th><th>Баллы</th></tr></thead>
       <tbody>${rows.slice(0, LEDGER_ALL ? rows.length : 5).map(x=>`<tr>
-        <td>${esc(x.what)}</td>
+        <td>${esc(x.what)}${x.sub ? `<div class="wait">${esc(x.sub)}</div>` : ''}</td>
         <td style="color:var(--sx);font-size:12.5px">${esc(x.state)}</td>
-        <td class="num plus">+${x.pts.toLocaleString('ru')}</td></tr>`).join('')}</tbody>
+        <td class="num ${x.pts > 0 ? 'plus' : 'minus'}">${x.pts > 0 ? '+' : '−'}${Math.abs(x.pts).toLocaleString('ru')}</td></tr>`).join('')}</tbody>
     </table>
     ${rows.length > 5 ? `<div class="ledger-more"><button class="btn btn-o" onclick="LEDGER_ALL=!LEDGER_ALL;renderPage()">${LEDGER_ALL ? 'Свернуть историю' : 'Показать всю историю'}</button></div>` : ''}
   </div>

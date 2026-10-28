@@ -935,5 +935,115 @@ test('R5 стр.162: вид тарифа для ролей — только ви
   assert.strictEqual(ML.tariff().key, 'prem');
 });
 
+console.log('Баллы: партии и сгорание (клиент 27.10)');
+
+/** Пустой баланс без демо-истории: начисления в тестах — только явные. */
+const fresh = (tariff) => load({ ml_tariff: tariff || 'biz', ml_points: { free: 0, locked: 0, batches: [], log: [], seq: 0 } }).ML;
+const live = (ML) => plain(ML.state.points.batches.filter(b => b.left > 0).map(b => [b.what, b.left, b.expiresAt]));
+
+test('каждое начисление — партия со сроком 12 месяцев с момента, когда баллы стали доступны', () => {
+  const ML = fresh();
+  ML.addPoints(100, 'free', 'ПРИВЕТ', '2026-01-31');
+  ML.addPoints(150, 'free', 'Отзыв', '2026-03-10');
+  assert.deepStrictEqual(live(ML), [['ПРИВЕТ', 100, '2027-01-31'], ['Отзыв', 150, '2027-03-10']]);
+  assert.strictEqual(ML.state.points.free, 250);
+  assert.deepStrictEqual(plain(ML.nextExpiry('2026-06-01')), { pts: 100, date: '31.01.2027' }, 'ближайшая партия');
+});
+
+test('«ожидают начисления» не сгорают: срок идёт с разблокировки', () => {
+  const ML = fresh();
+  ML.addPoints(5000, 'locked', 'Мероприятие', '2025-01-10');
+  assert.strictEqual(ML.expirePoints('2026-06-01'), 0, 'заблокированные не сгорают');
+  assert.strictEqual(ML.state.points.locked, 5000);
+  ML.unlockPoints(5000, 'Мероприятие в «Отель»', '2026-06-01');
+  assert.deepStrictEqual(live(ML), [['Мероприятие в «Отель»', 5000, '2027-06-01']]);
+  assert.strictEqual(ML.state.points.locked, 0);
+});
+
+test('сгорание по партиям: строка «Сгорание», повторная проверка ничего не дублирует', () => {
+  const { ML, storage } = load({ ml_tariff: 'biz', ml_points: { free: 0, locked: 0, batches: [], log: [], seq: 0 } });
+  ML.addPoints(100, 'free', 'Старая', '2025-05-01');
+  ML.addPoints(300, 'free', 'Новая', '2025-09-01');
+  assert.strictEqual(ML.expirePoints('2026-04-30'), 0, 'накануне — ещё действуют');
+  assert.strictEqual(ML.expirePoints('2026-05-01'), 100, 'в дату сгорания — сгорает только старая партия');
+  assert.strictEqual(ML.state.points.free, 300);
+  assert.strictEqual(ML.expirePoints('2026-05-01'), 0, 'повторно — ничего');
+  assert.strictEqual(ML.expirePoints('2026-05-02'), 0);
+  const burn = ML.pointsHistory().filter(x => x.kind === 'expire');
+  assert.strictEqual(burn.length, 1, 'одна строка «Сгорание»');
+  assert.strictEqual(burn[0].what, 'Сгорание');
+  assert.strictEqual(burn[0].pts, -100);
+  assert.strictEqual(stored(storage, 'ml_points').free, 300, 'сохранено');
+  assert.strictEqual(ML.expirePoints('2026-09-01'), 300);
+  assert.strictEqual(ML.nextExpiry('2026-09-01'), null, 'больше нечему сгорать');
+});
+
+test('списание: сначала самые старые партии', () => {
+  const ML = fresh();
+  ML.addPoints(1000, 'free', 'Новая', '2026-05-01');
+  ML.addPoints(400, 'free', 'Старая', '2026-01-01');
+  ML.addPoints(500, 'free', 'Средняя', '2026-03-01');
+  const alloc = plain(ML.spendPoints(700, 'Заказ', '2026-06-01'));
+  assert.deepStrictEqual(alloc.map(a => a.pts), [400, 300], 'старая целиком, потом средняя');
+  assert.deepStrictEqual(live(ML), [['Новая', 1000, '2027-05-01'], ['Средняя', 200, '2027-03-01']]);
+  assert.strictEqual(ML.state.points.free, 1200);
+  assert.strictEqual(ML.spendPoints(5000, 'Слишком много', '2026-06-01'), null, 'не хватает — ничего не списано');
+  assert.strictEqual(ML.state.points.free, 1200);
+});
+
+test('витрина: возврат за отклонённый заказ — в те же партии с их датой сгорания', () => {
+  const ML = fresh();
+  const item = ML.shopCatalog().slice().sort((a, b) => a.pts - b.pts)[0];
+  ML.addPoints(item.pts - 100, 'free', 'Старая', '2026-01-10');
+  ML.addPoints(500, 'free', 'Новая', '2026-04-10');
+  const o = ML.orderFromShop(item, '', '2026-06-01');
+  assert.ok(o);
+  assert.strictEqual(ML.state.points.free, 400);
+  assert.ok(ML.setOrderStatus(o.id, 'rejected', '2026-06-02'));
+  assert.deepStrictEqual(live(ML), [['Старая', item.pts - 100, '2027-01-10'], ['Новая', 500, '2027-04-10']], 'партии и даты прежние');
+  assert.strictEqual(ML.state.points.free, item.pts + 400);
+  assert.ok(ML.pointsHistory().some(x => x.kind === 'refund' && x.pts === item.pts), 'строка возврата');
+  assert.ok(ML.setOrderStatus(o.id, 'rejected', '2026-06-02'));
+  assert.strictEqual(ML.state.points.free, item.pts + 400, 'повторное отклонение не возвращает дважды');
+});
+
+test('возврат в партию, дата которой уже прошла, — баллы сгорают при ближайшей проверке', () => {
+  const ML = fresh();
+  const item = ML.shopCatalog().slice().sort((a, b) => a.pts - b.pts)[0];
+  ML.addPoints(item.pts, 'free', 'Старая', '2025-06-01');
+  const o = ML.orderFromShop(item, '', '2026-05-20');
+  assert.ok(o);
+  assert.ok(ML.setOrderStatus(o.id, 'rejected', '2026-06-05'));
+  assert.strictEqual(ML.state.points.free, 0, 'вернулись в партию с прошедшей датой и сгорели');
+  assert.strictEqual(ML.pointsHistory()[0].kind, 'expire');
+  assert.strictEqual(ML.pointsHistory()[0].pts, -item.pts);
+});
+
+test('ПРЕМИУМ за баллы списывает по тем же правилам', () => {
+  const ML = fresh('biz');
+  const price = ML.premiumItem().pts;
+  ML.addPoints(price, 'free', 'Старая', '2025-12-01');
+  ML.addPoints(1000, 'free', 'Новая', '2026-02-01');
+  assert.ok(ML.buyPremiumForPoints('2026-10-10').ok);
+  assert.deepStrictEqual(live(ML), [['Новая', 1000, '2027-02-01']]);
+});
+
+test('сохранённый баланс старого формата становится партией; демо — история на 12 800 с ближайшим сгоранием', () => {
+  const old = load({ ml_points: { free: 2500, locked: 300, expiring: 0, expiresAt: '' } }).ML;
+  assert.strictEqual(old.state.points.free, 2500);
+  assert.strictEqual(old.state.points.locked, 300);
+  assert.strictEqual(old.state.points.batches.length, 1);
+  const demo = load().ML;
+  assert.strictEqual(demo.state.points.free, 12800);
+  assert.strictEqual(demo.state.points.locked, 4500);
+  assert.deepStrictEqual(plain(demo.nextExpiry('2026-10-28')), { pts: 100, date: '01.12.2026' });
+  assert.ok(demo.pointsHistory().every(x => x.kind === 'accrual' && x.pts > 0));
+});
+
+test('баллы не выражаются в рублях в журнале и партиях', () => {
+  const demo = load().ML;
+  assert.ok(!/₽|руб/i.test(JSON.stringify(demo.state.points)));
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

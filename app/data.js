@@ -414,6 +414,24 @@
   const POINT_RATE = 0.70;          // 1 балл = 0,70 ₽
   const POINTS_HELLO = 100;         // баллы «ПРИВЕТ» за регистрацию
   const POINTS_REVIEW = { biz: 100, prem: 150 };
+  /* Клиент 27.10: баллы действуют 12 месяцев с момента, когда стали доступны (см. «баллы: партии и сгорание»). */
+  const POINTS_TTL_MONTHS = 12;
+  const pad2 = (n) => String(n).padStart(2, '0');
+  /* Демо-история «доступных» баллов: сумма — те же 12 800, что раньше были одним числом. */
+  const POINTS_SEED = [
+    ['2025-12-01', 'Баллы «ПРИВЕТ» за регистрацию', 100],
+    ['2025-12-12', 'Мероприятие в «Отель «Лагуна»»', 1000],
+    ['2025-12-12', 'Отзыв о «Отель «Лагуна»»', 100],
+    ['2026-01-20', 'Мероприятие в «Бутик-отель «Гавань»»', 1500],
+    ['2026-02-14', 'Отзыв о «Фотограф Мария Лебедева»', 150],
+    ['2026-03-18', 'Мероприятие в «Теплоход «Меридиан»»', 1500],
+    ['2026-04-20', 'Мероприятие в «Конгресс-центр «Экспо-Волга»»', 5000],
+    ['2026-06-25', 'Мероприятие в «Ресторан «Терраса»»', 1500],
+    ['2026-06-25', 'Отзыв о «Ресторан «Терраса»»', 150],
+    ['2026-07-02', 'Мероприятие в «Лофт «Кирпич»»', 1500, 'RQ-260612-0007:2'],
+    ['2026-07-02', 'Отзыв о «Лофт «Кирпич»»', 150],
+    ['2026-09-10', 'Отзыв о «Кейтеринг «Формат»»', 150],
+  ];
 
   /* Экономика еБалльного магазина. По договору о продаже услуг по бонусной
      программе ресурс получает скидку 30% от розничной цены услуги, а с
@@ -1306,7 +1324,7 @@
     compare: new Set(read(K.compare, [])),
     favs: new Set(read(K.favs, [])),
     blacklist: new Set(read(K.black, [])),
-    points: read(K.points, { free: 12800, locked: 4500, expiring: 800, expiresAt: '31.12.2026' }),
+    points: normalizePoints(read(K.points, null)),
     requests: migrateRequests(read(K.requests, [
       {
         id: 'RQ-260714-0031', date: '14.07.2026', title: 'Конференция «Итоги полугодия», 120 чел.',
@@ -1688,7 +1706,7 @@
     state.compare = new Set(read(K.compare, []));
     state.favs = new Set(read(K.favs, []));
     state.blacklist = new Set(read(K.black, []));
-    state.points = read(K.points, state.points);
+    state.points = normalizePoints(read(K.points, null));
     state.requests = migrateRequests(read(K.requests, state.requests));
     state.filters = unpackFilters(read(K.filters, null));
   }
@@ -1845,9 +1863,10 @@
     if (extra && extra.guests) o.guests = extra.guests;
     if (extra && extra.dates) o.dates = extra.dates;
     // объект мог отметить «состоялось» раньше пользователя: тогда вторая отметка — эта, и баллы разблокируются сейчас
-    if (next === 'done' && o.venueDone) unlockPoints(eventPoints(o.guests || 100));
+    const vn = (venueById(+venueId) || {}).name || 'объекте';
+    if (next === 'done' && o.venueDone) unlockPoints(eventPoints(o.guests || 100), `Мероприятие в «${vn}»`, null, reqId + ':' + venueId);
     if (next === 'reviewed') {
-      addPoints(reviewPoints(), 'free');
+      addPoints(reviewPoints(), 'free', `Отзыв о «${vn}»`);
       if (extra && extra.review) addReview(Object.assign({ target: 'venue', targetId: venueId, requestId: reqId, event: r.title }, extra.review));
     }
     persist.requests();
@@ -1885,20 +1904,126 @@
      обменять на деньги. Баллы тратятся исключительно внутри ресурса. */
   const pointsToRub = (p) => Math.round(p * POINT_RATE);
 
-  /** bucket: 'free' — можно тратить, 'locked' — до поступления оплаты от объекта. */
-  function addPoints(n, bucket) {
+  /* — баллы: партии и сгорание (клиент 27.10) —
+     Каждое начисление в «доступно» — отдельная партия { id, what, amount, left, availableAt, expiresAt }.
+     Срок — 12 месяцев с момента, когда баллы стали доступны; «ожидают начисления» (locked) не сгорают.
+     Списание — сначала из самых старых партий. Заказ помнит, из каких партий списано (alloc): при отклонении
+     баллы возвращаются в те же партии с их датой сгорания, а если дата уже прошла — сгорают при ближайшей
+     проверке. Сгорание пишется в историю строкой «Сгорание», повторная проверка ничего не дублирует.
+     Баланс free — всегда сумма остатков партий. Даты — 'ГГГГ-ММ-ДД'; today в функциях — для тестов. */
+  function isoDay(today) {
+    if (typeof today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(today)) return today;
+    const d = today ? new Date(today) : new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  /** Дата через n месяцев; 31 января + 1 месяц — последний день февраля. */
+  function addMonthsIso(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const last = new Date(y, m - 1 + n + 1, 0).getDate();
+    const t = new Date(y, m - 1 + n, Math.min(d, last));
+    return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
+  }
+  const isoToDmy = (iso) => iso ? iso.split('-').reverse().join('.') : '';
+
+  /** Сохранённый баланс → партии. Старый формат ({free, locked} числами) становится одной партией с сегодняшней датой. */
+  function normalizePoints(raw) {
+    if (raw && Array.isArray(raw.batches)) {
+      const p = Object.assign({ locked: 0, log: [], seq: raw.batches.length }, raw);
+      p.free = p.batches.reduce((sum, b) => sum + b.left, 0);
+      return p;
+    }
+    const untouchedDemo = !raw || (raw.free === 12800 && raw.locked === 4500 && raw.expiresAt === '31.12.2026');
+    const p = { free: 0, locked: raw && !untouchedDemo ? +raw.locked || 0 : 4500, batches: [], log: [], seq: 0 };
+    const add = (day, what, n, ref) => {
+      const b = { id: 'PB-' + pad2(++p.seq).padStart(4, '0'), what, amount: n, left: n, availableAt: day, expiresAt: addMonthsIso(day, POINTS_TTL_MONTHS) };
+      p.batches.push(b);
+      p.log.unshift({ date: day, kind: 'accrual', what, pts: n, batch: b.id, ref: ref || null });
+    };
+    if (untouchedDemo) POINTS_SEED.forEach(x => add(x[0], x[1], x[2], x[3]));
+    else if (+raw.free > 0) add(isoDay(), 'Остаток баланса', +raw.free);
+    p.free = p.batches.reduce((sum, b) => sum + b.left, 0);
+    return p;
+  }
+  function syncFree() { state.points.free = state.points.batches.reduce((sum, b) => sum + b.left, 0); }
+  function logPoints(row) { state.points.log.unshift(row); }
+  function creditBatch(n, what, today, ref) {
+    const day = isoDay(today);
+    const b = { id: 'PB-' + String(++state.points.seq).padStart(4, '0'), what, amount: n, left: n, availableAt: day, expiresAt: addMonthsIso(day, POINTS_TTL_MONTHS) };
+    state.points.batches.push(b);
+    logPoints({ date: day, kind: 'accrual', what, pts: n, batch: b.id, ref: ref || null });
+    return b;
+  }
+
+  /** Сжечь партии, у которых наступила дата сгорания. Повторный запуск ничего не дублирует. @returns {number} сколько сгорело */
+  function expirePoints(today) {
+    const day = isoDay(today);
+    let burnt = 0;
+    state.points.batches.forEach(b => {
+      if (b.left > 0 && b.expiresAt <= day) {
+        logPoints({ date: day, kind: 'expire', what: 'Сгорание', note: b.what, pts: -b.left, batch: b.id });
+        burnt += b.left; b.left = 0;
+      }
+    });
+    if (burnt) { syncFree(); persist.points(); }
+    return burnt;
+  }
+  /** Ближайшее сгорание: {pts, date: 'ДД.ММ.ГГГГ'} или null — для строки «N баллов сгорят ДД.ММ.ГГГГ». */
+  function nextExpiry(today) {
+    expirePoints(today);
+    const live = state.points.batches.filter(b => b.left > 0);
+    if (!live.length) return null;
+    const date = live.map(b => b.expiresAt).sort()[0];
+    return { pts: live.filter(b => b.expiresAt === date).reduce((sum, b) => sum + b.left, 0), date: isoToDmy(date) };
+  }
+  /** История движений баллов — от новых к старым. */
+  const pointsHistory = () => state.points.log.slice();
+
+  /** bucket: 'free' — можно тратить (новая партия), 'locked' — до поступления оплаты от объекта. */
+  function addPoints(n, bucket, what, today) {
     if (!n) return;
-    state.points[bucket === 'locked' ? 'locked' : 'free'] += n;
-    persist.points();
+    expirePoints(today);
+    if (bucket === 'locked') state.points.locked += n;
+    else creditBatch(n, what || 'Начисление', today);
+    syncFree(); persist.points();
   }
-  function spendPoints(n) {
-    if (state.points.free < n) return false;
-    state.points.free -= n; persist.points(); return true;
+  /** Списание FIFO: сначала из самых старых партий. @returns {{batch:string, pts:number}[]|null} откуда списано */
+  function spendPoints(n, what, today) {
+    expirePoints(today);
+    if (state.points.free < n) return null;
+    let need = n;
+    const alloc = [];
+    const order = state.points.batches.filter(b => b.left > 0)
+      .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt) || a.id.localeCompare(b.id));
+    for (const b of order) {
+      if (!need) break;
+      const take = Math.min(need, b.left);
+      b.left -= take; need -= take;
+      alloc.push({ batch: b.id, pts: take });
+    }
+    logPoints({ date: isoDay(today), kind: 'spend', what: what || 'Списание', pts: -n });
+    syncFree(); persist.points();
+    return alloc;
   }
-  /** Объект подтвердил оплату — переводим баллы из заблокированных в доступные. */
-  function unlockPoints(n) {
+  /** Возврат в те же партии с их датой сгорания; без сведений о партиях — новой партией. */
+  function refundPoints(alloc, n, what, today) {
+    const day = isoDay(today);
+    if (Array.isArray(alloc) && alloc.length) {
+      alloc.forEach(a => { const b = state.points.batches.find(x => x.id === a.batch); if (b) b.left += a.pts; });
+      logPoints({ date: day, kind: 'refund', what: what || 'Возврат', pts: alloc.reduce((sum, a) => sum + a.pts, 0) });
+    } else {
+      creditBatch(n, what || 'Возврат', today);
+    }
+    syncFree(); persist.points();
+    expirePoints(today);   // вернулись в партию с прошедшей датой — сгорают сразу, при этой же проверке
+  }
+  /** Объект подтвердил оплату — переводим баллы из заблокированных в доступные: новая партия, срок — с этого дня. */
+  function unlockPoints(n, what, today, ref) {
     const amount = Math.min(n, state.points.locked);
-    state.points.locked -= amount; state.points.free += amount; persist.points();
+    if (!amount) return;
+    expirePoints(today);
+    state.points.locked -= amount;
+    creditBatch(amount, what || 'Мероприятие', today, ref);
+    syncFree(); persist.points();
   }
 
   /* — поставщики — */
@@ -2302,7 +2427,7 @@
     if (o.status === 'cancelled' || o.status === 'declined') return false;
     o.venueDone = true;
     if (guests) o.guests = guests;
-    if (bothConfirmed(o)) unlockPoints(eventPoints(o.guests || 100));
+    if (bothConfirmed(o)) unlockPoints(eventPoints(o.guests || 100), `Мероприятие в «${(venueById(+venueId) || {}).name || 'объекте'}»`, null, reqId + ':' + venueId);
     persist.requests();
     return true;
   }
@@ -2416,32 +2541,34 @@
   /** @returns {{ok:boolean, lack?:number, until?:string, extended?:boolean, order?:object}} */
   function buyPremiumForPoints(today) {
     const item = premiumItem();
+    expirePoints(today);
     if (state.points.free < item.pts) return { ok: false, lack: item.pts - state.points.free };
     const now = today ? new Date(today) : new Date(); now.setHours(0, 0, 0, 0);
     const cur = parseDmy(state.premUntil);
     const extended = state.tariff === 'prem' && !!cur && cur > now;
     const from = extended ? cur : now;
     const until = new Date(from.getFullYear(), from.getMonth() + item.premiumMonths, from.getDate());
-    state.points.free -= item.pts; persist.points();
+    const alloc = spendPoints(item.pts, item.title, today);
     state.premUntil = fmtDmy(until); write(K.premUntil, state.premUntil);
     state.tariff = 'prem'; persist.tariff();
     const o = {
       id: 'BN-' + String(state.bonusOrders.length + 1).padStart(4, '0'),
       itemId: item.id, title: item.title, provider: item.provider, pts: item.pts, note: '',
-      date: fmtDmy(now), status: 'done',
+      date: fmtDmy(now), status: 'done', alloc,
     };
     state.bonusOrders.unshift(o); persist.bonusOrders();
     return { ok: true, until: state.premUntil, extended, order: o };
   }
 
-  function orderFromShop(item, note) {
+  function orderFromShop(item, note, today) {
     if (!item) return null;
+    expirePoints(today);
     if (state.points.free < item.pts) return null;
-    state.points.free -= item.pts; persist.points();
+    const id = 'BN-' + String(state.bonusOrders.length + 1).padStart(4, '0');
+    const alloc = spendPoints(item.pts, `Заказ ${id}: ${item.title}`, today);
     const o = {
-      id: 'BN-' + String(state.bonusOrders.length + 1).padStart(4, '0'),
-      itemId: item.id, title: item.title, provider: item.provider,
-      pts: item.pts, note: note || '',
+      id, itemId: item.id, title: item.title, provider: item.provider,
+      pts: item.pts, note: note || '', alloc,
       date: new Date().toLocaleDateString('ru'), status: 'new',
     };
     state.bonusOrders.unshift(o); persist.bonusOrders();
@@ -2449,10 +2576,10 @@
   }
   const bonusOrdersFor = (providerName) => !providerName ? state.bonusOrders
     : state.bonusOrders.filter(o => o.provider === providerName);
-  function setOrderStatus(id, status) {
+  function setOrderStatus(id, status, today) {
     const o = state.bonusOrders.find(x => x.id === id); if (!o) return false;
     if (!ORDER_FLOW[status]) return false;
-    if (status === 'rejected' && o.status !== 'rejected') { state.points.free += o.pts; persist.points(); }
+    if (status === 'rejected' && o.status !== 'rejected') refundPoints(o.alloc, o.pts, `Возврат за заказ ${o.id}: ${o.title}`, today);
     o.status = status; persist.bonusOrders();
     return true;
   }
@@ -2588,6 +2715,7 @@
     canGroupRequest, createRequest, canDirectRequest, createDirectRequest, requestById, requestHalls, requestByVenue,
     updateRequest, repeatRequest, canSetStatus, setStatus,
     feeTier, eventPoints, accrualFor, reviewPoints, pointsToRub, addPoints, spendPoints, unlockPoints,
+    expirePoints, nextExpiry, pointsHistory, refundPoints, POINTS_TTL_MONTHS,
     MODERATION, STARRED_CATS, addMyVenue, updateMyVenue, venueToWizard, addHallToMyVenue, addMyService, hallToWizard, updateMyHall, removeMyHall,
     APPEAL_STATUS, addAppeal, appealsFor, removeMyVenue, removeMyService,
     addShopItem, removeShopItem, myShopItems, shopCatalog,

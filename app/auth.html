@@ -387,7 +387,7 @@ function submit(){
 
     if (ROLE === 'user') {
       // баллы «ПРИВЕТ» начисляет модель
-      ML.addPoints(ML.POINTS_HELLO, 'free');
+      ML.addPoints(ML.POINTS_HELLO, 'free', 'Баллы «ПРИВЕТ» за регистрацию');
       MH.toast(`Аккаунт создан. Начислено ${ML.POINTS_HELLO} ${ML.plural(ML.POINTS_HELLO,['балл','балла','баллов'])} «ПРИВЕТ»`, 'success');
     } else {
       MH.toast('Аккаунт создан', 'success');
