@@ -10,10 +10,10 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const PAGES = [
-  { md: 'лендинг_площадкам2.md', html: 'list-venue.html' },
-  { md: 'лендинг_агентствам.md', html: 'for-organizers.html' },
-  { md: 'лендинг_поставщикам.md', html: 'for-suppliers.html' },
-  { md: 'лендинг_артистам.md', html: 'for-artists.html' },
+  { md: 'лендинг_площадкам2.md', html: 'list-venue.html', pricing: 'venues' },
+  { md: 'лендинг_агентствам.md', html: 'for-organizers.html', pricing: 'agencies' },
+  { md: 'лендинг_поставщикам.md', html: 'for-suppliers.html', pricing: 'suppliers' },
+  { md: 'лендинг_артистам.md', html: 'for-artists.html', pricing: 'suppliers' },
 ];
 /* явные опечатки: [как в источнике, как на странице] */
 const FIXES = {
@@ -121,6 +121,8 @@ for (const p of PAGES) {
   // ТЗ дизайнера и служебные комментарии на страницу не выводятся
   if (/дизайнеру/i.test(text)) missing.push(`${p.html}: на странице текст комментария «дизайнеру»`);
   (upd.absent || []).forEach(a => { if (text.includes(norm(a))) missing.push(`${p.html}: осталась старая формулировка «${a}»`); });
+  // R6 стр. 216: фраза о стоимости и условиях ведёт на свою вкладку страницы тарифов
+  if (!html.includes(`href="pricing.html?for=${p.pricing}"`)) missing.push(`${p.html}: нет ссылки на pricing.html?for=${p.pricing}`);
   // R6 стр. 215: предзаголовков над блоками (lp-eyebrow) на B2B-лендингах нет
   if (/class="[^"]*\blp-eyebrow\b/.test(html)) missing.push(`${p.html}: остался предзаголовок lp-eyebrow`);
   console.log(`  ${ok === frags.length ? '✓' : '✗'} ${p.html} ← ${p.md}: ${ok} из ${frags.length}`);
