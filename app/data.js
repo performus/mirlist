@@ -1235,6 +1235,12 @@
     if (!s.priceUnit) s.priceUnit = 'project';
   });
 
+  /* R6 стр.207: видео — ссылки (YouTube, VK Видео, Rutube), а не файл. В демо у поставщиков с видео — ссылка
+     на поиск их шоурила на YouTube; «Есть видео» — хотя бы одна ссылка. */
+  SUPPLIERS.forEach(s => {
+    s.videoLinks = s.video ? ['https://www.youtube.com/results?search_query=' + encodeURIComponent(s.name + ' шоурил')] : [];
+    s.video = s.videoLinks.length > 0;
+  });
   SUPPLIERS.forEach(s => {
     s.services = SERVICES[s.id] || [];
     if (s.services.length) s.price = Math.min(...s.services.map(x => x.price));
@@ -1372,7 +1378,7 @@
   const K = {
     tariff: 'ml_tariff', compare: 'ml_compare_halls', favs: 'ml_favs_halls', premUntil: 'ml_prem_until',
     black: 'ml_blacklist', points: 'ml_points', requests: 'ml_requests',
-    myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews',
+    myVenues: 'ml_my_venues', myServices: 'ml_my_services', reviews: 'ml_reviews', hidden: 'ml_hidden',
     shopItems: 'ml_shop_items', bonusOrders: 'ml_bonus_orders', supplierRequests: 'ml_supplier_requests',
     filters: 'ml_filters', sfilters: 'ml_supplier_filters', invoices: 'ml_invoices', appeals: 'ml_appeals',
   };
@@ -1393,7 +1399,8 @@
     bonusOrders: read(K.bonusOrders, []),
     supplierRequests: read(K.supplierRequests, []),
     reviews: withSeedReviews(read(K.reviews, REVIEW_SEED)),
-    myServices: read(K.myServices, []),
+    myServices: read(K.myServices, null) || seedOwnServices(),   // R6 стр.173/175: услуги поставщика демо-кабинета — из его карточки
+    hidden: Object.assign({ venues: [], halls: [], services: [] }, read(K.hidden, {})),   // R6 стр.173: скрыто владельцем
     supplierFilters: unpackSupplierFilters(read(K.sfilters, null)),
     compare: new Set(read(K.compare, [])),
     favs: new Set(read(K.favs, [])),
@@ -1453,6 +1460,7 @@
     supplierRequests: () => write(K.supplierRequests, state.supplierRequests),
     reviews: () => write(K.reviews, state.reviews),
     myServices: () => write(K.myServices, state.myServices),
+    hidden: () => write(K.hidden, state.hidden),
     supplierFilters: () => write(K.sfilters, packSupplierFilters(state.supplierFilters)),
     compare: () => write(K.compare, [...state.compare]),
     favs: () => write(K.favs, [...state.favs]),
@@ -1666,7 +1674,7 @@
     const mode = F.priceMode || 'day';
     const dayOn = mode === 'day' && rangeOn(F, 'priceDay'), hourOn = mode === 'hour' && rangeOn(F, 'priceHour');
     for (const v of VENUES) {
-      if (state.blacklist.has(v.id)) continue;
+      if (state.blacklist.has(v.id) || venueHidden(v)) continue;   // R6 стр.173: скрытые владельцем
       if (!eventOk(v, F.eventType)) continue;
       if (F.name && !nameMatch(v, F.name)) continue;
       if (F.city && F.city !== ALL_CITIES && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
@@ -1686,7 +1694,7 @@
       if (F.parkingSpaces && !(v.parking === 'private' && (v.parkingSpaces || 0) >= F.parkingSpaces)) continue;
 
       // Залы объекта, подходящие под ТЗ. «По договорённости» (цена 0) проходит всегда.
-      const pool = v.halls.filter(h => {
+      const pool = v.halls.filter(h => !state.hidden.halls.includes(h.id)).filter(h => {
         // вместимость «от – до»: объект проходит, если в нём есть зал из этого диапазона
         const lo = Math.min(F.people || 0, F.peopleTo || Infinity), hi = Math.max(F.people || 0, F.peopleTo || 0) || Infinity;
         if (lo && hallCapacity(h) < lo) return false;
@@ -1887,6 +1895,7 @@
     if (state.compare.has(hallId)) { state.compare.delete(hallId); persist.compare(); return { ok: true }; }
     const lim = tariff().compare;
     const h = hallById(hallId), vs = compareVenueIds();
+    if (h && (hallHidden(h) || venueHidden(venueById(h.venueId)))) return { ok: false, reason: 'Скрыт владельцем' };
     if (h && !vs.has(h.venueId) && vs.size >= lim) {
       const w = lim % 10 === 1 && lim % 100 !== 11 ? 'объект' : lim % 10 >= 2 && lim % 10 <= 4 && (lim % 100 < 12 || lim % 100 > 14) ? 'объекта' : 'объектов';
       const need = tariff().key === 'prem' ? null : tariff().key === 'biz' ? 'prem' : 'biz';
@@ -1908,7 +1917,26 @@
     state.requests = migrateRequests(read(K.requests, state.requests));
     state.filters = unpackFilters(read(K.filters, null));
   }
-  const compareHalls = () => [...state.compare].map(hallById).filter(Boolean);
+  /* R6 стр.173: «Скрыть из выдачи». Скрытые объект, зал и услуга не попадают в подбор, каталог, сравнение и витрину;
+     карточка по прямой ссылке открывается с пометкой «Скрыт владельцем». Последний видимый зал скрыть можно —
+     тогда объект пропадает из выдачи целиком. */
+  const svcKey = (supplierId, name) => supplierId + ':' + name;
+  const venueHidden = (v) => !!v && (state.hidden.venues.includes(v.id) || v.halls.every(h => state.hidden.halls.includes(h.id)));
+  const hallHidden = (h) => !!h && (state.hidden.halls.includes(h.id) || state.hidden.venues.includes(h.venueId));
+  const serviceHidden = (supplierId, name) => state.hidden.services.includes(svcKey(supplierId, name));
+  const visibleServices = (sp) => (sp.services || []).filter(x => !serviceHidden(sp.id, x.name));
+  const supplierHidden = (sp) => !!sp && sp.services.length > 0 && !visibleServices(sp).length;
+  function setHidden(kind, id, on) {
+    const list = state.hidden[kind]; const k = kind === 'services' ? id : +id;
+    const i = list.indexOf(k);
+    if (on && i < 0) list.push(k); if (!on && i >= 0) list.splice(i, 1);
+    if (on) [...state.compare].forEach(hid => { if (hallHidden(hallById(hid)) || venueHidden(venueById((hallById(hid) || {}).venueId))) state.compare.delete(hid); });
+    persist.hidden(); persist.compare();
+    return true;
+  }
+  /** Скрыть этот зал — последний видимый у объекта? (предупреждение в кабинете) */
+  const isLastVisibleHall = (h) => { const v = venueById(h.venueId); return !!v && v.halls.filter(x => !state.hidden.halls.includes(x.id)).every(x => x.id === h.id); };
+  const compareHalls = () => [...state.compare].map(hallById).filter(h => h && !hallHidden(h) && !venueHidden(venueById(h.venueId)));
 
   const isFav = (hallId) => state.favs.has(+hallId);
   const toggleFav = (hallId) => {
@@ -2291,8 +2319,8 @@
     const pppOn = F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp);
     const [hFrom, hTo] = F.hours || [0, 0];
     const nq = normName(F.name);
-    return SUPPLIERS.filter(s => {
-      if (nq && !normName(s.name).includes(nq) && !(s.services || []).some(x => normName(x.name).includes(nq))) return false;
+    return SUPPLIERS.filter(s => !supplierHidden(s)).filter(s => {
+      if (nq && !normName(s.name).includes(nq) && !visibleServices(s).some(x => normName(x.name).includes(nq))) return false;
       /* Город: поставщик показывается, если он в этом городе, либо если
          отмечен «Выезд в другие города» и он выезжает.
          Без выбранного города галочка работает как самостоятельный фильтр. */
@@ -2625,6 +2653,43 @@
       inn: (v.contacts || {}).inn || '', bank: (v.contacts || {}).bank || '', contracts: (v.contracts || []).slice(),
     };
   }
+  /** R6 стр.207: ссылка на видео — адрес http(s). */
+  const isVideoUrl = (u) => /^https?:\/\/[^\s/$.?#][^\s]*\.[^\s]+$/i.test(String(u || '').trim());
+  function serviceFromWizard(d) {
+    const price = +d.price || 0;
+    const videoLinks = (d.videoLinks || []).map(x => String(x || '').trim()).filter(isVideoUrl);
+    return { name: d.name || 'Без названия',
+      parent: d.parent || '', child: d.child || '', about: d.about || '',
+      price, priceUnit: d.priceUnit || 'project', exp: +d.exp || 0,
+      city: d.city || '', travel: Array.isArray(d.travel) ? d.travel.length > 0 : !!d.travel,
+      loyalty: !!(d.loy || []).length,
+      pricePerPerson: +d.pricePerPerson || 0, halal: !!d.halal, kosher: !!d.kosher,
+      delivery: !!d.delivery, installation: !!d.installation, operator: !!d.operator,
+      minHours: +d.minHours || 0, deliveryDays: +d.deliveryDays || 0,
+      photos: fileNames(d.photos), videoLinks, video: videoLinks.length > 0,
+      pts: servicePoints(price), cost: serviceCost(price) };
+  }
+  /** R6 стр.175: правка услуги — те же поля; дата обновления — сегодня. */
+  function updateMyService(i, d) {
+    const s = state.myServices[i]; if (!s) return null;
+    Object.assign(s, serviceFromWizard(d), { updatedAt: new Date().toLocaleDateString('ru') });
+    persist.myServices(); return s;
+  }
+  function serviceToWizard(s) {
+    return { parent: s.parent, child: s.child, name: s.name, about: s.about || '', city: s.city || '', travel: !!s.travel,
+      price: s.price || '', priceUnit: s.priceUnit || 'project', exp: s.exp || '', pricePerPerson: s.pricePerPerson || '',
+      halal: !!s.halal, kosher: !!s.kosher, delivery: !!s.delivery, installation: !!s.installation, operator: !!s.operator,
+      minHours: s.minHours || '', deliveryDays: s.deliveryDays || '', photos: (s.photos || []).map(name => ({ name })),
+      videoLinks: (s.videoLinks || []).slice(), loy: s.loyalty ? ['Участвую в бонусной программе'] : [] };
+  }
+  /** Услуги поставщика демо-кабинета (id 1) — из его карточки в каталоге, опубликованы. */
+  function seedOwnServices() {
+    const sp = SUPPLIERS.find(x => x.id === 1); if (!sp) return [];
+    return sp.services.map((x, k) => ({ localId: 's-seed-' + k, catalogSupplierId: sp.id, name: x.name, parent: sp.parent, child: sp.child,
+      about: x.name + '. ' + sp.child + ', ' + sp.city + '.', price: x.price, priceUnit: sp.priceUnit || 'project', exp: sp.exp, city: sp.city, travel: !!sp.travel, loyalty: !!x.loyalty,
+      photos: [], videoLinks: (sp.videoLinks || []).slice(), video: !!sp.video, pts: servicePoints(x.price), cost: serviceCost(x.price),
+      status: 'published', createdAt: '01.06.2026' }));
+  }
   function addMyService(d) {
     const price = +d.price || 0;
     const s = {
@@ -2636,10 +2701,10 @@
       pricePerPerson: +d.pricePerPerson || 0, halal: !!d.halal, kosher: !!d.kosher,
       delivery: !!d.delivery, installation: !!d.installation, operator: !!d.operator,
       minHours: +d.minHours || 0, deliveryDays: +d.deliveryDays || 0,
-      photos: fileNames(d.photos), video: fileNames(d.video).length > 0,
       pts: servicePoints(price), cost: serviceCost(price),
       status: 'review', createdAt: new Date().toLocaleDateString('ru'),
     };
+    Object.assign(s, serviceFromWizard(d));
     state.myServices.unshift(s); persist.myServices();
     return s;
   }
@@ -2724,6 +2789,15 @@
     if (!list.length) return null;
     return +(list.reduce((a, r) => a + r.rating, 0) / list.length).toFixed(1);
   }
+  /** R6 стр.222: ответ владельца на отзыв — один на отзыв, его можно изменить; публикуется сразу. */
+  function replyReview(id, text) {
+    const r = state.reviews.find(x => x.id === +id); if (!r) return null;
+    const t = String(text || '').trim();
+    if (!t) return null;
+    r.reply = { text: t, date: new Date().toLocaleDateString('ru'), edited: !!r.reply };
+    persist.reviews();
+    return r.reply;
+  }
   function addReview(d) {
     const r = {
       id: Math.max(0, ...state.reviews.map(x => x.id)) + 1,
@@ -2768,7 +2842,12 @@
   const shopCatalog = () => SHOP.concat(
     state.shopItems.filter(x => x.status === 'published')
       .map(x => ({ id: x.localId, title: x.title, provider: x.ownerName, rub: x.retail, pts: x.pts, cost: x.cost }))
-  );
+  ).filter(x => {   // R6 стр.173: позиции скрытых объектов, поставщиков и услуг на витрине не показываются
+    const v = VENUES.find(o => o.name === x.provider), sp = SUPPLIERS.find(o => o.name === x.provider);
+    if (v && venueHidden(v)) return false;
+    if (sp && (supplierHidden(sp) || (x.service && serviceHidden(sp.id, x.service)))) return false;
+    return true;
+  });
 
   /* — заказы за баллы —
      По документам: пользователь оставляет заявку, ресурс связывается
@@ -2944,7 +3023,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, isStale, STALE_MONTHS, correctionTargets, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, replyReview, setHidden, venueHidden, hallHidden, serviceHidden, supplierHidden, visibleServices, isLastVisibleHall, svcKey, updateMyService, serviceToWizard, isVideoUrl, isStale, STALE_MONTHS, correctionTargets, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,

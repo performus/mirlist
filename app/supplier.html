@@ -153,6 +153,11 @@ textarea.fi{min-height:88px;resize:vertical;}
 .rv-empty{padding:18px 20px;font-size:13.5px;color:var(--slate-muted);}
 .btn.pri.lg{padding:14px 30px;font-size:15px;box-shadow:0 6px 20px rgba(233,134,103,.3);}
 @media(max-width:760px){.rvs{grid-template-columns:1fr;}}
+/* R6 стр.222: ответ владельца под отзывом */
+.rv-reply{margin-top:12px;padding:10px 14px;border-left:3px solid var(--coral,#E98667);background:var(--aqua-pale,#EDF6F5);border-radius:0 10px 10px 0;}
+.rv-reply-h{font-size:12px;color:var(--slate-muted,#7A919F);margin-bottom:4px;}
+.rv-reply-h b{color:var(--slate-deep,#354E63);}
+.rv-reply p{font-size:13.5px;line-height:1.6;color:var(--slate-mid,#3E596F);margin:0;}
 </style>
 </head>
 <body>
@@ -196,6 +201,7 @@ function reviewsBlock(s) {
           <div class="rv-s" aria-label="Оценка ${r.rating} из 5">${'★'.repeat(r.rating)}<span>${'★'.repeat(5 - r.rating)}</span></div></div>
         ${r.event ? `<div class="rv-e">${esc(r.event)} · ${esc(r.date)}</div>` : `<div class="rv-e">${esc(r.date)}</div>`}
         <p class="rv-t">${esc(r.text)}</p>
+        ${r.reply ? `<div class="rv-reply"><div class="rv-reply-h"><b>Ответ поставщика</b> · ${esc(r.reply.date)}</div><p>${esc(r.reply.text)}</p></div>` : ''}
       </article>`).join('')}</div>`
       : `<div class="panel rv-empty">Отзывов пока нет. Оставить отзыв можно после состоявшегося мероприятия — из истории запросов в кабинете.</div>`}`;
 }
@@ -209,7 +215,8 @@ function render() {
   /* R6 стр.85: баллами оплачиваются только позиции, выставленные на витрину этого поставщика; у остальных — «—».
      Нет позиций на витрине — нет ни колонок, ни строк про баллы. */
   const onShop = ML.supplierShowcase(s).length > 0;
-  const rows = s.services.map(x => { const it = ML.showcaseItem(s, x); return `<tr>
+  /* R6 стр.173: скрытые владельцем услуги в карточке не показываются */
+  const rows = ML.visibleServices(s).map(x => { const it = ML.showcaseItem(s, x); return `<tr>
     <td>${esc(x.name)}</td>
     <td class="num">${ML.money(x.price)}</td>
     ${onShop ? `<td${it ? '' : ' class="no"'}>${it ? `<a href="bonus.html#shop" style="color:var(--coral,#E8846A);font-weight:600">${esc(it.title)}</a>` : '—'}</td>
@@ -240,14 +247,14 @@ function render() {
   <div class="dhead">
     <div>
       <span class="d-eyebrow">${esc(s.parent)} · ${esc(s.child)}</span>
-      <h1 class="d-title">${esc(s.name)}${MH.staleBadge(s)}</h1>
+      <h1 class="d-title">${esc(s.name)}${MH.staleBadge(s)}${ML.supplierHidden(s) ? '<span class="tag" style="vertical-align:6px;margin-left:10px">Скрыт владельцем</span>' : ''}</h1>
       <div class="d-meta">
         <span>${esc(s.city)}</span>
         <span>опыт <b>${s.exp}</b> ${ML.plural(s.exp, ['год','года','лет'])}</span>
         <span class="d-price">${MH.blurOnly('от ' + ML.money(s.price) + ' ' + ML.priceUnitLabel(s.priceUnit))}</span>
         ${s.travel ? '<span>выезд в другие города</span>' : ''}
         ${s.loyalty ? '<span class="tag solid">Принимает баллы</span>' : ''}
-        ${s.video ? '<span class="tag">Видео</span>' : ''}
+        ${(s.videoLinks || []).map((u, i, a) => `<a class="tag" href="${esc(u)}" target="_blank" rel="noopener" title="Открыть видео">▶ Видео${a.length > 1 ? ' ' + (i + 1) : ''}</a>`).join('')}
         ${(() => { const R = ML.ratingOf('supplier', s.id);   // R6 стр.167: как у площадок — «★ 4,8 (12)», без отзывов плашки нет
           return R.n ? `<span title="Рейтинг по отзывам"><span style="color:#B4C3CC">★</span> <b>${R.avg.toFixed(1).replace('.', ',')}</b> (${R.n})</span>` : ''; })()}
       </div>

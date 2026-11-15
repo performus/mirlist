@@ -434,6 +434,9 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj-name{font-size:14.5px;font-weight:700;color:var(--sd);transition:color .2s;}
 .rq-obj-name:hover{color:var(--c);}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
+.mod.hidden{background:#EEF1F4;color:#5B6B78;}
+.wlink{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+.wlink input{flex:1;min-width:0;}
 .stale-note{margin:6px 0 2px;padding:7px 11px;border-radius:8px;background:#FFF4E5;color:#9A5B12;font-size:12.5px;line-height:1.45;}
 .rq-obj-hist{margin:6px 0 0;font-size:12px;color:var(--sx);}
 .st{padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:700;white-space:nowrap;}
@@ -678,7 +681,7 @@ const IC={
    Состав пунктов — MH.CABINET_MENU (shared.js): из него же собирается
    выпадающее меню пользователя в шапке. Здесь только иконки и счётчики. */
 const NAV_ICONS={appeals:IC.req,oappeals:IC.req,sappeals:IC.req,ocompany:IC.user,scompany:IC.user,dash:IC.dash,requests:IC.req,compare:IC.check,favs:IC.fav,points:IC.star,profile:IC.user,billing:IC.stat,
-  odash:IC.dash,ovenues:IC.venue,oreqs:IC.req,oshop:IC.shop,ostats:IC.stat,oprofile:IC.user,
+  odash:IC.dash,ovenues:IC.venue,oreqs:IC.req,oshop:IC.shop,ostats:IC.stat,oprofile:IC.user,oreviews:IC.star,sreviews:IC.star,
   sdash:IC.dash,sservices:IC.venue,sreqs:IC.req,sshop:IC.shop,ssub:IC.stat,sprofile:IC.user};
 const NAV_BADGES={
   requests:()=>ML.activeRequests().length||null,
@@ -833,6 +836,39 @@ function saveUserProfile(){
   ['cpOld', 'cpNew', 'cpNew2'].forEach(id => { document.getElementById(id).value = ''; });
   MH.toast(pw ? 'Пароль изменён' : 'Профиль сохранён', 'success');
   renderNav(); renderPage();
+}
+/* R6 стр.222: «Отзывы» в кабинетах площадки и поставщика — отзывы о своём объекте или карточке поставщика,
+   один ответ на отзыв, ответ можно изменить; публикуется сразу и виден под отзывом в карточке. */
+let REPLY_EDIT=null;
+function ownReviewsPage(role){
+  const target=role==='venue'?'venue':'supplier', id=role==='venue'?OWN_VENUE_ID:OWN_SUPPLIER_ID;
+  const owner=role==='venue'?ML.venueById(id):ML.SUPPLIERS.find(x=>x.id===id);
+  const list=ML.reviewsFor(target,id).slice().sort((a,b)=>dmy(b.date)-dmy(a.date));
+  const who=role==='venue'?'Ответ площадки':'Ответ поставщика';
+  const link=role==='venue'?`venue.html?id=${id}`:`supplier.html?id=${id}`;
+  return `
+  <h1 class="page-title">Отзывы</h1>
+  <p class="page-sub">${esc(owner?owner.name:'')} · ${list.length} ${ML.plural(list.length,['отзыв','отзыва','отзывов'])}</p>
+  ${list.length?list.map(r=>`<div class="card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><b style="color:var(--sd)">${esc(r.author)}</b><div style="font-size:12px;color:var(--sx)">${esc(r.role||'')}${r.event?' · '+esc(r.event):''} · ${esc(r.date)}</div></div>
+      <div style="color:#F0B95A" aria-label="Оценка ${r.rating} из 5">${'★'.repeat(r.rating)}<span style="color:#D9E1E6">${'★'.repeat(5-r.rating)}</span></div>
+    </div>
+    <p style="font-size:13.5px;line-height:1.6;color:var(--sm,#3E596F);margin-top:8px">${esc(r.text)}</p>
+    ${REPLY_EDIT===r.id?`<div style="margin-top:10px"><textarea class="form-input" id="rplText" rows="3">${esc((r.reply||{}).text||'')}</textarea>
+      <div class="btn-row" style="margin-top:8px"><button class="btn btn-c" onclick="saveReply(${r.id})">Опубликовать ответ</button>
+        <button class="btn btn-o" onclick="REPLY_EDIT=null;renderPage()">Отмена</button></div></div>`
+    :r.reply?`<div class="stale-note" style="background:var(--aqua-pale,#EDF6F5);color:var(--sm,#3E596F);margin-top:10px"><b>${who}</b> · ${esc(r.reply.date)}<br>${esc(r.reply.text)}</div>
+      <div class="btn-row" style="margin-top:8px"><button class="btn-xs" onclick="REPLY_EDIT=${r.id};renderPage()">Изменить ответ</button></div>`
+    :`<div class="btn-row" style="margin-top:10px"><button class="btn-xs" onclick="REPLY_EDIT=${r.id};renderPage()">Ответить</button></div>`}
+  </div>`).join('')+`<a class="btn btn-o" href="${link}">Открыть карточку</a>`
+  :'<div class="card empty-state"><div class="empty-text">Отзывов пока нет</div></div>'}`;
+}
+function saveReply(id){
+  const t=(document.getElementById('rplText')||{}).value||'';
+  if(!t.trim()){ MH.toast('Напишите ответ','error'); return; }
+  ML.replyReview(id,t); REPLY_EDIT=null;
+  MH.toast('Ответ опубликован','success'); renderPage();
 }
 function saveCompany(role){
   const v = (id) => (document.getElementById(id).value || '').trim();
@@ -1652,7 +1688,9 @@ const SERVICE_STEPS=[
  ]},
  {t:'Медиа',f:[
    {k:'photos',l:'Фотографии',ty:'photo'},
-   {k:'video',l:'Видео или шоурил',ty:'photo',hint:'Наличие видео — отдельный фильтр в каталоге поставщиков.'},
+   /* R6 стр.207: видео — ссылки, не загрузка файла */
+   {k:'videoLinks',l:'Ссылка на видео или шоурил',ty:'links',ph:'https://',
+    hint:'YouTube, VK Видео или Rutube. Можно добавить несколько ссылок. Наличие видео — отдельный фильтр в каталоге поставщиков.'},
  ]},
  {t:'Бонусная программа',f:[
    {k:'loy',ty:'checks',opt:['Участвую в бонусной программе'],redraw:1},
@@ -1666,7 +1704,7 @@ const stepFields = (st) => st.fFn ? st.fFn() : st.f;
 const WIZDEFS={
   venue:{t:'Добавление объекта',tEdit:'Редактирование объекта',s:VENUE_STEPS,fin:'Отправить на модерацию',finEdit:'Сохранить изменения'},
   hall:{t:'Добавление зала',tEdit:'Редактирование зала',s:HALL_STEPS,fin:'Сохранить зал',finEdit:'Сохранить изменения'},
-  service:{t:'Добавление услуги',s:SERVICE_STEPS,fin:'Отправить на модерацию'},
+  service:{t:'Добавление услуги',tEdit:'Редактирование услуги',s:SERVICE_STEPS,fin:'Отправить на модерацию',finEdit:'Сохранить изменения'},
 };
 
 /* ── стек визардов: вложенный возвращается в родительский ── */
@@ -1678,10 +1716,21 @@ function openWiz(kind,o){
   const def=WIZDEFS[kind];
   /* стр.109: правка — все шаги открыты, данные объекта уже в полях */
   WIZ={kind,step:0,max:o.edit!=null?def.s.length-1:0,bad:null,data:o.data||{},def,edit:o.edit,parent:o.parent};
+  WIZ.init=wizSnap();
   drawWiz();
+  document.removeEventListener('keydown',wizEsc);
   document.addEventListener('keydown',wizEsc);
 }
-function wizEsc(e){ if(e.key==='Escape') closeWiz(); }
+/* R6 стр.171: Esc, клик мимо окна, крестик и «Отмена» при несохранённых изменениях — окно в стиле сайта */
+const wizSnap=()=>JSON.stringify(WIZ?WIZ.data:null,(k,v)=>v instanceof File?v.name:v);
+const wizDirty=()=>!!WIZ&&wizSnap()!==WIZ.init;
+function askCloseWiz(){
+  if(!wizDirty()){ closeWiz(); return; }
+  MH.dialog({ title:'Закрыть без сохранения?', html:'Введённые данные пропадут', actions:[
+    { label:'Продолжить заполнение' },
+    { label:'Закрыть', primary:true, onClick:()=>closeWiz() }] });
+}
+function wizEsc(e){ if(e.key==='Escape'&&!document.getElementById('mh-dlg')) askCloseWiz(); }
 function closeWiz(){
   if(WIZSTACK.length){ WIZ=WIZSTACK.pop(); drawWiz(); return; }   // назад в родительский
   closeAllWiz();
@@ -1698,12 +1747,12 @@ function drawWiz(){
   const prevForm=document.querySelector('.wz-form');
   const keepTop=prevForm&&WIZ._drawn===WIZ.kind+':'+WIZ.step?prevForm.scrollTop:0;
   document.getElementById('dmRoot').innerHTML=`
-  <div class="wz-ovl" onclick="if(event.target===this)closeWiz()">
+  <div class="wz-ovl" onclick="if(event.target===this)askCloseWiz()">
     <div class="wz" role="dialog" aria-modal="true">
       <div class="wz-head">
         <h2>${esc(WIZ.edit!=null&&d.tEdit?d.tEdit:WIZ.parent!=null&&!WIZSTACK.length?'Новый зал · '+((ML.state.myVenues[WIZ.parent]||{}).name||''):d.t)}</h2>
         <span class="wz-cnt">Шаг ${WIZ.step+1} из ${d.s.length}</span>
-        <button class="dm-x" onclick="closeWiz()" aria-label="Закрыть">✕</button>
+        <button class="dm-x" onclick="askCloseWiz()" aria-label="Закрыть">✕</button>
       </div>
       <div class="wz-body">
         <div class="wz-steps">${d.s.map((s,i)=>`
@@ -1712,9 +1761,10 @@ function drawWiz(){
         <div class="wz-form">${stepFields(st).map(wfield).join('')}</div>
       </div>
       <div class="wz-foot">
-        <button class="btn btn-o" onclick="closeWiz()">${WIZSTACK.length?'Назад к объекту':'Отмена'}</button>
+        <button class="btn btn-o" onclick="askCloseWiz()">${WIZSTACK.length?'Назад к объекту':'Отмена'}</button>
         <span style="flex:1"></span>
         ${WIZ.step>0?`<button class="btn btn-o" onclick="wizGo(${WIZ.step-1})">Назад</button>`:''}
+        ${!last&&WIZ.edit!=null?`<button class="btn btn-o" onclick="wizSaveAll()">Сохранить</button>`:''}
         ${last?`<button class="btn btn-c" onclick="wizSave()">${esc(WIZ.edit!=null&&d.finEdit?d.finEdit:d.fin)}</button>`
                :`<button class="btn btn-c" onclick="wizNext()">Далее</button>`}
       </div>
@@ -1745,6 +1795,12 @@ function wfield(f){
       return `<div class="wf${bad}">${L}<input type="${f.ty==='num'?'number':'text'}" ${f.ty==='num'?'min="0"':''}
         placeholder="${esc(f.ph||'')}" value="${v==null?'':esc(v)}" oninput="${S}=this.value"${f.redraw?' onchange="drawWiz()"':''}>${H}</div>`;
     case 'cfghead': return `<div class="wf-head">${esc(f.l)}</div>`;
+    case 'links': {   // R6 стр.207: одно или несколько полей-ссылок
+      const a=(v&&v.length)?v:[''];
+      return `<div class="wf${bad}">${L}${a.map((x,i)=>`<div class="wlink"><input type="url" inputmode="url" placeholder="${esc(f.ph||'')}" value="${esc(x||'')}"
+          aria-label="${esc(f.l)} ${i+1}" oninput="wizLink('${f.k}',${i},this.value)">${a.length>1?`<button type="button" class="btn-xs" onclick="wizLinkDel('${f.k}',${i})" aria-label="Убрать ссылку">✕</button>`:''}</div>`).join('')}
+        <button type="button" class="btn-xs" style="margin-top:6px" onclick="wizLinkAdd('${f.k}')">+ Ещё ссылка</button>${H}</div>`;
+    }
     case 'mchecks': case 'fchecks': {
       const a=v||[], pairs=f.optFn?f.optFn():f.opts;
       return `<div class="wf${bad}">${L}<div class="wchecks">${pairs.map(([code,l])=>`<label class="wcheck">
@@ -1882,6 +1938,9 @@ function wizReorder(e,k,to){
   WIZ.data[k]=a; WZDRAG=null; drawWiz();
 }
 /* PDF-поле визарда: меню (k='menu') и поэтажный план объекта (k='floorPlan', R6 стр.180) */
+function wizLink(k,i,val){ const a=(WIZ.data[k]||['']).slice(); a[i]=val; WIZ.data[k]=a; }
+function wizLinkAdd(k){ WIZ.data[k]=(WIZ.data[k]&&WIZ.data[k].length?WIZ.data[k]:['']).concat(''); drawWiz(); }
+function wizLinkDel(k,i){ const a=(WIZ.data[k]||[]).slice(); a.splice(i,1); WIZ.data[k]=a; drawWiz(); }
 function wizMenu(files,k){
   k=k||'menu';
   const f=(files||[])[0]; if(!f) return;
@@ -1946,17 +2005,46 @@ function wizValid(){
       MH.toast('Заполните поле «'+f.l+'»','error');
       return false;
     }
+    /* R6 стр.207: каждая заполненная ссылка — адрес */
+    if(f.ty==='links'&&(val||[]).some(x=>String(x||'').trim()&&!ML.isVideoUrl(x))){
+      WIZ.bad=f.k; drawWiz();
+      MH.toast('Ссылка на видео — укажите адрес, например https://rutube.ru/…','error');
+      return false;
+    }
   }
   WIZ.bad=null; return true;
 }
 
+/* R6 стр.175: при редактировании «Сохранить» на любом шаге — сохраняет всё сразу, если обязательные поля всех шагов
+   заполнены; иначе переход к первому незаполненному полю с подсветкой. */
+function wizSaveAll(){
+  const steps=WIZ.def.s;
+  for(let i=0;i<steps.length;i++) for(const f of stepFields(steps[i])){
+    if(f.when&&!f.when()) continue;
+    const val=WIZ.data[f.k];
+    const badLink=f.ty==='links'&&(val||[]).some(x=>String(x||'').trim()&&!ML.isVideoUrl(x));
+    if(badLink||(f.req&&(Array.isArray(val)?!val.length:!String(val==null?'':val).trim()))){
+      WIZ.step=i; WIZ.max=Math.max(WIZ.max,i); WIZ.bad=f.k; drawWiz();
+      if(badLink){ MH.toast('Ссылка на видео — укажите адрес, например https://rutube.ru/…','error'); return; }
+      const el=document.querySelector('.wz-form .wf.bad input, .wz-form .wf.bad select, .wz-form .wf.bad textarea');
+      if(el) el.focus();
+      MH.toast('Заполните поле «'+f.l+'»','error');
+      return;
+    }
+  }
+  WIZ.bad=null;
+  wizSave();
+}
+/** R6 стр.172: после сохранения — ссылка «Посмотреть, как видят пользователи» (у опубликованного). */
+function previewToast(msg, fn){ MH.toast(msg,'success',fn?{ action:{ label:'Посмотреть, как видят пользователи', fn }, ms:7000 }:undefined); }
 function wizSave(){
   if(!wizValid()) return;
   if(WIZ.kind==='hall'&&!WIZSTACK.length&&WIZ.parent!=null&&WIZ.edit!=null){
     /* R5 стр.155: «Редактировать» зал в «Моих объектах» — сохраняем в этот же зал */
     ML.updateMyHall(WIZ.parent,WIZ.edit,WIZ.data);
+    const pv=hallPreviewFn(WIZ.parent,WIZ.edit);
     closeAllWiz();
-    MH.toast('Изменения сохранены','success');
+    previewToast('Изменения сохранены',pv);
     renderNav(); renderPage();
     return;
   }
@@ -1974,7 +2062,7 @@ function wizSave(){
     const v=ML.updateMyVenue(WIZ.edit,WIZ.data);
     if(v){ v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?((ML.STAR_OPTIONS.find(o=>o.l===WIZ.data.stars)||{k:0}).k):0; ML.persist.myVenues(); }
     closeAllWiz();
-    MH.toast('Изменения сохранены','success');
+    previewToast('Изменения сохранены',v&&v.catalogId?()=>MH.previewAs('venue',v.catalogId):null);
     renderNav(); renderPage();
     return;
   }
@@ -1994,9 +2082,18 @@ function wizSave(){
     v.stars=ML.STARRED_CATS.includes(WIZ.data.cat)?((ML.STAR_OPTIONS.find(o=>o.l===WIZ.data.stars)||{k:0}).k):0;
     ML.persist.myVenues();
   }
-  if(WIZ.kind==='service') ML.addMyService(WIZ.data);
+  const kind=WIZ.kind;
+  if(kind==='service'&&WIZ.edit!=null){   // R6 стр.175: правка услуги — та же позиция, без новой модерации
+    ML.updateMyService(WIZ.edit,WIZ.data);
+    closeAllWiz();
+    previewToast('Изменения сохранены',()=>MH.previewAs('supplier',OWN_SUPPLIER_ID));
+    renderNav(); renderPage();
+    return;
+  }
+  if(kind==='service') ML.addMyService(WIZ.data);
   closeAllWiz();
-  MH.toast('Отправлено на модерацию','success');
+  /* карточка поставщика опубликована — её можно посмотреть сразу; новый объект — после публикации */
+  previewToast('Отправлено на модерацию',kind==='service'?()=>MH.previewAs('supplier',OWN_SUPPLIER_ID):null);
   renderNav(); renderPage();
 }
 
@@ -2091,12 +2188,23 @@ function saveVenueDone(reqId,venueId){
 }
 
 /* ── строка объекта в списке «Мои объекты» ── */
+const hallHiddenAt=(vi,hi)=>{ const v=ML.state.myVenues[vi], cv=v&&v.catalogId&&ML.venueById(v.catalogId), h=cv&&cv.halls[hi]; return !!h&&ML.state.hidden.halls.includes(h.id); };
+/** R6 стр.172: предпросмотр зала — у залов опубликованного объекта (зал кабинета ↔ зал каталога по порядку). */
+function hallPreviewFn(vi,hi){
+  const v=ML.state.myVenues[vi], cv=v&&v.catalogId&&v.status==='published'?ML.venueById(v.catalogId):null;
+  const ch=cv&&cv.halls[hi];
+  return ch?()=>MH.previewHall(cv.id,ch.id):null;
+}
 function venueRow(v,i){
   const halls=(v.halls||[]).map(h=>h.name).filter(Boolean);
   /* R5 стр.155: у каждого зала — «Редактировать» и «Удалить» */
   const hallRows=(v.halls||[]).map((h,hi)=>`<div class="ohall">
       <div class="ohall-n"><b>${esc(h.name||'Без названия')}</b><span>${esc(h.type||'тип не указан')}${h.area?` · ${h.area} м²`:''}${Object.keys(h.seats||{}).length?` · ${Object.keys(h.seats).length} ${ML.plural(Object.keys(h.seats).length,['схема','схемы','схем'])}`:''}${(h.features||[]).length?` · оснащение: ${h.features.length}`:''}</span></div>
+      ${hallHiddenAt(i,hi)?'<span class="mod hidden">Скрыт из выдачи</span>':''}
       <div class="btn-row"><button class="btn-xs" onclick="editMyHall(${i},${hi})">Редактировать</button>
+        ${hallPreviewFn(i,hi)?`<button class="btn-xs" onclick="toggleHideHall(${i},${hi})">${hallHiddenAt(i,hi)?'Вернуть в выдачу':'Скрыть из выдачи'}</button>`:''}
+        ${hallPreviewFn(i,hi)?`<button class="btn-xs" onclick="hallPreviewFn(${i},${hi})()">Как видят пользователи</button>`
+          :'<span class="tipwrap" data-tip="Предпросмотр появится после публикации объекта"><button class="btn-xs" disabled>Как видят пользователи</button></span>'}
         ${(v.halls||[]).length>1?`<button class="btn-xs danger" onclick="delMyHall(${i},${hi})">Удалить</button>`
           :'<span class="tipwrap" data-tip="Последний зал удалить нельзя: объект без залов не появится в подборе"><button class="btn-xs danger" disabled title="Последний зал удалить нельзя">Удалить</button></span>'}</div>
     </div>`).join('');
@@ -2115,8 +2223,10 @@ function venueRow(v,i){
       ${hallRows?`<div class="ohalls">${hallRows}</div>`:''}
     </div>
     <span class="mod ${v.status}">${esc(ML.MODERATION[v.status]||v.status)}</span>
+    ${cv&&ML.venueHidden(cv)?'<span class="mod hidden">Скрыт из выдачи</span>':''}
     <div class="btn-row">
       <button class="btn-xs" onclick="editMyVenue(${i})">Редактировать</button>
+      ${cv&&v.status==='published'?`<button class="btn-xs" onclick="toggleHideVenue(${i})">${ML.state.hidden.venues.includes(cv.id)?'Вернуть в выдачу':'Скрыть из выдачи'}</button>`:''}
       <button class="btn-xs" onclick="addHallTo(${i})">Добавить зал</button>
       ${v.catalogId?`<button class="btn-xs" onclick="MH.previewAs('venue',${v.catalogId})">Как видят пользователи</button>`
         :'<span class="tipwrap" data-tip="Предпросмотр появится после публикации объекта"><button class="btn-xs" disabled>Как видят пользователи</button></span>'}
@@ -2182,16 +2292,43 @@ function serviceTable(list){
     <thead><tr><th>Услуга</th><th>Категория</th><th>Цена от</th><th>В бонусной программе</th><th>Стоимость в баллах</th><th></th></tr></thead>
     <tbody>${list.map(s=>{
       const i=ML.state.myServices.indexOf(s);
+      const hid=!!s.catalogSupplierId&&ML.serviceHidden(s.catalogSupplierId,s.name);
       return `<tr>
-        <td>${esc(s.name)}<div class="wait"><span class="mod ${s.status}">${esc(ML.MODERATION[s.status]||s.status)}</span></div></td>
+        <td>${esc(s.name)}<div class="wait"><span class="mod ${s.status}">${esc(ML.MODERATION[s.status]||s.status)}</span>${hid?' <span class="mod hidden">Скрыт из выдачи</span>':''}</div></td>
         <td>${esc(s.parent||'—')}${s.child?' · '+esc(s.child):''}</td>
         <td class="num">${ML.money(s.price)}</td>
         <td>${s.loyalty?'да':'нет'}</td>
         <td class="num">${s.loyalty?s.pts.toLocaleString('ru')+' Б':'—'}</td>
-        <td><button class="btn-xs danger" onclick="delMyService(${i})">Удалить</button></td>
+        <td><div class="btn-row" style="flex-wrap:nowrap">
+          <button class="btn-xs" onclick="editMyService(${i})">Редактировать</button>
+          ${s.catalogSupplierId?`<button class="btn-xs" onclick="toggleHideService(${i})">${hid?'Вернуть в выдачу':'Скрыть из выдачи'}</button>`
+            :'<span class="tipwrap" data-tip="Скрыть можно после публикации"><button class="btn-xs" disabled>Скрыть из выдачи</button></span>'}
+          <button class="btn-xs danger" onclick="delMyService(${i})">Удалить</button></div></td>
       </tr>`;}).join('')}</tbody>
    </table></div>
   </div>`;
+}
+function editMyService(i){ const s=ML.state.myServices[i]; if(s) openWiz('service',{ data:ML.serviceToWizard(s), edit:i }); }
+/* R6 стр.173: скрыть из выдачи / вернуть — услуга, объект, зал */
+function toggleHideService(i){
+  const s=ML.state.myServices[i]; if(!s||!s.catalogSupplierId) return;
+  const on=!ML.serviceHidden(s.catalogSupplierId,s.name);
+  ML.setHidden('services',ML.svcKey(s.catalogSupplierId,s.name),on);
+  MH.toast(on?'Услуга скрыта из выдачи':'Услуга снова в выдаче','info'); renderPage();
+}
+function toggleHideVenue(i){
+  const v=ML.state.myVenues[i], cv=v&&v.catalogId&&ML.venueById(v.catalogId); if(!cv) return;
+  const on=!ML.state.hidden.venues.includes(cv.id);
+  ML.setHidden('venues',cv.id,on);
+  MH.toast(on?'Объект скрыт из выдачи':'Объект снова в выдаче','info'); renderPage();
+}
+function toggleHideHall(vi,hi){
+  const v=ML.state.myVenues[vi], cv=v&&v.catalogId&&ML.venueById(v.catalogId), h=cv&&cv.halls[hi]; if(!h) return;
+  const on=!ML.state.hidden.halls.includes(h.id);
+  const go=()=>{ ML.setHidden('halls',h.id,on); MH.toast(on?'Зал скрыт из выдачи':'Зал снова в выдаче','info'); renderPage(); };
+  if(on&&ML.isLastVisibleHall(h)) MH.confirmDialog('Скрыть последний видимый зал?',
+    '<p>Это последний видимый зал объекта — объект пропадёт из выдачи целиком, пока вы не вернёте хотя бы один зал.</p>','Скрыть',go);
+  else go();
 }
 function delMyService(i){
   const s=ML.state.myServices[i]; if(!s) return;
@@ -2541,6 +2678,8 @@ appeals:()=>appealsPage('user'),
 oappeals:()=>appealsPage('venue'),
 sappeals:()=>appealsPage('supplier'),
 ocompany:()=>companyPage('venue'),
+oreviews:()=>ownReviewsPage('venue'),
+sreviews:()=>ownReviewsPage('supplier'),
 scompany:()=>companyPage('supplier'),
 
 /* ── ПРОФИЛЬ ── */

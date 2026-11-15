@@ -362,5 +362,68 @@ test('стр.220: дата обновления у объекта, зала и �
   }
 });
 
+test('стр.173: скрытые объект, зал и услуга не попадают в подбор, каталог, сравнение и витрину; последний видимый зал скрывает объект', () => {
+  const { ML } = load({ ml_tariff: 'prem' });
+  const v = ML.VENUES[0];
+  const all = () => ML.filterVenues(ML.emptyFilters());
+  assert.ok(all().some(x => x.venue.id === v.id));
+  ML.toggleCompare(v.halls[0].id);
+  ML.setHidden('venues', v.id, true);
+  assert.ok(!all().some(x => x.venue.id === v.id), 'объект не в подборе');
+  assert.ok(!ML.compareHalls().some(h => h.venueId === v.id), 'не в сравнении');
+  assert.strictEqual(ML.toggleCompare(v.halls[1].id).ok, false, 'в сравнение не добавить');
+  assert.ok(!ML.shopCatalog().some(x => x.provider === v.name), 'позиции объекта нет на витрине');
+  ML.setHidden('venues', v.id, false);
+  // зал: скрытый не в выдаче объекта
+  const h = v.halls[0];
+  ML.setHidden('halls', h.id, true);
+  const x = all().find(o => o.venue.id === v.id);
+  assert.ok(x && !x.halls.some(o => o.id === h.id), 'скрытый зал не показан');
+  // последний видимый зал: объект пропадает целиком
+  v.halls.slice(1, -1).forEach(o => ML.setHidden('halls', o.id, true));
+  const last = v.halls[v.halls.length - 1];
+  assert.strictEqual(ML.isLastVisibleHall(last), true, 'предупреждение о последнем зале');
+  ML.setHidden('halls', last.id, true);
+  assert.ok(ML.venueHidden(v)); assert.ok(!all().some(o => o.venue.id === v.id));
+  v.halls.forEach(o => ML.setHidden('halls', o.id, false));
+  assert.ok(all().some(o => o.venue.id === v.id), 'вернули — снова в выдаче');
+  // услуга поставщика: не в карточке, не на витрине; все скрыты — поставщика нет в каталоге
+  const sp = ML.SUPPLIERS.find(o => o.name === 'Кейтеринг «Формат»');
+  ML.setHidden('services', ML.svcKey(sp.id, 'Кофе-брейк, цена за гостя'), true);
+  assert.ok(!ML.visibleServices(sp).some(o => o.name === 'Кофе-брейк, цена за гостя'));
+  assert.ok(!ML.shopCatalog().some(o => o.service === 'Кофе-брейк, цена за гостя'), 'позиции витрины на этой услуге нет');
+  sp.services.forEach(o => ML.setHidden('services', ML.svcKey(sp.id, o.name), true));
+  assert.ok(!ML.filterSuppliers(ML.emptySupplierFilters(), null).some(o => o.id === sp.id), 'без видимых услуг — нет в каталоге');
+  // сохраняется
+  const again = load({ ml_hidden: { venues: [], halls: [], services: [ML.svcKey(sp.id, sp.services[0].name)] } }).ML;
+  assert.ok(again.serviceHidden(sp.id, sp.services[0].name));
+});
+
+test('стр.207: видео поставщика — ссылки; проверка адреса; «Есть видео» — по наличию ссылки', () => {
+  const { ML } = load();
+  ['https://youtu.be/abc', 'https://vkvideo.ru/video-1_2', 'https://rutube.ru/video/xyz/'].forEach(u => assert.ok(ML.isVideoUrl(u), u));
+  ['видео', 'youtube', 'ftp://x.ru/a', ''].forEach(u => assert.ok(!ML.isVideoUrl(u), u));
+  ML.SUPPLIERS.forEach(sp => assert.strictEqual(sp.video, (sp.videoLinks || []).length > 0, sp.name));
+  const F = ML.emptySupplierFilters(); F.video = true;
+  assert.strictEqual(ML.filterSuppliers(F, null).length, ML.SUPPLIERS.filter(sp => sp.videoLinks.length && !ML.supplierHidden(sp)).length);
+  // визард услуги: пустые и неверные ссылки отбрасываются
+  const s0 = ML.state.myServices[0]; assert.ok(s0, 'у демо-поставщика есть свои услуги');
+  const d = ML.serviceToWizard(s0); d.videoLinks = ['https://rutube.ru/video/1/', 'не ссылка', ''];
+  ML.updateMyService(0, d);
+  assert.deepStrictEqual(plain(ML.state.myServices[0].videoLinks), ['https://rutube.ru/video/1/']);
+  assert.strictEqual(ML.state.myServices[0].video, true);
+});
+
+test('стр.222: ответ владельца на отзыв — один, его можно изменить', () => {
+  const { ML } = load();
+  const r = ML.reviewsFor('venue', 1)[0];
+  const a = ML.replyReview(r.id, 'Спасибо за отзыв!');
+  assert.strictEqual(a.text, 'Спасибо за отзыв!'); assert.strictEqual(a.edited, false);
+  const b = ML.replyReview(r.id, 'Спасибо! Ждём снова.');
+  assert.strictEqual(ML.reviewsFor('venue', 1)[0].reply.text, 'Спасибо! Ждём снова.', 'один ответ — заменяется');
+  assert.strictEqual(b.edited, true);
+  assert.strictEqual(ML.replyReview(r.id, '   '), null, 'пустой ответ не сохраняется');
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

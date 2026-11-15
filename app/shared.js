@@ -118,6 +118,7 @@ const MH = (() => {
       { id: 'oreqs', label: 'Входящие запросы' },
       { id: 'oshop', label: 'Витрина' },
       { id: 'ostats', label: 'Статистика' },
+      { id: 'oreviews', label: 'Отзывы' },   // R6 стр.222
       { id: 'oappeals', label: 'Обращения' },
       { id: 'ocompany', label: 'Профиль' },
       { id: 'oprofile', label: 'Реквизиты' },
@@ -129,6 +130,7 @@ const MH = (() => {
       { id: 'sreqs', label: 'Входящие запросы' },
       { id: 'sshop', label: 'Витрина' },
       { id: 'ssub', label: 'Подписка' },
+      { id: 'sreviews', label: 'Отзывы' },   // R6 стр.222
       { id: 'sappeals', label: 'Обращения' },
       { id: 'scompany', label: 'Профиль' },
       { id: 'sprofile', label: 'Реквизиты' },
@@ -968,6 +970,11 @@ const MH = (() => {
   function previewAs(kind, id) {
     try { sessionStorage.setItem('ml_preview', JSON.stringify({ kind, id: +id })); } catch (e) {}
     location.href = kind === 'venue' ? 'search.html?preview=' + id : 'suppliers.html?preview=' + id;
+  }
+  /** R6 стр.172: предпросмотр карточки зала глазами «Премиума» (зал опубликованного объекта). */
+  function previewHall(venueId, hallId) {
+    try { sessionStorage.setItem('ml_preview', JSON.stringify({ kind: 'venue', id: +venueId })); } catch (e) {}
+    location.href = 'hall.html?id=' + hallId;
   }
   function exitPreview() {
     const pv = previewTarget();
@@ -1988,7 +1995,7 @@ const MH = (() => {
   applyRoleView();   // до кода страницы: выдача и карточки сразу строятся в нужном режиме
 
   return {
-    roleView, previewAs, exitPreview, asUser,
+    roleView, previewAs, previewHall, exitPreview, asUser,
     getSession, setSession, clearSession, renderNav, init, toast, go,
     renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
     sessionFor, logout, demoRole, buyPremium, requireFields, requireRequestFields, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,

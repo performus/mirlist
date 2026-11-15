@@ -187,6 +187,11 @@ button{font-family:inherit;cursor:pointer;}
 .hall-eq b{color:var(--slate-deep);font-weight:600;}
 .menu-dl{display:inline-flex;margin-top:12px;}
 .star-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:50px;background:var(--bg,#F8F5F2);border:1px solid rgba(180,195,204,.6);color:var(--slate-mid,#3E596F);font-size:12.5px;font-weight:700;vertical-align:1px;}
+/* R6 стр.222: ответ владельца под отзывом */
+.rv-reply{margin-top:12px;padding:10px 14px;border-left:3px solid var(--coral,#E98667);background:var(--aqua-pale,#EDF6F5);border-radius:0 10px 10px 0;}
+.rv-reply-h{font-size:12px;color:var(--slate-muted,#7A919F);margin-bottom:4px;}
+.rv-reply-h b{color:var(--slate-deep,#354E63);}
+.rv-reply p{font-size:13.5px;line-height:1.6;color:var(--slate-mid,#3E596F);margin:0;}
 </style>
 </head>
 <body>
@@ -314,7 +319,7 @@ function render() {
       <span class="d-eyebrow">${esc(v.cat)}</span>
       <h1 class="d-title">${esc(v.name)}${v.stars ? `<span class="gold-stars" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}${
         v.loyaltyContract ? '<span class="d-loyal">Бонусная программа</span>' : ''}${
-        v.floorPlan ? '<span class="d-loyal d-plan">Поэтажный план</span>' : ''}${MH.staleBadge(v)}</h1>
+        v.floorPlan ? '<span class="d-loyal d-plan">Поэтажный план</span>' : ''}${MH.staleBadge(v)}${ML.venueHidden(v) ? '<span class="d-loyal d-plan">Скрыт владельцем</span>' : ''}</h1>
       <div class="d-meta">
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
         <span class="d-cap" tabindex="0" data-tip="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
@@ -380,6 +385,7 @@ function reviewsBlock(v) {
           <div class="rv-s" aria-label="Оценка ${r.rating} из 5">${'★'.repeat(r.rating)}<span>${'★'.repeat(5 - r.rating)}</span></div></div>
         ${r.event ? `<div class="rv-e">${esc(r.event)} · ${esc(r.date)}</div>` : `<div class="rv-e">${esc(r.date)}</div>`}
         <p class="rv-t">${esc(r.text)}</p>
+        ${r.reply ? `<div class="rv-reply"><div class="rv-reply-h"><b>Ответ площадки</b> · ${esc(r.reply.date)}</div><p>${esc(r.reply.text)}</p></div>` : ''}
       </article>`).join('')}</div>`
       : `<div class="panel rv-empty">Отзывов пока нет. Оставить отзыв можно после состоявшегося мероприятия — из истории запросов в кабинете.</div>`}
 `;
