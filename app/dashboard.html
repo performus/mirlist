@@ -754,6 +754,85 @@ function companyPage(role){
     <button class="btn btn-c" onclick="saveCompany('${role}')">Сохранить изменения</button>
   </div>`;
 }
+/* R6 стр.95: профиль пользователя редактируется целиком (как у площадки и поставщика) и сохраняется; смена пароля —
+   текущий, новый дважды, совпадение и длина от 8 символов. В прототипе — демо: уведомление «Пароль изменён». */
+function userProfile(){
+  const d = { name: SESS_NAME(), birth: '1990-05-14', gender: 'Женский', mail: (window._mhSess && window._mhSess.email) || 'anna@company.ru',
+    phone: '+7 900 000-00-00', org: 'ООО «Компания»' };
+  try { return Object.assign(d, JSON.parse(localStorage.getItem('ml_profile_user') || '{}')); } catch (e) { return d; }
+}
+function userProfilePage(){
+  const p = userProfile();
+  return `
+  <h1 class="page-title">Профиль</h1>
+  <p class="page-sub">Данные пользователя</p>
+  <div class="card" style="max-width:680px">
+    <div class="form-group">
+      <label class="form-label">Фотография</label>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="sb-avatar" style="width:64px;height:64px;font-size:20px">${esc(SESS_INI())}</div>
+        <div>
+          <input type="file" id="pfPhoto" accept="image/*" style="display:none" onchange="MH.toast('Фото выбрано: '+(this.files[0]?this.files[0].name:''),'success')">
+          <button class="btn btn-o" onclick="document.getElementById('pfPhoto').click()">Загрузить фото</button>
+          <div style="font-size:12px;color:var(--sx);margin-top:6px">JPG или PNG, до 5 МБ</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label" for="pfName">ФИО</label>
+      <input class="form-input" id="pfName" value="${esc(p.name)}" placeholder="Фамилия Имя Отчество"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" for="pfBirth">Дата рождения</label>
+        <input class="form-input" id="pfBirth" type="date" value="${esc(p.birth)}"
+               min="1940-01-01" max="${maxBirth()}"></div>
+      <div class="form-group"><label class="form-label">Пол</label>
+        <div class="form-toggle" id="pfGender">${['Женский', 'Мужской', 'Не указан'].map(g =>
+          `<button class="${p.gender === g ? 'active' : ''}" onclick="pickToggle(this)">${g}</button>`).join('')}</div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" for="pfMail">Почта</label>
+        <input class="form-input" id="pfMail" type="email" value="${esc(p.mail)}"></div>
+      <div class="form-group"><label class="form-label" for="pfPhone">Телефон</label>
+        <input class="form-input" id="pfPhone" type="tel" value="${esc(p.phone)}"></div>
+    </div>
+    <div class="form-group"><label class="form-label" for="pfOrg">Место работы</label>
+      <input class="form-input" id="pfOrg" value="${esc(p.org)}" placeholder="Организация и должность"></div>
+    <div class="section-label" style="margin:10px 0 12px">Смена пароля</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" for="cpOld">Текущий пароль</label>
+        <input class="form-input" id="cpOld" type="password" autocomplete="current-password"></div>
+      <div class="form-group"><label class="form-label" for="cpNew">Новый пароль</label>
+        <input class="form-input" id="cpNew" type="password" autocomplete="new-password" placeholder="не короче 8 символов"></div>
+    </div>
+    <div class="form-group"><label class="form-label" for="cpNew2">Повторите новый пароль</label>
+      <input class="form-input" id="cpNew2" type="password" autocomplete="new-password"></div>
+    <button class="btn btn-c" onclick="saveUserProfile()">Сохранить изменения</button>
+  </div>`;
+}
+/** Поля смены пароля: проверки, если заполнено хоть одно. Общие для трёх ролей. */
+function pwChecks(v){
+  const pw = v('cpNew'), pw2 = v('cpNew2'), old = v('cpOld');
+  return (pw || pw2 || old) ? [
+    { el: document.getElementById('cpOld'), ok: !!old, text: 'Введите текущий пароль' },
+    { el: document.getElementById('cpNew'), ok: pw.length >= 8, text: 'Новый пароль — не короче 8 символов' },
+    { el: document.getElementById('cpNew2'), ok: pw === pw2, text: 'Пароли не совпадают' }] : [];
+}
+function saveUserProfile(){
+  const v = (id) => (document.getElementById(id).value || '').trim();
+  const pw = v('cpNew');
+  const checks = [
+    { el: document.getElementById('pfName'), ok: !!v('pfName'), text: 'Укажите ФИО' },
+    { el: document.getElementById('pfMail'), ok: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('pfMail')), text: 'Укажите почту' },
+  ].concat(pwChecks(v));
+  if (!MH.requireFields(checks)) return;
+  const g = document.querySelector('#pfGender .active');
+  const p = { name: v('pfName'), birth: v('pfBirth'), gender: g ? g.textContent : 'Не указан', mail: v('pfMail'), phone: v('pfPhone'), org: v('pfOrg') };
+  try { localStorage.setItem('ml_profile_user', JSON.stringify(p)); } catch (e) {}
+  const sess = MH.getSession();
+  if (sess) { MH.setSession(Object.assign({}, sess, { name: p.name, email: p.mail })); window._mhSess = MH.getSession(); }
+  ['cpOld', 'cpNew', 'cpNew2'].forEach(id => { document.getElementById(id).value = ''; });
+  MH.toast(pw ? 'Пароль изменён' : 'Профиль сохранён', 'success');
+  renderNav(); renderPage();
+}
 function saveCompany(role){
   const v = (id) => (document.getElementById(id).value || '').trim();
   const pw = v('cpNew'), pw2 = v('cpNew2'), old = v('cpOld');
@@ -761,14 +840,12 @@ function saveCompany(role){
     { el: document.getElementById('cpName'), ok: !!v('cpName'), text: 'Укажите название компании' },
     { el: document.getElementById('cpMail'), ok: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('cpMail')), text: 'Укажите почту' },
   ];
-  if (pw || pw2 || old) checks.push(
-    { el: document.getElementById('cpOld'), ok: !!old, text: 'Введите текущий пароль' },
-    { el: document.getElementById('cpNew'), ok: pw.length >= 8, text: 'Новый пароль — не короче 8 символов' },
-    { el: document.getElementById('cpNew2'), ok: pw === pw2, text: 'Пароли не совпадают' });
+  checks.push(...pwChecks(v));
+  void pw2; void old;
   if (!MH.requireFields(checks)) return;
   try { localStorage.setItem('ml_company_' + role, JSON.stringify({ name: v('cpName'), person: v('cpPerson'), phone: v('cpPhone'), mail: v('cpMail') })); } catch (e) {}
   ['cpOld', 'cpNew', 'cpNew2'].forEach(id => { document.getElementById(id).value = ''; });
-  MH.toast(pw ? 'Изменения сохранены, пароль обновлён' : 'Изменения сохранены', 'success');
+  MH.toast(pw ? 'Пароль изменён' : 'Изменения сохранены', 'success');   // R6 стр.95
 }
 
 /* ── R3-B, строка 109: «Редактировать» и «Добавить зал» у объекта ── */
@@ -2462,40 +2539,7 @@ ocompany:()=>companyPage('venue'),
 scompany:()=>companyPage('supplier'),
 
 /* ── ПРОФИЛЬ ── */
-profile:()=>`
-  <h1 class="page-title">Профиль</h1>
-  <p class="page-sub">Данные пользователя</p>
-  <div class="card" style="max-width:680px">
-    <div class="form-group">
-      <label class="form-label">Фотография</label>
-      <div style="display:flex;align-items:center;gap:16px">
-        <div class="sb-avatar" style="width:64px;height:64px;font-size:20px">${esc(SESS_INI())}</div>
-        <div>
-          <input type="file" id="pfPhoto" accept="image/*" style="display:none" onchange="MH.toast('Фото выбрано: '+(this.files[0]?this.files[0].name:''),'success')">
-          <button class="btn btn-o" onclick="document.getElementById('pfPhoto').click()">Загрузить фото</button>
-          <div style="font-size:12px;color:var(--sx);margin-top:6px">JPG или PNG, до 5 МБ</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-group"><label class="form-label">ФИО</label>
-      <input class="form-input" value="${esc(SESS_NAME())}" placeholder="Фамилия Имя Отчество"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Дата рождения</label>
-        <input class="form-input" type="date" value="1990-05-14"
-               min="1940-01-01" max="${maxBirth()}"></div>
-      <div class="form-group"><label class="form-label">Пол</label>
-        <div class="form-toggle"><button class="active" onclick="pickToggle(this)">Женский</button><button onclick="pickToggle(this)">Мужской</button><button onclick="pickToggle(this)">Не указан</button></div></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Почта</label>
-        <input class="form-input" type="email" value="anna@company.ru"></div>
-      <div class="form-group"><label class="form-label">Телефон</label>
-        <input class="form-input" type="tel" value="+7 900 000-00-00"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Место работы</label>
-      <input class="form-input" value="ООО «Компания»" placeholder="Организация и должность"></div>
-    <button class="btn btn-c" onclick="MH.toast('Профиль сохранён','success')">Сохранить изменения</button>
-  </div>`,
+profile:()=>userProfilePage(),
 
 /* ── ПОДПИСКА И ОПЛАТА ── */
 billing:()=>{
