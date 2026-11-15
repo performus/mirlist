@@ -229,5 +229,21 @@ test('стр.143: «В базе от N до M» — фактический ра�
   ['priceHour', 'confPkg', 'avgCheck', 'area', 'rooms'].forEach(k => assert.ok(ML.DB_MIN[k] > 0 && ML.DB_MIN[k] <= ML.DB_MAX[k], k));
 });
 
+test('стр.227: в «Прочем» — «Страхование мероприятий» и «Тренинги и обучение»: в дереве, фильтре, визарде и демо-данных', () => {
+  const { ML } = load();
+  const other = ML.SUPPLIER_SECTIONS.find(s => s.l === 'Прочее');
+  [['insurance', 'Страхование мероприятий'], ['training', 'Тренинги и обучение']].forEach(([code, l]) => {
+    const kid = other.kids.find(k => k.code === code);
+    assert.ok(kid, code); assert.strictEqual(kid.l, l); assert.ok(!kid.partnerOnly, 'есть и в визарде услуги');
+    assert.ok(ML.SUPPLIER_TREE['Прочее'].includes(l), 'дерево визарда');
+    const n = ML.supplierFacet(ML.emptySupplierFilters(), 'leaf', 'Прочее·' + l);
+    assert.ok(n >= 1 && n <= 2, `${l}: ${n} поставщика`);
+    const F = ML.emptySupplierFilters(); F.cats.add('Прочее·' + l);
+    const list = ML.filterSuppliers(F, null);
+    assert.strictEqual(list.length, n, 'фильтр каталога');
+    assert.ok(list.every(s => s.photo >= 1 && s.photo <= 16 && s.services.length), 'фото из используемых, есть услуги');
+  });
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);
