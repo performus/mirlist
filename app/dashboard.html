@@ -1455,12 +1455,12 @@ const VENUE_STEPS=[
  {t:'Основные данные',f:[
    {k:'name',l:'Название объекта',ty:'text',ph:'Отель «Аврора»',req:1},
    {k:'cat',l:'Категория объекта',ty:'select',optFn:()=>ML.VENUE_CATS,req:1},
-   {k:'stars',l:'Звёздность',ty:'select',optFn:()=>ML.STAR_OPTIONS.map(o=>o.l),
+   {k:'stars',l:'Звёздность отеля',ty:'select',optFn:()=>ML.STAR_OPTIONS.map(o=>o.l),
     when:()=>ML.STARRED_CATS.includes(WIZ.data.cat),
     hint:'Поле есть только у категорий, где звёздность присваивается. Звёздность видна пользователям всех тарифов (включая бесплатные).'},
    {k:'events',l:'Типы мероприятий',ty:'mchecks',optFn:()=>ML.EVENT_TYPES.map(e=>[e.k,e.l]),req:1,
     hint:'По ним объект попадает в выдачу при выборе типа мероприятия.'},
-   {k:'about',l:'Описание объекта',ty:'area',ph:'Чем площадка удобна для деловых мероприятий'},
+   {k:'about',l:'Описание объекта',ty:'area',ph:'Чем удобна площадка? Расскажите о транспортной доступности, инфраструктуре, инженерном оснащении или эстетических преимуществах локации.'},
  ]},
  {t:'Локация',f:[
    {k:'city',l:'Город или регион',ty:'select',optFn:()=>ML.CITIES,req:1},
@@ -2324,7 +2324,7 @@ requests:()=>{
     <button class="btn-xs" style="${REQ_SORT==='title'?'border-color:var(--c);color:var(--c)':''}" onclick="setReqSort('title')">По названию</button>
   </div>
   ${list.map(r=>reqBlock(r,part)).join('')}
-  <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
+  <div class="dm-note" style="margin-top:16px">Одна из сторон не подтверждает состоявшееся мероприятие? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>`;
 },
 
 /* ── ИЗБРАННОЕ ── */
@@ -2639,7 +2639,7 @@ oreqs:()=>{
   </div>
   <div class="dm-note" style="margin-top:16px">Отчёт по состоявшимся мероприятиям с ID запросов приходит
   в конце отчётного периода одним платежом.</div>
-  <div class="dm-note" style="margin-top:16px">Мероприятие сорвалось или мнения сторон разошлись? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
+  <div class="dm-note" style="margin-top:16px">Одна из сторон не подтверждает состоявшееся мероприятие? <a href="support.html" style="color:var(--c);font-weight:600">Поддержка и арбитраж</a></div>
   ${orders}`;
 },
 

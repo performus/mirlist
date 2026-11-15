@@ -473,7 +473,7 @@ function cmpArrows() {
   prev.disabled = fits || el.scrollLeft <= 2;
   next.disabled = fits || el.scrollLeft >= max - 2;
   const hint = document.getElementById('cmpHint');
-  if (hint) hint.textContent = fits ? 'Все залы помещаются на экране' : 'Таблицу можно листать';
+  if (hint) hint.textContent = fits ? '' : 'Таблицу можно листать';   // тексты 10.11: «Все залы помещаются на экране» убрано
 }
 
 function bindCmpScroll() {
