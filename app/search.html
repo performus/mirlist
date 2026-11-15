@@ -497,6 +497,14 @@ h1,h2,h3 { font-weight:700; }
 /* ══════════════════════════════════════════════
    RESULTS COLUMN
    ══════════════════════════════════════════════ */
+.res-name {
+  display:flex; align-items:center; gap:8px; margin-bottom:12px; padding:0 14px; height:42px;
+  background:var(--white); border:1.5px solid rgba(197,227,225,.5); border-radius:var(--r-full); color:var(--slate-muted);
+}
+.res-name:focus-within { border-color:var(--aqua-3); }
+.res-name input { flex:1; min-width:0; border:none; outline:none; background:transparent; font:inherit; font-size:14px; color:var(--slate-deep); }
+.fd-rnote { margin-top:6px; font-size:11.5px; color:var(--slate-muted); }
+.res-reason.named { display:block; text-align:left; }
 .res-head {
   display:flex; align-items:baseline; justify-content:space-between;
   gap:12px; flex-wrap:wrap; margin-bottom:12px;
@@ -990,6 +998,10 @@ h1,h2,h3 { font-weight:700; }
 
     <!-- ══════ ВЫДАЧА ══════ -->
     <div class="res-col">
+      <!-- R6 стр.177: поиск по названию объекта и его залов — вместе с фильтрами (И) -->
+      <label class="res-name"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="fName" type="search" placeholder="Название объекта" aria-label="Название объекта" autocomplete="off"
+          oninput="nameInput(this.value)"></label>
       <div class="res-head">
         <div class="res-count" id="resCount">—</div>
         <div class="res-tools">
@@ -1112,6 +1124,9 @@ const hallBlocked = (d) => !!d && d.control === 'check' && d.level === 'hall' &&
 function togSet(key, value) { const s = F[key]; s.has(value) ? s.delete(value) : s.add(value); ML.pruneFilters(F); renderFilters(); render(); }
 function togStar(n) { F.stars.has(n) ? F.stars.delete(n) : F.stars.add(n); renderFilters(); render(); }
 function setVal(key, v) { F[key] = v; renderFilters(); render(); }
+/* R6 стр.177: название — с небольшой задержкой, счётчики фильтров пересчитываются вместе с выдачей */
+let NAME_T = 0;
+function nameInput(v) { clearTimeout(NAME_T); NAME_T = setTimeout(() => { F.name = String(v || '').trim(); PAGE = 1; renderFilters(); render(); }, 250); }
 const numClean = (v) => { const n = parseInt(String(v).replace(/\D+/g, ''), 10); return isNaN(n) ? 0 : n; };
 /* R5 стр.132/136/156: введённое число не округляем и не обрезаем. Если оно больше максимума базы —
    серая подсказка под полем; пустая выдача называет условие, которое её обнулило. */
@@ -1139,7 +1154,7 @@ function control(d, locked) {
       return `<div class="fd-rgt">${esc(d.label)}</div>` + d.opts.map(o => checkRow('category', o.l, esc(o.l), F.cats.has(o.l), locked, `togSet('cats','${jt(o.l)}')`)).join('');
     case 'numFrom': return `<div class="fd-num${d.sub ? ' sub' : ''}"><label for="fn-${d.code}">${esc(d.label)}</label>
         <span class="fd-numin"><input id="fn-${d.code}" inputmode="numeric" placeholder="любое" value="${F[d.fkey] || ''}" ${dis}
-          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))">${d.unit ? `<span>${esc(d.unit)}</span>` : ''}</span></div>${maxNote(F[d.fkey], DBK[d.fkey], d.unit)}`;
+          oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))">${d.unit ? `<span>${esc(d.unit)}</span>` : ''}</span></div>${maxNote(F[d.fkey], DBK[d.fkey], d.unit) || (['rooms', 'twin', 'sngl'].includes(d.fkey) ? dbRange(d.fkey, '') : '')}`;
     case 'numTo': {
       const mx = ML.LIMITS[d.fkey] || 10000, v = F[d.fkey] || 0;
       return `<div class="fd-num"><label for="fn-${d.code}">${esc(d.label)}</label>
@@ -1147,7 +1162,7 @@ function control(d, locked) {
           oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="setVal('${d.fkey}',numClean(this.value))"><span>₽</span></span></div>
         <div class="fd-range"><input type="range" min="0" max="${mx}" step="100" value="${Math.min(v || mx, mx)}" ${dis} aria-label="${esc(d.label)}, ползунок"
           oninput="document.getElementById('fn-${d.code}').value=(+this.value>=${mx}?'':this.value)"
-          onchange="setVal('${d.fkey}',+this.value>=${mx}?0:+this.value)"></div>`;
+          onchange="setVal('${d.fkey}',+this.value>=${mx}?0:+this.value)"></div>${dbRange(d.fkey, '₽')}`;
     }
     case 'range2': return d.code === 'guests' ? `<div class="fd-rgt">${esc(d.label)}</div>` + capBody() : rangeBody(d, locked);
     case 'multi': {
@@ -1196,7 +1211,12 @@ function rangeBody(d, locked) {
     <div class="fd-dual"><div class="fd-track"><div class="fd-rail"></div><div class="fd-fill"></div>
       <input type="range" class="lo" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${Math.min(a, mx)}" ${dis} aria-label="${esc(d.label)}: от, ползунок">
       <input type="range" class="hi" min="0" max="${mx}" step="${RANGE_STEP[k]}" value="${Math.min(b, mx)}" ${dis} aria-label="${esc(d.label)}: до, ползунок">
-    </div></div>${maxNote(a, k, '₽')}</div>`;
+    </div></div>${maxNote(a, k, '₽') || dbRange(k, '₽')}</div>`;
+}
+/** R6 стр.143: под полями «от / до» серым — «В базе от N до M ₽» (фактический разброс базы). */
+function dbRange(k, unit) {
+  const lo = ML.DB_MIN[k], hi = ML.DB_MAX[k];
+  return hi ? `<div class="fd-rnote">В базе от ${fmt(lo)} до ${fmt(hi)}${unit ? ' ' + esc(unit) : ''}</div>` : '';
 }
 function rangeSet(k, end, raw) {
   const mx = ML.LIMITS[k];
@@ -1395,7 +1415,7 @@ function reqMaxNotes(r) {
   const M = ML.hallReqMax(r), s = ML.seatingByKey(r.seating);
   const by = s ? ` (${s.l.toLowerCase()})` : '';
   return (+r.min > M.people ? `<div class="fd-max">В базе максимум ${fmt(M.people)} чел.${esc(by)}</div>` : '')
-    + (+r.area > M.area ? `<div class="fd-max">В базе максимум ${fmt(M.area)} м²</div>` : '');
+    + (+r.area > M.area ? `<div class="fd-max">В базе максимум ${fmt(M.area)} м²</div>` : M.area ? `<div class="fd-rnote">Площадь в базе от ${fmt(ML.DB_MIN.area)} до ${fmt(M.area)} м²</div>` : '');
 }
 
 /** «+ Оснащение» в блоке зала: чипы выбранного и список свойств зала по конфигу. */
@@ -1492,6 +1512,7 @@ function bindCapDual() {
 function renderChips() {
   const c = [];
   const money = (n) => n.toLocaleString('ru');
+  if (F.name) c.push(['Название: ' + F.name, () => F.name = '']);
   if (F.city) c.push(['Город: ' + F.city, () => F.city = '']);
   if (F.people || F.peopleTo) c.push([ML.peopleLabel(F), () => { F.people = 0; F.peopleTo = 0; }]);
   if (F.rooms) c.push(['Номеров от ' + F.rooms, () => F.rooms = 0]);
@@ -1912,34 +1933,29 @@ function render() {
   document.getElementById('resClear').hidden = n === 0;
 }
 
-/* R5 стр.136/156: пустая выдача называет условие, которое её обнулило (число больше максимума базы),
-   и рядом — кнопка сбросить только его. */
-function emptyReasons() {
-  const M = ML.DB_MAX, out = [];
-  const add = (text, fn) => out.push([text, fn]);
-  if (F.people > M.people) add(`Нет объектов с вместимостью зала от ${fmt(F.people)} чел. — максимум в базе ${fmt(M.people)}`, () => { F.people = 0; });
-  (F.halls || []).forEach((r, i) => {
-    /* R6 стр.136: максимум — по схеме этого блока, его площади и оснащению */
-    const HM = ML.hallReqMax(r), sl = (ML.seatingByKey(r.seating) || {}).l;
-    if (ML.hallReqOn(r) && +r.min > HM.people) add(`Зал ${i + 1}: нет залов от ${fmt(r.min)} чел.${sl ? ' по схеме «' + sl + '»' : ''} — максимум в базе ${fmt(HM.people)}`, () => { F.halls[i].min = 0; });
-    if (ML.hallReqOn(r) && +r.area > HM.area) add(`Зал ${i + 1}: нет залов площадью от ${fmt(r.area)} м² — максимум в базе ${fmt(HM.area)}`, () => { F.halls[i].area = 0; });
-  });
-  [['rooms', 'номеров от', ''], ['twin', 'номеров TWIN от', ''], ['sngl', 'номеров SNGL от', ''], ['dressing', 'гримёрок от', ''],
-   ['wardrobe', 'гардеробом от', ' мест'], ['parkingSpaces', 'парковкой от', ' мест']].forEach(([k, l, u]) => {
-    if (F[k] > M[k]) add(`Нет объектов с ${l} ${fmt(F[k])}${u} — максимум в базе ${fmt(M[k])}`, () => { F[k] = 0; });
-  });
-  [['priceDay', 'арендой от', ' ₽ в день', 'day'], ['priceHour', 'арендой от', ' ₽ в час', 'hour'], ['confPkg', 'конференц-пакетом от', ' ₽ на человека']].forEach(([k, l, u, mode]) => {
-    if ((!mode || (F.priceMode || 'day') === mode) && F[k][0] > M[k]) add(`Нет залов с ${l} ${fmt(F[k][0])}${u} — максимум в базе ${fmt(M[k])}`, () => { F[k] = [0, F[k][1]]; });
-  });
-  return out;
+/* R5 стр.136/156, R6 стр.143/181/177: пустая выдача называет условие, которое её обнулило, по ЛЮБОМУ фильтру
+   (числа за пределами базы, цены «до» ниже минимума, чекбоксы, город, блоки залов, название), рядом — сброс только его.
+   Если обнуляет только сочетание — список условий-кандидатов, каждое со сбросом. Разбор — ML.explainEmpty. */
+function dropCond(key) {
+  if (key.startsWith('hall:')) { hallDel(+key.slice(5)); return; }
+  ML.resetCondition(F, key); syncBar(); renderFilters(); render();
 }
+/** «Показать без фильтров»: остаётся только название. */
+function onlyName() { const n = F.name; F = ML.resetFilters(); F.name = n; ML.saveFilters && ML.saveFilters(F); PAGE = 1; syncBar(); renderFilters(); render(); }
 function emptyHTML() {
-  const rs = emptyReasons();
-  window._why = rs;
+  const X = ML.explainEmpty(F);
+  const row = (r) => `<div class="res-reason"><span>${esc(r.text || r.label)}</span><button onclick="dropCond('${jt(r.key)}')">Сбросить это условие</button></div>`;
+  let body;
+  if (F.name && X.named) {
+    const rs = X.reasons.length ? X.reasons : X.combo;
+    body = `<div class="res-reason named"><span>„${esc(F.name)}“ есть в базе, но не подходит под условия: ${esc(rs.map(r => r.label).join('; '))}</span></div>
+      ${rs.map(r => row({ key: r.key, label: r.label })).join('')}<button onclick="onlyName()">Показать без фильтров</button>`;
+  } else if (X.reasons.length) body = X.reasons.map(row).join('');
+  else if (X.combo.length) body = `<p>Залы отсекает сочетание условий — снимите одно из них:</p>${X.combo.map(row).join('')}`;
+  else body = '<p>Снимите часть фильтров — сейчас условия слишком узкие.</p>';
   return `<div class="res-empty">
     <h3>Подходящих залов нет</h3>
-    ${rs.length ? rs.map((r, i) => `<div class="res-reason"><span>${esc(r[0])}</span><button onclick="_why[${i}][1]();syncBar();renderFilters();render()">Сбросить это условие</button></div>`).join('')
-      : '<p>Снимите часть фильтров — сейчас условия слишком узкие.</p>'}
+    ${body}
     <button onclick="resetAll()">Сбросить фильтры</button>
   </div>`;
 }
@@ -1951,6 +1967,7 @@ function syncBar() {
   ev.innerHTML = `<option value="combined"${F.eventType === 'combined' || !F.eventType ? ' selected' : ''}>${esc(ML.EVENT_COMBINED.l)}</option>` + ML.EVENT_TYPES.map(e =>
     `<option value="${e.k}"${F.eventType === e.k ? ' selected' : ''}>${esc(e.l)}</option>`).join('');
   document.getElementById('cbPeople').value = F.people || '';
+  const fn = document.getElementById('fName'); if (fn && fn.value.trim() !== (F.name || '')) fn.value = F.name || '';
   document.getElementById('resSort').value = SORT;
 }
 

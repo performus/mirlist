@@ -1043,6 +1043,20 @@
     parkingSpaces: mx0(VENUES.map(v => v.parkingSpaces || 0)),
   };
 
+  /* R6 стр.143: нижние границы базы — «В базе от N до M» под полями и «минимум в базе» в пустой выдаче */
+  const mn0 = (arr) => { const a = arr.filter(n => n > 0); return a.length ? Math.min(...a) : 0; };
+  const DB_MIN = {
+    priceDay: mn0(VENUES.flatMap(v => v.halls.map(h => h.priceDay || 0))),
+    priceHour: mn0(VENUES.flatMap(v => v.halls.map(h => h.priceHour || 0))),
+    confPkg: mn0(VENUES.map(v => v.confPackage || 0)),
+    avgCheck: mn0(VENUES.map(v => v.avgCheck || 0)),
+    area: mn0(VENUES.flatMap(v => v.halls.map(h => h.area || 0))),
+    rooms: mn0(VENUES.map(v => (v.rooms || {}).total || 0)),
+    twin: mn0(VENUES.map(v => (v.rooms || {}).twin || 0)),
+    sngl: mn0(VENUES.map(v => (v.rooms || {}).sngl || 0)),
+  };
+  DB_MAX.avgCheck = mx0(VENUES.map(v => v.avgCheck || 0));
+
   /* Просмотры карточки. В прототипе заданы, на разработке считаются
      счётчиком. Объект узнаёт о просмотре только в момент запроса —
      сами просмотры видит лишь как цифру в своей статистике. */
@@ -1487,6 +1501,7 @@
   function emptyFilters() {
     return {
       city: '', people: 0, peopleTo: 0, eventType: 'combined',   // peopleTo 0 — без верхней границы; тип по умолчанию — «Комбинированное»
+      name: '',                        // R6 стр.177: «Название объекта» — по названию объекта и его залов
       cats: new Set(), stars: new Set(),
       feats: new Set(),                // чекбоксы-свойства по кодам (логика «И»)
       cuisine: new Set(),              // кухня — мультивыбор, логика «ИЛИ»
@@ -1576,6 +1591,13 @@
       + (+r.area ? ` · от ${r.area} м²` : '') + (r.feats || []).map(c => ' · ' + featureLabel(c)).join('');
   }
   const eventOk = (v, et) => !et || et === 'combined' || v.eventTypes.includes(et);
+  /** R6 стр.177: название без регистра, кавычек и «ё»: «"аврора"» найдёт Отель «Аврора». */
+  const normName = (x) => String(x || '').toLowerCase().replace(/ё/g, 'е').replace(/[«»"'„“”‘’`]/g, '').replace(/\s+/g, ' ').trim();
+  /** Подходит ли объект под «Название объекта»: по названию объекта или любого его зала. */
+  function nameMatch(v, q) {
+    const n = normName(q);
+    return !n || normName(v.name).includes(n) || v.halls.some(h => normName(h.name).includes(n));
+  }
 
   /**
    * Отбор залов по фильтрам. Возвращает объекты с УЖЕ отфильтрованными залами:
@@ -1595,6 +1617,7 @@
     for (const v of VENUES) {
       if (state.blacklist.has(v.id)) continue;
       if (!eventOk(v, F.eventType)) continue;
+      if (F.name && !nameMatch(v, F.name)) continue;
       if (F.city && F.city !== ALL_CITIES && !v.city.toLowerCase().includes(F.city.toLowerCase())) continue;
       if (exclude !== 'category' && F.cats.size && !F.cats.has(v.cat)) continue;
       if (exclude !== 'stars' && F.stars.size && !F.stars.has(starKey(v))) continue;
@@ -1674,10 +1697,100 @@
 
   /** Применён ли хоть один фильтр (для «Сбросить всё» и стартового состояния подбора). */
   function filtersActive(F) {
-    return !!(F.city || F.people || F.peopleTo || (F.eventType && F.eventType !== 'combined') || F.cats.size || F.stars.size || F.feats.size
+    return !!(F.city || F.name || F.people || F.peopleTo || (F.eventType && F.eventType !== 'combined') || F.cats.size || F.stars.size || F.feats.size
       || (F.cuisine && F.cuisine.size) || F.rooms || F.twin || F.sngl || F.hallArea || F.dressing || F.avgCheck
       || F.wardrobe || F.parking || F.parkingSpaces || (F.halls || []).some(hallReqOn)
       || rangeOn(F, 'priceDay') || rangeOn(F, 'priceHour') || rangeOn(F, 'confPkg') || (F.priceMode || 'day') !== 'day');
+  }
+
+  /* ── R6 стр.143/181/177: почему выдача пустая ──
+     Условие — одно применённое значение фильтра (город, тип, гости, каждый чекбокс, каждое числовое поле,
+     каждый блок «Зал N», название). take(E) переносит его в пустой набор, reset(G) снимает. Причина —
+     условие, без которого выдача появляется, или которое само по себе не находит ничего (число за пределами базы). */
+  function cloneFilters(F) {
+    const G = Object.assign({}, F);
+    SET_KEYS.forEach(k => { G[k] = new Set(F[k] || []); });
+    G.halls = (F.halls || []).map(r => Object.assign({}, r, { feats: (r.feats || []).slice() }));
+    ['priceDay', 'priceHour', 'confPkg'].forEach(k => { G[k] = (F[k] || []).slice(); });
+    return G;
+  }
+  const fmtN = (n) => Number(n).toLocaleString('ru');
+  const RANGE_TXT = { priceDay: ['арендой', ' ₽ в день', 'Аренда за день'], priceHour: ['арендой', ' ₽ в час', 'Аренда за час'],
+    confPkg: ['конференц-пакетом', ' ₽ на человека', 'Конференц-пакет'] };
+  const NUM_TXT = { rooms: ['номеров от', '', 'Номеров от'], twin: ['номеров TWIN от', '', 'TWIN от'], sngl: ['номеров SNGL от', '', 'SNGL от'],
+    dressing: ['гримёрок от', '', 'Гримёрок от'], wardrobe: ['гардеробом от', ' мест', 'Гардероб от'], parkingSpaces: ['парковкой от', ' мест', 'Парковочных мест от'] };
+  function filterConditions(F) {
+    const out = [], E = emptyFilters();
+    const add = (key, label, take, reset, why) => out.push({ key, label, take, reset, why });
+    if (F.name) add('name', `Название: ${F.name}`, (G) => { G.name = F.name; }, (G) => { G.name = ''; }, () => `Нет объектов с названием «${F.name}»`);
+    if (F.city && F.city !== ALL_CITIES) add('city', 'Город: ' + F.city, (G) => { G.city = F.city; }, (G) => { G.city = ''; }, () => 'Нет объектов с: Город — ' + F.city);
+    if (F.eventType && F.eventType !== 'combined') {
+      const l = (EVENT_TYPES.find(e => e.k === F.eventType) || { l: F.eventType }).l;
+      add('eventType', 'Тип мероприятия: ' + l, (G) => { G.eventType = F.eventType; }, (G) => { G.eventType = 'combined'; }, () => 'Нет объектов с: Тип мероприятия — ' + l);
+    }
+    if (F.people || F.peopleTo) add('people', 'Гостей ' + peopleLabel(F), (G) => { G.people = F.people; G.peopleTo = F.peopleTo; },
+      (G) => { G.people = 0; G.peopleTo = 0; }, () => `Нет объектов с вместимостью зала ${peopleLabel(F)}` + (F.people > DB_MAX.people ? ` — максимум в базе ${fmtN(DB_MAX.people)}` : ''));
+    [['cats', 'Категория объекта'], ['stars', 'Звёздность'], ['cuisine', 'Кухня']].forEach(([k, l]) => {
+      if (!(F[k] && F[k].size)) return;
+      const vals = [...F[k]].map(x => k === 'stars' ? (STAR_OPTIONS.find(o => o.k === +x) || { l: x }).l : k === 'cuisine' ? (CUISINE_OPTS.find(o => o.code === x) || { l: x }).l : x).join(', ');
+      add(k, `${l}: ${vals}`, (G) => { G[k] = new Set(F[k]); if (k === 'stars') G.cats = new Set(F.cats); }, (G) => { G[k] = new Set(); if (k === 'cats') G.stars = new Set(); },
+        () => `Нет объектов с: ${l} — ${vals}`);
+    });
+    [...(F.feats || [])].forEach(c => add('feat:' + c, featureLabel(c), (G) => { G.feats = new Set([c]); }, (G) => { G.feats.delete(c); },
+      () => 'Нет объектов с: ' + featureLabel(c)));
+    if (F.parking) {
+      const l = (PARKING_OPTS.find(o => o.code === F.parking) || {}).full || F.parking;
+      add('parking', l, (G) => { G.parking = F.parking; }, (G) => { G.parking = ''; G.parkingSpaces = 0; }, () => 'Нет объектов с: ' + l);
+    }
+    Object.keys(NUM_TXT).forEach(k => {
+      if (!F[k]) return;
+      const [l, u, chip] = NUM_TXT[k];
+      add(k, `${chip} ${fmtN(F[k])}${u}`, (G) => { G[k] = F[k]; if (k === 'parkingSpaces') G.parking = F.parking; }, (G) => { G[k] = 0; },
+        () => `Нет объектов с ${l} ${fmtN(F[k])}${u}` + (F[k] > DB_MAX[k] ? ` — максимум в базе ${fmtN(DB_MAX[k])}` : ''));
+    });
+    if (F.avgCheck) add('avgCheck', `Средний чек до ${fmtN(F.avgCheck)} ₽`, (G) => { G.avgCheck = F.avgCheck; }, (G) => { G.avgCheck = 0; },
+      () => `Нет объектов со средним чеком до ${fmtN(F.avgCheck)} ₽` + (F.avgCheck < DB_MIN.avgCheck ? ` — минимум в базе ${fmtN(DB_MIN.avgCheck)} ₽` : ''));
+    const mode = F.priceMode || 'day';
+    ['priceDay', 'priceHour', 'confPkg'].forEach(k => {
+      if (!rangeOn(F, k) || (k === 'priceDay' && mode !== 'day') || (k === 'priceHour' && mode !== 'hour')) return;
+      const [a, b] = F[k], [l, u, chip] = RANGE_TXT[k], hi = b < LIMITS[k];
+      const span = a > 0 && hi ? `от ${fmtN(a)} до ${fmtN(b)}` : a > 0 ? `от ${fmtN(a)}` : `до ${fmtN(b)}`;
+      add(k, `${chip} ${span} ₽`, (G) => { G[k] = F[k].slice(); G.priceMode = mode; }, (G) => { G[k] = [0, LIMITS[k]]; },
+        () => `Нет залов с ${l} ${span}${u}` + (a > DB_MAX[k] ? ` — максимум в базе ${fmtN(DB_MAX[k])} ₽` : hi && b < DB_MIN[k] ? ` — минимум в базе ${fmtN(DB_MIN[k])} ₽` : ''));
+    });
+    (F.halls || []).forEach((r, i) => {
+      if (!hallReqOn(r)) return;
+      const M = hallReqMax(r), sl = (seatingByKey(r.seating) || {}).l;
+      add('hall:' + i, hallReqLabel(r, i), (G) => { G.halls = [Object.assign({}, r, { feats: (r.feats || []).slice() })]; }, (G) => { G.halls.splice(i, 1); },
+        () => +r.min > M.people ? `Зал ${i + 1}: нет залов от ${fmtN(r.min)} чел. по схеме «${sl}» — максимум в базе ${fmtN(M.people)}`
+          : +r.area > M.area ? `Зал ${i + 1}: нет залов площадью от ${fmtN(r.area)} м² — максимум в базе ${fmtN(M.area)}`
+          : `Нет объектов с: ${hallReqLabel(r, i)}`);
+    });
+    void E;
+    return out;
+  }
+  /** Сбросить одно условие по ключу из filterConditions (кнопка «Сбросить это условие»). */
+  function resetCondition(F, key) {
+    const c = filterConditions(F).find(x => x.key === key);
+    if (c) { c.reset(F); pruneFilters(F); }   // снятый «Гардероб» или «Проживание» снимает и свои поля
+    return !!c;
+  }
+  /**
+   * Разбор пустой выдачи. reasons — условия, которые её обнуляют: без любого из них выдача появляется
+   * или само условие не находит ничего в базе; combo — если обнуляет только сочетание: все условия-кандидаты.
+   * named — R6 стр.177: объекты с таким названием в базе есть (без остальных фильтров).
+   */
+  function explainEmpty(F) {
+    const conds = filterConditions(F);
+    const alone = (c) => { const G = emptyFilters(); c.take(G); return filterVenues(G).length; };
+    const without = (c) => { const G = cloneFilters(F); c.reset(G); return filterVenues(G).length; };
+    const reasons = conds.filter(c => c.key !== 'name' || !F.name).map(c => ({ c, a: alone(c), w: without(c) }))
+      .filter(x => x.a === 0 || x.w > 0).map(x => ({ key: x.c.key, text: x.c.why(), label: x.c.label, found: x.w }));
+    const named = F.name ? filterVenues(Object.assign(emptyFilters(), { name: F.name })).length : 0;
+    if (F.name && !named) reasons.unshift({ key: 'name', text: `Нет объектов с названием «${F.name}»`, label: 'Название: ' + F.name, found: without(conds[0]) });
+    const combo = reasons.length ? [] : conds.filter(c => c.key !== 'name').map(c => ({ key: c.key, label: c.label, found: alone(c) }))
+      .sort((x, y) => x.found - y.found);
+    return { reasons, combo, named };
   }
 
   /** Подпись диапазона вместимости: «от 100 до 300 чел.», «от 100 чел.», «до 300 чел.» */
@@ -2066,7 +2179,7 @@
     const maxExp = Math.max(...SUPPLIERS.map(s => s.exp));
     const maxPpp = roundUp(Math.max(...SUPPLIERS.map(s => s.pricePerPerson || 0)), 500);
     return {
-      city: '', travel: false,
+      city: '', travel: false, name: '',   // R6 стр.177: по названию поставщика и его услуг
       price: [0, maxPrice], units: new Set(), expMin: 0,
       video: false, reviews: false, loyalty: false,
       cats: new Set(),                 // ключи вида 'Артисты·Ведущий'
@@ -2088,7 +2201,9 @@
   function filterSuppliers(F, excludeGroup) {
     const pppOn = F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp);
     const [hFrom, hTo] = F.hours || [0, 0];
+    const nq = normName(F.name);
     return SUPPLIERS.filter(s => {
+      if (nq && !normName(s.name).includes(nq) && !(s.services || []).some(x => normName(x.name).includes(nq))) return false;
       /* Город: поставщик показывается, если он в этом городе, либо если
          отмечен «Выезд в другие города» и он выезжает.
          Без выбранного города галочка работает как самостоятельный фильтр. */
@@ -2142,7 +2257,7 @@
   }
   /** Применён ли хоть один фильтр поставщиков (R3-B, строка 97: «Сбросить всё» неактивна без фильтров). */
   function supplierFiltersActive(F) {
-    return !!(F.city || F.travel || F.price[0] > 0 || F.price[1] < F._maxPrice || (F.units && F.units.size) || F.expMin
+    return !!(F.city || F.name || F.travel || F.price[0] > 0 || F.price[1] < F._maxPrice || (F.units && F.units.size) || F.expMin
       || F.video || F.reviews || F.loyalty || F.cats.size || F.halal || F.kosher || F.delivery || F.installation || F.operator
       || (F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp)) || (F.hours && (F.hours[0] || F.hours[1])) || F.days);
   }
@@ -2733,7 +2848,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, hallReqMax, hallReqFacet,
+    VENUES, SUPPLIERS, SHOP, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
