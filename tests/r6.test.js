@@ -84,5 +84,47 @@ test('стр.186: в «Оснащении зала» только пункты �
   ML.filterVenues(G).forEach(x => x.halls.forEach(h => assert.ok(ML.hallHas(h, 'projector'), x.venue.name + ': ' + h.name)));
 });
 
+test('стр.136: «В базе максимум N» — по выбранной схеме блока; ввод ровно максимума даёт непустую выдачу, на единицу больше — пустую', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const block = (o) => { const F = ML.emptyFilters(); F.halls = [Object.assign({ seating: '', min: 0, area: 0, feats: [] }, o)]; return F; };
+  ML.SEATING.forEach(s => {
+    const M = ML.hallReqMax({ seating: s.k });
+    if (!M.people) return;
+    assert.ok(ML.filterVenues(block({ seating: s.k, min: M.people })).length > 0, `${s.l}: ${M.people} — есть выдача`);
+    assert.strictEqual(ML.filterVenues(block({ seating: s.k, min: M.people + 1 })).length, 0, `${s.l}: ${M.people + 1} — пусто`);
+    assert.ok(M.people <= ML.DB_MAX.people, `${s.l}: не больше общего максимума`);
+  });
+  const th = ML.hallReqMax({ seating: 'theatre' }).people, cls = ML.hallReqMax({ seating: 'class' }).people;
+  assert.ok(cls < ML.DB_MAX.people, 'класс меньше общего максимума — подсказка теперь честная');
+  // площадь и оснащение блока сужают максимум
+  [{ seating: 'banquet', feats: ['led_screen'] }, { seating: 'theatre', area: 300 }, { seating: 'class', feats: ['has_floor_plan', 'projector'] }].forEach(o => {
+    const M = ML.hallReqMax(o);
+    assert.ok(M.people > 0 && M.people <= ML.hallReqMax({ seating: o.seating }).people, JSON.stringify(o));
+    assert.ok(ML.filterVenues(block(Object.assign({}, o, { min: M.people }))).length > 0, 'максимум с площадью/оснащением: ' + JSON.stringify(o));
+    const A = ML.hallReqMax(Object.assign({}, o, { min: M.people })).area;
+    assert.ok(ML.filterVenues(block(Object.assign({}, o, { min: M.people, area: A }))).length > 0, 'максимум площади при этой вместимости');
+  });
+  // каждый из нескольких блоков по отдельности: максимум своей схемы находит объект
+  const F = ML.emptyFilters(); ML.hallReqAdd(F); ML.hallReqAdd(F);
+  F.halls[0].seating = 'theatre'; F.halls[1].seating = 'banquet';
+  F.halls.forEach((r, i) => {
+    const G = ML.emptyFilters(); G.halls = [Object.assign({}, r, { min: ML.hallReqMax(r).people })];
+    assert.ok(ML.filterVenues(G).length > 0, 'Зал ' + (i + 1));
+  });
+  assert.ok(th > 0);
+});
+
+test('стр.184: счётчик чекбокса оснащения в блоке «Зал N» = число объектов, если отметить пункт у этого зала', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  const F = ML.emptyFilters(); ML.hallReqAdd(F); ML.hallReqAdd(F);
+  F.halls[0].seating = 'theatre'; F.halls[0].min = 100; F.halls[1].seating = 'banquet';
+  [0, 1].forEach(i => ML.hallReqDefs().forEach(d => {
+    const G = Object.assign({}, F, { halls: F.halls.map((r, k) => k === i ? Object.assign({}, r, { feats: [...new Set(r.feats.concat(d.code))] }) : r) });
+    assert.strictEqual(ML.hallReqFacet(F, i, d.code), ML.filterVenues(G).length, `Зал ${i + 1}: ${d.code}`);
+  }));
+  ML.hallReqToggle(F, 0, 'led_screen');
+  assert.strictEqual(ML.hallReqFacet(F, 0, 'led_screen'), ML.filterVenues(F).length, 'отмеченный пункт — текущая выдача');
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

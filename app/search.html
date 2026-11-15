@@ -1378,7 +1378,7 @@ function hallsBuilder() {
       ${r.seating ? `<div class="hq-ic">${MH.seatIcon(r.seating, { size: 15 })}<span>${esc((ML.seatingByKey(r.seating) || {}).l || '')}</span></div>` : '<div class="hq-hint">Выберите схему рассадки</div>'}
       <label class="hq-area"><span>Площадь от, м²</span><span class="hq-num"><input inputmode="numeric" value="${r.area || ''}" placeholder="любая"
         oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'area',numClean(this.value))"></span></label>
-      ${maxNote(+r.min, 'people', 'чел.')}${maxNote(+r.area, 'area', 'м²')}
+      ${reqMaxNotes(r)}
       ${hallEquip(r, i, canSeat)}
     </div>`).join('');
 
@@ -1390,6 +1390,14 @@ function hallsBuilder() {
     ${list.length > 1 ? '<div class="hq-note">Каждый добавленный зал ищется как <b>отдельное помещение</b>: один зал объекта не засчитывается за два требования.</div>' : ''}`;
 }
 
+/** R6 стр.136: «В базе максимум N» у блока зала — по выбранной схеме, с учётом площади и оснащения блока. */
+function reqMaxNotes(r) {
+  const M = ML.hallReqMax(r), s = ML.seatingByKey(r.seating);
+  const by = s ? ` (${s.l.toLowerCase()})` : '';
+  return (+r.min > M.people ? `<div class="fd-max">В базе максимум ${fmt(M.people)} чел.${esc(by)}</div>` : '')
+    + (+r.area > M.area ? `<div class="fd-max">В базе максимум ${fmt(M.area)} м²</div>` : '');
+}
+
 /** «+ Оснащение» в блоке зала: чипы выбранного и список свойств зала по конфигу. */
 function hallEquip(r, i, canSeat) {
   const feats = r.feats || [];
@@ -1399,9 +1407,14 @@ function hallEquip(r, i, canSeat) {
     '<div class="fd-lock">«+ Оснащение» для отдельного зала — на тарифе <b>«ПРЕМИУМ»</b> →</div>', 'Оснащение зала')}</div></div>`;
   const open = OPEN.has('hq-eq-' + i);
   const list = open ? `<div class="hq-eqlist">${ML.hallReqDefs().filter(d => ML.venueFilterVisible(d, F)).map(d =>
-    `<label class="fd-check"><input type="checkbox" ${feats.includes(d.code) ? 'checked' : ''} onchange="hallEq(${i},'${jt(d.code)}')">
-      <span class="fd-box">${IC.check}</span><span class="fd-lbl">${esc(d.label)}</span></label>`).join('')}</div>` : '';
+    hallEqRow(i, d, feats.includes(d.code))).join('')}</div>` : '';
   return `<div class="hq-eq">${chips}<button type="button" class="hq-eqbtn" aria-expanded="${open}" onclick="hallEqOpen(${i})">${open ? '− Скрыть оснащение' : '+ Оснащение'}</button>${list}</div>`;
+}
+/* R6 стр.184: у каждого пункта — сколько объектов останется, если отметить его у этого зала */
+function hallEqRow(i, d, on) {
+  const n = ML.hallReqFacet(F, i, d.code), dead = !on && n === 0;
+  return `<label class="fd-check${dead ? ' off' : ''}"><input type="checkbox" ${on ? 'checked' : ''} ${dead ? 'disabled' : ''} onchange="hallEq(${i},'${jt(d.code)}')">
+      <span class="fd-box">${IC.check}</span><span class="fd-lbl">${esc(d.label)}</span><span class="fd-cnt">(${n})</span></label>`;
 }
 function hallEqOpen(i) { const k = 'hq-eq-' + i; OPEN.has(k) ? OPEN.delete(k) : OPEN.add(k); renderFilters(); }
 function hallEq(i, code) { ML.hallReqToggle(F, i, code); renderFilters(); render(); }
@@ -1906,8 +1919,10 @@ function emptyReasons() {
   const add = (text, fn) => out.push([text, fn]);
   if (F.people > M.people) add(`Нет объектов с вместимостью зала от ${fmt(F.people)} чел. — максимум в базе ${fmt(M.people)}`, () => { F.people = 0; });
   (F.halls || []).forEach((r, i) => {
-    if (ML.hallReqOn(r) && +r.min > M.people) add(`Зал ${i + 1}: нет залов от ${fmt(r.min)} чел. — максимум в базе ${fmt(M.people)}`, () => { F.halls[i].min = 0; });
-    if (ML.hallReqOn(r) && +r.area > M.area) add(`Зал ${i + 1}: нет залов площадью от ${fmt(r.area)} м² — максимум в базе ${fmt(M.area)}`, () => { F.halls[i].area = 0; });
+    /* R6 стр.136: максимум — по схеме этого блока, его площади и оснащению */
+    const HM = ML.hallReqMax(r), sl = (ML.seatingByKey(r.seating) || {}).l;
+    if (ML.hallReqOn(r) && +r.min > HM.people) add(`Зал ${i + 1}: нет залов от ${fmt(r.min)} чел.${sl ? ' по схеме «' + sl + '»' : ''} — максимум в базе ${fmt(HM.people)}`, () => { F.halls[i].min = 0; });
+    if (ML.hallReqOn(r) && +r.area > HM.area) add(`Зал ${i + 1}: нет залов площадью от ${fmt(r.area)} м² — максимум в базе ${fmt(HM.area)}`, () => { F.halls[i].area = 0; });
   });
   [['rooms', 'номеров от', ''], ['twin', 'номеров TWIN от', ''], ['sngl', 'номеров SNGL от', ''], ['dressing', 'гримёрок от', ''],
    ['wardrobe', 'гардеробом от', ' мест'], ['parkingSpaces', 'парковкой от', ' мест']].forEach(([k, l, u]) => {

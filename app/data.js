@@ -1549,6 +1549,26 @@
     [...(F.feats || [])].filter(isHallCheck).forEach(c => list.forEach(r => { if (!r.feats.includes(c)) r.feats.push(c); }));
     return list.filter(hallReqOn);
   }
+  /** R6 стр.136: максимумы базы для блока «Зал N» — по ВЫБРАННОЙ схеме (без схемы — по самой вместительной),
+      с учётом площади и оснащения этого блока. people — наибольшая вместимость зала, который закрыл бы блок
+      при любом «от»; area — наибольшая площадь при заданной вместимости. Ввод ровно people даёт непустую выдачу. */
+  function hallReqMax(r) {
+    r = r || {};
+    const feats = r.feats || [];
+    const capOf = (h) => r.seating ? (h.seats[r.seating] || 0) : hallCapacity(h);
+    const okFeat = (h) => feats.every(c => hallHas(h, c));
+    const halls = VENUES.flatMap(v => v.halls);
+    return {
+      people: mx0(halls.filter(h => okFeat(h) && capOf(h) > 0 && (h.area || 0) >= (+r.area || 0)).map(capOf)),
+      area: mx0(halls.filter(h => okFeat(h) && capOf(h) > 0 && capOf(h) >= (+r.min || 0)).map(h => h.area || 0)),
+    };
+  }
+  /** R6 стр.184: счётчик чекбокса оснащения в блоке «Зал N» — сколько объектов останется, если отметить пункт у этого зала. */
+  function hallReqFacet(F, i, code) {
+    const halls = (F.halls || []).map((r, k) => k === i
+      ? Object.assign({}, r, { feats: (r.feats || []).includes(code) ? (r.feats || []).slice() : (r.feats || []).concat(code) }) : r);
+    return filterVenues(Object.assign({}, F, { halls })).length;
+  }
   /** «Зал 1: банкет от 120 · LED-экран» — чип над выдачей и сводка выборки. */
   function hallReqLabel(r, i) {
     const s = seatingByKey(r.seating);
@@ -2713,7 +2733,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP,
+    VENUES, SUPPLIERS, SHOP, hallReqMax, hallReqFacet,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
