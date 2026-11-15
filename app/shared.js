@@ -781,6 +781,7 @@ const MH = (() => {
         color: #8A9DAA; text-decoration: none; transition: color .18s;
       }
       .mh-ft-social:hover { color: #354E63; }
+      .mh-ft-social.off, .mh-ft-social.off:hover { color: #C2CDD4; cursor: default; }
       .mh-ft-bottom {
         border-top: 1px solid #E5DDD6;
         padding: 20px 36px;
@@ -855,8 +856,9 @@ const MH = (() => {
           </div>
         </div>
         <div class="mh-ft-social-row">
-          <a class="mh-ft-social" href="#" aria-label="ВКонтакте">${ICON_VK}</a>
-          <a class="mh-ft-social" href="#" aria-label="Telegram">${ICON_TG}</a>
+          <!-- R6 стр.27: адресов соцсетей пока нет — иконки неактивны, подвал не ведёт на «#» -->
+          <span class="mh-ft-social off" aria-disabled="true" aria-label="ВКонтакте">${ICON_VK}</span>
+          <span class="mh-ft-social off" aria-disabled="true" aria-label="Telegram">${ICON_TG}</span>
         </div>
         <div class="mh-ft-bottom">
           <span>© 2026 ООО «МАЙСЛИСТ»</span>
