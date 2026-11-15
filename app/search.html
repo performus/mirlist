@@ -217,6 +217,12 @@ h1,h2,h3 { font-weight:700; }
   margin:4px 0 6px; padding:9px 11px; border-radius:var(--r-sm); background:var(--aqua-pale);
   font-size:11.5px; line-height:1.5; color:var(--slate-mid);
 }
+.fd-hallnote-one { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.fd-tohalls {
+  flex:none; padding:4px 11px; border:1px solid var(--coral); border-radius:var(--r-full); background:var(--white);
+  color:var(--coral); font:inherit; font-size:11.5px; font-weight:600; cursor:pointer;
+}
+.fd-tohalls:hover { background:var(--coral); color:#fff; }
 
 
 .view-sw {
@@ -1270,7 +1276,11 @@ function renderFilters() {
     let body = main.map(draw).join('');
     if (adv.length) body += `<details class="fd-adv"${OPEN.has('adv') ? ' open' : ''} ontoggle="OPEN[this.open?'add':'delete']('adv')">
       <summary>Расширенные параметры</summary><div>${adv.map(draw).join('')}</div></details>`;
-    if (g.k !== 'halls' && defs.some(hallBlocked) && !groupLocked)
+    /* R6 стр.186: при блоках «Зал N» группа «Оснащение зала» (только пункты зала) сворачивается в одну строку */
+    if (g.k === 'equip' && hallBlocks() && !groupLocked)
+      body = `<div class="fd-hallnote fd-hallnote-one">Оснащение задаётся в каждом зале выше
+        <button type="button" class="fd-tohalls" onclick="toHalls()">К залам</button></div>`;
+    else if (g.k !== 'halls' && defs.some(hallBlocked) && !groupLocked)
       body = `<div class="fd-hallnote">Оснащение задаётся в каждом зале выше</div>` + body;
     if (groupLocked) { const first = defs.find(d => d.control !== 'mode' && d.control !== 'sub'); body = payWrap(first.code, body + lockNote(first.code), g.l); }
     h += fgroup(g.k, esc(g.l), body, groupCount(g.k));
@@ -1395,7 +1405,17 @@ function hallEquip(r, i, canSeat) {
 }
 function hallEqOpen(i) { const k = 'hq-eq-' + i; OPEN.has(k) ? OPEN.delete(k) : OPEN.add(k); renderFilters(); }
 function hallEq(i, code) { ML.hallReqToggle(F, i, code); renderFilters(); render(); }
-function hallAdd() { ML.hallReqAdd(F); OPEN.add('halls'); renderFilters(); render(); }
+function hallAdd() {
+  const r = ML.hallReqAdd(F); OPEN.add('halls'); renderFilters(); render();
+  /* R6 стр.186: отмеченное в общей группе оснащение не теряется — переехало в блоки залов */
+  if (r.moved && r.moved.length) MH.toast('Отмеченное оснащение перенесено в блок «Зал ' + F.halls.length + '»: ' + r.moved.map(c => ML.featureLabel(c)).join(', '), 'info');
+}
+/** «К залам»: прокрутка к блокам «Зал N» в панели фильтров. */
+function toHalls() {
+  OPEN.add('halls');
+  const g = document.querySelector('details.fd-group[data-k="halls"]');
+  if (g) { g.open = true; g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
 function hallDel(i) {
   ML.hallReqRemove(F, i);
   // раскрытые списки «+ Оснащение» сдвигаются вместе с блоками

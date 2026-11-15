@@ -62,5 +62,27 @@ test('стр.180/185: счётчик «Есть план зала» и «С по
   assert.ok(ML.filterVenues(F).every(x => x.halls.some(h => h.plan)), 'подобранный зал — с планом');
 });
 
+test('стр.186: в «Оснащении зала» только пункты зала; Wi‑Fi, интернет и грузовой лифт — в «Инфраструктуре»; отмеченное переносится в блоки залов', () => {
+  const { ML } = load(); ML.setTariff('prem');
+  assert.ok(ML.VENUE_FILTERS.filter(d => d.group === 'equip').every(d => d.level === 'hall'), 'в «Оснащении зала» — только level hall');
+  ['internet', 'wifi', 'freight_elevator'].forEach(c => {
+    assert.strictEqual(ML.venueFilter(c).group, 'infra', c); assert.strictEqual(ML.venueFilter(c).level, 'venue', c);
+  });
+  const F = withF(ML, { feats: new Set(['screen', 'led_screen', 'wifi']) });
+  const before = ML.filterVenues(F).length;
+  const r = ML.hallReqAdd(F);
+  assert.deepStrictEqual(plain(r.moved), ['screen', 'led_screen'], 'перенесены отмеченные пункты зала');
+  assert.deepStrictEqual(plain([...F.feats]), ['wifi'], 'свойство объекта остаётся общим');
+  assert.deepStrictEqual(plain(F.halls[0].feats), ['screen', 'led_screen']);
+  F.halls[0].seating = 'theatre';
+  assert.ok(ML.filterVenues(F).length <= before);
+  const r2 = ML.hallReqAdd(F);
+  assert.deepStrictEqual(plain(r2.moved), [], 'второй блок ничего не забирает');
+  // состояние в обход панели: общий пункт зала при двух блоках относится к обоим
+  const G = withF(ML, { feats: new Set(['projector']) });
+  G.halls = [{ seating: 'theatre', min: 10, area: 0, feats: [] }, { seating: 'banquet', min: 10, area: 0, feats: [] }];
+  ML.filterVenues(G).forEach(x => x.halls.forEach(h => assert.ok(ML.hallHas(h, 'projector'), x.venue.name + ': ' + h.name)));
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

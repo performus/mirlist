@@ -1417,11 +1417,12 @@ function venueCfgFields() {
   const out = [];
   const groups = ['food', 'equip', 'space', 'infra', 'rules', 'sport'];
   for (const g of ML.VENUE_FILTER_GROUPS.filter(x => groups.includes(x.k))) {
+    /* R3-D: свойства зала (level 'hall') задаются в визарде зала — здесь только свойства объекта */
+    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && d.level !== 'hall' && !ML.DERIVED_CHECKS.includes(d.code));
+    if (!defs.length && g.k !== 'food') continue;   // R6 стр.186: в «Оснащении зала» свойств объекта не осталось
     out.push({ ty: 'cfghead', l: g.k === 'equip' ? 'Оснащение объекта' : g.l });   // R3-D: оснащение зала — в визарде зала
     if (g.k === 'food') out.push({ k: 'menu', l: 'Меню в PDF', ty: 'menu',
       hint: 'Меню увидят на карточке объекта — кнопка «Скачать меню (PDF)». По нему работает фильтр «Есть меню на сайте».' });
-    /* R3-D: свойства зала (level 'hall') задаются в визарде зала — здесь только свойства объекта */
-    const defs = ML.VENUE_FILTERS.filter(d => d.group === g.k && d.control && d.level !== 'hall' && !ML.DERIVED_CHECKS.includes(d.code));
     const checks = defs.filter(d => d.control === 'check');
     defs.filter(d => d.control !== 'check').forEach(d => {
       if (d.control === 'multi') out.push({ k: 'cuisine', l: d.label, ty: 'mchecks', opts: d.opts.map(o => [o.code, o.l]) });

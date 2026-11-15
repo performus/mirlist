@@ -181,12 +181,9 @@
     ch('equip', 'led_screen', 'LED-экран', hl()),
     ch('equip', 'projector', 'Проектор', hl()),
     ch('equip', 'plasma_panel', 'Плазменная панель', hl()),
-    ch('equip', 'internet', 'Выделенная линия интернета'),
-    ch('equip', 'wifi', 'Wi‑Fi'),
     ch('equip', 'stage', 'Стационарная сцена', hl()),
     ch('equip', 'power', 'Силовое подключение', hl()),
     ch('equip', 'rigging', 'Точки подвеса', hl()),
-    ch('equip', 'freight_elevator', 'Грузовой лифт'),
     ch('equip', 'car_entry', 'Заезд автомобиля в зал', hl({ events: evs('b q w') })),
     ch('equip', 'equipment_load_in', 'Можно со своим тех. оснащением', hl()),
 
@@ -209,6 +206,10 @@
     f('infra', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing' }),
     /* R6 стр.180/209: поэтажный план — свойство объекта (PDF в карточке), отдельный чекбокс без вложенной группы */
     ch('infra', 'venue_floor_plan', 'С поэтажным планом', { card: 'Поэтажный план' }),
+    /* R6 стр.186: связь и лифт — свойства объекта (level 'venue'), из «Оснащения зала» — сюда */
+    ch('infra', 'internet', 'Выделенная линия интернета'),
+    ch('infra', 'wifi', 'Wi‑Fi'),
+    ch('infra', 'freight_elevator', 'Грузовой лифт'),
     ch('infra', 'security', 'Охрана / ЧОП'),
     ch('infra', 'accessible', 'Доступная среда', { info: 'Пандус или лифт до зала, проходы шириной от 90 см без порогов и ступеней, доступный санузел. Уточняйте детали у площадки.' }),
     ch('infra', 'prayer_room', 'Молельная комната'),
@@ -1522,12 +1523,15 @@
      Правила «хотя бы один из подобранных залов» нет: оснащение задаётся в каждом зале. */
   /* R5 стр.137: «Любой схемы» нет — требование применяется, только когда схема выбрана */
   const hallReqOn = (r) => !!(r && r.seating);
-  /** Добавить блок «Зал N»; первый блок забирает отмеченные общие свойства зала. */
+  /** Добавить блок «Зал N». R6 стр.186: отмеченные общие свойства зала не теряются — переносятся во все блоки
+      (при первом блоке это «Зал 1»). Возвращает новый блок; перенесённые коды — в r.moved. */
   function hallReqAdd(F) {
     F.halls = F.halls || [];
     const r = { seating: '', min: 0, area: 0, feats: [] };
-    if (!F.halls.length) [...F.feats].filter(isHallCheck).forEach(c => { F.feats.delete(c); r.feats.push(c); });
     F.halls.push(r);
+    const moved = [...F.feats].filter(isHallCheck);
+    moved.forEach(c => { F.feats.delete(c); F.halls.forEach(x => { x.feats = x.feats || []; if (!x.feats.includes(c)) x.feats.push(c); }); });
+    Object.defineProperty(r, 'moved', { value: moved, enumerable: false });
     return r;
   }
   /** Убрать блок; после последнего общие свойства зала снова доступны (пустые). */
@@ -1538,11 +1542,11 @@
     on.has(code) ? on.delete(code) : on.add(code);
     r.feats = VENUE_FILTERS.filter(d => on.has(d.code)).map(d => d.code);   // порядок — как в конфиге
   }
-  /** Требования для подбора. Общие свойства зала при блоках относятся к «Залу 1» —
-      так же, как их переносит hallReqAdd (на случай состояния, собранного в обход панели). */
+  /** Требования для подбора. Общие свойства зала при блоках относятся ко всем блокам —
+      так же, как их переносит hallReqAdd (R6 стр.186; на случай состояния, собранного в обход панели). */
   function effectiveReqs(F) {
     const list = (F.halls || []).map(r => ({ seating: r.seating || '', min: +r.min || 0, area: +r.area || 0, feats: (r.feats || []).slice() }));
-    if (list.length) [...(F.feats || [])].filter(isHallCheck).forEach(c => { if (!list[0].feats.includes(c)) list[0].feats.push(c); });
+    [...(F.feats || [])].filter(isHallCheck).forEach(c => list.forEach(r => { if (!r.feats.includes(c)) r.feats.push(c); }));
     return list.filter(hallReqOn);
   }
   /** «Зал 1: банкет от 120 · LED-экран» — чип над выдачей и сводка выборки. */
