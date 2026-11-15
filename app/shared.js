@@ -265,7 +265,7 @@ const MH = (() => {
 
       /* Toast */
       #mh-toasts {
-        position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+        position: fixed; bottom: calc(24px + var(--mh-cookie-h, 0px)); right: 24px; z-index: 9000;
         display: flex; flex-direction: column; gap: 8px; pointer-events: none;
       }
       .mh-toast {
@@ -1014,11 +1014,54 @@ const MH = (() => {
     }
     const fel = document.getElementById('mh-footer');
     if (fel) renderFooter(fel);
+    cookieBanner();
     if (!document.getElementById('mh-toasts')) {
       const tc = document.createElement('div');
       tc.id = 'mh-toasts';
       document.body.appendChild(tc);
     }
+  }
+
+  /* R6 стр.221: согласие на cookie — плашка внизу при первом визите, выбор в localStorage. Пока плашка видна,
+     её высота — в --mh-cookie-h: на столько поднимаются нижние кнопки страниц (сравнение, меню кабинета, уведомления)
+     и отступ страницы снизу, чтобы плашка их не закрывала. */
+  const COOKIE_KEY = 'mh_cookie_ok';
+  function cookieBanner() {
+    let ok = false;
+    try { ok = localStorage.getItem(COOKIE_KEY) === '1'; } catch (e) { ok = true; }
+    if (ok || document.getElementById('mh-cookie')) return;
+    if (!document.getElementById('mh-cookie-style')) {
+      const st = document.createElement('style');
+      st.id = 'mh-cookie-style';
+      st.textContent = `
+        #mh-cookie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8000; display: flex; align-items: center; justify-content: center;
+          gap: 16px; padding: 12px 20px; background: rgba(53,78,99,.97); color: #fff; font: 13px/1.5 'Onest', system-ui, sans-serif;
+          box-shadow: 0 -6px 24px rgba(53,78,99,.18); }
+        #mh-cookie a { color: #F4C9B9; text-decoration: underline; }
+        #mh-cookie button { flex: none; padding: 8px 20px; border: none; border-radius: 999px; background: #E8846A; color: #fff;
+          font: 600 13px 'Onest', system-ui, sans-serif; cursor: pointer; }
+        #mh-cookie button:hover { background: #D96F54; }
+        body.mh-cookie-on { padding-bottom: var(--mh-cookie-h, 0px); }
+        @media (max-width: 600px) { #mh-cookie { padding: 10px 14px; gap: 10px; font-size: 12px; } }`;
+      document.head.appendChild(st);
+    }
+    const el = document.createElement('div');
+    el.id = 'mh-cookie';
+    el.setAttribute('role', 'region');
+    el.setAttribute('aria-label', 'Согласие на cookie');
+    el.innerHTML = `<span>Мы используем файлы cookie, чтобы сайт работал правильно. Подробнее — в <a href="privacy.html">политике конфиденциальности</a>.</span>
+      <button type="button">Принять</button>`;
+    document.body.appendChild(el);
+    document.body.classList.add('mh-cookie-on');
+    const sync = () => document.documentElement.style.setProperty('--mh-cookie-h', (document.getElementById('mh-cookie') ? el.offsetHeight : 0) + 'px');
+    sync();
+    window.addEventListener('resize', sync);
+    el.querySelector('button').addEventListener('click', () => {
+      try { localStorage.setItem(COOKIE_KEY, '1'); } catch (e) {}
+      el.remove(); document.body.classList.remove('mh-cookie-on');
+      document.documentElement.style.setProperty('--mh-cookie-h', '0px');
+      window.removeEventListener('resize', sync);
+    });
   }
 
   /* opts: { action: { label, fn }, ms } — кнопка в тосте (например «Вернуть»), время показа. */

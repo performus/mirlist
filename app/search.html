@@ -849,7 +849,7 @@ h1,h2,h3 { font-weight:700; }
    COMPARE BAR
    ══════════════════════════════════════════════ */
 .cmp-bar {
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(120px);
+  position:fixed; bottom:calc(24px + var(--mh-cookie-h, 0px)); left:50%; transform:translateX(-50%) translateY(120px);
   z-index:400; display:flex; align-items:center; gap:14px;
   background:var(--slate-deep); color:#fff;
   border-radius:var(--r-full); padding:12px 18px 12px 22px;
