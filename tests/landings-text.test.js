@@ -121,6 +121,8 @@ for (const p of PAGES) {
   // ТЗ дизайнера и служебные комментарии на страницу не выводятся
   if (/дизайнеру/i.test(text)) missing.push(`${p.html}: на странице текст комментария «дизайнеру»`);
   (upd.absent || []).forEach(a => { if (text.includes(norm(a))) missing.push(`${p.html}: осталась старая формулировка «${a}»`); });
+  // R6 стр. 215: предзаголовков над блоками (lp-eyebrow) на B2B-лендингах нет
+  if (/class="[^"]*\blp-eyebrow\b/.test(html)) missing.push(`${p.html}: остался предзаголовок lp-eyebrow`);
   console.log(`  ${ok === frags.length ? '✓' : '✗'} ${p.html} ← ${p.md}: ${ok} из ${frags.length}`);
   total += frags.length; found += ok;
 }
