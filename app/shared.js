@@ -121,6 +121,7 @@ const MH = (() => {
       { id: 'oappeals', label: 'Обращения' },
       { id: 'ocompany', label: 'Профиль' },
       { id: 'oprofile', label: 'Реквизиты' },
+      { id: 'oterms', label: 'Тарифы и условия', href: 'pricing.html?for=venues' },   // R6 стр.216
     ],
     supplier: [
       { id: 'sdash', label: 'Обзор' },
@@ -131,6 +132,7 @@ const MH = (() => {
       { id: 'sappeals', label: 'Обращения' },
       { id: 'scompany', label: 'Профиль' },
       { id: 'sprofile', label: 'Реквизиты' },
+      { id: 'sterms', label: 'Тарифы и условия', href: 'pricing.html?for=suppliers' },   // R6 стр.216
     ],
   };
   const menuHref = (role, it) => it.href || `dashboard.html?role=${role}&page=${it.id}`;

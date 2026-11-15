@@ -37,6 +37,18 @@ button{font-family:inherit;cursor:pointer;}
 .wrap{max-width:1180px;margin:0 auto;padding:32px 28px 64px;animation:pageIn .5s ease both;}
 
 .hero{text-align:center;margin-bottom:34px;}
+/* R6 стр.216: вкладки по ролям */
+.for-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:16px auto 18px;}
+.for-tabs button{padding:9px 18px;border-radius:var(--r-full);border:1.5px solid rgba(197,227,225,.6);background:var(--white);
+  font:inherit;font-size:13.5px;font-weight:600;color:var(--slate);cursor:pointer;}
+.for-tabs button.on{background:var(--slate-deep);border-color:var(--slate-deep);color:#fff;}
+.for-body{margin-top:8px;}
+.for-lead{font-size:14px;line-height:1.6;color:var(--slate-mid);margin:16px 0;}
+.for-list{margin:8px 0 0 18px;font-size:13px;line-height:1.65;color:var(--slate-muted);}
+.for-grid{display:grid;gap:12px;}
+.for-body .cmp{min-width:0;}
+.for-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.for-acts .plan-cta{display:inline-block;width:auto;padding:12px 22px;text-align:center;text-decoration:none;}
 .hero .eyebrow{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--coral);}
 .hero h1{font-family:'Literata',Georgia,serif;font-size:36px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:10px;letter-spacing:-.005em;}
 .hero p{font-size:14.5px;line-height:1.65;color:var(--slate-muted);margin:12px auto 0;max-width:620px;}
@@ -144,6 +156,46 @@ const NOTES = {
   prem:  'Для быстрой работы и более точной выборки',
 };
 let PERIOD = 'month';   // month | half | year
+/* R6 стр.216: тарифы зависят от роли — вкладки «Организаторам», «Площадкам», «Поставщикам», «Агентствам».
+   По умолчанию — по роли (площадка, поставщик, остальные — «Организаторам») или по ?for=venues|suppliers|agencies.
+   Содержание вкладок — только утверждённые тексты (FAQ, лендинги) и данные прототипа. */
+const FOR_TABS = [['organizers', 'Организаторам'], ['venues', 'Площадкам'], ['suppliers', 'Поставщикам'], ['agencies', 'Агентствам']];
+let FOR = (() => {
+  const q = new URLSearchParams(location.search).get('for');
+  if (FOR_TABS.some(t => t[0] === q)) return q;
+  const role = MH.getSession() ? MH.sessionRole() : '';
+  return role === 'venue' ? 'venues' : role === 'supplier' ? 'suppliers' : 'organizers';
+})();
+function setFor(k){
+  FOR = k;
+  const q = new URLSearchParams(location.search); q.set('for', k);
+  history.replaceState(null, '', location.pathname + '?' + q.toString());
+  render();
+}
+/** Вкладки для площадок, поставщиков и агентств — тексты копирайтера дословно. */
+function roleTab(k){
+  if (k === 'venues') {
+    const f = faq()[0];
+    return `<div class="faq-item"><h3>${esc(f.q)}</h3><p>${faqText(f)}</p></div>
+      <p class="for-lead">Подписка или вознаграждение за состоявшееся мероприятие — по условиям выбранной модели сотрудничества</p>
+      <div class="panel"><div class="tscroll"><table class="cmp">
+        <thead><tr><th>Участников мероприятия</th><th>Вознаграждение объекта за состоявшееся мероприятие</th></tr></thead>
+        <tbody>${ML.FEE_TIERS.map(t => `<tr><td>${esc(t.label)}</td><td>${t.fee ? ML.money(t.fee) : 'по согласованию'}</td></tr>`).join('')}</tbody>
+      </table></div></div>
+      <div class="for-acts"><a class="plan-cta pri" href="${MH.getSession() && MH.sessionRole() === 'venue' ? 'dashboard.html?role=venue&page=ovenues' : 'auth.html?mode=venue'}">Добавить объект</a>
+        <a class="plan-cta" href="listing-help.html">Нужна помощь с оформлением?</a></div>`;
+  }
+  if (k === 'suppliers') return `<div class="faq-item"><h3>Сколько стоит размещение в каталоге поставщиков?</h3>
+      <p>Размещение полностью бесплатное: никаких абонентских плат или скрытых тарифов. Платформа открывает два канала монетизации:</p>
+      <ul class="for-list"><li>Прямые контракты: организаторы находят ваши услуги и заключают с вами прямые договоры — без комиссий платформе за сделку.</li>
+        <li>Бонусная программа: когда заказчики выбирают ваши сервисы за бонусные баллы, платформа выплачивает вам вознаграждение из фонда лояльности.</li></ul></div>
+      <div class="for-acts"><a class="plan-cta pri" href="auth.html?mode=supplier">Зарегистрироваться как поставщик</a></div>`;
+  return `<div class="for-grid">
+      <div class="faq-item"><h3>Специальный групповой тариф</h3><p>Подключите сотрудников на условиях для агентств. Укажите в заявке, сколько человек будут пользоваться платформой — мы предложим групповой тариф для команды.</p></div>
+      <div class="faq-item"><h3>Общий бонусный счёт агентства</h3><p>Накапливайте бонусы на общем счёте агентства и используйте их по правилам программы. Результаты работы сотрудников учитываются вместе.</p></div>
+      <div class="faq-item"><h3>Оплата услуг платформы по договору</h3><p>Согласуйте договор и порядок оплаты услуг МАЙСЛИСТ с нами напрямую.</p></div></div>
+    <div class="for-acts"><a class="plan-cta pri" href="for-organizers.html#terms">Получить условия для агентства</a></div>`;
+}
 
 /* ── человекочитаемые значения строк сравнения ── */
 function filtersLabel(t){
@@ -253,9 +305,17 @@ function render(){
     }).join('')}
   </tr>`).join('');
 
+  const tabs = `<div class="for-tabs" role="tablist" aria-label="Для кого тарифы">${FOR_TABS.map(([k, l]) =>
+    `<button type="button" role="tab" aria-selected="${FOR === k}" class="${FOR === k ? 'on' : ''}" onclick="setFor('${k}')">${l}</button>`).join('')}</div>`;
+  if (FOR !== 'organizers') {
+    document.getElementById('root').innerHTML = `<div class="hero"><h1>Тарифы МАЙСЛИСТ</h1>${tabs}</div>
+      <div class="faq for-body">${roleTab(FOR)}</div>`;
+    return;
+  }
   document.getElementById('root').innerHTML = `
   <div class="hero">
     <h1>Тарифы МАЙСЛИСТ</h1>
+    ${tabs}
     <p>Подбирайте залы для мероприятий быстрее и точнее.</p>
     <div class="periods">
       <button class="${PERIOD==='month'?'on':''}" onclick="setPeriod('month')">Месяц</button>
