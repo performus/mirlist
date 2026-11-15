@@ -661,12 +661,15 @@ const MH = (() => {
           <div class="mh-drawer-dsub" id="mh-drawer-b2bsub">${l.children.map(c => `<a href="${c.href}"${active === c.key ? ' class="active"' : ''}>${c.label}</a>`).join('')}</div>`
       : `<a href="${l.href}"${active === l.key ? ' class="active"' : ''}>${l.label}</a>`
     ).join('');
+    /* R6 стр.100: уровень «Гость» — это «не вошёл» при любой роли: в шапке только вход, без меню пользователя,
+       баллов и плашки тарифа (сессия площадки или поставщика на этом уровне не показывается). */
+    const navSess = (typeof ML !== 'undefined' && ML.isGuest && ML.isGuest()) ? null : session;
     /* На мобильном меню пользователя раскрывается по тапу на имя внутри шторки. */
-    const drawerRight = session
+    const drawerRight = navSess
       ? `<div class="mh-drawer-sep"></div>
          <button type="button" class="mh-drawer-m" id="mh-drawer-ubtn" aria-expanded="false"
-           style="color:#354E63">${esc(session.name || 'Профиль')} ▾</button>
-         <div class="mh-drawer-msub" id="mh-drawer-msub">${userMenuHTML(session, 'mh-drawer')}</div>`
+           style="color:#354E63">${esc(navSess.name || 'Профиль')} ▾</button>
+         <div class="mh-drawer-msub" id="mh-drawer-msub">${userMenuHTML(navSess, 'mh-drawer')}</div>`
       : `<div class="mh-drawer-sep"></div>
          <a href="pricing.html" style="text-transform:none;letter-spacing:0;font-size:14px;">Тарифы</a>
          <a href="${'auth.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)}" style="text-transform:none;letter-spacing:0;font-size:14px;">Войти</a>
@@ -677,7 +680,7 @@ const MH = (() => {
         <a class="mh-logo" href="homepage.html"><img class="mh-logo-img" src="../assets/logo.svg" alt="МАЙСЛИСТ"></a>
         <nav class="mh-nav">${navLinks}</nav>
         <div class="mh-divider"></div>
-        <div class="mh-right">${buildRight(session)}</div>
+        <div class="mh-right">${buildRight(navSess)}</div>
         ${hasCompare(session) ? cmpHTML(true) : ''}
         <button class="mh-burger" id="mh-burger" aria-label="Меню">
           <span></span><span></span><span></span>
