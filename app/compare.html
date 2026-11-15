@@ -320,7 +320,7 @@ function buildRows() {
     ['Аренда за час',     h => h.priceHour ? ML.money(h.priceHour) : 'Нет почасовой аренды'],
     ['Номерной фонд объекта', (h, v) => (v.rooms.twin || v.rooms.sngl) ? `TWIN ${v.rooms.twin} · SNGL ${v.rooms.sngl}` : 'нет'],
     ['Точный план пространства', h => h.plan ? 'есть' : 'нет'],
-    ['Рейтинг объекта',   (h, v) => `<span style="color:#B4C3CC">★</span> ${String(v.rating).replace('.', ',')} (${v.reviews})`],
+    ['Рейтинг объекта',   (h, v) => `<span style="color:#B4C3CC">★</span> ${Number(v.rating).toFixed(1).replace('.', ',')} (${v.reviews})`],
   );
   return rows;
 }

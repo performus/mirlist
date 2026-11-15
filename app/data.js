@@ -1320,6 +1320,29 @@
       event: SUPPLIER_EVENTS[s.id % SUPPLIER_EVENTS.length], text });
   });
 
+  /* R6 стр.174: у каждого объекта 2–6 отзывов в данных — число и средняя оценка на карточке, плитке, в сравнении
+     и презентации считаются из них (см. ratingOf), а не задаются отдельно. */
+  const VENUE_REVIEW_TEXTS = [
+    ['Ксения Б.', 'Event-агентство «Формат»', 5, 'Менеджер отвечал в течение часа, смету прислали в тот же день. Зал выглядел как на фото.'],
+    ['Роман Е.', 'Корпоративный клиент', 4, 'Площадка удобная, но парковку для гостей пришлось согласовывать отдельно.'],
+    ['Виктория Л.', 'DMC', 5, 'Техника работала без сбоев, звукорежиссёр площадки был с нами весь день.'],
+    ['Михаил Ф.', 'Прямой клиент', 4, 'Кухня хорошая, по таймингу кофе-брейка была небольшая задержка.'],
+    ['Татьяна О.', 'Фриланс-организатор', 5, 'Рассадку переставили за перерыв, как договаривались. Вернёмся с другим проектом.'],
+    ['Денис Ш.', 'Event-агентство «Вектор»', 4, 'Всё по договору. Хотелось бы больше вариантов меню для вегетарианцев.'],
+  ];
+  const VENUE_REVIEW_EVENTS = ['Конференция, 150 участников', 'Корпоратив, 100 гостей', 'Деловой завтрак, 40 человек',
+    'Презентация продукта, 70 гостей', 'Тренинг, 25 человек', 'Банкет, 120 гостей'];
+  VENUES.forEach(v => {
+    const want = 2 + (v.id * 7) % 5;   // 2–6
+    let have = REVIEW_SEED.filter(r => r.target === 'venue' && r.targetId === v.id).length;
+    for (let k = 0; have < want; k++, have++) {
+      const [author, role, rating, text] = VENUE_REVIEW_TEXTS[(v.id + k) % VENUE_REVIEW_TEXTS.length];
+      const d = String(1 + (v.id * 3 + k * 5) % 27).padStart(2, '0'), m = String(3 + (v.id + k) % 6).padStart(2, '0');
+      REVIEW_SEED.push({ id: 1000 + v.id * 10 + k, target: 'venue', targetId: v.id, author, role, date: `${d}.${m}.2026`, rating,
+        event: VENUE_REVIEW_EVENTS[(v.id + k) % VENUE_REVIEW_EVENTS.length], text });
+    }
+  });
+
   /* ─────────── 8. СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ─────────── */
   /* Ключи localStorage. mh_compare теперь хранит ID ЗАЛОВ, а не объектов —
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
@@ -2631,6 +2654,16 @@
      пустыми отзывами. */
 
   const reviewsFor = (target, id) => state.reviews.filter(r => r.target === target && r.targetId === +id);
+  /** R6 стр.174/167: средняя оценка (до десятых) и число отзывов — из отзывов в данных. */
+  function ratingOf(target, id) {
+    const list = reviewsFor(target, id);
+    return { n: list.length, avg: list.length ? Math.round(list.reduce((a, r) => a + (+r.rating || 0), 0) / list.length * 10) / 10 : 0 };
+  }
+  /* На объектах rating и reviews — вычисляемые: любой код, читающий v.rating / v.reviews, видит данные отзывов. */
+  VENUES.forEach(v => {
+    Object.defineProperty(v, 'reviews', { get: () => ratingOf('venue', v.id).n, configurable: true, enumerable: true });
+    Object.defineProperty(v, 'rating', { get: () => ratingOf('venue', v.id).avg, configurable: true, enumerable: true });
+  });
   const reviewsLatest = (n) => state.reviews.slice().sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, n || 3);
   function reviewScore(target, id) {
     const list = reviewsFor(target, id);
@@ -2854,7 +2887,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,

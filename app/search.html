@@ -1610,7 +1610,7 @@ function venueBlock(x) {
           <span class="vb-cap" tabindex="0" data-tip="${esc(CAP_TIP)}" aria-label="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
           ${ML.venueRooms(v) ? `<span>номеров <b>${ML.venueRooms(v)}</b></span>` : ''}
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
-          <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
+          <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${Number(v.rating).toFixed(1).replace('.', ',')}</b> (${v.reviews})</span>
         </div>
       </div>
       ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})"

@@ -245,7 +245,8 @@ function render() {
         ${s.travel ? '<span>выезд в другие города</span>' : ''}
         ${s.loyalty ? '<span class="tag solid">Принимает баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
-        ${ML.supplierHasReviews(s) ? '<span class="tag">Отзывы</span>' : ''}
+        ${(() => { const R = ML.ratingOf('supplier', s.id);   // R6 стр.167: как у площадок — «★ 4,8 (12)», без отзывов плашки нет
+          return R.n ? `<span title="Рейтинг по отзывам"><span style="color:#B4C3CC">★</span> <b>${R.avg.toFixed(1).replace('.', ',')}</b> (${R.n})</span>` : ''; })()}
       </div>
     </div>
     <div class="d-actions">

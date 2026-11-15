@@ -287,7 +287,7 @@ function render() {
        ...(v.dressingRooms ? [['Гримёрок', v.dressingRooms]] : []),
        ...(v.confPackage ? [['Конференц-пакет', 'от ' + money(v.confPackage) + ' / чел.']] : []),
        ['Типы мероприятий', v.eventTypes.map(k => (ML.EVENT_TYPES.find(e => e.k === k) || { l: k }).l).join(', ')],
-       ['Рейтинг', `${v.rating} (${v.reviews})`],
+       ['Рейтинг', `${Number(v.rating).toFixed(1).replace('.', ',')} (${v.reviews})`],
        ['Участвует в бонусной программе', v.loyaltyContract ? 'да' : 'нет']]
     : [['Категория', v.cat], ...starRow, ['Регион', v.city]];
 
@@ -307,7 +307,7 @@ function render() {
         <span class="d-cap" tabindex="0" data-tip="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
         ${ML.venueRooms(v) ? `<span>номеров <b>${ML.venueRooms(v)}</b></span>` : ''}
         <span><b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</span>
-        <span class="d-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
+        <span class="d-rating" title="Рейтинг по отзывам">${IC.star} <b>${Number(v.rating).toFixed(1).replace('.', ',')}</b> (${v.reviews})</span>
 
       </div>
     </div>

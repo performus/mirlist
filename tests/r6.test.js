@@ -245,5 +245,26 @@ test('стр.227: в «Прочем» — «Страхование меропр�
   });
 });
 
+test('стр.174/167: число отзывов и средняя оценка — из отзывов в данных (объекты 2–6 отзывов; поставщики — «★ 4,8 (12)» или ничего)', () => {
+  const { ML } = load();
+  ML.VENUES.forEach(v => {
+    const list = ML.reviewsFor('venue', v.id);
+    assert.ok(list.length >= 2 && list.length <= 6, `${v.name}: ${list.length}`);
+    assert.strictEqual(v.reviews, list.length, v.name + ': число');
+    const avg = Math.round(list.reduce((a, r) => a + r.rating, 0) / list.length * 10) / 10;
+    assert.strictEqual(v.rating, avg, v.name + ': средняя');
+  });
+  const v = ML.VENUES[0], n = v.reviews;
+  ML.addReview({ target: 'venue', targetId: v.id, rating: 1, text: 'проверка' });
+  assert.strictEqual(v.reviews, n + 1, 'новый отзыв сразу в числе');
+  assert.ok(v.rating < 5);
+  const withRev = ML.SUPPLIERS.filter(sp => ML.supplierHasReviews(sp));
+  assert.ok(withRev.length > 0);
+  withRev.forEach(sp => assert.strictEqual(ML.ratingOf('supplier', sp.id).n, ML.reviewsFor('supplier', sp.id).length));
+  const none = ML.SUPPLIERS.find(sp => !ML.supplierHasReviews(sp));
+  assert.deepStrictEqual(plain(ML.ratingOf('supplier', none.id)), { n: 0, avg: 0 }, 'без отзывов — плашки нет');
+  assert.ok(JSON.parse(JSON.stringify(v)).reviews === v.reviews, 'копия объекта (сравнение, презентация) несёт то же число');
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

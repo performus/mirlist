@@ -228,7 +228,7 @@ function render(){
           <div class="venue-name">${esc(v.name)}</div>
           <div class="venue-sub">${esc(v.cat)} · ${esc(v.city)}${v.addr ? ', ' + esc(v.addr) : ''}
             ${v.stars ? ` · <span class="venue-stars">${'★'.repeat(v.stars)}</span>` : ''}</div>
-          <div class="venue-sub">Рейтинг ${v.rating} (${v.reviews}) ·
+          <div class="venue-sub">Рейтинг ${Number(v.rating).toFixed(1).replace(".", ",")} (${v.reviews}) ·
             ${v.halls.length} ${ML.plural(v.halls.length, ['зал','зала','залов'])} в объекте ·
             до ${ML.venueCapacity(v)} чел.</div>
         </div>

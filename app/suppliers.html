@@ -620,7 +620,7 @@ function renderChips() {
    ВЫДАЧА
    ══════════════════════════════════════════════ */
 function tile(s) {
-  const has = ML.supplierHasReviews(s);
+  const R = ML.ratingOf('supplier', s.id);   // R6 стр.167: «★ 4,8 (12)» вместо плашки «Отзывы» без цифр
   return `<a class="tile" href="supplier.html?id=${s.id}">
     <div class="tile-img">
       <img src="${ML.photoUrl(s.photo)}" alt="" loading="lazy">
@@ -634,7 +634,7 @@ function tile(s) {
       <div class="tile-badges">
         ${s.loyalty ? '<span class="tag solid">Баллы</span>' : ''}
         ${s.video ? '<span class="tag">Видео</span>' : ''}
-        ${has ? '<span class="tag">Отзывы</span>' : ''}
+        ${R.n ? `<span class="tag" title="Рейтинг по отзывам"><span style="color:#B4C3CC">★</span> ${R.avg.toFixed(1).replace('.', ',')} (${R.n})</span>` : ''}
       </div>
     </div>
   </a>`;

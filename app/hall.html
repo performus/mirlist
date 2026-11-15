@@ -324,7 +324,7 @@ function render() {
           <div class="eyebrow">Объект</div>
           <a class="vcard-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>
           <div class="vcard-sub">${esc(v.cat)}${v.stars ? '<span class="gold-stars sm" aria-label="Звёздность ' + v.stars + '">' + '★'.repeat(v.stars) + '</span>' : ''} · ${esc(v.city)}</div>
-          <div class="vcard-sub"><span style="color:#B4C3CC">★</span> <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews}) · <span title="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + ML.venueCapacity(v) + '</b> чел.')}</span> · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
+          <div class="vcard-sub"><span style="color:#B4C3CC">★</span> <b>${Number(v.rating).toFixed(1).replace('.', ',')}</b> (${v.reviews}) · <span title="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + ML.venueCapacity(v) + '</b> чел.')}</span> · <b>${v.halls.length}</b> ${ML.plural(v.halls.length, ['зал','зала','залов'])}</div>
           <a class="btn sm" style="display:block;text-align:center;margin-top:12px" href="venue.html?id=${v.id}">Карточка объекта</a>
         </div>
       </div>
