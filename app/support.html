@@ -135,6 +135,8 @@ function knownIds(){
 function render(){
   const ids = knownIds();
   const isDispute = KIND === 'dispute';
+  /* R6 стр.176: ID запроса — только у спора (обязательно) и жалобы (необязательно) */
+  const withId = isDispute || KIND === 'complaint';
 
   document.getElementById('root').innerHTML = `
   <div class="crumbs"><a href="homepage.html">Главная</a><span class="sep">→</span>
@@ -158,7 +160,7 @@ function render(){
           </label>`).join('')}
         </div>
 
-        <div class="fg">
+        ${withId ? `<div class="fg">
           <label class="lbl" for="fId">ID запроса ${isDispute ? '<span class="req">*</span>' : ''}</label>
           <input class="fi" id="fId" type="text" placeholder="RQ-260714-0031" value="">
           <div class="hint">Найдите его в личном кабинете, в разделе
@@ -166,7 +168,7 @@ function render(){
             в шапке каждого запроса.${ids.length ? ' Например: ' + esc(ids[0]) + '.' : ''}
             ${isDispute ? '<br><b style="color:var(--slate-deep)">Для спора по мероприятию ID обязателен</b> — без него не понять, о какой заявке речь.' : ''}
           </div>
-        </div>
+        </div>` : ''}
 
         <div class="fg">
           <label class="lbl" for="fText">Описание <span class="req">*</span></label>
@@ -197,7 +199,7 @@ function render(){
         <div class="arb"><b>Что приложить к заявке на разбор:</b> ID запроса, даты мероприятия,
         переписку с объектом и, если есть, счёт или договор. Без ID разобрать обращение не получится.</div>
       </div>
-      <div class="panel">
+      <div class="panel" id="contacts">
         <h3>Другие способы</h3>
         <p>Почта: <a href="mailto:info@micelist.ru">info@micelist.ru</a><br>
         Телефон: <a href="tel:88000000000">8 800 000-00-00</a></p>
@@ -210,7 +212,8 @@ function render(){
 function setKind(k){ KIND = k; render(); }
 
 function send(){
-  const id = (document.getElementById('fId').value || '').trim();
+  const fId = document.getElementById('fId');
+  const id = fId ? (fId.value || '').trim() : '';
   const text = (document.getElementById('fText').value || '').trim();
   document.querySelectorAll('.fi').forEach(el => el.classList.remove('bad'));
 
@@ -258,6 +261,8 @@ function send(){
 }
 
 render();
+/* R6 стр.27: «Контакты» в подвале ведут сюда — блок рисуется скриптом, поэтому прокручиваем сами */
+if (location.hash === '#contacts') document.getElementById('contacts')?.scrollIntoView({ block: 'center' });
 </script>
 </body>
 </html>
