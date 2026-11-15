@@ -315,6 +315,7 @@ img{display:block;max-width:100%;}
 .lp-rail-nav button:hover{border-color:var(--c);color:var(--c);}
 .lp-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:40px;}
 .lp-head-row .lp-head{margin-bottom:0;}
+.lp-rail-after{justify-content:center;margin-top:12px;}
 
 /* ── чек-лист с иконками ── */
 .lp-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;}
