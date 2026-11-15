@@ -576,7 +576,7 @@ button{font-family:inherit;cursor:pointer;}
 .seatgrid label{font-size:11.5px;text-transform:none;letter-spacing:0;color:var(--sm);font-weight:500;}
 .wmap.wmap-leaf{cursor:default;height:280px;z-index:0;}
 .wmap{position:relative;height:230px;border-radius:var(--rm);overflow:hidden;border:1.5px solid rgba(197,227,225,.5);cursor:crosshair;margin-bottom:10px;background:var(--aq-p);}
-.wmap svg{width:100%;height:100%;display:block;}
+.wmap:not(.wmap-leaf) svg{width:100%;height:100%;display:block;}
 .wmap-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.9);border-radius:var(--rf);padding:7px 14px;font-size:12.5px;color:var(--sm);pointer-events:none;}
 .wmap-pin{position:absolute;width:18px;height:18px;margin:-18px 0 0 -9px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 2px 6px rgba(53,78,99,.3);pointer-events:none;}
 .wmap-pin::after{content:'';position:absolute;left:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#fff;}
@@ -2005,6 +2005,7 @@ function initWizMap(){
     el.innerHTML='';
     const c=parseCoords(WIZ.data.coords), center=c||CITY_CENTER[WIZ.data.city]||CITY_CENTER['Москва'];
     LEAF.map=L.map(el,{ zoomControl:true, attributionControl:true }).setView(center,c?15:11);
+    LEAF.map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');   // без картинки в подписи
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'© OpenStreetMap' }).addTo(LEAF.map);
     LEAF.marker=c?L.marker(c,{ draggable:true }).addTo(LEAF.map):null;
     if(LEAF.marker) LEAF.marker.on('dragend',()=>pinAt(LEAF.marker.getLatLng()));
