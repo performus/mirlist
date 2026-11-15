@@ -2421,7 +2421,7 @@ points:()=>{   /* стр.125: LEDGER_ALL — показана вся истор�
           <div class="scard-name">${esc(s.title)}</div>
           <div class="scard-prov">${esc(s.provider)}</div>
           <div class="scard-pts">${s.pts.toLocaleString('ru')} Б</div>
-          <button class="btn btn-c scard-btn" ${can||s.premiumMonths?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">${s.premiumMonths?(ML.tariff().key==='prem'?'Продлить сразу':'Подключить сразу'):'Отправить запрос'}</button>
+          <button class="btn btn-c scard-btn" ${can||s.premiumMonths?'':'disabled'} onclick="buyShop('${jt(String(s.id))}')">${s.premiumMonths?(ML.tariff().key==='prem'?'Продлить':'Подключить сразу'):'Отправить запрос'}</button>
           ${can?'':`<div class="scard-lack">не хватает ${(s.pts-P.free).toLocaleString('ru')} ${ML.plural(s.pts-P.free,['балла','баллов','баллов'])}</div>`}
         </div>
       </article>`;
