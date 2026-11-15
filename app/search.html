@@ -1608,6 +1608,7 @@ function venueBlock(x) {
         <div class="vb-kicker">${esc(v.cat)} · ${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</div>
         <div class="vb-meta">
           <span class="vb-cap" tabindex="0" data-tip="${esc(CAP_TIP)}" aria-label="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
+          ${ML.venueRooms(v) ? `<span>номеров <b>${ML.venueRooms(v)}</b></span>` : ''}
           <span><b>${halls.length}</b> ${ML.plural(halls.length, ['зал', 'зала', 'залов'])}${halls.length < v.halls.length ? ` из ${v.halls.length}` : ''}</span>
           <span class="vb-rating" title="Рейтинг по отзывам">${IC.star} <b>${String(v.rating).replace('.', ',')}</b> (${v.reviews})</span>
         </div>
