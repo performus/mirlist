@@ -762,6 +762,7 @@ const MH = (() => {
       }
       .mh-ft-col a:hover { color: #354E63; }
       .mh-ft-col a.bold { font-weight: 600; color: #354E63; }
+      .mh-ft-col .mh-ft-off { display: block; font-size: 13.5px; color: #C2CDD4; margin-bottom: 11px; cursor: default; }
       .mh-ft-social-row {
         padding: 20px 36px 24px;
         border-top: 1px solid #E5DDD6;
@@ -814,33 +815,36 @@ const MH = (() => {
               <a class="mh-ft-contact" href="tel:88000000000">${ICON_PHONE} 8 800 000-00-00</a>
             </div>
           </div>
+          <!-- R6 стр.27: разделы, порядок и подписи — дословно из документа клиента «СТРУКТУРА Подвала (предлагаемая)».
+               «Оферта» — страницы нет, пункт неактивен. -->
           <div class="mh-ft-col">
             <h4>Платформа</h4>
             <a href="search.html">Подбор залов</a>
             <a href="suppliers.html">Поставщики</a>
             <a href="bonus.html">Бонусная программа</a>
+            <a href="how.html">Как это работает</a>
             <a href="pricing.html">Тарифы</a>
           </div>
           <div class="mh-ft-col">
-            <h4>Размещение</h4>
-            <a href="list-venue.html">Добавить зал</a>
-            <a href="for-organizers.html">Агентствам</a>
-            <a href="listing-help.html">Помощь с оформлением</a>
+            <h4>B2B</h4>
+            <a href="list-venue.html">Как добавить зал</a>
+            <a href="listing-help.html">Помощь с размещением</a>
+            <a href="for-suppliers.html">Поставщикам</a>
+            <a href="for-artists.html">Артистам</a>
+            <a href="for-organizers.html">MICE и Event-Агентствам</a>
           </div>
           <div class="mh-ft-col">
-            <h4>Поддержка</h4>
-            <a href="support.html">Поддержка и арбитраж</a>
-            <a href="#" onclick="MH.feedback();return false;">Написать в поддержку</a>
-            <a href="mailto:info@micelist.ru">Контакты</a>
-            <a href="../index.html">Карта сайта</a>
+            <h4>Помощь</h4>
+            <a href="about.html">О Проекте</a>
+            <a href="faq.html">FAQ</a>
+            <a href="support.html">Поддержка</a>
+            <a href="support.html#contacts">Контакты</a>
           </div>
           <div class="mh-ft-col">
             <h4>Документы</h4>
             <a href="privacy.html">Политика конфиденциальности</a>
-            <a href="terms.html">Пользовательское соглашение</a>
-            <a href="consent-personal-data.html">Согласие на обработку персональных данных</a>
-            <a href="consent-ads.html">Согласие на получение рекламы</a>
-            <a href="#">Оферта</a>
+            <a href="terms.html">Условия использования</a>
+            <span class="mh-ft-off" aria-disabled="true">Оферта</span>
           </div>
         </div>
         <div class="mh-ft-social-row">
@@ -1151,13 +1155,13 @@ const MH = (() => {
             <div class="mhfb-chips" id="mhfb-chips">
               <button class="mhfb-chip sel" data-topic="Вопрос">Вопрос</button>
               <button class="mhfb-chip" data-topic="Спор по мероприятию" data-dispute="1">Спор по факту состоявшегося мероприятия</button>
-              <button class="mhfb-chip" data-topic="Жалоба на объект или поставщика">Жалоба</button>
+              <button class="mhfb-chip" data-topic="Жалоба на объект или поставщика" data-complaint="1">Жалоба</button>
               <button class="mhfb-chip" data-topic="Техническая проблема">Техническая проблема</button>
               <button class="mhfb-chip" data-topic="Предложение">Предложение</button>
             </div>
           </div>
           <div class="mhfb-field" id="mhfb-id-field" hidden>
-            <label class="mhfb-label">ID запроса <span style="color:#C7563B">*</span></label>
+            <label class="mhfb-label">ID запроса <span id="mhfb-id-req" style="color:#C7563B">*</span></label>
             <input class="mhfb-input" id="mhfb-reqid" type="text" placeholder="RQ-260714-0031">
             <div class="mhfb-hint" id="mhfb-id-hint"></div>
           </div>
@@ -1178,12 +1182,17 @@ const MH = (() => {
     });
 
     /* Спор по мероприятию разбирается только по номеру запроса: без него
-       непонятно, какое мероприятие и какие стороны сверять. */
+       непонятно, какое мероприятие и какие стороны сверять. R6 стр.176: у жалобы поле есть, но необязательное;
+       у вопроса, технической проблемы и предложения поля нет. */
     function syncDispute() {
       const sel = document.querySelector('#mhfb-chips .mhfb-chip.sel');
       const dispute = !!(sel && sel.dataset.dispute);
+      const complaint = !!(sel && sel.dataset.complaint);
       const field = document.getElementById('mhfb-id-field');
-      field.hidden = !dispute;
+      field.hidden = !dispute && !complaint;
+      document.getElementById('mhfb-id-req').hidden = !dispute;
+      if (complaint) document.getElementById('mhfb-id-hint').innerHTML =
+        'Найдите его в личном кабинете, в разделе «История запросов», в шапке каждого запроса.';
       if (dispute) {
         const ids = (typeof ML !== 'undefined' && ML.state && ML.state.requests)
           ? ML.state.requests.map(r => r.id) : [];
