@@ -672,3 +672,40 @@ img{display:block;max-width:100%;}
   .lp-steps.sw .lp-step-mock .lp-inbox-row{grid-template-columns:auto minmax(0,1fr);row-gap:6px;}
   .lp-steps.sw .lp-step-mock .lp-inbox-row > :last-child{grid-column:2;justify-self:start;}
 }
+
+/* R6 стр.213: артистам, «Изучите подробнее мир деловых событий» — пример-цитата, три толкования, вопросы списком */
+.lp-quote.lp-ex{padding:40px 44px 38px;}
+.lp-quote.lp-ex::before{content:none;}
+.lp-ex-q{font-family:'Literata',Georgia,serif;font-size:27px;line-height:1.35;font-weight:600;color:#fff;max-width:680px;padding-left:20px;border-left:3px solid var(--c);}
+.lp-ex-opts{list-style:none;counter-reset:ex;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px;}
+.lp-ex-opts li{counter-increment:ex;display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);font-size:15.5px;line-height:1.5;color:#E7EEF3;}
+.lp-ex-opts li::before{content:counter(ex);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-size:13px;font-weight:700;}
+.lp-ex-ask{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 26px;margin-top:28px;padding-top:26px;border-top:1px solid rgba(255,255,255,.14);}
+.lp-ex-ask li{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5;color:#C9D6E0;}
+.lp-ex-ask li::before{content:'?';flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(235,116,84,.22);color:#F3B29E;font-size:12px;font-weight:700;}
+@media (max-width:900px){
+  .lp-ex-opts,.lp-ex-ask{grid-template-columns:minmax(0,1fr);}
+  .lp-ex-opts li{flex-direction:row;align-items:center;}
+  .lp-ex-opts li::before{flex:none;}
+}
+@media (max-width:600px){
+  .lp-quote.lp-ex{padding:26px 18px 22px;}
+  .lp-ex-q{font-size:21px;padding-left:14px;}
+  .lp-ex-opts li{padding:14px 16px;font-size:15px;}
+}
+
+/* R6 стр.214: артистам, «Обсудите не только сцену, но и условия за ней» — чеклист с галочками и итог плашкой */
+.lp-cl{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 44px;padding:34px 38px;border-radius:24px;background:#fff;box-shadow:var(--sh);}
+.lp-cl li{display:flex;gap:14px;align-items:flex-start;}
+.lp-cl li p{font-size:15.5px;line-height:1.65;color:var(--s);}
+.lp-cl li b{color:var(--sd);}
+.lp-cl-ic{flex:none;width:28px;height:28px;margin-top:1px;border-radius:50%;display:grid;place-items:center;background:var(--t);color:#fff;}
+.lp-cl-ic svg{width:16px;height:16px;}
+.lp-cl-sum{display:flex;gap:20px;align-items:center;margin-top:18px;padding:26px 34px;border-radius:24px;background:var(--sd);}
+.lp-cl-sum p{font-size:16px;line-height:1.65;color:#E7EEF3;}
+.lp-cl-sum-ic{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.12);color:#F3B29E;}
+.lp-cl-sum-ic svg{width:26px;height:26px;}
+@media (max-width:800px){
+  .lp-cl{grid-template-columns:minmax(0,1fr);gap:20px;padding:24px 22px;}
+  .lp-cl-sum{flex-direction:column;align-items:flex-start;gap:14px;padding:22px;}
+}
