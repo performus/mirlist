@@ -50,6 +50,17 @@ button{font-family:inherit;cursor:pointer;}
   padding:5px 13px;border-radius:var(--r-full);background:var(--coral);color:#fff;
   font-family:'Onest',system-ui,sans-serif;font-size:12px;font-weight:700;white-space:nowrap;}
 .hrow-cap{display:inline-flex;align-items:center;gap:4px;}
+/* R6 стр.219: таблица оснащения залов */
+.eq-scroll{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid rgba(197,227,225,.45);border-radius:var(--r-md);background:var(--white);}
+.eq-tbl{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;}
+.eq-tbl th,.eq-tbl td{padding:9px 12px;border-bottom:1px solid rgba(197,227,225,.35);text-align:center;white-space:nowrap;}
+.eq-tbl thead th{font-size:12px;font-weight:600;color:var(--slate-muted);background:var(--cream,#FAF7F3);}
+.eq-tbl tbody th{text-align:left;font-weight:500;color:var(--slate-deep);}
+.eq-tbl tr:last-child th,.eq-tbl tr:last-child td{border-bottom:none;}
+.eq-tbl th:first-child{position:sticky;left:0;z-index:1;background:var(--white);box-shadow:1px 0 0 rgba(197,227,225,.45);text-align:left;}
+.eq-tbl thead th:first-child{background:var(--cream,#FAF7F3);}
+.eq-yes{color:var(--coral);font-weight:700;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 .d-loyal.d-plan{background:var(--white);color:var(--slate-deep);box-shadow:inset 0 0 0 1px rgba(53,78,99,.28);margin-left:8px;}
 .d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--slate-muted);align-items:center;}
@@ -268,12 +279,14 @@ function render() {
       ${tags.length ? `<div class="ftags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}${menu}</div>`;
   }).join('');
 
-  /* R3-D: оснащение — свойство зала. Сводка: «LED-экран — Зал «Панорама»; Проектор — Большой зал, …» */
-  const hallEquip = ML.hallCheckDefs().map(d => {
-    const names = v.halls.filter(h => ML.hallHas(h, d.code)).map(h => esc(h.name));
-    return names.length ? `<div><b>${esc(d.card || d.label)}</b> — ${names.join(', ')}</div>` : '';
-  }).filter(Boolean).join('');
-  const hallEquipBlock = hallEquip ? `<div class="fgroup"><h3>Оснащение залов</h3><div class="hall-eq">${hallEquip}</div></div>` : '';
+  /* R6 стр.219: оснащение залов — таблица: строки — оснащение, столбцы — залы, в ячейке ✓ или пусто.
+     На узком экране таблица листается по горизонтали, первый столбец закреплён. */
+  const eqDefs = ML.hallCheckDefs().filter(d => v.halls.some(h => ML.hallHas(h, d.code)));
+  const hallEquipBlock = eqDefs.length ? `<div class="fgroup"><h3>Оснащение залов</h3><div class="eq-scroll"><table class="eq-tbl">
+      <thead><tr><th scope="col"><span class="sr-only">Оснащение</span></th>${v.halls.map(h => `<th scope="col">${esc(h.name)}</th>`).join('')}</tr></thead>
+      <tbody>${eqDefs.map(d => `<tr><th scope="row">${esc(d.card || d.label)}</th>${v.halls.map(h => ML.hallHas(h, d.code)
+        ? '<td><span class="eq-yes" aria-label="есть">✓</span></td>' : '<td><span class="sr-only">нет</span></td>').join('')}</tr>`).join('')}</tbody>
+    </table></div></div>` : '';
 
   // звёздность отделена от категории: строку показываем только там, где она применима
   const starRow = ML.STARRED_CATS.includes(v.cat)
