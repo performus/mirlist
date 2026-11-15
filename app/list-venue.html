@@ -99,21 +99,41 @@
       <h2 class="lp-h2">Как это работает</h2>
       <p class="lp-intro">Пять шагов от размещения объекта до подтверждения прошедшего мероприятия.</p>
     </div>
-    <ol class="lp-steps rv" style="--n:5;list-style:none">
-      <li class="lp-step"><div class="lp-step-n">1</div><h3><span class="vh">1. </span>Добавьте объект</h3>
-        <p>Зарегистрируйтесь и укажите основные сведения о площадке: название, категорию, расположение и контакты отдела продаж. Сделайте описание ёмким, но исчерпывающим.</p>
-        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i></div><div class="lp-win-b">
+    <!-- R6 стр.193: у каждого шага своя иллюстрация. Десктоп — шаги переключаются наведением и кликом
+         (landing.js, stepSwitch), иллюстрация активного шага под строкой шагов; ≤1100 px — иллюстрация под каждым шагом.
+         Подписи в макетах — только из существующих текстов сайта и кабинета площадки. -->
+    <ol class="lp-steps sw rv" style="--n:5;list-style:none" data-steps>
+      <li class="lp-step on" style="--i:0"><div class="lp-step-hd"><div class="lp-step-n">1</div><h3><span class="vh">1. </span>Добавьте объект</h3>
+        <p>Зарегистрируйтесь и укажите основные сведения о площадке: название, категорию, расположение и контакты отдела продаж. Сделайте описание ёмким, но исчерпывающим.</p></div>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Добавление объекта</span></div><div class="lp-win-b">
           <div class="m-t" style="font-size:13px;margin-bottom:8px">Добавление объекта</div>
           <span class="m-lbl">Название</span><div class="m-field">Отель «Аврора»</div>
-          <div class="m-row" style="margin-top:8px"><span class="m-chip">Отель · 4★</span><span class="m-chip">Москва</span></div></div></div></div></li>
-      <li class="lp-step"><div class="lp-step-n">2</div><h3><span class="vh">2. </span>Заполните карточки залов</h3>
-        <p>Добавьте залы, вместимость по схемам рассадки, фотографии, оснащение и условия аренды. Расскажите о дополнительных возможностях. Отправьте карточку на модерацию — после проверки она сможет появиться в каталоге.</p></li>
-      <li class="lp-step"><div class="lp-step-n">3</div><h3><span class="vh">3. </span>Получайте запросы</h3>
-        <p>Организаторы находят подходящие залы и отправляют запросы. Обращения поступают на почту отдела продаж и отображаются в личном кабинете.</p></li>
-      <li class="lp-step"><div class="lp-step-n">4</div><h3><span class="vh">4. </span>Согласовывайте условия по email</h3>
-        <p>Подготовьте предложение и добавьте цену, уточните детали и договоритесь о подписании договора. Всё это согласовывается вне платформы.</p></li>
-      <li class="lp-step"><div class="lp-step-n">5</div><h3><span class="vh">5. </span>Подтвердите прошедшее мероприятие</h3>
-        <p>Отметьте в личном кабинете, что мероприятие состоялось. Его проведение подтверждают обе стороны — организатор и площадка.</p></li>
+          <div class="m-row" style="margin-top:8px"><span class="m-chip">Отель · 4★</span><span class="m-chip">Москва</span></div>
+          <span class="m-lbl" style="margin-top:10px">Отдел продаж</span><div class="m-field">sales@aurora-hotel.ru</div></div></div></div></li>
+      <li class="lp-step" style="--i:1"><div class="lp-step-hd"><div class="lp-step-n">2</div><h3><span class="vh">2. </span>Заполните карточки залов</h3>
+        <p>Добавьте залы, вместимость по схемам рассадки, фотографии, оснащение и условия аренды. Расскажите о дополнительных возможностях. Отправьте карточку на модерацию — после проверки она сможет появиться в каталоге.</p></div>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Добавление зала</span></div><div class="lp-win-b">
+          <div class="m-row" style="margin-bottom:8px"><span class="m-t" style="font-size:13px">Добавление зала</span><span class="m-sp"></span><span class="m-st work">На модерации</span></div>
+          <span class="m-lbl">Название зала</span><div class="m-field">Зал «Панорама»</div>
+          <span class="m-lbl" style="margin-top:10px">Вместимость по схемам</span>
+          <div class="m-row"><span class="m-chip">Театр · 160</span><span class="m-chip">Класс · 90</span><span class="m-chip">Банкет · 120</span></div></div></div></div></li>
+      <li class="lp-step" style="--i:2"><div class="lp-step-hd"><div class="lp-step-n">3</div><h3><span class="vh">3. </span>Получайте запросы</h3>
+        <p>Организаторы находят подходящие залы и отправляют запросы. Обращения поступают на почту отдела продаж и отображаются в личном кабинете.</p></div>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Кабинет площадки · Входящие запросы</span></div><div class="lp-win-b">
+          <div class="lp-inbox-row hl"><span class="lp-inbox-av">ИК</span><div><b>RQ-261118-0042 · 180 участников</b><span>18–19 ноября · Большой зал, Переговорная</span></div><span class="m-st new">Запрос отправлен</span></div>
+          <div class="lp-toast lp-toast-in"><span class="lp-toast-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+            <div><b>Новый запрос: 18–19 ноября, 180 участников</b><span>sales@aurora-hotel.ru</span></div></div></div></div></div></li>
+      <li class="lp-step" style="--i:3"><div class="lp-step-hd"><div class="lp-step-n">4</div><h3><span class="vh">4. </span>Согласовывайте условия по email</h3>
+        <p>Подготовьте предложение и добавьте цену, уточните детали и договоритесь о подписании договора. Всё это согласовывается вне платформы.</p></div>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">sales@aurora-hotel.ru</span></div><div class="lp-win-b">
+          <span class="m-lbl">Сопроводительное письмо:</span>
+          <div class="lp-req-letter lp-step-letter"><p><em>Добрый день! Подбираем площадку для двухдневной стратегической сессии на 180 участников.</em></p></div>
+          <div class="m-row" style="margin-top:10px"><span class="m-s">Стратегическая сессия · 180 участников</span><span class="m-sp"></span><span class="m-btn o">Ответить по email</span></div></div></div></div></li>
+      <li class="lp-step" style="--i:4"><div class="lp-step-hd"><div class="lp-step-n">5</div><h3><span class="vh">5. </span>Подтвердите прошедшее мероприятие</h3>
+        <p>Отметьте в личном кабинете, что мероприятие состоялось. Его проведение подтверждают обе стороны — организатор и площадка.</p></div>
+        <div class="lp-step-mock" aria-hidden="true"><div class="lp-win"><div class="lp-win-bar"><i></i><i></i><i></i><span class="lp-win-url">Кабинет площадки · Входящие запросы</span></div><div class="lp-win-b">
+          <div class="lp-inbox-row"><span class="lp-inbox-av">АС</span><div><b>RQ-261020-0008 · 90 гостей</b><span>20 октября · Зал «Панорама»</span></div><span class="m-btn" style="padding:6px 10px">Мероприятие состоялось</span></div>
+          <div class="lp-inbox-row"><span class="lp-inbox-av">ПМ</span><div><b>Обучение продавцов · 40</b><span>объект отметил, ждём пользователя</span></div><span class="m-st done">Мероприятие состоялось</span></div></div></div></div></li>
     </ol>
   </div>
 </section>
@@ -313,7 +333,7 @@
           <div class="lp-inbox-row hl"><span class="lp-inbox-av">ИК</span><div><b>Стратегическая сессия · 180 участников</b><span>18–19 ноября · Большой зал, Переговорная</span></div><span class="m-st new">Запрос отправлен</span></div>
           <div class="lp-inbox-row"><span class="lp-inbox-av">ЕД</span><div><b>Конференция дилеров · 120</b><span>4 декабря · Зал «Панорама»</span></div><span class="m-st new">Запрос отправлен</span></div>
           <div class="lp-inbox-row"><span class="lp-inbox-av">ПМ</span><div><b>Обучение продавцов · 40</b><span>12 ноября · Переговорная «Сити»</span></div><span class="m-st done">Мероприятие состоялось</span></div>
-          <div class="m-row" style="margin-top:12px"><span class="m-btn o">Ответить по email</span><span class="m-btn o">Отметить «мероприятие состоялось»</span></div>
+          <div class="m-row" style="margin-top:12px;flex-wrap:wrap"><span class="m-btn o">Ответить по email</span><span class="m-btn o">Отметить «мероприятие состоялось»</span></div>
         </div>
       </div>
     </div>

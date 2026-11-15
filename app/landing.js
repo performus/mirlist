@@ -33,6 +33,20 @@
     });
   }
 
+  /* ── R6 стр.193: шаги с иллюстрацией у каждого шага ([data-steps]) ──
+     На десктопе активный шаг меняется наведением и кликом; на узких экранах видны все иллюстрации (CSS). */
+  function stepSwitch() {
+    $$('[data-steps]').forEach(ol => {
+      const steps = $$('.lp-step', ol);
+      steps.forEach(li => {
+        const head = $('.lp-step-hd', li); if (!head) return;
+        const go = () => steps.forEach(x => x.classList.toggle('on', x === li));
+        head.addEventListener('click', go);
+        head.addEventListener('mouseenter', () => { if (matchMedia('(hover: hover) and (min-width: 1101px)').matches) go(); });
+      });
+    });
+  }
+
   /* ── ленты карточек: кнопки «назад / вперёд» ── */
   function rails() {
     $$('[data-rail-nav]').forEach(nav => {
@@ -182,5 +196,5 @@
   }
 
   window.LP = { IC };
-  mocks(); switches(); rails(); agencyForm(); reveal();
+  mocks(); switches(); stepSwitch(); rails(); agencyForm(); reveal();
 })();
