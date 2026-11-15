@@ -266,5 +266,22 @@ test('стр.174/167: число отзывов и средняя оценка �
   assert.ok(JSON.parse(JSON.stringify(v)).reviews === v.reviews, 'копия объекта (сравнение, презентация) несёт то же число');
 });
 
+test('стр.85: баллы в карточке поставщика — только у позиций его витрины; без витрины строк про баллы нет', () => {
+  const { ML } = load();
+  const cat = ML.SUPPLIERS.find(s => s.name === 'Кейтеринг «Формат»');
+  const on = ML.supplierShowcase(cat).map(x => x.name);
+  assert.deepStrictEqual(plain(on.sort()), ['Дегустация меню', 'Кофе-брейк, цена за гостя']);
+  const off = cat.services.filter(x => !on.includes(x.name));
+  assert.ok(off.length > 0 && off.every(x => x.loyalty), 'раньше показывались баллы и у позиций не с витрины');
+  off.forEach(x => assert.strictEqual(ML.showcaseItem(cat, x), null, x.name));
+  const none = ML.SUPPLIERS.find(s => s.loyalty && !ML.supplierShowcase(s).length);
+  assert.ok(none, 'есть поставщик в программе без позиций на витрине — у него строк про баллы нет');
+  // позиция, опубликованная поставщиком на витрине из кабинета, тоже даёт баллы в карточке
+  const { ML: M2 } = load({ ml_shop_items: [{ localId: 'i1', owner: 'supplier', ownerName: none.name, title: none.services[0].name,
+    retail: none.services[0].price, pts: 1000, cost: 1, status: 'published' }] });
+  const n2 = M2.SUPPLIERS.find(s => s.id === none.id);
+  assert.strictEqual(M2.supplierShowcase(n2).length, 1);
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

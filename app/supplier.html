@@ -206,12 +206,15 @@ function render() {
 
   /* Прайс-лист берём из модели: s.services = [{name, price, loyalty}].
      В бонусной программе участвует не вся карточка, а конкретные позиции. */
-  const rows = s.services.map(x => `<tr>
+  /* R6 стр.85: баллами оплачиваются только позиции, выставленные на витрину этого поставщика; у остальных — «—».
+     Нет позиций на витрине — нет ни колонок, ни строк про баллы. */
+  const onShop = ML.supplierShowcase(s).length > 0;
+  const rows = s.services.map(x => { const it = ML.showcaseItem(s, x); return `<tr>
     <td>${esc(x.name)}</td>
     <td class="num">${ML.money(x.price)}</td>
-    <td${x.loyalty ? '' : ' class="no"'}>${x.loyalty ? 'да' : 'нет'}</td>
-    <td class="${x.loyalty ? 'pts' : 'no'}">${x.loyalty ? ML.servicePoints(x.price).toLocaleString('ru') + ' Б' : '—'}</td>
-  </tr>`).join('');
+    ${onShop ? `<td${it ? '' : ' class="no"'}>${it ? `<a href="bonus.html#shop" style="color:var(--coral,#E8846A);font-weight:600">${esc(it.title)}</a>` : '—'}</td>
+    <td class="${it ? 'pts' : 'no'}">${it ? it.pts.toLocaleString('ru') + ' Б' : '—'}</td>` : ''}
+  </tr>`; }).join('');
 
   /* R3-A: свойства, по которым поставщика находят в фильтрах — те же названия, что в панели. */
   const yes = (b) => b ? 'да' : 'нет';
@@ -272,14 +275,14 @@ function render() {
 
       <div class="sec-head">
         <h2 class="sec-title">Услуги в карточке</h2>
-        <span class="sec-sub">Оплатить можно баллами бонусной программы</span>
+        ${onShop ? '<span class="sec-sub">Оплатить можно баллами бонусной программы</span>' : ''}
       </div>
       ${MH.lock(`<div class="panel"><div class="tscroll"><table class="tbl">
-        <thead><tr><th>Услуга</th><th>Цена от</th><th>В бонусной программе</th><th>В баллах</th></tr></thead>
+        <thead><tr><th>Услуга</th><th>Цена от</th>${onShop ? '<th>В бонусной программе</th><th>В баллах</th>' : ''}</tr></thead>
         <tbody>${rows}</tbody>
       </table></div></div>`, 'Прайс-лист доступен после регистрации')}
-      <div class="note">Услуги можно оплатить <a href="bonus.html" style="color:var(--coral,#E8846A);font-weight:600">баллами бонусной программы</a> — они начисляются
-        за проведённые мероприятия и отзывы.</div>
+      ${onShop ? `<div class="note">Услуги можно оплатить <a href="bonus.html#shop" style="color:var(--coral,#E8846A);font-weight:600">баллами бонусной программы</a> — они начисляются
+        за проведённые мероприятия и отзывы.</div>` : ''}
 
       ${reviewsBlock(s)}
 
@@ -307,7 +310,7 @@ function openRequest() {
   <div class="ovl" id="ovl" onclick="if(event.target===this)closeRequest()">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-head">
-        <div class="modal-title">Запрос поставщику</div>
+        <div class="modal-title">Запрос поставщику «${esc(s.name)}»</div>
         <button class="x" onclick="closeRequest()" aria-label="Закрыть">✕</button>
       </div>
       <div class="modal-body">

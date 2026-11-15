@@ -1272,10 +1272,11 @@
 
   const SHOP = [
     { id: 1, title: 'Аренда переговорной, 4 часа', provider: 'Отель «Аврора»', rub: 10000 },
-    { id: 2, title: 'Кофе-брейк на 20 человек', provider: 'Кейтеринг «Формат»', rub: 18000 },
-    { id: 3, title: 'Ведение корпоратива, до 6 часов', provider: 'Ведущий Артём Соколов', rub: 45000 },
-    { id: 4, title: 'Фотосъёмка мероприятия, 5 часов', provider: 'Фотограф Мария Лебедева', rub: 35000 },
-    { id: 5, title: 'Дегустация банкетного меню', provider: 'Кейтеринг «Формат»', rub: 6000 },
+    /* service — позиция прайса поставщика, которую он выставил на витрину (R6 стр.85: баллы в карточке — только у таких) */
+    { id: 2, title: 'Кофе-брейк на 20 человек', provider: 'Кейтеринг «Формат»', rub: 18000, service: 'Кофе-брейк, цена за гостя' },
+    { id: 3, title: 'Ведение корпоратива, до 6 часов', provider: 'Ведущий Артём Соколов', rub: 45000, service: 'Ведение мероприятия, до 6 часов' },
+    { id: 4, title: 'Фотосъёмка мероприятия, 5 часов', provider: 'Фотограф Мария Лебедева', rub: 35000, service: 'Фотосъёмка мероприятия, 5 часов' },
+    { id: 5, title: 'Дегустация банкетного меню', provider: 'Кейтеринг «Формат»', rub: 6000, service: 'Дегустация меню' },
     { id: 6, title: 'Подписка ПРЕМИУМ на 6 месяцев', provider: 'МАЙСЛИСТ', rub: 8750, own: true, premiumMonths: 6 },
   ].map(s => Object.assign(s, {
     pts: servicePoints(s.rub),
@@ -2290,14 +2291,7 @@
       || F.video || F.reviews || F.loyalty || F.cats.size || F.halal || F.kosher || F.delivery || F.installation || F.operator
       || (F.ppp && (F.ppp[0] > 0 || F.ppp[1] < F._maxPpp)) || (F.hours && (F.hours[0] || F.hours[1])) || F.days);
   }
-  /* R3-B, строки 102 и 126: группового запроса поставщикам нет — запрос уходит из карточки поставщика. */
-  function canGroupSupplierRequest_removed(supplierIds) {
-    const cats = new Set(supplierIds.map(id => {
-      const s = SUPPLIERS.find(x => x.id === +id); return s ? s.parent : null;
-    }));
-    if (cats.size > 1) return { ok: false, reason: 'Групповой запрос возможен только поставщикам одной категории' };
-    return { ok: true };
-  }
+  /* R3-B, R6 строки 102 и 126: группового запроса поставщикам нет — запрос уходит одному поставщику из его карточки. */
 
   /* — сохранение фильтров между страницами —
      Приложение многостраничное: уход на карточку объекта и возврат на подбор
@@ -2708,6 +2702,9 @@
   const removeShopItem = (i) => { state.shopItems.splice(i, 1); persist.shopItems(); };
   const myShopItems = (owner) => state.shopItems.filter(x => !owner || x.owner === owner);
   /** Витрина для пользователя: затравка плюс опубликованные позиции владельцев. */
+  /** R6 стр.85: позиция прайса поставщика на его витрине — по связи service или по совпадению названия. */
+  const showcaseItem = (s, svc) => shopCatalog().find(x => x.provider === s.name && (x.service === svc.name || x.title === svc.name)) || null;
+  const supplierShowcase = (s) => (s.services || []).filter(x => showcaseItem(s, x));
   const shopCatalog = () => SHOP.concat(
     state.shopItems.filter(x => x.status === 'published')
       .map(x => ({ id: x.localId, title: x.title, provider: x.ownerName, rub: x.retail, pts: x.pts, cost: x.cost }))
@@ -2887,7 +2884,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
