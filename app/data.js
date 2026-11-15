@@ -1978,6 +1978,27 @@
     return req;
   }
 
+  /**
+   * R6 стр.218: одиночный запрос из сравнения — только в этот объект, с его залами из сравнения.
+   * Доступен со «СТАРТА» (как запрос из карточки), лимит группового запроса тарифа на него не действует.
+   * Объект после отправки убирается из сравнения, остальные остаются.
+   */
+  function createCompareVenueRequest(venueId, title, letter, opts) {
+    opts = opts || {};
+    if (requestFieldsError(opts) || !canDirectRequest().ok) return null;
+    const halls = compareHalls().filter(h => h.venueId === +venueId);
+    if (!halls.length) return null;
+    const req = {
+      id: newRequestId(), date: new Date().toLocaleDateString('ru'),
+      title: title || `Запрос на 1 объект`, letter: letter || '', dates: opts.dates || '', guests: opts.guests || '',
+      params: filtersSummary(state.filters), hallIds: halls.map(h => h.id),
+      objects: [{ venueId: +venueId, status: 'sent' }], direct: true,
+    };
+    state.requests.unshift(req); persist.requests();
+    halls.forEach(h => state.compare.delete(h.id)); persist.compare();
+    return req;
+  }
+
   const requestById = (id) => state.requests.find(r => r.id === id) || null;
 
   /** Залы запроса — для окна «посмотреть запрос». */
@@ -2884,7 +2905,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,

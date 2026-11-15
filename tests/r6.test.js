@@ -283,5 +283,28 @@ test('стр.85: баллы в карточке поставщика — тол�
   assert.strictEqual(M2.supplierShowcase(n2).length, 1);
 });
 
+test('стр.218: одиночный запрос из сравнения — в один объект с его залами, со «СТАРТА», лимит группового не действует; объект уходит из сравнения', () => {
+  const { ML } = load({ ml_tariff: 'start' });
+  const vs = ML.VENUES.slice(0, 3);
+  vs.forEach(v => v.halls.slice(0, 2).forEach(h => ML.toggleCompare(h.id)));
+  const objs = new Set(ML.compareHalls().map(h => h.venueId));
+  assert.ok(objs.size <= ML.tariff().compare, 'в пределах лимита сравнения');
+  const target = [...objs][0], others = [...objs].slice(1);
+  assert.ok(!ML.canGroupRequest(objs.size).ok || objs.size <= 2, 'групповой на СТАРТ ограничен');
+  const before = ML.state.requests.length;
+  const r = ML.createCompareVenueRequest(target, 'Запрос на 1 объект', 'Письмо', { dates: '10.12.2026', guests: 50 });
+  assert.ok(r, 'одиночный запрос создан на СТАРТ');
+  assert.strictEqual(ML.state.requests.length, before + 1);
+  assert.deepStrictEqual(plain(r.objects.map(o => o.venueId)), [target]);
+  assert.ok(r.hallIds.every(id => ML.hallById(id).venueId === target) && r.hallIds.length >= 1, 'залы — только этого объекта из сравнения');
+  const left = new Set(ML.compareHalls().map(h => h.venueId));
+  assert.ok(!left.has(target), 'объект убран из сравнения');
+  others.forEach(id => assert.ok(left.has(id), 'остальные остаются'));
+  // без дат или участников — нет; гостю — нет
+  assert.strictEqual(ML.createCompareVenueRequest(others[0], '', '', {}), null);
+  const g = load({ ml_tariff: 'guest' }).ML; g.toggleCompare(ML.VENUES[0].halls[0].id);
+  assert.strictEqual(g.createCompareVenueRequest(ML.VENUES[0].id, '', '', { dates: '1', guests: 1 }), null);
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

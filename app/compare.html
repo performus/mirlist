@@ -109,6 +109,10 @@ button{font-family:inherit;cursor:pointer;}
 .ch-grp a{font-size:13px;font-weight:700;color:var(--slate-deep);}
 .ch-grp a:hover{color:var(--coral);}
 .ch-grp span{font-size:11.5px;color:var(--slate-muted);}
+/* R6 стр.218: одиночный запрос в объект из шапки его колонок */
+.ch-req{margin-left:auto;padding:4px 10px;border:1px solid var(--coral);border-radius:var(--r-full);background:var(--white);
+  color:var(--coral);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.ch-req:hover{background:var(--coral);color:#fff;}
 .cmp .gstart{border-left:2px solid var(--aqua-3);}
 .tscroll:focus-visible{outline:2px solid var(--coral);outline-offset:2px;}
 .cmp-stars{color:#F0B95A;letter-spacing:1px;}
@@ -393,7 +397,8 @@ function render() {
     const v = venues[i], g = gpos[i];
     return `<th class="colhead${g.first ? ' gstart' : ''}">
       <div class="ch-grp${g.first ? ' first' : ''}${g.last ? ' last' : ''}">${g.first
-        ? `<a href="venue.html?id=${v.id}">${esc(v.name)}</a><span>${gsize(v.id)} ${ML.plural(gsize(v.id), ['зал', 'зала', 'залов'])}</span>` : ''}</div>
+        ? `<a href="venue.html?id=${v.id}">${esc(v.name)}</a><span>${gsize(v.id)} ${ML.plural(gsize(v.id), ['зал', 'зала', 'залов'])}</span>
+          <button class="ch-req" onclick="openRequest(${v.id})">Запрос в этот объект</button>` : ''}</div>
       <div class="ch-img"><img src="${ML.photoUrl(h.photo)}" alt="" loading="lazy"></div>
       <a class="ch-name" href="hall.html?id=${h.id}">${esc(h.name)}</a>
       <button class="ch-remove" onclick="removeHall(${h.id})">Убрать</button>
@@ -421,7 +426,7 @@ function render() {
     <div class="d-actions">
       <button class="btn" onclick="clearAll()">Очистить список</button>
       <button class="btn${t.presentation ? '' : ' locked'}" ${t.presentation ? '' : 'title="Доступно с тарифа «БИЗНЕС»"'} onclick="openPresentation()">Сформировать презентацию</button>
-      <button class="btn pri" onclick="openRequest()">Отправить запрос</button>
+      <button class="btn pri" onclick="openRequest()">Отправить групповой запрос</button>
     </div>
   </div>
 
@@ -544,9 +549,11 @@ function openPresentation() {
      <a class="btn pri" href="venue-presentation.html">Скачать презентацию в PDF</a>`);
 }
 
-/* ── групповой запрос ── */
-function openRequest() {
-  const halls = ML.compareHalls();
+/* ── групповой запрос; R6 стр.218: с venueId — одиночный запрос в этот объект (со «СТАРТА», без лимита группового) ── */
+let SINGLE = null;
+function openRequest(venueId) {
+  SINGLE = venueId || null;
+  const halls = ML.compareHalls().filter(h => !SINGLE || h.venueId === SINGLE);
   if (!halls.length) { MH.toast('Сначала добавьте залы в сравнение', 'error'); return; }
 
   const byVenue = new Map();
@@ -558,7 +565,8 @@ function openRequest() {
   const objs = [...byVenue.values()];
 
   // лимит тарифа проверяет сама модель (клиент 27.10: СТАРТ — 2, БИЗНЕС — 5, ПРЕМИУМ — без ограничения)
-  const chk = ML.canGroupRequest(objs.length);
+  const chk = SINGLE ? ML.canDirectRequest() : ML.canGroupRequest(objs.length);
+  if (SINGLE && !chk.ok) { MH.paywall('start', 'Запрос в объект'); return; }
   if (!chk.ok) {
     if (!chk.need) { MH.paywall('start', 'Групповой запрос'); return; }   // гость — предложение регистрации
     const up = ML.TARIFFS[chk.need];
@@ -569,8 +577,8 @@ function openRequest() {
     return;
   }
 
-  modal('Групповой запрос', `
-    <label class="fl">Будет направлен в отделы продаж следующих объектов</label>
+  modal(SINGLE ? 'Запрос в этот объект' : 'Групповой запрос', `
+    <label class="fl">${SINGLE ? 'Будет направлен в отдел продаж объекта' : 'Будет направлен в отделы продаж следующих объектов'}</label>
     <div class="obj-list">${objs.map(o => `<div class="obj">
       <b>${esc(o.venue.name)}</b>
       <span>${o.halls.map(h => esc(h.name)).join(', ')}</span>
@@ -604,7 +612,7 @@ function useTemplate() {
 }
 
 function sendRequest() {
-  const halls = ML.compareHalls();
+  const halls = ML.compareHalls().filter(h => !SINGLE || h.venueId === SINGLE);
   const objCount = new Set(halls.map(h => h.venueId)).size;
   // стр.19: без дат и участников запрос не уходит — сообщение под полем, фокус на него
   if (!MH.requireRequestFields(document.getElementById('rqDates'), document.getElementById('rqGuests'))) return;
@@ -615,10 +623,11 @@ function sendRequest() {
   const title = `Запрос на ${objCount} ${ML.plural(objCount, ['объект','объекта','объектов'])}`
     + (dates ? `, ${dates}` : '') + (guests ? `, ${guests} чел.` : '');
 
-  // createRequest сам проверяет лимит, присваивает номер и очищает сравнение
-  const req = ML.createRequest(title, letter, { dates, guests: +guests });
+  // createRequest сам проверяет лимит, присваивает номер и очищает сравнение; одиночный — убирает из сравнения только свой объект
+  const req = SINGLE ? ML.createCompareVenueRequest(SINGLE, title, letter, { dates, guests: +guests })
+    : ML.createRequest(title, letter, { dates, guests: +guests });
   if (!req) {
-    const chk = ML.canGroupRequest(objCount);
+    const chk = SINGLE ? ML.canDirectRequest() : ML.canGroupRequest(objCount);
     MH.toast(chk.reason || 'Не удалось создать запрос', 'error');
     return;
   }
@@ -632,7 +641,7 @@ function sendRequest() {
       <tr><th>Залов в запросе</th><td>${req.hallIds.length}</td></tr>
       <tr><th>Объектов</th><td>${req.objects.length}</td></tr>
     </table>
-    <div class="mnote">Список сравнения очищен — залы переехали в запрос.</div>`,
+    <div class="mnote">${SINGLE ? 'Объект убран из сравнения, остальные залы остались.' : 'Список сравнения очищен — залы переехали в запрос.'}</div>`,
     `<a class="btn" href="search.html">К подбору</a>
      <a class="btn pri" href="dashboard.html?role=user&page=requests">В историю запросов</a>`);
 
