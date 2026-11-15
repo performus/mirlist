@@ -306,5 +306,41 @@ test('стр.218: одиночный запрос из сравнения — в
   assert.strictEqual(g.createCompareVenueRequest(ML.VENUES[0].id, '', '', { dates: '1', guests: 1 }), null);
 });
 
+test('стр.188: корректировка со сменой дат или участников уходит всем, кроме отменённых, в том числе отклонившим; только письмо — как раньше', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const r = ML.state.requests.find(x => x.objects.length >= 3);
+  r.objects[0].status = 'cancelled';
+  r.objects[1].status = 'declined'; r.objects[1].reason = 'Нет свободных дат'; r.objects[1].declinedAt = '01.11.2026';
+  // только письмо: статусы не меняются, получатели — без отменённых и отклонивших
+  assert.strictEqual(ML.correctionTargets(r, false).length, r.objects.filter(o => !['cancelled', 'declined'].includes(o.status)).length);
+  assert.strictEqual(ML.updateRequest(r.id, { letter: 'Новое письмо' }), true);
+  assert.strictEqual(r.objects[1].status, 'declined', 'письмо не возвращает отклонивших');
+  // новые даты: отклонивший снова «Запрос отправлен», отказ — в истории; отменённый не трогается
+  const to = ML.correctionTargets(r, true).map(o => o.venueId);
+  assert.ok(to.includes(r.objects[1].venueId) && !to.includes(r.objects[0].venueId));
+  assert.strictEqual(ML.updateRequest(r.id, { dates: '20–21.12.2026', guests: r.guests }), true);
+  assert.strictEqual(r.objects[1].status, 'sent');
+  assert.strictEqual(r.objects[1].history.length, 1);
+  assert.strictEqual(r.objects[1].history[0].reason, 'Нет свободных дат');
+  assert.strictEqual(r.objects[0].status, 'cancelled', 'отменённый пользователем остаётся отменённым');
+  // смена участников тоже
+  r.objects[1].status = 'declined';
+  ML.updateRequest(r.id, { guests: (+r.guests || 10) + 5 });
+  assert.strictEqual(r.objects[1].status, 'sent'); assert.strictEqual(r.objects[1].history.length, 2);
+  // те же даты и участники — не считается изменением
+  r.objects[1].status = 'declined';
+  ML.updateRequest(r.id, { dates: r.dates, guests: r.guests, letter: 'ещё' });
+  assert.strictEqual(r.objects[1].status, 'declined');
+});
+
+test('стр.182: у отклонённой или отменённой строки нет «будет начислено»', () => {
+  const { ML } = load({ ml_tariff: 'biz' });
+  const r = ML.state.requests.find(x => x.guests);
+  const o = Object.assign({}, r.objects[0]);
+  assert.ok(ML.accrualFor(r, Object.assign({}, o, { status: 'sent' })), 'у отправленного начисление показывается');
+  assert.strictEqual(ML.accrualFor(r, Object.assign({}, o, { status: 'declined' })), null);
+  assert.strictEqual(ML.accrualFor(r, Object.assign({}, o, { status: 'cancelled' })), null);
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

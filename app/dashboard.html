@@ -434,6 +434,7 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj-name{font-size:14.5px;font-weight:700;color:var(--sd);transition:color .2s;}
 .rq-obj-name:hover{color:var(--c);}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
+.rq-obj-hist{margin:6px 0 0;font-size:12px;color:var(--sx);}
 .st{padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:700;white-space:nowrap;}
 .st.sent{background:var(--cs);color:var(--c);}
 .st.done{background:#E6F4EC;color:#3E9A6B;}
@@ -929,8 +930,8 @@ function reqBlock(r, part){
       </div>
     </div>
     <button type="button" class="rq-fold${open ? ' open' : ''}" aria-expanded="${open}" onclick="toggleRq('${jt(key)}')">
-      <span class="rq-fold-t">${open ? 'Свернуть' : 'Показать'} объекты запроса (${rows.length})</span>
-      <span class="rq-fold-s">${Object.entries(sum).map(([l, n]) => `${esc(l)}${n > 1 ? ' × ' + n : ''}`).join(' · ')}</span>
+      <span class="rq-fold-t">${open ? 'Свернуть' : 'Показать'} объекты запроса</span>
+      ${Object.keys(sum).length > 1 ? `<span class="rq-fold-s">${Object.entries(sum).map(([l, n]) => `${esc(l)} — ${n}`).join(' · ')}</span>` : ''}
       <svg class="rq-fold-c" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
     </button>
     ${open ? rows.map(o => reqObjRow(r, o)).join('') : ''}
@@ -941,11 +942,14 @@ function reqObjRow(r, o){
   const v = ML.venueById(o.venueId);
   const flow = ML.waitingVenue(o) ? { label: 'Ждёт подтверждения площадки' } : (ML.REQUEST_FLOW[o.status] || { label: o.status });
   const dead = o.status === 'cancelled';
-  // активность каждой кнопки — только по модели
-  const canRefresh   = ML.canSetStatus(o, 'cancelled');   // активна, пока объект не отменён
+  // активность каждой кнопки — только по модели. R6 стр.189: «Обновить» у объекта нет — одна «Обновить статус» у запроса.
+  // R6 стр.182: у закрытой строки (архив) нет серых кнопок — только доступные действия, например «Отзыв».
+  const closed = ML.isClosedRow(o);
   const canDone      = ML.canSetStatus(o, 'done');
   const canReview    = ML.canSetStatus(o, 'reviewed');
   const canCancel    = ML.canSetStatus(o, 'cancelled');
+  /* R6 стр.188: отказ до корректировки дат или участников остаётся в истории строки */
+  const hist = (o.history || []).map(h => `<div class="rq-obj-hist">Ранее: отклонён${h.date ? ' ' + esc(h.date) : ''}${h.reason ? ' — ' + esc(h.reason) : ''}${h.until ? ` · запрос исправлен ${esc(h.until)}` : ''}</div>`).join('');
   const extra = [
     o.guests ? `${o.guests} чел.` : '',
     o.dates ? esc(o.dates) : '',
@@ -960,14 +964,15 @@ function reqObjRow(r, o){
       ${accrualChip(r, o)}
       ${extra ? `<span class="rq-obj-meta">${extra}</span>` : ''}
     </div>
-    <div class="btn-row">
-      <button class="btn-xs" ${canRefresh ? '' : 'disabled'} onclick="refreshOne('${esc(r.id)}',${o.venueId})">Обновить</button>
+    ${hist}
+    ${closed ? (canReview ? `<div class="btn-row"><button class="btn-xs" onclick="openReview('${esc(r.id)}',${o.venueId})">Отзыв</button></div>` : '')
+    : `<div class="btn-row">
       <button class="btn-xs" ${canDone ? '' : 'disabled'} onclick="markDone('${esc(r.id)}',${o.venueId})">Мероприятие состоялось</button>
       ${!canReview && o.status === 'done' && !o.venueDone
         ? '<span class="tipwrap" data-tip="Отзыв можно оставить после подтверждения площадкой"><button class="btn-xs" disabled title="Отзыв можно оставить после подтверждения площадкой">Отзыв</button></span>'
         : `<button class="btn-xs" ${canReview ? '' : 'disabled'} onclick="openReview('${esc(r.id)}',${o.venueId})">Отзыв</button>`}
       <button class="btn-xs danger" ${canCancel ? '' : 'disabled'} onclick="openCancel('${esc(r.id)}',${o.venueId})">Отмена</button>
-    </div>
+    </div>`}
   </div>`;
 }
 
@@ -1056,28 +1061,37 @@ function openReqView(id){
 function openReqEdit(id){
   const r = ML.requestById(id);
   if (!r) return;
-  const live = r.objects.filter(o => o.status !== 'cancelled').length;
   dm('Скорректировать запрос', `
     <div class="rv-row">
       <div>
         <label class="form-label" for="edDates">Даты</label>
-        <input class="form-input" id="edDates" value="${esc(r.dates || '')}" placeholder="12–14 сентября">
+        <input class="form-input" id="edDates" value="${esc(r.dates || '')}" placeholder="12–14 сентября" oninput="edNote('${esc(r.id)}')">
       </div>
       <div>
         <label class="form-label" for="edGuests">Участников</label>
-        <input class="form-input" id="edGuests" type="number" min="0" value="${esc(String(r.guests || ''))}" placeholder="120">
+        <input class="form-input" id="edGuests" type="number" min="0" value="${esc(String(r.guests || ''))}" placeholder="120" oninput="edNote('${esc(r.id)}')">
       </div>
     </div>
     <label class="form-label" for="edLetter">Сопроводительное письмо</label>
     <textarea class="form-input" id="edLetter" rows="6">${esc(r.letter || '')}</textarea>
-    <div class="dm-note">Исправления отправятся объектам, которые ещё не отменили запрос — сейчас их ${live}.
-    Если, скорректировав запрос, вы отправите его заново, статусы обновятся, но объекты,
-    отклонившие изначальный запрос, новый уже не получат.</div>`,
+    <div class="dm-note" id="edNote"></div>`,
     `<button class="btn btn-o" onclick="dmClose()">Отмена</button>
      <button class="btn btn-o" onclick="repeatReq('${esc(r.id)}')">Отправить новый запрос</button>
      <button class="btn btn-c" onclick="saveReqEdit('${esc(r.id)}')">Сохранить</button>`);
+  edNote(id);
 }
 
+/* R6 стр.188: текст окна — под правило: новые даты или участники уходят всем, кроме отменённых вами, в том числе отклонившим */
+function edNote(id){
+  const r = ML.requestById(id), el = document.getElementById('edNote');
+  if (!r || !el) return;
+  const v = edVals(), moved = String(v.dates) !== String(r.dates || '') || +v.guests !== +(r.guests || 0);
+  const n = ML.correctionTargets(r, moved).length, declined = r.objects.filter(o => o.status === 'declined').length;
+  el.innerHTML = moved
+    ? `Даты или число участников изменились — исправленный запрос получат все объекты, кроме отменённых вами: ${n}.`
+      + (declined ? ` Отклонившие запрос тоже получат его снова — у них статус станет «Запрос отправлен», прежний отказ останется в истории.` : '')
+    : `Если изменить только письмо, его получат объекты, которые не отменили и не отклонили запрос: ${n}.`;
+}
 function edVals(){
   return {
     dates: (document.getElementById('edDates') || {}).value || '',
@@ -1307,7 +1321,8 @@ function dropFav(hallId){ ML.toggleFav(hallId); renderNav(); renderPage(); }
 
 /* ── баллы ──
    Клиент 27.10: история — журнал модели (ML.pointsHistory): начисления партиями, списания, возвраты
-   и «Сгорание». Сверху — мероприятия, баллы за которые ждут оплаты от объекта (они не сгорают).
+   и «Сгорание». Сверху — мероприятия, баллы за которые ожидают начисления (они не сгорают; R6 стр.130 — расчёты
+   платформы с объектом пользователю не показываем).
    Порядок — от новых к старым (стр.125: длинный список сворачивается). */
 const POINTS_STATE = { accrual: 'начислены', spend: 'списаны', refund: 'возвращены', expire: 'сгорели' };
 function pointsLedger(){
@@ -1318,7 +1333,7 @@ function pointsLedger(){
     if (o.status !== 'done' || !o.guests || credited.has(r.id + ':' + o.venueId)) return;
     const v = ML.venueById(o.venueId);
     const p = ML.eventPoints(o.guests);
-    if (p) out.push({ what: `Мероприятие в «${v ? v.name : 'Объект #' + o.venueId}»`, state: 'ждём оплату от объекта', pts: p });
+    if (p) out.push({ what: `Мероприятие в «${v ? v.name : 'Объект #' + o.venueId}»`, state: 'ожидают начисления', pts: p });
   }));
   log.forEach(x => out.push({ what: x.what, sub: [x.date.split('-').reverse().join('.'), x.note].filter(Boolean).join(' · '),
     state: POINTS_STATE[x.kind] || '', pts: x.pts }));
@@ -2308,8 +2323,7 @@ requests:()=>{
   const tabs=`<div class="rq-tabs" role="tablist">
     <button class="rq-tab${REQ_TAB==='active'?' on':''}" onclick="setReqTab('active')">Активные (${ML.activeRequests().length})</button>
     <button class="rq-tab${REQ_TAB==='archive'?' on':''}" onclick="setReqTab('archive')">Архив (${ML.archivedRequests().length})</button></div>`;
-  const rule=`<div class="dm-note" style="margin-bottom:16px">В архив попадают только закрытые объекты запроса: мероприятие состоялось и это подтвердили обе стороны,
-    объект отклонил запрос или вы его отменили. После вашей отметки «Мероприятие состоялось» объект остаётся в активных со статусом «Ждёт подтверждения площадки».</div>`;
+  const rule='';   // R6 стр.223: текст правила архива копирайтер не утверждал — убран, само правило не меняется
   if(all.length&&!list.length) return `
     <h1 class="page-title">История запросов</h1>
     <p class="page-sub">Запросы в отделы продаж и их статусы</p>${tabs}${rule}

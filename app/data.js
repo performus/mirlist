@@ -2014,13 +2014,29 @@
   }
 
   /** Корректировка запроса. Отменённые объекты не воскрешаются. */
+  /**
+   * Скорректировать запрос. R6 стр.188: если изменились даты или число участников, исправленный запрос уходит
+   * всем объектам, кроме отменённых пользователем, — в том числе отклонившим (отказ мог быть из-за старых дат):
+   * у них снова «Запрос отправлен», прежний отказ остаётся в истории строки (o.history). Если изменилось только
+   * письмо — получают те, кто не отменил и не отклонил; статусы не меняются.
+   */
   function updateRequest(reqId, patch) {
     const r = requestById(reqId); if (!r) return false;
     if (('dates' in patch || 'guests' in patch) && requestFieldsError(Object.assign({ dates: r.dates, guests: r.guests }, patch))) return false;
+    const changed = ('dates' in patch && String(patch.dates) !== String(r.dates || '')) || ('guests' in patch && +patch.guests !== +(r.guests || 0));
     ['title', 'letter', 'dates', 'guests'].forEach(k => { if (k in patch) r[k] = patch[k]; });
     r.updatedAt = new Date().toLocaleDateString('ru');
+    if (changed) r.objects.forEach(o => {
+      if (o.status !== 'declined') return;
+      o.history = (o.history || []).concat({ status: 'declined', reason: o.reason || '', date: o.declinedAt || '', until: r.updatedAt });
+      o.status = 'sent'; delete o.reason; delete o.declinedAt;
+    });
     persist.requests();
     return true;
+  }
+  /** Кому уйдёт корректировка: с новыми датами или участниками — всем, кроме отменённых; только письмо — ещё без отклонивших. */
+  function correctionTargets(r, datesOrGuestsChanged) {
+    return r.objects.filter(o => o.status !== 'cancelled' && (datesOrGuestsChanged || o.status !== 'declined'));
   }
 
   /** Повторный запрос по тем же объектам и залам — «оставить ещё один». */
@@ -2088,7 +2104,7 @@
     if (!guests) return null;
     const pts = eventPoints(guests);
     if (!pts) return null;
-    if (obj.status === 'cancelled') return null;
+    if (obj.status === 'cancelled' || obj.status === 'declined') return null;   // R6 стр.182: отклонён или отменён — начисления нет
     if (bothConfirmed(obj)) return { pts, state: 'done', label: 'начислено' };
     if (obj.status === 'done' || obj.status === 'reviewed')
       return { pts, state: 'waiting', label: 'ожидает подтверждения объекта' };
@@ -2632,6 +2648,7 @@
     const o = r.objects.find(x => x.venueId === +venueId); if (!o) return false;
     if (o.status !== 'sent' || o.venueDone) return false;
     o.status = 'declined';
+    o.declinedAt = new Date().toLocaleDateString('ru');
     if (reason) o.reason = reason;
     persist.requests();
     return true;
@@ -2905,7 +2922,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, correctionTargets, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,
