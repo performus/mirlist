@@ -153,7 +153,6 @@
     /* R5 стр.140: площадь — у каждого зала в блоке «Зал N» (r.area), общего поля в панели нет */
     f('halls', 'hall_area_min', 'Площадь зала от, м²', null, hl({ planned: 'numFrom', inHall: true, advanced: true })),
     f('halls', 'ceiling_height_min', 'Высота потолка от, м', null, hl({ decision: 'Удалить', planned: 'numFrom', advanced: true })),
-    ch('halls', 'has_floor_plan', 'Есть план зала', hl({ advanced: true })),
 
     f('price', 'price_day', 'Стоимость за день', 'range2', { fkey: 'priceDay', mode: 'day' }),
     f('price', 'price_hour', 'Стоимость за час', 'range2', { fkey: 'priceHour', mode: 'hour' }),
@@ -173,6 +172,9 @@
     ch('food', 'kashrut_certificate', 'Сертификат кашрута'),
     ch('food', 'michelin', 'Звезда Michelin', { events: evs('b q w') }),
 
+    /* R6 стр.180/185/209: «Есть план зала» — свойство зала: в блоке «Зал N» и в группе «Оснащение зала»,
+       не в «Расширенных параметрах» */
+    ch('equip', 'has_floor_plan', 'Есть план зала', hl()),
     ch('equip', 'sound', 'Звуковое оборудование', hl()),
     ch('equip', 'light', 'Световое оборудование', hl()),
     ch('equip', 'screen', 'Экран', hl()),
@@ -205,6 +207,8 @@
     f('infra', 'parking_spaces_min', 'Парковочных мест от', 'numFrom', { fkey: 'parkingSpaces', dependsOn: { parking: 'private' } }),
     /* R5 стр.142: гримёрки — свойство объекта, из «Расширенных параметров» залов */
     f('infra', 'dressing_rooms', 'Гримёрок от', 'numFrom', { fkey: 'dressing' }),
+    /* R6 стр.180/209: поэтажный план — свойство объекта (PDF в карточке), отдельный чекбокс без вложенной группы */
+    ch('infra', 'venue_floor_plan', 'С поэтажным планом', { card: 'Поэтажный план' }),
     ch('infra', 'security', 'Охрана / ЧОП'),
     ch('infra', 'accessible', 'Доступная среда', { info: 'Пандус или лифт до зала, проходы шириной от 90 см без порогов и ступеней, доступный санузел. Уточняйте детали у площадки.' }),
     ch('infra', 'prayer_room', 'Молельная комната'),
@@ -232,7 +236,7 @@
   const venueFilter = (code) => VENUE_FILTERS.find(x => x.code === code) || null;
   /* Чекбоксы-свойства объекта: хранятся кодами в v.features. Особые чекбоксы считаются
      из других полей и в features не попадают. */
-  const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'menu', 'loyalty', 'wardrobe'];
+  const DERIVED_CHECKS = ['has_accommodation', 'has_floor_plan', 'venue_floor_plan', 'menu', 'loyalty', 'wardrobe'];
   const FEATURE_CODES = VENUE_FILTERS.filter(x => x.control === 'check' && !DERIVED_CHECKS.includes(x.code)).map(x => x.code);
   /* R3-D: оснащение и часть «Пространства» — свойства ЗАЛА (h.features), остальное — объекта (v.features).
      «Есть план зала» — тоже свойство зала, но считается из h.plan. */
@@ -737,6 +741,9 @@
   }
 
   const MENU_SAMPLE = { name: 'menu-sample.pdf', url: '../assets/menus/menu-sample.pdf' };
+  /* R6 стр.180: поэтажный план объекта — PDF; в демо-данных у шести объектов */
+  const FLOOR_PLAN_SAMPLE = { name: 'poetazhnyj-plan.pdf', url: '../assets/plans/floor-plan-sample.pdf' };
+  const FLOOR_PLAN_IDS = [1, 2, 4, 9, 11, 14];
 
   /* ── R3-D: оснащение — у зала ──
      До R3-D оснащение лежало у объекта. Теперь коды уровня 'hall' переезжают в h.features:
@@ -1008,6 +1015,7 @@
     }
     if (!v.rooms.total) v.rooms.total = (v.rooms.twin || 0) + (v.rooms.sngl || 0);
     ['cuisine'].forEach(k => { if (!Array.isArray(v[k])) v[k] = []; });
+    v.floorPlan = FLOOR_PLAN_IDS.includes(v.id) ? Object.assign({}, FLOOR_PLAN_SAMPLE) : null;
     spreadHallFeatures(v);
   });
   const roundUp = (n, step) => Math.ceil(Math.max(n, step) / step) * step;
@@ -1501,6 +1509,7 @@
   function venueHas(v, code) {
     if (code === 'has_accommodation') return venueRooms(v) > 0;
     if (code === 'menu') return !!v.menu;
+    if (code === 'venue_floor_plan') return !!v.floorPlan;
     if (code === 'loyalty') return !!v.loyaltyContract;
     if (code === 'wardrobe') return (v.wardrobe || 0) > 0;
     if (isHallCheck(code)) return v.halls.some(h => hallHas(h, code));
@@ -2278,7 +2287,8 @@
       coords: v.coords ? v.coords.lat + ', ' + v.coords.lng : '', rooms: Object.assign({}, v.rooms), eventTypes: v.eventTypes.slice(),
       features: v.features.slice(), cuisine: (v.cuisine || []).slice(), avgCheck: v.avgCheck || 0, wardrobe: v.wardrobe || 0,
       parking: v.parking || '', parkingSpaces: v.parkingSpaces || 0, confPackage: v.confPackage || 0, dressingRooms: v.dressingRooms || 0,
-      menu: v.menu ? Object.assign({}, v.menu) : null, photos: ['aurora-facade.jpg', 'aurora-lobby.jpg', 'aurora-hall.jpg'], photoCount: 3,
+      menu: v.menu ? Object.assign({}, v.menu) : null, floorPlan: v.floorPlan ? Object.assign({}, v.floorPlan) : null,
+      photos: ['aurora-facade.jpg', 'aurora-lobby.jpg', 'aurora-hall.jpg'], photoCount: 3,
       halls: v.halls.map(h => ({ name: h.name, type: h.type, floor: '', area: h.area, height: h.height, seats: Object.assign({}, h.seats),
         priceDay: h.priceDay, priceHour: h.priceHour, hourly: false, agree: !h.priceDay, plan: !!h.plan, planFiles: h.plan ? ['plan-' + h.id + '.pdf'] : [],
         photos: [], schemes: [], features: (h.features || []).slice() })),
@@ -2323,6 +2333,7 @@
       parking: d.parking || '', parkingSpaces: d.parking === 'private' ? (+d.parkingSpaces || 0) : 0,
       confPackage: +d.confPackage || 0, dressingRooms: +d.dressingRooms || 0,
       menu: d.menu ? { name: d.menu.name, url: d.menu.url && !String(d.menu.url).startsWith('blob:') ? d.menu.url : '' } : null,
+      floorPlan: d.floorPlan ? { name: d.floorPlan.name, url: d.floorPlan.url && !String(d.floorPlan.url).startsWith('blob:') ? d.floorPlan.url : '' } : null,
       photos: fileNames(d.photos), photoCount: fileNames(d.photos).length,
       halls: (d.halls || []).map(hallFromWizard),
       contacts: { person: d.person || '', phone: d.phone || '', mail: d.mail || '', inn: d.inn || '', bank: d.bank || '' },
@@ -2386,7 +2397,8 @@
       roomsTotal: (v.rooms || {}).total || '', twin: (v.rooms || {}).twin || '', sngl: (v.rooms || {}).sngl || '',
       feats: (v.features || []).slice(), cuisine: (v.cuisine || []).slice(), avgCheck: v.avgCheck || '', wardrobe: v.wardrobe || '',
       parking: v.parking || '', parkingSpaces: v.parkingSpaces || '', confPackage: v.confPackage || '', dressingRooms: v.dressingRooms || '',
-      menu: v.menu ? Object.assign({}, v.menu) : null, photos: (v.photos || []).map(name => ({ name })),
+      menu: v.menu ? Object.assign({}, v.menu) : null, floorPlan: v.floorPlan ? Object.assign({}, v.floorPlan) : null,
+      photos: (v.photos || []).map(name => ({ name })),
       halls: (v.halls || []).map(hallToWizard),
       person: (v.contacts || {}).person || '', phone: (v.contacts || {}).phone || '', mail: (v.contacts || {}).mail || '',
       inn: (v.contacts || {}).inn || '', bank: (v.contacts || {}).bank || '', contracts: (v.contracts || []).slice(),

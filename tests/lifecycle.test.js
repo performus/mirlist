@@ -593,7 +593,7 @@ test('конфиг: у каждого УТВЕРЖДЕНО — контрол н
   for (const c in want) assert.strictEqual(ML.venueFilter(c).control, want[c], c);
   assert.deepStrictEqual(plain(ML.VENUE_FILTER_GROUPS.map(g => g.l)), ['Основное', 'Тип площадки', 'Проживание', 'Залы', 'Стоимость',
     'Питание', 'Оснащение зала', 'Пространство', 'Инфраструктура', 'Правила', 'Спорт']);
-  assert.strictEqual(ML.VENUE_FILTERS.filter(d => d.group === 'equip').length, 14);
+  assert.strictEqual(ML.VENUE_FILTERS.filter(d => d.group === 'equip').length, 15, 'R6 стр.180: «Есть план зала» — в «Оснащении зала»');
   assert.strictEqual(ML.venueFilter('dressing_rooms').group, 'infra', 'R5 стр.142: гримёрки — в «Инфраструктуре»');
   assert.strictEqual(ML.VENUE_FILTERS.filter(d => d.group === 'sport').length, 8);
 });

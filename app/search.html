@@ -602,6 +602,8 @@ h1,h2,h3 { font-weight:700; }
   background:var(--coral); color:#fff;
   font-size:11px; font-weight:700; letter-spacing:.02em; white-space:nowrap;
 }
+/* R6 стр.180: поэтажный план объекта — справочная метка, спокойнее бонусной */
+.vb-loyal.vb-plan { background:var(--white); color:var(--slate-deep); box-shadow:inset 0 0 0 1px rgba(53,78,99,.28); margin-left:6px; }
 
 /* Какие залы закрыли требования конструктора. */
 .vb-match {
@@ -1548,7 +1550,7 @@ function venueBlock(x) {
     <div class="vb-head">
       <div>
         <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>${v.stars ? `<span class="vb-gold" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}
-        ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}
+        ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}${v.floorPlan ? '<span class="vb-loyal vb-plan">Поэтажный план</span>' : ''}
         <div class="vb-kicker">${esc(v.cat)} · ${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</div>
         <div class="vb-meta">
           <span class="vb-cap" tabindex="0" data-tip="${esc(CAP_TIP)}" aria-label="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>

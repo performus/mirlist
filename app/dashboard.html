@@ -1478,7 +1478,11 @@ const VENUE_STEPS=[
    {k:'photos',l:'Общая фотография и галерея',ty:'photo',
     hint:'Общее фото — единственное, что видит пользователь на тарифе «СТАРТ». Ставьте лучший кадр.'},
  ]},
- {t:'Залы',f:[{k:'halls',l:'Залы объекта',ty:'halls'}]},
+ {t:'Залы',f:[
+   /* R6 стр.180: поэтажный план объекта — PDF, по нему фильтр «С поэтажным планом» и метка в выдаче */
+   {k:'floorPlan',l:'Поэтажный план объекта',ty:'menu',
+    hint:'Поэтажный план увидят на карточке объекта. По нему работает фильтр «С поэтажным планом».'},
+   {k:'halls',l:'Залы объекта',ty:'halls'}]},
  {t:'Реквизиты',f:[
    {k:'person',l:'Контактное лицо',ty:'text',req:1},
    {k:'phone',l:'Телефон',ty:'text',ph:'+7 495 000-00-00',req:1},
@@ -1661,12 +1665,12 @@ function wfield(f){
     }
     case 'menu':
       return `<div class="wf">${L}${v?`<div class="wfile"><span class="wfile-ic">PDF</span><span class="wfile-n">${esc(v.name)}</span>
-          <button type="button" class="btn-xs danger" onclick="WIZ.data.menu=null;drawWiz()">Удалить</button></div>`:''}
+          <button type="button" class="btn-xs danger" onclick="WIZ.data['${f.k}']=null;drawWiz()">Удалить</button></div>`:''}
         <label class="drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')"
-          ondrop="event.preventDefault();wizMenu(event.dataTransfer.files)">
-          ${v?'Заменить меню — перетащите PDF или нажмите':'Перетащите PDF или нажмите, чтобы выбрать'}
+          ondrop="event.preventDefault();wizMenu(event.dataTransfer.files,'${f.k}')">
+          ${v?(f.k==='menu'?'Заменить меню — перетащите PDF или нажмите':'Заменить файл — перетащите PDF или нажмите'):'Перетащите PDF или нажмите, чтобы выбрать'}
           <div style="margin-top:5px;font-size:12px">PDF · до 10 МБ</div>
-          <input type="file" accept="application/pdf,.pdf" hidden onchange="wizMenu(this.files)"></label>${H}</div>`;
+          <input type="file" accept="application/pdf,.pdf" hidden onchange="wizMenu(this.files,'${f.k}')"></label>${H}</div>`;
     case 'area':
       return `<div class="wf${bad}">${L}<textarea placeholder="${esc(f.ph||'')}"
         oninput="${S}=this.value">${v==null?'':esc(v)}</textarea>${H}</div>`;
@@ -1783,10 +1787,12 @@ function wizReorder(e,k,to){
   const a=(WIZ.data[k]||[]).slice(); const [x]=a.splice(WZDRAG.i,1); a.splice(to,0,x);
   WIZ.data[k]=a; WZDRAG=null; drawWiz();
 }
-function wizMenu(files){
+/* PDF-поле визарда: меню (k='menu') и поэтажный план объекта (k='floorPlan', R6 стр.180) */
+function wizMenu(files,k){
+  k=k||'menu';
   const f=(files||[])[0]; if(!f) return;
-  if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){ MH.toast('Меню загружается в PDF','error'); return; }
-  WIZ.data.menu={name:f.name,url:URL.createObjectURL(f)}; drawWiz();
+  if(!/\.pdf$/i.test(f.name)&&f.type!=='application/pdf'){ MH.toast(k==='menu'?'Меню загружается в PDF':'План загружается в PDF','error'); return; }
+  WIZ.data[k]={name:f.name,url:URL.createObjectURL(f)}; drawWiz();
 }
 function wizSeat(k,v){
   const s=Object.assign({},WIZ.data.seats);
@@ -1931,6 +1937,7 @@ function wizPreview(){
       <tr><th>Типы мероприятий</th><td>${(d.events||[]).map(k=>(ML.EVENT_TYPES.find(e=>e.k===k)||{l:k}).l).join(', ')||'—'}</td></tr>
       <tr><th>Номерной фонд</th><td>${(+d.roomsTotal||+d.twin||+d.sngl)?`${+d.roomsTotal||(+d.twin||0)+(+d.sngl||0)} · TWIN ${+d.twin||0} · SNGL ${+d.sngl||0}`:'нет'}</td></tr>
       <tr><th>Меню</th><td>${d.menu?esc(d.menu.name):'не загружено'}</td></tr>
+      <tr><th>Поэтажный план</th><td>${d.floorPlan?esc(d.floorPlan.name):'не загружен'}</td></tr>
       <tr><th>Характеристик отмечено</th><td>${feat}</td></tr>
       <tr><th>Залов</th><td>${hs.length?hs.map(h=>esc(h.name||'Без названия')).join(', '):'ни одного'}</td></tr>
       <tr><th>Контакт</th><td>${esc(d.person||'—')}${d.phone?' · '+esc(d.phone):''}</td></tr>

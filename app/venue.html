@@ -50,6 +50,7 @@ button{font-family:inherit;cursor:pointer;}
   padding:5px 13px;border-radius:var(--r-full);background:var(--coral);color:#fff;
   font-family:'Onest',system-ui,sans-serif;font-size:12px;font-weight:700;white-space:nowrap;}
 .hrow-cap{display:inline-flex;align-items:center;gap:4px;}
+.d-loyal.d-plan{background:var(--white);color:var(--slate-deep);box-shadow:inset 0 0 0 1px rgba(53,78,99,.28);margin-left:8px;}
 .d-title{font-family:'Literata',Georgia,serif;font-size:34px;font-weight:600;color:var(--slate-deep);line-height:1.15;margin-top:8px;letter-spacing:-.005em;}
 .d-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--slate-muted);align-items:center;}
 .d-meta b{color:var(--slate-deep);font-weight:700;}
@@ -257,7 +258,9 @@ function render() {
     if (g.k === 'space' && v.wardrobe) lines.push(`Гардероб — <b>${v.wardrobe}</b> ${ML.plural(v.wardrobe, ['место', 'места', 'мест'])}`);
     if (g.k === 'infra' && v.parking) lines.push(((ML.PARKING_OPTS.find(o => o.code === v.parking) || {}).full || '') +
       (v.parking === 'private' && v.parkingSpaces ? `, <b>${v.parkingSpaces}</b> ${ML.plural(v.parkingSpaces, ['место', 'места', 'мест'])}` : ''));
-    const menu = g.k === 'food' && v.menu ? `<a class="btn sm o menu-dl" href="${esc(v.menu.url)}" download="${esc(v.menu.name)}">Скачать меню (PDF)</a>` : '';
+    const menu = g.k === 'food' && v.menu ? `<a class="btn sm o menu-dl" href="${esc(v.menu.url)}" download="${esc(v.menu.name)}">Скачать меню (PDF)</a>`
+      /* R6 стр.180: поэтажный план объекта — ссылка на PDF в группе «Инфраструктура» */
+      : g.k === 'infra' && v.floorPlan ? `<a class="btn sm o menu-dl" href="${esc(v.floorPlan.url)}" target="_blank" rel="noopener">Поэтажный план (PDF)</a>` : '';
     if (!tags.length && !lines.length && !menu) return '';
     /* R3-D: у объекта в группе «Оснащение зала» остаются только связь и лифт — на карточке это оснащение объекта */
     return `<div class="fgroup"><h3>${esc(g.k === 'equip' ? 'Оснащение объекта' : g.l)}</h3>
@@ -297,7 +300,8 @@ function render() {
     <div>
       <span class="d-eyebrow">${esc(v.cat)}</span>
       <h1 class="d-title">${esc(v.name)}${v.stars ? `<span class="gold-stars" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}${
-        v.loyaltyContract ? '<span class="d-loyal">Бонусная программа</span>' : ''}</h1>
+        v.loyaltyContract ? '<span class="d-loyal">Бонусная программа</span>' : ''}${
+        v.floorPlan ? '<span class="d-loyal d-plan">Поэтажный план</span>' : ''}</h1>
       <div class="d-meta">
         <span>${esc(v.city)}${full && v.addr ? ' · ' + esc(v.addr) : ''}</span>
         <span class="d-cap" tabindex="0" data-tip="Вместимость самого большого зала объекта по самой вместительной схеме рассадки. Проживание указано отдельно">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>
