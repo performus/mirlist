@@ -574,6 +574,7 @@ button{font-family:inherit;cursor:pointer;}
 .wf label.wcheck{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--sm);margin:0;display:flex;}
 .seatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;}
 .seatgrid label{font-size:11.5px;text-transform:none;letter-spacing:0;color:var(--sm);font-weight:500;}
+.wmap.wmap-leaf{cursor:default;height:280px;z-index:0;}
 .wmap{position:relative;height:230px;border-radius:var(--rm);overflow:hidden;border:1.5px solid rgba(197,227,225,.5);cursor:crosshair;margin-bottom:10px;background:var(--aq-p);}
 .wmap svg{width:100%;height:100%;display:block;}
 .wmap-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.9);border-radius:var(--rf);padding:7px 14px;font-size:12.5px;color:var(--sm);pointer-events:none;}
@@ -1593,8 +1594,8 @@ const VENUE_STEPS=[
    {k:'about',l:'Описание объекта',ty:'area',ph:'Чем удобна площадка? Расскажите о транспортной доступности, инфраструктуре, инженерном оснащении или эстетических преимуществах локации.'},
  ]},
  {t:'Локация',f:[
-   {k:'city',l:'Город или регион',ty:'select',optFn:()=>ML.CITIES,req:1},
-   {k:'addr',l:'Адрес',ty:'text',ph:'Пресненская наб., 12',req:1},
+   {k:'city',l:'Город или регион',ty:'select',optFn:()=>ML.CITIES,req:1,geo:1},
+   {k:'addr',l:'Адрес',ty:'text',ph:'Пресненская наб., 12',req:1,geo:1},
    {k:'coords',l:'Точка на карте',ty:'map',req:1},
  ]},
  {t:'Проживание',f:[
@@ -1773,6 +1774,8 @@ function drawWiz(){
   const form=document.querySelector('.wz-form');
   if(form&&keepTop) form.scrollTop=keepTop;
   WIZ._drawn=WIZ.kind+':'+WIZ.step;
+  LEAF.map=null; LEAF.marker=null;
+  initWizMap();
 }
 
 /* Поле с when рисуется только когда предикат истинен — так звёздность
@@ -1793,7 +1796,7 @@ function wfield(f){
     }
     case 'text': case 'num':
       return `<div class="wf${bad}">${L}<input type="${f.ty==='num'?'number':'text'}" ${f.ty==='num'?'min="0"':''}
-        placeholder="${esc(f.ph||'')}" value="${v==null?'':esc(v)}" oninput="${S}=this.value"${f.redraw?' onchange="drawWiz()"':''}>${H}</div>`;
+        placeholder="${esc(f.ph||'')}" value="${v==null?'':esc(v)}" oninput="${S}=this.value${f.geo?';geoFromAddress()':''}"${f.redraw?' onchange="drawWiz()"':''}>${H}</div>`;
     case 'cfghead': return `<div class="wf-head">${esc(f.l)}</div>`;
     case 'links': {   // R6 стр.207: одно или несколько полей-ссылок
       const a=(v&&v.length)?v:[''];
@@ -1825,7 +1828,7 @@ function wfield(f){
       return `<div class="wf${bad}">${L}<textarea placeholder="${esc(f.ph||'')}"
         oninput="${S}=this.value">${v==null?'':esc(v)}</textarea>${H}</div>`;
     case 'select':
-      return `<div class="wf${bad}">${L}<select onchange="${S}=this.value;drawWiz()">
+      return `<div class="wf${bad}">${L}<select onchange="${S}=this.value;${f.geo?'GEO_SKIP_ADDR=true;geoFromAddress(true);':''}drawWiz()">
         <option value="">— выберите —</option>
         ${opts.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>${H}</div>`;
     case 'child': {
@@ -1857,12 +1860,11 @@ function wfield(f){
           oninput="wizSeat('${x.k}',this.value)"></div>`).join('')}</div>${H}</div>`;
     }
     case 'map': {
-      const pin=WIZ.data._pin;
+      /* R6 стр.170: настоящая карта (Leaflet + OpenStreetMap). Точка ↔ город и адрес в обе стороны (геокодер Nominatim);
+         координаты, город и адрес можно поправить руками. Если карта или геокодер недоступны — поля остаются ручными. */
       return `<div class="wf${bad}">${L}
-        <div class="wmap" onclick="wizPin(event)">${WZ_MAP}
-          ${pin?`<span class="wmap-pin" style="left:${pin.x}%;top:${pin.y}%"></span>`
-               :'<span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span>'}</div>
-        <input type="text" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value">
+        <div class="wmap wmap-leaf" id="wzMap"><span class="wmap-hint">Нажмите на карту, чтобы поставить метку</span></div>
+        <input type="text" id="wzCoords" placeholder="55.7558, 37.6173" value="${v==null?'':esc(v)}" oninput="${S}=this.value" onchange="geoFromCoords(this.value)">
         <div class="hint">Без координат объект не появится на карте подбора.</div>
       </div>`;
     }
@@ -1980,6 +1982,90 @@ const WZ_MAP = `<svg viewBox="0 0 100 60" preserveAspectRatio="none">
 const CITY_CENTER={'Москва':[55.7558,37.6173],'Санкт-Петербург':[59.9386,30.3141],
   'Сочи':[43.5855,39.7231],'Казань':[55.7963,49.1088],'Нижний Новгород':[56.3269,44.0059],
   'Самара':[53.1959,50.1002],'Подмосковье':[55.6000,37.2000]};
+
+/* ══ R6 стр.170: карта в визарде объекта ══
+   Leaflet и тайлы OpenStreetMap — с CDN, геокодер — Nominatim (язык ru, не чаще раза в секунду, ответы кэшируются).
+   Для боевой версии — Яндекс Геокодер или DaData (см. отчёт). */
+const LEAF={ map:null, marker:null, loading:null };
+function leafletReady(){
+  if(window.L) return Promise.resolve(window.L);
+  if(LEAF.loading) return LEAF.loading;
+  LEAF.loading=new Promise((ok,fail)=>{
+    const css=document.createElement('link'); css.rel='stylesheet'; css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(css);
+    const js=document.createElement('script'); js.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    js.onload=()=>ok(window.L); js.onerror=()=>{ LEAF.loading=null; fail(); }; document.head.appendChild(js);
+  });
+  return LEAF.loading;
+}
+const parseCoords=(t)=>{ const m=String(t||'').match(/(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)/); return m?[+m[1],+m[2]]:null; };
+function initWizMap(){
+  const el=document.getElementById('wzMap'); if(!el) return;
+  leafletReady().then(L=>{
+    if(!document.getElementById('wzMap')||el!==document.getElementById('wzMap')) return;
+    el.innerHTML='';
+    const c=parseCoords(WIZ.data.coords), center=c||CITY_CENTER[WIZ.data.city]||CITY_CENTER['Москва'];
+    LEAF.map=L.map(el,{ zoomControl:true, attributionControl:true }).setView(center,c?15:11);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'© OpenStreetMap' }).addTo(LEAF.map);
+    LEAF.marker=c?L.marker(c,{ draggable:true }).addTo(LEAF.map):null;
+    if(LEAF.marker) LEAF.marker.on('dragend',()=>pinAt(LEAF.marker.getLatLng()));
+    LEAF.map.on('click',e=>pinAt(e.latlng));
+  }).catch(()=>{ el.innerHTML='<span class="wmap-hint">Карта не загрузилась — укажите координаты вручную</span>'; });
+}
+/** Точка на карте → координаты, затем город и адрес из обратного геокодирования (их можно поправить). */
+function pinAt(ll){
+  if(!WIZ) return;
+  const L=window.L;
+  if(LEAF.marker) LEAF.marker.setLatLng(ll); else if(L&&LEAF.map){ LEAF.marker=L.marker(ll,{ draggable:true }).addTo(LEAF.map); LEAF.marker.on('dragend',()=>pinAt(LEAF.marker.getLatLng())); }
+  WIZ.data.coords=ll.lat.toFixed(4)+', '+ll.lng.toFixed(4);
+  const ci=document.getElementById('wzCoords'); if(ci) ci.value=WIZ.data.coords;
+  geocode(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=ru&lat=${ll.lat}&lon=${ll.lng}`).then(r=>{
+    if(!r||!r.address||!WIZ) return;
+    const a=r.address, city=a.city||a.town||a.village||a.state||'';
+    const known=ML.CITIES.find(x=>city&&(city===x||city.includes(x)));
+    if(known) WIZ.data.city=known;
+    const street=[a.road||a.pedestrian||a.square||'',a.house_number||''].filter(Boolean).join(', ');
+    if(street) WIZ.data.addr=street;
+    syncGeoInputs();
+  });
+}
+/** Город и адрес → точка и координаты (с задержкой, пока человек печатает). */
+let GEO_T=0, GEO_SKIP_ADDR=false;
+function geoFromAddress(now){
+  clearTimeout(GEO_T);
+  GEO_T=setTimeout(()=>{
+    if(!WIZ) return;
+    const q=[GEO_SKIP_ADDR?'':WIZ.data.addr,WIZ.data.city].filter(Boolean).join(', ');
+    GEO_SKIP_ADDR=false;
+    if(!q) return;
+    geocode('https://nominatim.openstreetmap.org/search?format=jsonv2&accept-language=ru&limit=1&countrycodes=ru&q='+encodeURIComponent(q)).then(r=>{
+      const hit=Array.isArray(r)&&r[0]; if(!hit||!WIZ) return;
+      const ll={ lat:+hit.lat, lng:+hit.lon };
+      WIZ.data.coords=ll.lat.toFixed(4)+', '+ll.lng.toFixed(4);
+      const ci=document.getElementById('wzCoords'); if(ci) ci.value=WIZ.data.coords;
+      if(LEAF.map&&window.L){
+        LEAF.map.setView(ll,(WIZ.data.addr?16:11));
+        if(LEAF.marker) LEAF.marker.setLatLng(ll); else { LEAF.marker=window.L.marker(ll,{ draggable:true }).addTo(LEAF.map); LEAF.marker.on('dragend',()=>pinAt(LEAF.marker.getLatLng())); }
+      }
+    });
+  },now?50:1200);
+}
+function geoFromCoords(t){ const c=parseCoords(t); if(c&&LEAF.map) { LEAF.map.setView(c,15); pinAt({ lat:c[0], lng:c[1] }); } }
+/** Поля города и адреса — без перерисовки шага (карта остаётся на месте). */
+function syncGeoInputs(){
+  document.querySelectorAll('.wz-form select').forEach(sel=>{ if([...sel.options].some(o=>o.value===WIZ.data.city)&&sel.closest('.wf')&&/Город/.test(sel.closest('.wf').textContent)) sel.value=WIZ.data.city; });
+  document.querySelectorAll('.wz-form input[type=text]').forEach(inp=>{ if(inp.placeholder==='Пресненская наб., 12') inp.value=WIZ.data.addr||''; });
+}
+/* Nominatim: не чаще раза в секунду, кэш ответов; любая ошибка — тихо, поля остаются ручными. */
+const GEO_CACHE=new Map(); let GEO_LAST=0, GEO_Q=Promise.resolve();
+function geocode(url){
+  if(GEO_CACHE.has(url)) return Promise.resolve(GEO_CACHE.get(url));
+  GEO_Q=GEO_Q.then(()=>new Promise(res=>setTimeout(res,Math.max(0,1000-(Date.now()-GEO_LAST))))).then(()=>{
+    GEO_LAST=Date.now();
+    return fetch(url,{ headers:{ 'Accept':'application/json' } }).then(r=>r.ok?r.json():null).catch(()=>null)
+      .then(j=>{ if(j) GEO_CACHE.set(url,j); return j; });
+  }).catch(()=>null);
+  return GEO_Q;
+}
 
 function wizPin(e){
   const b=e.currentTarget.getBoundingClientRect();
