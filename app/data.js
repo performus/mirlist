@@ -1344,6 +1344,27 @@
     }
   });
 
+  /* R6 стр.220: дата последнего обновления карточки объекта, зала и поставщика. Демо: свежие — до 40 дней назад,
+     у четырёх карточек — больше 6 месяцев (два объекта, зал «Авроры», поставщик демо-кабинета). */
+  const STALE_MONTHS = 6;
+  const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
+  const STALE_VENUES = [12, 23], STALE_SUPPLIERS = [1];
+  VENUES.forEach(v => {
+    v.updatedAt = daysAgo(STALE_VENUES.includes(v.id) ? 220 + v.id : (v.id * 7) % 40);
+    v.halls.forEach((h, i) => { h.updatedAt = v.id === 1 && i === 1 ? daysAgo(240) : v.updatedAt; });
+  });
+  SUPPLIERS.forEach(sp => { sp.updatedAt = daysAgo(STALE_SUPPLIERS.includes(sp.id) ? 230 : (sp.id * 5) % 40); });
+  /** Дата «ГГГГ-ММ-ДД» или «ДД.ММ.ГГГГ» → Date. */
+  const anyDate = (x) => { const m = String(x || '').match(/^(\d{4})-(\d{2})-(\d{2})/) || null;
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    const d = String(x || '').match(/(\d{2})\.(\d{2})\.(\d{4})/); return d ? new Date(+d[3], +d[2] - 1, +d[1]) : null; };
+  /** Карточка не обновлялась больше 6 месяцев (now — для тестов). */
+  function isStale(item, now) {
+    const d = anyDate(item && item.updatedAt); if (!d) return false;
+    const edge = new Date(now || Date.now()); edge.setMonth(edge.getMonth() - STALE_MONTHS);
+    return d < edge;
+  }
+
   /* ─────────── 8. СОСТОЯНИЕ ПОЛЬЗОВАТЕЛЯ ─────────── */
   /* Ключи localStorage. mh_compare теперь хранит ID ЗАЛОВ, а не объектов —
      это ломающее изменение относительно старого mh_compare, поэтому ключ новый. */
@@ -1693,7 +1714,8 @@
     /* Платное продвижение: Топ-3 выше Топ-10, остальные в обычном порядке.
        Выделение рамкой (highlight) на позицию не влияет — это только вид. */
     const rank = (v) => (v.promo && v.promo.top) ? v.promo.top : 999;
-    return out.sort((a, b) => rank(a.venue) - rank(b.venue));
+    /* R6 стр.220: при равной позиции устаревшие карточки — ниже свежих */
+    return out.sort((a, b) => rank(a.venue) - rank(b.venue) || (isStale(a.venue) - isStale(b.venue)));
   }
 
   /**
@@ -2922,7 +2944,7 @@
     pruneSupplierFilters, supplierFiltersActive, supplierHasReviews,
     TARIFFS, plans, isGuest, canUseFilter, FEE_TIERS, POINT_RATE, POINTS_HELLO, POINTS_REVIEW, CANCEL_REASONS, REQUEST_FLOW,
     LOYALTY_DISCOUNT, servicePoints, serviceCost,
-    VENUES, SUPPLIERS, SHOP, correctionTargets, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
+    VENUES, SUPPLIERS, SHOP, isStale, STALE_MONTHS, correctionTargets, createCompareVenueRequest, showcaseItem, supplierShowcase, ratingOf, hallReqMax, hallReqFacet, DB_MIN, explainEmpty, resetCondition, filterConditions, cloneFilters, nameMatch, normName,
     state, persist,
     tariff, setTariff,
     BILL_PERIODS, innValid, invoiceErrors, createInvoice, invoices, pendingInvoices, payInvoice,

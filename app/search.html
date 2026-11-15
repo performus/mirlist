@@ -1579,6 +1579,7 @@ function hallCard(h, keys) {
     </div>
     <div class="hc-body">
       <div class="hc-name">${esc(h.name)}</div>
+      ${!ML.isStale(ML.venueById(h.venueId) || {}) && ML.isStale(h) ? MH.staleBadge(h).replace('mh-stale"', 'mh-stale sm"') : ''}
       <div class="hc-caps">${MH.blurOnly(caps)}${h.plan ? '<span class="hc-plan" title="Есть точный план пространства">План</span>' : ''}</div>
       <div class="hc-price">${MH.blurOnly(day || hour ? day + hour : '<i>по договорённости</i>')}</div>
       <div class="hc-foot">
@@ -1604,7 +1605,7 @@ function venueBlock(x) {
     <div class="vb-head">
       <div>
         <a class="vb-name" href="venue.html?id=${v.id}">${esc(v.name)}</a>${v.stars ? `<span class="vb-gold" title="Звёздность отеля" aria-label="Звёздность ${v.stars}">${'★'.repeat(v.stars)}</span>` : ''}
-        ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}${v.floorPlan ? '<span class="vb-loyal vb-plan">Поэтажный план</span>' : ''}
+        ${v.loyaltyContract ? '<span class="vb-loyal">Бонусная программа</span>' : ''}${v.floorPlan ? '<span class="vb-loyal vb-plan">Поэтажный план</span>' : ''}${MH.staleBadge(v)}
         <div class="vb-kicker">${esc(v.cat)} · ${esc(v.city)}${t.fullInfo && v.addr ? ' · ' + esc(v.addr) : ''}</div>
         <div class="vb-meta">
           <span class="vb-cap" tabindex="0" data-tip="${esc(CAP_TIP)}" aria-label="${esc(CAP_TIP)}">${MH.blurOnly('зал до <b>' + cap + '</b> чел.')}</span>

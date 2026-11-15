@@ -264,7 +264,7 @@ function render() {
     <div>
       <div class="d-venue">${esc(h.type)} · <a href="venue.html?id=${v.id}">${esc(v.name)}</a>${
         v.stars ? `<span class="gold-stars sm" aria-label="Звёздность ${v.stars}" title="Звёздность отеля">${'★'.repeat(v.stars)}</span>` : ''}</div>
-      <h1 class="d-title">${esc(h.name)}</h1>
+      <h1 class="d-title">${esc(h.name)}${MH.staleBadge(ML.isStale(v) ? v : h)}</h1>
       <div class="d-meta">
         <span><b>${h.area}</b> м²</span>
         ${h.height ? `<span>потолок <b>${h.height}</b> м</span>` : ''}

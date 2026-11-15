@@ -342,5 +342,25 @@ test('стр.182: у отклонённой или отменённой стро
   assert.strictEqual(ML.accrualFor(r, Object.assign({}, o, { status: 'cancelled' })), null);
 });
 
+test('стр.220: дата обновления у объекта, зала и поставщика; 3–4 демо-карточки старше 6 месяцев; в «релевантных» устаревшие ниже равных свежих', () => {
+  const { ML } = load();
+  const cards = ML.VENUES.concat(ML.VENUES.flatMap(v => v.halls), ML.SUPPLIERS);
+  assert.ok(cards.every(c => /^\d{4}-\d{2}-\d{2}$/.test(c.updatedAt)), 'у каждой карточки есть дата');
+  const staleV = ML.VENUES.filter(v => ML.isStale(v)), staleH = ML.VENUES.flatMap(v => v.halls).filter(h => ML.isStale(h) && !ML.isStale(ML.venueById(h.venueId)));
+  const staleS = ML.SUPPLIERS.filter(sp => ML.isStale(sp));
+  const n = staleV.length + staleH.length + staleS.length;
+  assert.ok(n >= 3 && n <= 4, 'устаревших карточек: ' + n);
+  const now = new Date(); const d = (m) => { const x = new Date(now); x.setMonth(x.getMonth() - m); x.setDate(x.getDate() - 1); return x.toISOString().slice(0, 10); };
+  assert.strictEqual(ML.isStale({ updatedAt: d(6) }), true); assert.strictEqual(ML.isStale({ updatedAt: d(5) }), false);
+  assert.strictEqual(ML.isStale({ updatedAt: '01.01.2020' }), true, 'формат ДД.ММ.ГГГГ из кабинета');
+  // порядок: при равной позиции продвижения устаревшие — после свежих
+  const list = ML.filterVenues(ML.emptyFilters());
+  const rank = (v) => (v.promo && v.promo.top) ? v.promo.top : 999;
+  for (let i = 1; i < list.length; i++) {
+    const a = list[i - 1].venue, b = list[i].venue;
+    if (rank(a) === rank(b)) assert.ok(!(ML.isStale(a) && !ML.isStale(b)), `${a.name} (устарела) выше свежей ${b.name}`);
+  }
+});
+
 console.log(`\n${passed} прошло, ${failed} упало`);
 process.exit(failed ? 1 : 0);

@@ -240,7 +240,7 @@ function render() {
   <div class="dhead">
     <div>
       <span class="d-eyebrow">${esc(s.parent)} · ${esc(s.child)}</span>
-      <h1 class="d-title">${esc(s.name)}</h1>
+      <h1 class="d-title">${esc(s.name)}${MH.staleBadge(s)}</h1>
       <div class="d-meta">
         <span>${esc(s.city)}</span>
         <span>опыт <b>${s.exp}</b> ${ML.plural(s.exp, ['год','года','лет'])}</span>

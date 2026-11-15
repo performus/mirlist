@@ -434,6 +434,7 @@ button{font-family:inherit;cursor:pointer;}
 .rq-obj-name{font-size:14.5px;font-weight:700;color:var(--sd);transition:color .2s;}
 .rq-obj-name:hover{color:var(--c);}
 .rq-obj-meta{font-size:12px;color:var(--sx);}
+.stale-note{margin:6px 0 2px;padding:7px 11px;border-radius:8px;background:#FFF4E5;color:#9A5B12;font-size:12.5px;line-height:1.45;}
 .rq-obj-hist{margin:6px 0 0;font-size:12px;color:var(--sx);}
 .st{padding:4px 12px;border-radius:var(--rf);font-size:11px;font-weight:700;white-space:nowrap;}
 .st.sent{background:var(--cs);color:var(--c);}
@@ -2099,9 +2100,13 @@ function venueRow(v,i){
         ${(v.halls||[]).length>1?`<button class="btn-xs danger" onclick="delMyHall(${i},${hi})">Удалить</button>`
           :'<span class="tipwrap" data-tip="Последний зал удалить нельзя: объект без залов не появится в подборе"><button class="btn-xs danger" disabled title="Последний зал удалить нельзя">Удалить</button></span>'}</div>
     </div>`).join('');
+  /* R6 стр.220: карточка объекта или его зала не обновлялась больше 6 месяцев — напоминание владельцу */
+  const cv=v.catalogId?ML.venueById(v.catalogId):null;
+  const stale=v.updatedAt?ML.isStale(v):!!(cv&&(ML.isStale(cv)||cv.halls.some(h=>ML.isStale(h))));
   return `<div class="orow">
     <div class="orow-mid">
       <div class="orow-name">${esc(v.name)}</div>
+      ${stale?'<div class="stale-note">Обновите карточку — пользователи видят пометку о давности данных</div>':''}
       <div class="orow-sub">${esc(v.cat||'категория не указана')}${
         v.stars?' <span class="orow-stars">'+'★'.repeat(v.stars)+'</span>':''}${v.city?', '+esc(v.city):''}</div>
       <div class="orow-halls">${halls.length
@@ -2822,6 +2827,7 @@ sservices:()=>{
   if(!list.length) return `
     <h1 class="page-title">Мои услуги</h1>
     <p class="page-sub">Позиции прайса в каталоге поставщиков</p>
+    ${ML.isStale(ML.SUPPLIERS.find(x=>x.id===OWN_SUPPLIER_ID)||{})?'<div class="stale-note" style="margin-bottom:14px">Обновите карточку — пользователи видят пометку о давности данных</div>':''}
     <div class="card empty-state">
       <div class="empty-text">Ни одной услуги не добавлено</div>
       <p style="font-size:13.5px;color:var(--sx);margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto">
@@ -2832,6 +2838,8 @@ sservices:()=>{
   return `
   <h1 class="page-title">Мои услуги</h1>
   <p class="page-sub">${list.length} ${ML.plural(list.length,['услуга','услуги','услуг'])}</p>
+  ${ML.isStale(ML.SUPPLIERS.find(x=>x.id===OWN_SUPPLIER_ID)||{})&&!ML.state.myServices.some(x=>x.updatedAt&&!ML.isStale(x))
+    ?'<div class="stale-note" style="margin-bottom:14px">Обновите карточку — пользователи видят пометку о давности данных</div>':''}
   <div class="btn-row" style="margin-bottom:18px">
     <button class="btn btn-c" onclick="openWiz('service')">Добавить услугу</button>
     <button class="btn btn-o" onclick="updateReq('поставщика')">Запрос на обновление информации</button>

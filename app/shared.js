@@ -1732,6 +1732,20 @@ const MH = (() => {
   }
 
   /* Размытие без плашки — для отдельных значений в карточках. */
+  /* R6 стр.220: метка карточки, не обновлявшейся больше 6 месяцев (подсказка — при наведении и фокусе). */
+  function staleBadge(item) {
+    if (typeof ML === 'undefined' || !ML.isStale || !ML.isStale(item)) return '';
+    if (!document.getElementById('mh-stale-style')) {
+      const st = document.createElement('style');
+      st.id = 'mh-stale-style';
+      st.textContent = `.mh-stale{display:inline-block;vertical-align:2px;margin-left:8px;padding:2px 9px;border-radius:999px;background:#FFF4E5;
+        color:#9A5B12;border:1px solid #F2D2A6;font:600 11px/1.5 'Onest',system-ui,sans-serif;white-space:nowrap;cursor:help;}
+        .mh-stale.sm{margin:4px 0 0;font-size:10.5px;}`;
+      document.head.appendChild(st);
+    }
+    return '<span class="mh-stale" tabindex="0" title="Не обновлялась больше 6 месяцев" aria-label="Карточка, возможно, устарела: не обновлялась больше 6 месяцев">Карточка, возможно, устарела</span>';
+  }
+
   function blurOnly(html) {
     if (!isLocked()) return html;
     injectLockCSS();
@@ -1979,7 +1993,7 @@ const MH = (() => {
     renderFooter, b2bTabs, B2B_PAGES, refreshCompare, heroBg, gallery, lightbox, lbStep, lbClose, sessionRole, ROLE_NAMES, DEMO_ACCOUNTS, CABINET_MENU, findAccount, register, login, resetPassword,
     sessionFor, logout, demoRole, buyPremium, requireFields, requireRequestFields, dialog, closeDialog, confirmDialog, paywall, payAttr, adMark,
     getFavs, toggleFav, isFav, feedback,
-    isLocked, lock, blurOnly, lockBar, lockScreen,
+    isLocked, lock, blurOnly, staleBadge, lockBar, lockScreen,
     seatIcon, seatIconLabel, seatLegend,
   };
 })();

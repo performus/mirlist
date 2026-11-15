@@ -627,7 +627,7 @@ function tile(s) {
       <span class="tile-parent">${esc(s.parent)}</span>
     </div>
     <div class="tile-body">
-      <div class="tile-name">${esc(s.name)}</div>
+      <div class="tile-name">${esc(s.name)}</div>${MH.staleBadge(s).replace('mh-stale"', 'mh-stale sm"')}
       <div class="tile-sub">${esc(s.child)} · ${esc(s.city)} · опыт ${s.exp} ${ML.plural(s.exp, ['год','года','лет'])}</div>
       ${s.travel ? '<div class="tile-travel">выезд в другие города</div>' : ''}
       <div class="tile-price">${MH.blurOnly('от ' + ML.money(s.price) + (s.priceUnit ? ' ' + ML.priceUnitLabel(s.priceUnit) : ''))}</div>
