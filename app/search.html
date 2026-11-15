@@ -1354,7 +1354,7 @@ function hallsBuilder() {
       <label class="hq-f">
         <span>Схема</span>
         <select ${canSeat ? '' : 'disabled'} onchange="hallSet(${i},'seating',this.value)">
-          <option value="" disabled${r.seating ? '' : ' selected'}>Выберите схему</option>
+          <option value="" disabled${r.seating ? '' : ' selected'}>Выбрать рассадку</option>
           ${ML.SEATING.map(s => `<option value="${s.k}"${r.seating === s.k ? ' selected' : ''}>${esc(s.l)}</option>`).join('')}
         </select>
       </label>
@@ -1365,7 +1365,7 @@ function hallsBuilder() {
       </label>
       ${r.seating ? `<div class="hq-ic">${MH.seatIcon(r.seating, { size: 15 })}<span>${esc((ML.seatingByKey(r.seating) || {}).l || '')}</span></div>` : '<div class="hq-hint">Выберите схему рассадки</div>'}
       <label class="hq-area"><span>Площадь от, м²</span><span class="hq-num"><input inputmode="numeric" value="${r.area || ''}" placeholder="любая"
-        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'area',numClean(this.value))"><span>м²</span></span></label>
+        oninput="this.value=this.value.replace(/\\D+/g,'')" onchange="hallSet(${i},'area',numClean(this.value))"></span></label>
       ${maxNote(+r.min, 'people', 'чел.')}${maxNote(+r.area, 'area', 'м²')}
       ${hallEquip(r, i, canSeat)}
     </div>`).join('');
@@ -1559,7 +1559,7 @@ function venueBlock(x) {
       ${t.blacklist ? `<button class="vb-black" onclick="addBlack(${v.id})"
         title="Скрыть объект из выдачи" aria-label="Скрыть объект из выдачи">${IC.hide}</button>` : ''}
     </div>
-    ${x.matched ? `<div class="vb-match">Требованиям отвечают: ${halls.map(h => esc(h.name)).join(' · ')}</div>` : ''}
+    ${x.matched ? `<div class="vb-match">Требованиям отвечают: ${halls.map(h => esc(h.name)).join(', ')}</div>` : ''}
     <div class="rail-wrap">
       <div class="rail" id="rail-${v.id}">${halls.map(h => hallCard(h, (x.seatKeys || {})[h.id])).join('')}</div>
       <button class="rail-btn p" onclick="scrollRail(${v.id},-1)" aria-label="Назад" hidden>‹</button>
@@ -1900,7 +1900,7 @@ function emptyHTML() {
   const rs = emptyReasons();
   window._why = rs;
   return `<div class="res-empty">
-    <h3>Под эти условия залов нет</h3>
+    <h3>Подходящих залов нет</h3>
     ${rs.length ? rs.map((r, i) => `<div class="res-reason"><span>${esc(r[0])}</span><button onclick="_why[${i}][1]();syncBar();renderFilters();render()">Сбросить это условие</button></div>`).join('')
       : '<p>Снимите часть фильтров — сейчас условия слишком узкие.</p>'}
     <button onclick="resetAll()">Сбросить фильтры</button>
